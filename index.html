@@ -353,6 +353,26 @@ section[id],header[id]{scroll-margin-top:84px}
 @media(min-width:1024px){
   .hero-img{top:110px!important;height:calc(100% - 110px)!important;width:46%!important;object-position:50% 0%!important}
 }
+.reviews{margin-top:40px;display:flex;flex-direction:column;gap:16px}
+.reviews .tcard{margin-bottom:0}
+.r-col{display:flex;flex-direction:column;gap:16px}
+.r-mid{order:-1}
+@media(max-width:1023px){
+  .reviews{flex-direction:row;overflow-x:auto;scroll-snap-type:x mandatory;margin:40px -22px 0;padding:0 22px 8px;scrollbar-width:none;align-items:flex-start}
+  .reviews::-webkit-scrollbar{display:none}
+  .r-col{display:contents}
+  .reviews .tcard{flex:0 0 86%;scroll-snap-align:center}
+  .reviews .t-feature{order:-1}
+}
+.r-hint{text-align:center;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:#a89a78;margin-top:10px}
+@media(min-width:1024px){.r-hint{display:none}}
+@media(min-width:1024px){
+  #results .wrap{max-width:1180px}
+  .reviews{display:grid;grid-template-columns:1fr 1.1fr 1fr;align-items:start;gap:20px}
+  .r-mid{order:0}
+  .t-feature{border-color:var(--gold);box-shadow:0 14px 40px rgba(0,0,0,.45)}
+  .t-feature .tvid video{max-width:100%}
+}
 </style>
 </head>
 <body>
@@ -502,23 +522,28 @@ section[id],header[id]{scroll-margin-top:84px}
     <div class="swipe">Swipe for more →</div>
     <div style="text-align:center;margin-top:18px"><a class="btn ghost" href="https://www.instagram.com/mpfcoachingresults">See every result on @mpfcoachingresults</a></div>
 
-    <div style="margin-top:40px">
+    <div class="reviews">
+      <div class="r-col r-side">
       <div class="tcard">
         <div class="stars">★★★★★</div><span class="res">−30kg in 10 months</span>
         <blockquote>"I went in blind… Fast forward 10 months later and I lost 30kgs, but more importantly she coached me into maintaining a healthy lifestyle. To this day I still follow her programme."</blockquote>
         <div class="who"><img src="img/av-jeff.jpg" alt="Jeff"><div><b>Jeff B.</b>Client since 2022</div></div>
       </div>
       <div class="tcard">
+        <div class="stars">★★★★★</div><span class="res">−35kg and counting</span>
+        <blockquote>"I started in a very low place, riddled with anxiety and the highest weight I had ever been. Training with Maria has helped me tackle it all. I'm now over 35kg down and in a much better physical and mental position. She makes you feel confident in the gym and that you belong."</blockquote>
+        <div class="who"><div><b>Rhia</b>35kg down and counting</div></div>
+      </div>
+      </div>
+      <div class="r-col r-mid">
+      <div class="tcard t-feature">
         <div class="stars">★★★★★</div><span class="res">−20kg in 8 months</span>
         <blockquote>"The results have been incredible… I've improved my fitness beyond anything I thought possible, and become the fittest I've ever been. She hasn't just helped me get results. She has given me the knowledge and confidence to maintain them."</blockquote>
         <div class="tvid"><video src="img/poorna-testimonial.mp4" poster="img/poorna-poster.jpg" controls playsinline preload="none"></video><span>▶ Watch Poorna tell it in her own words</span></div>
         <div class="who"><img src="img/poorna.jpg" alt="Poorna before and after"><div><b>Poorna T.</b>Stronger than ever</div></div>
       </div>
-      <div class="tcard">
-        <div class="stars">★★★★★</div><span class="res">−35kg and counting</span>
-        <blockquote>"I started in a very low place, riddled with anxiety and the highest weight I had ever been. Training with Maria has helped me tackle it all. I'm now over 35kg down and in a much better physical and mental position. She makes you feel confident in the gym and that you belong."</blockquote>
-        <div class="who"><div><b>Rhia</b>35kg down and counting</div></div>
       </div>
+      <div class="r-col r-side">
       <div class="tcard">
         <div class="stars">★★★★★</div><span class="res">Fixed her relationship with food</span>
         <blockquote>"I spent the majority of my life having an unhealthy relationship with food, and now I'm in the best place I've ever been in terms of my relationship with food and my physique. Maria made my sessions fun again and I quickly saw results I'd been aiming for for a couple of years."</blockquote>
@@ -534,7 +559,9 @@ section[id],header[id]{scroll-margin-top:84px}
         <blockquote>"50 years old in a few months… physically and mentally in the best place I ever been, and it all started when I nervously approached you."</blockquote>
         <div class="who"><img src="img/av-alex.jpg" alt="Alex"><div><b>Alex</b>Proof it's never too late</div></div>
       </div>
+      </div>
     </div>
+    <div class="r-hint">Swipe for more reviews →</div>
   </div>
 </section>
 
