@@ -409,6 +409,15 @@ section[id],header[id]{scroll-margin-top:84px}
 @media(min-width:1024px){
   .hero-img{top:150px!important;height:calc(100% - 150px)!important}
 }
+.ig{padding:48px 0}
+.ig-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin:18px 0 20px;border-radius:12px;overflow:hidden}
+@media(min-width:1024px){.ig .wrap{max-width:1000px}.ig-grid{grid-template-columns:repeat(6,1fr)}}
+.ig-t{display:block;position:relative;aspect-ratio:1/1;overflow:hidden}
+.ig-t img{width:100%;height:100%;object-fit:cover;object-position:center 20%;transition:transform .3s}
+.ig-t:hover img{transform:scale(1.06)}
+.ig-btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.ig-btns .btn{font-size:11px;padding:13px 18px}
+.btn.ghost{background:none;border:1.5px solid var(--gold-d);color:var(--gold-d);box-shadow:none}
 </style>
 </head>
 <body>
@@ -774,6 +783,19 @@ section[id],header[id]{scroll-margin-top:84px}
     <p class="lead" style="font-family:var(--serif);font-size:21px">I'm always learning, always evolving, always growing, because you deserve a coach who never stands still.</p>
     <p>I promise to give you the best of me: my time, my knowledge, my support and my honesty, every step of the way. Brutally honest sometimes, lovingly always.</p>
     <div class="sig">Maria</div>
+  </div>
+</section>
+
+<!-- INSTAGRAM -->
+<section class="ig">
+  <div class="wrap">
+    <div class="eyebrow">Follow along</div>
+    <h2>Find me on <em>Instagram.</em></h2>
+    <div class="ig-grid"><a href="https://www.instagram.com/mariaparadisefitness" class="ig-t"><img src="img/stage-corridor.jpg" alt="" loading="lazy"></a><a href="https://www.instagram.com/mariaparadisefitness" class="ig-t"><img src="img/coach-deadlift.jpg" alt="" loading="lazy"></a><a href="https://www.instagram.com/mariaparadisefitness" class="ig-t"><img src="img/maria-food.jpg" alt="" loading="lazy"></a><a href="https://www.instagram.com/mariaparadisefitness" class="ig-t"><img src="img/maria-gym.jpg" alt="" loading="lazy"></a><a href="https://www.instagram.com/mariaparadisefitness" class="ig-t"><img src="img/coach-row.jpg" alt="" loading="lazy"></a><a href="https://www.instagram.com/mariaparadisefitness" class="ig-t"><img src="img/stage-back.jpg" alt="" loading="lazy"></a></div>
+    <div class="ig-btns">
+      <a class="btn" href="https://www.instagram.com/mariaparadisefitness">@mariaparadisefitness</a>
+      <a class="btn ghost" href="https://www.instagram.com/mpfcoachingresults">@mpfcoachingresults</a>
+    </div>
   </div>
 </section>
 
