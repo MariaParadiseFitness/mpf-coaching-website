@@ -389,6 +389,19 @@ section[id],header[id]{scroll-margin-top:84px}
 }
 .three div{transition:transform .2s}
 .three div:hover{transform:translateY(-4px)}
+@media(max-width:759px){
+  #coaching .cards{grid-template-columns:1fr 1fr;gap:10px}
+  #coaching .card{padding:14px 12px;cursor:pointer}
+  #coaching .card .n{font-size:18px}
+  #coaching .card .c-ico{width:34px;height:34px}
+  #coaching .card .c-ico svg{width:18px;height:18px}
+  #coaching .card h3{font-size:15px;margin:6px 0 0}
+  #coaching .card>p,#coaching .card>ul{display:none}
+  #coaching .card.open{grid-column:span 2}
+  #coaching .card.open>p,#coaching .card.open>ul{display:block;margin-top:8px}
+  #coaching .card:not(.open) h3:after{content:" +";color:var(--gold-d)}
+}
+@media(max-width:759px){section{padding:48px 0}.step{padding:14px 0}.pt-grid{gap:8px}}
 </style>
 </head>
 <body>
@@ -475,8 +488,7 @@ section[id],header[id]{scroll-margin-top:84px}
       <div><small>TOO</small>Unrealistic</div>
       <div><small>TOO</small>All-or-nothing</div>
     </div>
-    <p>So you rely on motivation, and when the motivation drops, everything drops with it. <span class="joke">Motivation is a lot like a January gym membership: technically still active, never actually seen again.</span></p>
-    <p>I've been there myself, and that on-off cycle is exhausting. That's why I don't coach perfection. <strong>I coach something you can actually keep doing.</strong></p>
+    <p>So you rely on motivation, and when it drops, everything drops with it. That's why I don't coach perfection. <strong>I coach something you can actually keep doing.</strong> <span class="joke">Motivation is like a January gym membership: technically active, never seen again.</span></p>
   </div>
 </section>
 
@@ -486,12 +498,6 @@ section[id],header[id]{scroll-margin-top:84px}
     <div class="eyebrow">My approach</div>
     <h2>No extremes. <em>Just structure you can repeat.</em></h2>
     <p class="lead">I coach structure, consistency and progression in a way that works for you. I build the plan around your lifestyle, not the other way round, because results don't come from being perfect. They come from what you can repeat.</p>
-    <ul class="tick">
-      <li>A routine you can realistically stick to</li>
-      <li>Moving away from the "all or nothing" mindset</li>
-      <li>Habits that hold up even when life gets busy</li>
-      <li>Support through the weeks that don't feel easy</li>
-    </ul>
     <p><strong>You won't be doing this alone.</strong> I'm with you the whole way. <span class="joke">Think of me as the voice in your head, but with a qualification.</span></p>
 
     <div class="rule" style="margin-top:36px"></div>
@@ -641,16 +647,6 @@ section[id],header[id]{scroll-margin-top:84px}
         <li>You're not ready to be consistent</li>
         <li>You're not open to being guided <span class="joke">(or you think leg day is a myth)</span></li></ul></div>
     </div>
-    <div class="rule" style="margin-top:36px"></div>
-    <div class="eyebrow">What to expect from me</div>
-    <div class="expect">
-      <div>A coach who listens and understands you</div>
-      <div>A plan that fits your life, not one that takes it over</div>
-      <div>Clear guidance, not confusion</div>
-      <div>Accountability when you need it most</div>
-      <div>Support on the hard days, not just the easy ones</div>
-      <div>Structure that actually sticks</div>
-    </div>
     <div class="quote" style="font-size:20px">And most importantly, someone who genuinely cares about your progress.</div>
   </div>
 </section>
@@ -766,14 +762,6 @@ section[id],header[id]{scroll-margin-top:84px}
 <!-- GOAL + PROMISE -->
 <section style="background:#f5efe1">
   <div class="wrap">
-    <div class="eyebrow">The real goal</div>
-    <h2>This isn't just about losing weight.</h2>
-    <ul class="tick">
-      <li>Feeling confident in your body</li><li>Knowing how to keep your results</li>
-      <li>A routine you don't keep restarting</li><li>Something that lasts</li>
-    </ul>
-    <p class="joke" style="font-size:19px">Goodbye, all-or-nothing mindset. You will not be missed.</p>
-    <div class="rule" style="margin-top:34px"></div>
     <div class="eyebrow">A promise from me</div>
     <img class="promise-img" src="img/maria-smile.jpg" alt="Maria smiling in the gym" loading="lazy">
     <p class="lead" style="font-family:var(--serif);font-size:21px">I'm always learning, always evolving, always growing, because you deserve a coach who never stands still.</p>
@@ -791,7 +779,8 @@ section[id],header[id]{scroll-margin-top:84px}
     <a class="btn block" href="https://forms.gle/ZtK6VXzdqNYYzVgG9" style="margin-top:22px">Apply &amp; book your free call</a>
     <span class="sub-link">Already applied? <a href="https://calendly.com/mpfcoaching-info/30">Pick a time for your call here</a></span>
     <div class="contact">
-      <a href="https://instagram.com/mariaparadisefitness">@mariaparadisefitness</a><br>
+      <a href="https://instagram.com/mariaparadisefitness">Instagram @mariaparadisefitness</a><br>
+      <a href="https://www.facebook.com/mariaparadisefitness">Facebook: Maria Paradise Fitness</a><br>
       info@mpfcoaching.co.uk
     </div>
   </div>
@@ -803,7 +792,7 @@ section[id],header[id]{scroll-margin-top:84px}
     <div class="f-cols">
       <div><h4>Coaching</h4><a href="https://forms.gle/ZtK6VXzdqNYYzVgG9">Apply for online coaching</a><a href="https://calendly.com/mpfcoaching-info/30">Book a free call</a><a href="https://app.acuityscheduling.com/schedule.php?owner=38832646">Book in-person PT</a><a href="#pricing">Pricing</a></div>
       <div><h4>Free stuff</h4><a href="hypertrophy.html">Hypertrophy guide</a><a href="diet.html">Flexible dieting guide</a><a href="diet.html#calc">Calorie &amp; macro calculator</a><a href="https://www.instagram.com/mpfcoachingresults">Client results</a></div>
-      <div><h4>Find me</h4><a href="https://www.instagram.com/mariaparadisefitness">Instagram @mariaparadisefitness</a><a href="mailto:info@mpfcoaching.co.uk">info@mpfcoaching.co.uk</a><span>📍 PureGym Charlton, south-east London</span></div>
+      <div><h4>Find me</h4><a href="https://www.instagram.com/mariaparadisefitness">Instagram @mariaparadisefitness</a><a href="https://www.facebook.com/mariaparadisefitness">Facebook: Maria Paradise Fitness</a><a href="mailto:info@mpfcoaching.co.uk">info@mpfcoaching.co.uk</a><span>📍 PureGym Charlton, south-east London</span></div>
     </div>
     <div class="f-base">© 2026 MPF Coaching · Maria Paradise · <a href="privacy.html">Privacy policy</a></div>
   </div>
@@ -889,6 +878,9 @@ document.querySelectorAll('.r-side .tcard').forEach(function(c){
   requestAnimationFrame(function(){ if(q.scrollHeight<=q.clientHeight+2) m.style.display='none'; });
   c.addEventListener('click',function(){c.classList.add('open')});
 });
+</script>
+<script>
+document.querySelectorAll('#coaching .card').forEach(function(c){c.addEventListener('click',function(){ if(innerWidth<760) c.classList.toggle('open'); });});
 </script>
 </body>
 </html>
