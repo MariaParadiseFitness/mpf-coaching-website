@@ -426,13 +426,17 @@ section[id],header[id]{scroll-margin-top:84px}
 .pt-panel h2{font-size:clamp(26px,7vw,34px)}
 @media(min-width:760px){.pt-panel{padding:40px}}
 #faq .ig-grid{margin-top:14px}
+.g-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px;align-items:stretch}
+.g-grid .guide{margin-top:0;display:flex;flex-direction:column}
+.g-grid .g-btns{margin-top:auto}
+.g-grid .g-tag{align-self:flex-start}
+@media(max-width:759px){.g-grid .guide{padding:16px 13px}.g-grid .guide h3{font-size:16px}.g-grid .guide p{font-size:13px;line-height:1.5}.g-grid .g-btns{display:flex;flex-direction:column;gap:8px}.g-grid .g-btns .btn{width:100%;font-size:12px;padding:11px 8px;margin:0;text-align:center}}
+@media(min-width:760px){.g-grid{gap:18px}}
 @media(min-width:1024px){
   #how .wrap,#pricing .wrap,#guides .wrap{max-width:1100px}
   .steps-row{display:grid;grid-template-columns:repeat(5,1fr);gap:18px}
   .steps-row .step{flex-direction:column;gap:10px;border:1px solid rgba(201,166,75,.3);border-radius:14px;padding:18px}
   .tiers{grid-template-columns:repeat(3,1fr);align-items:stretch}
-  #guides .guide{display:inline-block;vertical-align:top;width:calc(50% - 10px)}
-  #guides .guide+.guide{margin-left:16px}
 }
 @media(max-width:759px){
   .steps-row .step{gap:12px;padding:12px 0}
@@ -774,6 +778,7 @@ section[id],header[id]{scroll-margin-top:84px}
     <div class="eyebrow">Free guides</div>
     <h2>Start learning <em>today, for free.</em></h2>
     <p style="color:#cfc4aa">The same principles I coach every client on, written in plain English. <span class="joke">Jokes included at no extra cost.</span></p>
+    <div class="g-grid">
     <div class="guide">
       <div class="g-tag">Training</div>
       <h3>The MPF Hypertrophy Guide for Dummies</h3>
@@ -785,6 +790,7 @@ section[id],header[id]{scroll-margin-top:84px}
       <h3>The MPF Flexible Dieting Guide</h3>
       <p>Includes a calorie &amp; macro calculator. An 8-step guide to building a diet plan that actually works: your maintenance calories, macros, tracking, pizza nights, takeaways and eating out. Works for omnivores, vegetarians and vegans.</p>
       <div class="g-btns"><a class="btn" data-guide="Flexible dieting guide" href="diet.html">Open interactive guide</a><a class="btn ghost" data-guide="Flexible dieting guide (PDF)" href="https://drive.google.com/file/d/1XlKh3UU-W845fa7arDmvqzXvkfVz8NYW/view?usp=drivesdk">Download PDF</a></div>
+    </div>
     </div>
   </div>
 </section>
@@ -819,21 +825,7 @@ section[id],header[id]{scroll-margin-top:84px}
   </div>
 </section>
 
-<!-- FINAL CTA -->
-<section class="dark final" id="final">
-  <div class="wrap">
-    <img class="final-img" src="img/maria-gym-pose.jpg" alt="Maria in the gym" loading="lazy">
-    <h2>Ready to stop <em>starting over?</em></h2>
-    <p class="lead" style="color:#d8ccb0">If you're serious about results that actually last, let's talk. <span class="joke">Otherwise, see you next Monday. And the one after that.</span></p>
-    <a class="btn block" href="https://forms.gle/ZtK6VXzdqNYYzVgG9" style="margin-top:22px">Apply &amp; book your free call</a>
-    <span class="sub-link">Already applied? <a href="https://calendly.com/mpfcoaching-info/30">Pick a time for your call here</a></span>
-    <div class="contact">
-      <a href="https://instagram.com/mariaparadisefitness">Instagram @mariaparadisefitness</a><br>
-      <a href="https://www.facebook.com/mariaparadisefitness">Facebook: Maria Paradise Fitness</a><br>
-      info@mpfcoaching.co.uk
-    </div>
-  </div>
-</section>
+
 <footer class="site-foot">
   <div class="wrap">
     <img src="img/logo.png" alt="MPF Coaching" class="f-logo">
@@ -851,7 +843,7 @@ section[id],header[id]{scroll-margin-top:84px}
 
 <script>
 (function(){
-  var s=document.getElementById('sticky'),h=document.getElementById('heroCta'),f=document.getElementById('final');
+  var s=document.getElementById('sticky'),h=document.getElementById('heroCta'),f=document.querySelector('.site-foot');
   var heroGone=false,finalIn=false;
   function upd(){s.classList.toggle('show',heroGone&&!finalIn)}
   if('IntersectionObserver' in window){
