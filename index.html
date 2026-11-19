@@ -383,9 +383,10 @@ section[id],header[id]{scroll-margin-top:84px}
 .sf-photo img{width:100%;aspect-ratio:4/5;object-fit:cover;object-position:center 15%;border-radius:16px;border:1.5px solid rgba(156,122,44,.55);box-shadow:0 14px 34px rgba(0,0,0,.16)}
 .sf-photo figcaption{font-family:var(--serif);font-style:italic;color:var(--gold-d);text-align:center;margin-top:10px;font-size:16px}
 @media(min-width:1024px){
-  #sf .wrap{max-width:1100px;display:grid;grid-template-columns:1.15fr .85fr;column-gap:56px;align-items:start}
+  #sf .wrap{display:grid;grid-template-columns:1.15fr .85fr;column-gap:56px;align-items:start}
   #sf .wrap>*{grid-column:1}
-  #sf .sf-photo{grid-column:2;grid-row:1 / span 7;position:sticky;top:110px;margin:0}
+  #sf .merge-rule,#sf .merge-rule~*{grid-column:1 / -1}
+  #sf .sf-photo{grid-column:2;grid-row:1 / span 11;position:sticky;top:110px;margin:0}
 }
 .three div{transition:transform .2s}
 .three div:hover{transform:translateY(-4px)}
@@ -433,7 +434,6 @@ section[id],header[id]{scroll-margin-top:84px}
 @media(max-width:759px){.g-grid .guide{padding:16px 13px}.g-grid .guide h3{font-size:16px}.g-grid .guide p{font-size:13px;line-height:1.5}.g-grid .g-btns{display:flex;flex-direction:column;gap:8px}.g-grid .g-btns .btn{width:100%;font-size:12px;padding:11px 8px;margin:0;text-align:center}}
 @media(min-width:760px){.g-grid{gap:18px}}
 @media(min-width:1024px){
-  #how .wrap,#pricing .wrap,#guides .wrap{max-width:1100px}
   .steps-row{display:grid;grid-template-columns:repeat(5,1fr);gap:18px}
   .steps-row .step{flex-direction:column;gap:10px;border:1px solid rgba(201,166,75,.3);border-radius:14px;padding:18px}
   .tiers{grid-template-columns:repeat(3,1fr);align-items:stretch}
@@ -462,12 +462,26 @@ section[id],header[id]{scroll-margin-top:84px}
   .stage{max-width:820px;margin-left:auto;margin-right:auto}
   #sf .wrap{max-width:1140px}
   .split{grid-template-columns:1fr 1fr}
-  #faq details{max-width:820px}
   .pt-grid{grid-template-columns:repeat(8,1fr)}
   .final .wrap{max-width:760px}
   .promise-img{float:right;width:300px;margin:0 0 20px 40px}
 }
 @media(min-width:1024px){.hero{min-height:112vh!important}.hero-img{right:4%!important;width:52%!important;height:calc(100% - 140px)!important;top:140px!important}}
+.reassure{display:block;font-size:12.5px;letter-spacing:.04em;color:#cfc4aa;margin-top:12px}
+.reassure:before{content:"✓ ";color:var(--gold)}
+.promise-wrap,#faq .wrap{display:flow-root}
+@media(max-width:759px){.hero .tag{display:none}.quals .q-b:nth-child(5):last-child{grid-column:1 / -1;justify-self:center;width:calc(50% - 4px)}}
+@media(min-width:1024px){#sf .split .a,#sf .split .b{height:auto}#sf .split{align-items:stretch}}
+/* gold glow on key cards */
+@keyframes goldglow{0%,100%{box-shadow:0 0 0 1px rgba(201,166,75,.75),0 0 18px rgba(201,166,75,.28),0 0 44px rgba(201,166,75,.12)}50%{box-shadow:0 0 0 1px rgba(232,206,130,.95),0 0 26px rgba(201,166,75,.45),0 0 60px rgba(201,166,75,.2)}}
+.tier.hot,.t-feature,.bb,.who-for,.cta-band,.pt.hot,.g-grid .guide{border-color:rgba(214,184,100,.9)!important;animation:goldglow 4s ease-in-out infinite}
+@media(prefers-reduced-motion:reduce){.tier.hot,.t-feature,.bb,.who-for,.cta-band,.pt.hot,.g-grid .guide{animation:none;box-shadow:0 0 0 1px rgba(201,166,75,.8),0 0 24px rgba(201,166,75,.35)}}
+@media(min-width:1024px){
+  #sf .split .b{display:grid;grid-template-columns:42% 1fr;column-gap:22px;align-content:center}
+  #sf .split .b .flex-img{grid-row:1 / span 2;margin:0;height:100%;max-height:230px;object-fit:cover}
+  #sf .split .a{display:flex;flex-direction:column;justify-content:center}
+}
+.pt:not(.hot) b{color:#141414!important}.pt:not(.hot) span{color:#6b6253!important}
 </style>
 </head>
 <body>
@@ -491,6 +505,7 @@ section[id],header[id]{scroll-margin-top:84px}
     <p class="hero-sub">Everything you need to know.</p>
     <p class="hero-line">Tired of being on/off with your fitness? It's time to build a body you actually feel confident in, and keep it. <b>No extremes. No starting over.</b></p>
     <a class="btn" href="https://calendly.com/mpfcoaching-info/30" id="heroCta">Book your free call</a>
+    <span class="reassure">Free 30-minute chat · No pressure, no hard sell</span>
     <div class="proof">
       <div>Fat loss</div>
       <div>Body recomp</div>
@@ -688,19 +703,6 @@ section[id],header[id]{scroll-margin-top:84px}
     <div class="step"><div class="num">4</div><div><h3>Learn the system</h3><p>Your tracking lesson, logbook and routines, so you understand what you're doing and why.</p></div></div>
     <div class="step"><div class="num">5</div><div><h3>Check in, adjust, progress</h3><p>Weekly check-ins keep you accountable as we move through your phases. <span class="joke">Your old "start again Monday" habit will not be attending.</span></p></div></div></div>
 
-    <div class="merge-rule"></div>
-    <div class="eyebrow">Is this right for you?</div>
-    <h2>Let's make sure <em>we're a good fit.</em></h2>
-    <div class="split">
-      <div class="a on-dark"><h3>This is for you if…</h3><ul class="tick">
-        <li>You're tired of starting over</li><li>You've struggled to stay consistent</li>
-        <li>You want support as well as structure</li><li>You're ready to change, properly this time</li></ul></div>
-      <div class="b"><h3>This isn't for you if…</h3><ul class="tick cross">
-        <li>You want a quick fix <span class="joke">(the detox tea people would love your money)</span></li>
-        <li>You're not ready to be consistent</li>
-        <li>You're not open to being guided <span class="joke">(or you think leg day is a myth)</span></li></ul></div>
-    </div>
-    <div class="quote" style="font-size:20px">And most importantly, someone who genuinely cares about your progress.</div>
   </div>
 </section>
 
@@ -825,6 +827,7 @@ section[id],header[id]{scroll-margin-top:84px}
     <h2>Ready to stop <em>starting over?</em></h2>
     <p class="lead" style="color:#d8ccb0">If you're serious about results that actually last, let's talk. <span class="joke">Otherwise, see you next Monday. And the one after that.</span></p>
     <a class="btn block" href="https://calendly.com/mpfcoaching-info/30" style="margin-top:22px">Book your free call</a>
+    <span class="reassure">Free 30-minute chat · No pressure, no hard sell</span>
     <div class="contact">
       <a href="https://instagram.com/mariaparadisefitness">Instagram @mariaparadisefitness</a><br>
       <a href="https://www.facebook.com/mariaparadisefitness">Facebook: Maria Paradise Fitness</a><br>
