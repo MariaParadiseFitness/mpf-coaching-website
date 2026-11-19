@@ -814,14 +814,6 @@ section[id],header[id]{scroll-margin-top:84px}
     <p>I promise to give you the best of me: my time, my knowledge, my support and my honesty, every step of the way. Brutally honest sometimes, lovingly always.</p>
     <div class="sig">Maria</div>
 
-    <div class="merge-rule"></div>
-    <div class="eyebrow">Follow along</div>
-    <h2>Find me on <em>Instagram.</em></h2>
-    <div class="ig-grid" id="igGrid"><a href="https://www.instagram.com/mariaparadisefitness" class="ig-t"><img src="img/stage-corridor.jpg" alt="" loading="lazy"></a><a href="https://www.instagram.com/mariaparadisefitness" class="ig-t"><img src="img/coach-deadlift.jpg" alt="" loading="lazy"></a><a href="https://www.instagram.com/mariaparadisefitness" class="ig-t"><img src="img/maria-food.jpg" alt="" loading="lazy"></a><a href="https://www.instagram.com/mariaparadisefitness" class="ig-t"><img src="img/maria-gym.jpg" alt="" loading="lazy"></a><a href="https://www.instagram.com/mariaparadisefitness" class="ig-t"><img src="img/coach-row.jpg" alt="" loading="lazy"></a><a href="https://www.instagram.com/mariaparadisefitness" class="ig-t"><img src="img/stage-back.jpg" alt="" loading="lazy"></a></div>
-    <div class="ig-btns">
-      <a class="btn" href="https://www.instagram.com/mariaparadisefitness">@mariaparadisefitness</a>
-      <a class="btn ghost" href="https://www.instagram.com/mpfcoachingresults">@mpfcoachingresults</a>
-    </div>
   </div>
 </section>
 
@@ -926,22 +918,6 @@ document.querySelectorAll('.r-side .tcard').forEach(function(c){
 <script>
 document.querySelectorAll('#coaching .card').forEach(function(c){c.addEventListener('click',function(){ if(innerWidth<760) c.classList.toggle('open'); });});
 </script>
-<script>
-/* Live Instagram feed: paste your Behold.so feed ID below and the grid shows your latest real posts */
-var BEHOLD_FEED="";
-(function(){
-  if(!BEHOLD_FEED||!window.fetch)return;
-  fetch("https://feeds.behold.so/"+BEHOLD_FEED).then(function(r){return r.json()}).then(function(d){
-    var posts=(d&&d.posts)||d; if(!posts||!posts.length)return;
-    var g=document.getElementById("igGrid"),h="";
-    posts.slice(0,6).forEach(function(p){
-      var src=(p.sizes&&p.sizes.medium&&p.sizes.medium.mediaUrl)||(p.mediaType==="VIDEO"?p.thumbnailUrl:p.mediaUrl);
-      if(!src)return;
-      h+='<a class="ig-t" target="_blank" rel="noopener" href="'+p.permalink+'"><img src="'+src+'" alt="Instagram post" loading="lazy"></a>';
-    });
-    if(h)g.innerHTML=h;
-  }).catch(function(){});
-})();
-</script>
+
 </body>
 </html>
