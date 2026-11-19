@@ -826,6 +826,19 @@ section[id],header[id]{scroll-margin-top:84px}
 </section>
 
 
+<section class="dark final" id="final">
+  <div class="wrap">
+    <img class="final-img" src="img/maria-gym-pose.jpg" alt="Maria in the gym" loading="lazy">
+    <h2>Ready to stop <em>starting over?</em></h2>
+    <p class="lead" style="color:#d8ccb0">If you're serious about results that actually last, let's talk. <span class="joke">Otherwise, see you next Monday. And the one after that.</span></p>
+    <a class="btn block" href="https://calendly.com/mpfcoaching-info/30" style="margin-top:22px">Book your free call</a>
+    <div class="contact">
+      <a href="https://instagram.com/mariaparadisefitness">Instagram @mariaparadisefitness</a><br>
+      <a href="https://www.facebook.com/mariaparadisefitness">Facebook: Maria Paradise Fitness</a><br>
+      info@mpfcoaching.co.uk
+    </div>
+  </div>
+</section>
 <footer class="site-foot">
   <div class="wrap">
     <img src="img/logo.png" alt="MPF Coaching" class="f-logo">
@@ -839,19 +852,9 @@ section[id],header[id]{scroll-margin-top:84px}
   </div>
 </footer>
 
-<div class="sticky" id="sticky"><a class="btn" href="https://calendly.com/mpfcoaching-info/30">Book your free call</a></div>
 
-<script>
-(function(){
-  var s=document.getElementById('sticky'),h=document.getElementById('heroCta'),f=document.querySelector('.site-foot');
-  var heroGone=false,finalIn=false;
-  function upd(){s.classList.toggle('show',heroGone&&!finalIn)}
-  if('IntersectionObserver' in window){
-    new IntersectionObserver(function(e){heroGone=!e[0].isIntersecting;upd()}).observe(h);
-    new IntersectionObserver(function(e){finalIn=e[0].isIntersecting;upd()}).observe(f);
-  } else { s.classList.add('show'); }
-})();
-</script>
+
+
 <div class="gate" id="gate" role="dialog" aria-modal="true" aria-labelledby="gateT">
   <form class="gate-box" id="gateForm" novalidate>
     <button type="button" class="gate-x" id="gateX" aria-label="Close">×</button>
