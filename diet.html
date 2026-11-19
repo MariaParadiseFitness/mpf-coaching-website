@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The MPF Flexible Dieting Guide | MPF Coaching</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#C9A64B;--gold-l:#E4CF8A;--gold-d:#9C7A2C;--ink:#111;--cream:#FBF7EE;--muted:#5b5547;
+--grad:linear-gradient(120deg,#9C7A2C 0%,#C9A64B 45%,#E8D79A 100%);
+--serif:"Playfair Display",Georgia,serif;--sans:"Montserrat",system-ui,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);font-size:16px;line-height:1.65;color:#1b1a17;background:var(--cream);-webkit-font-smoothing:antialiased}
+.wrap{max-width:680px;margin:0 auto;padding:0 22px}
+a{color:var(--gold-d)}
+.top{position:sticky;top:0;z-index:5;background:rgba(17,17,17,.95);padding:10px 0}
+.top .wrap{display:flex;justify-content:space-between;align-items:center}
+.top a{color:var(--gold-l);text-decoration:none;font-size:13px;font-weight:600}
+.top .cta{background:var(--grad);color:var(--ink);padding:8px 14px;border-radius:20px;font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+.cover{background:#111;color:#fff;text-align:center;padding:52px 0 56px;position:relative}
+.cover:before{content:"";position:absolute;inset:14px;border:1px solid rgba(201,166,75,.4);pointer-events:none}
+.cover img{width:140px;margin:0 auto 24px;display:block}
+.kick{font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--gold-l);margin-bottom:14px}
+.cover h1{font-family:var(--serif);font-weight:900;font-size:clamp(34px,9vw,52px);line-height:1.05}
+.cover h1 em{display:block;font-style:italic;font-weight:400;color:var(--gold)}
+.cover .sub{font-family:var(--serif);font-style:italic;font-size:19px;color:#d8ccb0;margin-top:14px}
+.cover .tags{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:22px}
+.cover .tags span{border:1px solid rgba(201,166,75,.5);border-radius:20px;padding:6px 12px;font-size:12px;color:var(--gold-l)}
+.cover .pdf{display:inline-block;margin-top:22px;color:var(--gold-l);font-size:13px}
+section.ch{padding:40px 0 6px}
+.num{font-family:var(--serif);font-weight:900;font-size:14px;color:var(--gold-d);letter-spacing:.14em;text-transform:uppercase}
+h2.t{font-family:var(--serif);font-weight:900;font-size:clamp(26px,6.5vw,34px);line-height:1.12;margin:4px 0 14px}
+h3{font-family:var(--serif);font-weight:700;font-size:20px;margin:20px 0 6px}
+p{margin-bottom:12px}
+ul.b{list-style:none;margin:4px 0 14px}
+ul.b li{position:relative;padding-left:24px;margin-bottom:8px}
+ul.b li:before{content:"";position:absolute;left:0;top:8px;width:11px;height:11px;border-radius:50%;background:var(--grad)}
+.lol{font-family:var(--serif);font-style:italic;color:var(--gold-d)}
+.note{background:#111;color:#e9e0c9;border-radius:10px;padding:18px 20px;margin:18px 0;font-size:15px}
+.note b{color:var(--gold);letter-spacing:.14em;font-size:11px;display:block;margin-bottom:6px}
+.note a{color:var(--gold-l);font-weight:600}
+.key{background:#f1e8cf;border-left:4px solid var(--gold);padding:14px 18px;border-radius:0 8px 8px 0;margin:16px 0;font-size:15px}
+table{width:100%;border-collapse:collapse;margin:12px 0 16px;font-size:14px;background:#fff;border-radius:10px;overflow:hidden}
+th{background:#111;color:var(--gold-l);text-align:left;padding:9px 10px;font-size:12px}
+td{padding:9px 10px;border-top:1px solid rgba(156,122,44,.2);vertical-align:top}
+td:first-child{font-weight:600}
+tr.total td{background:#f1e8cf;font-weight:700}
+.steps{counter-reset:s;list-style:none}
+.steps li{counter-increment:s;position:relative;padding:12px 0 12px 54px;border-bottom:1px solid rgba(156,122,44,.2)}
+.steps li:before{content:counter(s);position:absolute;left:0;top:12px;width:38px;height:38px;border-radius:50%;background:var(--grad);font-family:var(--serif);font-weight:900;display:flex;align-items:center;justify-content:center;font-size:17px}
+.steps b{display:block;font-family:var(--serif);font-size:17px}
+
+/* calculator */
+.calc{background:#111;color:#f3ecdc;border-radius:16px;padding:24px 20px;margin:18px 0;border:1px solid rgba(201,166,75,.4)}
+.calc h3{color:#fff;margin-top:0}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.fld label{display:block;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:5px;font-weight:600}
+.fld input,.fld select{width:100%;padding:12px;border-radius:10px;border:1px solid rgba(201,166,75,.45);background:#1d1c19;color:#fff;font-family:var(--sans);font-size:16px}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{flex:1;min-width:90px;padding:11px 8px;border-radius:10px;border:1px solid rgba(201,166,75,.45);background:#1d1c19;color:#e9e0c9;font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer}
+.seg button.on{background:var(--grad);color:var(--ink);border-color:transparent}
+.res{margin-top:18px;display:none}
+.res.show{display:block}
+.big{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.big div{background:#1d1c19;border:1px solid rgba(201,166,75,.35);border-radius:12px;padding:14px}
+.big small{display:block;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+.big b{font-family:var(--serif);font-size:26px;color:#fff;display:block;line-height:1.2}
+.big span{font-size:12px;color:#cfc4aa}
+.macros{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.macros div{border-radius:12px;padding:12px 8px;text-align:center;background:#1d1c19;border:1px solid rgba(201,166,75,.35)}
+.macros small{display:block;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+.macros b{font-family:var(--serif);font-size:22px;color:#fff}
+.bar{display:flex;height:12px;border-radius:8px;overflow:hidden;margin:12px 0 4px}
+.bar i{display:block}
+.legend{font-size:11px;color:#cfc4aa;display:flex;gap:12px;flex-wrap:wrap}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px;vertical-align:middle}
+.meals{margin-top:14px;background:#1d1c19;border-radius:12px;padding:14px;border:1px solid rgba(201,166,75,.35)}
+.meals p{margin:8px 0 0;font-size:14px;color:#e9e0c9}
+.warn{display:none;margin-top:12px;background:#3a2a10;border:1px solid var(--gold);border-radius:10px;padding:12px;font-size:13px;color:#f3e3b8}
+.fine{font-size:12px;color:#a89a78;margin-top:12px}
+
+/* tabs */
+.tabs{display:flex;gap:6px;margin:12px 0 0;flex-wrap:wrap}
+.tabs button{padding:9px 14px;border-radius:20px;border:1.5px solid var(--gold-d);background:none;color:var(--gold-d);font-family:var(--sans);font-weight:700;font-size:12px;letter-spacing:.06em;cursor:pointer}
+.tabs button.on{background:#111;color:var(--gold-l);border-color:#111}
+.pane{display:none}
+.pane.on{display:block}
+
+/* checklist */
+.check label{display:flex;gap:12px;align-items:flex-start;background:#fff;border-radius:10px;padding:13px 14px;margin-bottom:8px;border:1px solid rgba(156,122,44,.25);cursor:pointer;font-size:15px}
+.check input{width:20px;height:20px;accent-color:#9C7A2C;flex:0 0 auto;margin-top:2px}
+.score{font-family:var(--serif);font-size:18px;margin-top:6px}
+
+.cta-box{background:#111;color:#fff;text-align:center;border-radius:14px;padding:32px 22px;margin:36px 0}
+.cta-box h2{font-family:var(--serif);font-size:26px;margin-bottom:10px}
+.cta-box p{color:#d8ccb0}
+.btn{display:inline-block;background:var(--grad);color:var(--ink);font-weight:700;font-size:13px;letter-spacing:.16em;text-transform:uppercase;text-decoration:none;padding:16px 24px;border-radius:40px;margin:4px}
+.btn.ghost{background:none;border:1.5px solid var(--gold);color:var(--gold)}
+.disc{font-size:12px;color:#5b5547;border-top:1px solid rgba(156,122,44,.3);padding-top:14px;margin:20px 0 34px}
+footer{background:#0b0b0a;color:#6f6754;text-align:center;font-size:11px;letter-spacing:.2em;text-transform:uppercase;padding:22px 0}
+</style>
+</head>
+<body>
+<div class="top"><div class="wrap"><a href="index.html">← MPF Coaching</a><a class="cta" href="https://forms.gle/ZtK6VXzdqNYYzVgG9">Work with me</a></div></div>
+
+<header class="cover"><div class="wrap">
+  <img src="img/logo.png" alt="MPF Coaching">
+  <div class="kick">Free guide · MPF Coaching</div>
+  <h1>The MPF Flexible <em>Dieting Guide</em></h1>
+  <div class="sub">How to build a diet plan that actually works</div>
+  <div class="tags"><span>Eat the foods you love</span><span>Hit your goals</span><span>Omnivore · veggie · vegan</span></div>
+  <a class="pdf" href="https://drive.google.com/file/d/1XlKh3UU-W845fa7arDmvqzXvkfVz8NYW/view?usp=drivesdk">Prefer the full PDF? Download it here →</a>
+</div></header>
+
+<main class="wrap">
+
+<section class="ch">
+  <div class="num">The basics</div>
+  <h2 class="t">What is flexible dieting?</h2>
+  <p>A way of eating that fits around your life, not the other way round. No banned foods, no cutting out food groups, no rigid meal plans. You hit a daily target for protein, carbs and fat that's right for your body and goal, and what you eat to get there is up to you.</p>
+  <p>Biscuit with your afternoon tea? Fine. Pizza on a Friday? That works too. It's your overall intake over time that decides your results, not any single food. <span class="lol">Nobody has ever gained a stone from one slice of birthday cake, and nobody has ever got lean from one salad either.</span></p>
+  <div class="key"><b>Why most diets fail (and it isn't willpower):</b> they're built on rules you'd never keep for a year. Then a birthday, a holiday or a bad week happens and the whole thing collapses. Flexible dieting has nothing to fall off, because there are no rules to break. A takeaway isn't a failure. It's just food you account for.</div>
+  <p><b>What it isn't:</b> "eat whatever you want and hope for the best". You still have targets, and you still have to be honest. The flexibility is in which foods you choose, not in whether the numbers matter.</p>
+  <h3>Your 8-step plan</h3>
+  <ol class="steps">
+    <li><b>Find your maintenance calories</b>Use the calculator below</li>
+    <li><b>Set your calorie and macro targets</b>Based on your goal</li>
+    <li><b>Track your food accurately</b>Weigh, log, read labels</li>
+    <li><b>Build your day</b>Protein first, every meal</li>
+    <li><b>Choose your food sources</b>For your diet type</li>
+    <li><b>Manage real life</b>Pizza nights, takeaways, eating out</li>
+    <li><b>Fill the gaps</b>Supplements and alcohol</li>
+    <li><b>Go beyond nutrition</b>Training, steps and accountability</li>
+  </ol>
+</section>
+
+<section class="ch" id="calc">
+  <div class="num">Steps 1 &amp; 2 · Interactive</div>
+  <h2 class="t">Work out your numbers</h2>
+  <p>Your TDEE (maintenance calories) is what keeps your weight stable. Eat below it to lose weight, above it to gain. Whether that's fat or muscle comes down to your protein and training. This calculator uses the Mifflin-St Jeor formula, then applies the starting ranges I use with clients.</p>
+  <div class="calc">
+    <h3>Your starting targets</h3>
+    <div class="fld" style="margin-bottom:12px"><label>Sex</label><div class="seg" id="sex"><button data-v="f" class="on">Female</button><button data-v="m">Male</button></div></div>
+    <div class="row">
+      <div class="fld"><label>Age</label><input id="age" type="number" inputmode="numeric" placeholder="30" min="18" max="90"></div>
+      <div class="fld"><label>Weight (kg)</label><input id="wt" type="number" inputmode="decimal" placeholder="70" min="35" max="250"></div>
+    </div>
+    <div class="row">
+      <div class="fld"><label>Height (cm)</label><input id="ht" type="number" inputmode="numeric" placeholder="165" min="130" max="220"></div>
+      <div class="fld"><label>Activity</label><select id="act">
+        <option value="1.2">Sedentary (desk-based)</option>
+        <option value="1.375">Light (1–3 days/wk)</option>
+        <option value="1.55" selected>Moderate (3–5 days/wk)</option>
+        <option value="1.725">Very active (6–7 days)</option>
+        <option value="1.9">Extremely active + physical job</option></select></div>
+    </div>
+    <div class="fld" style="margin-bottom:12px"><label>Goal</label><div class="seg" id="goal"><button data-v="loss" class="on">Fat loss</button><button data-v="muscle">Build muscle</button><button data-v="recomp">Recomp</button></div></div>
+    <div class="fld"><label>Meals per day</label><div class="seg" id="meals"><button data-v="2">2</button><button data-v="3" class="on">3</button><button data-v="4">4</button><button data-v="5">5</button></div></div>
+
+    <div class="res" id="res">
+      <div class="big">
+        <div><small>Maintenance (TDEE)</small><b id="oTdee">–</b><span>kcal per day</span></div>
+        <div><small>Your target</small><b id="oCal">–</b><span id="oCalNote">kcal per day</span></div>
+      </div>
+      <div class="macros">
+        <div><small>Protein</small><b id="oP">–</b></div>
+        <div><small>Fat</small><b id="oF">–</b></div>
+        <div><small>Carbs</small><b id="oC">–</b></div>
+      </div>
+      <div class="bar"><i id="bP" style="background:#E8D79A"></i><i id="bF" style="background:#9C7A2C"></i><i id="bC" style="background:#5d5340"></i></div>
+      <div class="legend"><span><i style="background:#E8D79A"></i>Protein 4 kcal/g</span><span><i style="background:#9C7A2C"></i>Fat 9 kcal/g</span><span><i style="background:#5d5340"></i>Carbs 4 kcal/g</span></div>
+      <div class="meals"><small style="font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)">Protein per meal</small><p id="oMeal">–</p></div>
+      <div class="warn" id="warn"></div>
+      <p class="fine">These are starting estimates from population averages, not facts about your body. Use them for 2–3 weeks, track your weight trend, and adjust. <span style="color:var(--gold-l)">Any calculator promising your exact number to four decimal places is confidently making it up.</span></p>
+    </div>
+  </div>
+  <div class="note"><b>COACH'S NOTE</b>Your real maintenance calories can only be confirmed by tracking your weight and intake over several weeks. I calculate your numbers, then check them against your real data every week, so they're never a one-off guess. <a href="https://calendly.com/mpfcoaching-info/30">Book your free call →</a></div>
+
+  <h3>The golden rule: swap like for like</h3>
+  <ul class="b">
+    <li><b>Protein → protein (easy):</b> chicken, tuna, eggs, Greek yoghurt, tofu, tempeh, Quorn, cottage cheese, whey. Match the protein grams, and watch the fat (salmon has far more than chicken).</li>
+    <li><b>Carbs → carbs (easy):</b> rice, sweet potato, oats, sourdough, pasta, potato, fruit. Weigh both uncooked: 80g dry rice is close to 80g dry pasta.</li>
+    <li><b>Fats → fats (check the numbers):</b> oils, avocado, nuts, nut butters, egg yolks. At 9 kcal/g, small differences matter, so weigh them.</li>
+  </ul>
+</section>
+
+<section class="ch">
+  <div class="num">Step 3</div>
+  <h2 class="t">Tracking your food</h2>
+  <p>Flexible dieting only works if you know what you're actually eating. Small inaccuracies add up to several hundred calories a day, and it's the most common reason people "do everything right" but don't see results. MyFitnessPal, Cronometer and MacroFactor all work. The app matters less than how you use it.</p>
+  <h3>Quick check: how accurate is your tracking?</h3>
+  <div class="check" id="check">
+    <label><input type="checkbox">I weigh food raw and uncooked, in grams, not cups or handfuls</label>
+    <label><input type="checkbox">I use verified entries and match the actual brand I'm eating</label>
+    <label><input type="checkbox">I log as I go (or pre-log), not from memory at 9pm</label>
+    <label><input type="checkbox">I log every drink except water and black tea or coffee</label>
+    <label><input type="checkbox">I weigh cooking oils, sauces and dressings</label>
+    <label><input type="checkbox">I log every ingredient in home-cooked meals, not just the main one</label>
+    <label><input type="checkbox">I check serving sizes and log what I actually ate</label>
+  </div>
+  <div class="score" id="score">Tick what you already do.</div>
+  <p><span class="lol">Your hand is not a set of scales, and it never has been.</span> And if an app entry claims a full English is 190 calories, someone has been generous with themselves and you are about to inherit their optimism.</p>
+</section>
+
+<section class="ch">
+  <div class="num">Step 4</div>
+  <h2 class="t">Build your day: protein first</h2>
+  <div class="key"><b>Protein first. Every meal. Every time.</b> It's the hardest macro to hit if you leave it until the end of the day. <span class="lol">Nobody has ever happily eaten 60g of protein at 10pm.</span></div>
+  <ol class="steps">
+    <li><b>Decide how many meals you're eating</b>Your protein gets divided across them</li>
+    <li><b>Pick your protein source first</b>Weigh it raw, log it</li>
+    <li><b>Split your protein roughly evenly</b>The calculator above does this for you</li>
+    <li><b>Add carbs around it</b>Weigh uncooked. More around training days</li>
+    <li><b>Fats fill in last</b>Check what's already come in with your protein</li>
+    <li><b>Check your totals</b>Within 100–150 kcal and close on protein is absolutely fine</li>
+  </ol>
+</section>
+
+<section class="ch">
+  <div class="num">Step 5 · Interactive</div>
+  <h2 class="t">Protein sources for your diet</h2>
+  <div class="tabs" data-group="prot"><button class="on" data-p="omni">Omnivore</button><button data-p="veg">Vegetarian</button><button data-p="vegan">Vegan</button></div>
+  <div class="pane on" data-group="prot" id="omni"><table>
+    <tr><th>Food</th><th>Per 100g</th><th>Per serving</th></tr>
+    <tr><td>Chicken breast</td><td>31g</td><td>~47g per 150g</td></tr>
+    <tr><td>Turkey breast</td><td>30g</td><td>~45g per 150g</td></tr>
+    <tr><td>Tuna in water</td><td>29g</td><td>~23g per tin</td></tr>
+    <tr><td>Lean beef mince (5%)</td><td>26g</td><td>~39g per 150g</td></tr>
+    <tr><td>Salmon</td><td>25g</td><td>~38g per 150g</td></tr>
+    <tr><td>Eggs (2 large)</td><td>13g</td><td>13g per 2 eggs</td></tr>
+    <tr><td>Cottage cheese</td><td>11g</td><td>22g per 200g pot</td></tr>
+    <tr><td>Low-fat Greek yoghurt</td><td>10g</td><td>17g per 170g pot</td></tr>
+    <tr><td>Whey protein</td><td>~80g</td><td>~24g per scoop</td></tr></table></div>
+  <div class="pane" data-group="prot" id="veg"><table>
+    <tr><th>Food</th><th>Per 100g</th><th>Per serving</th></tr>
+    <tr><td>Paneer</td><td>18g</td><td>27g per 150g</td></tr>
+    <tr><td>Firm tofu</td><td>17g</td><td>26g per 150g</td></tr>
+    <tr><td>Quorn mince</td><td>14g</td><td>21g per 150g</td></tr>
+    <tr><td>Eggs (2 large)</td><td>13g</td><td>13g per 2 eggs</td></tr>
+    <tr><td>Quark</td><td>12g</td><td>24g per 200g pot</td></tr>
+    <tr><td>Skyr</td><td>11g</td><td>22g per 200g pot</td></tr>
+    <tr><td>Cottage cheese</td><td>11g</td><td>22g per 200g pot</td></tr>
+    <tr><td>Whey protein</td><td>~80g</td><td>~24g per scoop</td></tr></table></div>
+  <div class="pane" data-group="prot" id="vegan"><table>
+    <tr><th>Food</th><th>Per 100g</th><th>Per serving</th></tr>
+    <tr><td>Soya chunks</td><td>50g</td><td>~25g per 50g dry</td></tr>
+    <tr><td>Soy protein isolate</td><td>~90g</td><td>~27g per scoop</td></tr>
+    <tr><td>Seitan</td><td>25g</td><td>~38g per 150g (avoid if coeliac)</td></tr>
+    <tr><td>Tempeh</td><td>19g</td><td>~29g per 150g</td></tr>
+    <tr><td>Firm tofu</td><td>17g</td><td>~26g per 150g</td></tr>
+    <tr><td>Edamame</td><td>11g</td><td>~17g per 150g</td></tr>
+    <tr><td>Lentils</td><td>9g</td><td>~18g per 200g cooked</td></tr>
+    <tr><td>Pea protein</td><td>~80g</td><td>~21g per scoop</td></tr></table>
+    <p style="font-size:14px">Plant proteins absorb less efficiently, so aim for the higher end of your protein range and mix sources through the day.</p></div>
+
+  <h3>Carbs &amp; fats worth knowing</h3>
+  <ul class="b">
+    <li><b>Carbs:</b> rice, pasta, oats, potato and sourdough are the most calorie-efficient way to hit your target. Weigh them dry. Sugar and honey count too: <span class="lol">two sugars in five brews a day is 160 kcal you haven't accounted for.</span></li>
+    <li><b>Fats:</b> a tablespoon of olive oil is ~120 kcal. <span class="lol">The free-pour glug is roughly three tablespoons, and it is undefeated at ruining otherwise excellent weeks.</span> Bake or air fry to save 100–200 kcal a meal.</li>
+    <li><b>Fibre:</b> aim for 25–35g a day from oats, veg, legumes, fruit and wholegrains. It keeps you fuller and stops the 10pm cupboard raid.</li>
+    <li><b>Free flavour:</b> herbs, spices, vinegar, lemon, mustard and hot sauce are effectively calorie-free. Dieting does not require sad, beige chicken.</li>
+  </ul>
+</section>
+
+<section class="ch">
+  <div class="num">Step 6 · Interactive</div>
+  <h2 class="t">Real life: pizza, takeaways, eating out</h2>
+  <p><b>Front-load protein, back-load carbs and fats.</b> All three days below hit similar protein. Carbs and fats flex around the day. (Shown at fat loss calories, roughly 1,300–1,750 kcal. Higher goals use the same pattern with more carbs and fats.)</p>
+  <div class="tabs" data-group="day"><button class="on" data-p="d1">Normal day</button><button data-p="d2">Pizza night</button><button data-p="d3">Indian takeaway</button></div>
+  <div class="pane on" data-group="day" id="d1"><table>
+    <tr><th>Meal</th><th>Food</th><th>P</th><th>kcal</th></tr>
+    <tr><td>Breakfast</td><td>4 scrambled eggs + 2 slices sourdough</td><td>26g</td><td>362</td></tr>
+    <tr><td>Lunch</td><td>150g chicken + 200g sweet potato + salad</td><td>47g</td><td>384</td></tr>
+    <tr><td>Snack</td><td>200g low-fat Greek yoghurt + 100g berries</td><td>20g</td><td>170</td></tr>
+    <tr><td>Dinner</td><td>150g salmon + 80g basmati (uncooked)</td><td>38g</td><td>580</td></tr>
+    <tr><td>Snack</td><td>30g peanut butter + rice cakes</td><td>8g</td><td>256</td></tr>
+    <tr class="total"><td>Total</td><td></td><td>139g</td><td>~1,752</td></tr></table></div>
+  <div class="pane" data-group="day" id="d2"><table>
+    <tr><th>Meal</th><th>Food</th><th>P</th><th>kcal</th></tr>
+    <tr><td>Breakfast</td><td>5 egg whites + 1 whole egg</td><td>24g</td><td>163</td></tr>
+    <tr><td>Lunch</td><td>200g chicken + salad + light dressing</td><td>62g</td><td>325</td></tr>
+    <tr><td>Snack</td><td>200g cottage cheese + cucumber</td><td>22g</td><td>148</td></tr>
+    <tr><td>Dinner</td><td>4 slices pepperoni pizza (estimate)</td><td>36g</td><td>1,020</td></tr>
+    <tr class="total"><td>Total</td><td></td><td>144g</td><td>~1,656</td></tr></table></div>
+  <div class="pane" data-group="day" id="d3"><table>
+    <tr><th>Meal</th><th>Food</th><th>P</th><th>kcal</th></tr>
+    <tr><td>Breakfast</td><td>Whey shake + 100g berries</td><td>25g</td><td>183</td></tr>
+    <tr><td>Lunch</td><td>150g tuna + 100g sweet potato + salad</td><td>38g</td><td>250</td></tr>
+    <tr><td>Snack</td><td>200g skyr + rice cakes</td><td>22g</td><td>185</td></tr>
+    <tr><td>Dinner</td><td>Chicken tikka + plain basmati (no naan)</td><td>48g</td><td>674</td></tr>
+    <tr class="total"><td>Total</td><td></td><td>133g</td><td>~1,292</td></tr></table>
+    <p style="font-size:14px">Smarter swaps keep it on track: tikka over korma, rice over naan.</p></div>
+  <div class="key"><b>My rule for eating out:</b> I budget 1,000–1,500 kcal for the meal before I leave the house, then build the day around it. Restaurants use far more oil and butter than you would. Better still, check the menu online first and pre-log it.</div>
+  <p><b>Yes, you can have the cake.</b> If it fits your targets, it fits your plan. Swap it in rather than add it on. Just be honest about how often. <span class="lol">"It fit my macros" stops being a defence somewhere around the fourth consecutive day of it.</span></p>
+</section>
+
+<section class="ch">
+  <div class="num">Step 7</div>
+  <h2 class="t">Supplements &amp; alcohol</h2>
+  <table>
+    <tr><th>Supplement</th><th>Who</th><th>Why</th></tr>
+    <tr><td>Creatine monohydrate</td><td>All diets, 3–5g/day</td><td>The most researched supplement for strength and muscle</td></tr>
+    <tr><td>Vitamin D3 + K2</td><td>Everyone in the UK</td><td>Most people are low October to April</td></tr>
+    <tr><td>Vitamin B12</td><td>Vegans: essential</td><td>Not found in plant foods</td></tr>
+    <tr><td>Omega-3 (algae)</td><td>Vegans: important</td><td>Flax converts poorly to DHA/EPA</td></tr>
+    <tr><td>Iron, zinc, iodine</td><td>Vegans &amp; vegetarians</td><td>Get levels tested before supplementing</td></tr>
+  </table>
+  <h3>Drink swaps</h3>
+  <table>
+    <tr><th>Instead of</th><th>kcal</th><th>Try</th><th>kcal</th></tr>
+    <tr><td>Pint of lager</td><td>~200</td><td>Pint of light lager</td><td>~100</td></tr>
+    <tr><td>Large wine (250ml)</td><td>~200</td><td>Small wine (125ml)</td><td>~100</td></tr>
+    <tr><td>Full-sugar G&amp;T</td><td>~120</td><td>Gin &amp; slimline tonic</td><td>~55</td></tr>
+    <tr><td>Vodka lemonade</td><td>~150</td><td>Vodka, soda &amp; lime</td><td>~55</td></tr>
+    <tr><td>Alcopop</td><td>~220</td><td>Spirit + diet mixer</td><td>~60</td></tr>
+  </table>
+  <p>Alcohol is 7 kcal/g. Treat it as extra calories on the days you drink and trim carbs or fats to make room. <span class="lol">A cocktail with an umbrella in it is a dessert wearing a disguise.</span></p>
+</section>
+
+<section class="ch">
+  <div class="num">Step 8</div>
+  <h2 class="t">There's much more to a great physique</h2>
+  <p>Nutrition is one piece of the puzzle. <span class="lol">No PDF has ever built anyone a set of shoulders.</span> For real, lasting change you also need:</p>
+  <ul class="b">
+    <li><b>A training programme</b> built around your goals, with progressive overload</li>
+    <li><b>Daily steps (NEAT)</b>, which can vary by 1,000+ kcal a day between people. <span class="lol">An hour in the gym doesn't undo fourteen hours in a chair.</span></li>
+    <li><b>Cardio</b> where it helps your goal</li>
+    <li><b>Structured phases:</b> fat loss, maintenance and growth</li>
+    <li><b>Knowing when to adjust.</b> <span class="lol">Cutting another 300 calories because you're frustrated is not a strategy, it's a tantrum with a spreadsheet.</span></li>
+    <li><b>Accountability</b> on the hard weeks, not just the easy ones</li>
+  </ul>
+  <h3>The 5 golden rules</h3>
+  <ol class="steps">
+    <li><b>Protein first</b>Every meal, every day</li>
+    <li><b>Swap like for like</b>And weigh everything uncooked</li>
+    <li><b>Manage your day, not just your meals</b>Plan ahead, not after</li>
+    <li><b>Track consistently, not perfectly</b>Nobody hands out medals for a flawless fortnight followed by three months off</li>
+    <li><b>Consistency beats perfection</b>Close enough, most of the time, for long enough</li>
+  </ol>
+</section>
+
+<div class="cta-box">
+  <h2>Want me to do the maths for you?</h2>
+  <p>Tell me your goal and I'll build steps 1 to 8 for you: calculated, structured, and adjusted every week as you go. <span style="color:var(--gold-l);font-style:italic;font-family:var(--serif)">Considerably less maths on your part.</span></p>
+  <a class="btn" href="https://forms.gle/ZtK6VXzdqNYYzVgG9">Apply &amp; book your free call</a>
+  <a class="btn ghost" href="https://calendly.com/mpfcoaching-info/30">Book a call</a>
+  <p style="font-size:12px;color:#a89a78;margin-top:12px">Free · No obligation · No hard sell<br>info@mpfcoaching.co.uk · @mariaparadisefitness</p>
+</div>
+
+<p class="disc"><b>Important:</b> this guide is for general education only. It isn't medical or nutritional advice or a personalised diet plan. Speak to your GP or a registered dietitian before making significant changes, especially if you have a medical condition, are pregnant or breastfeeding, are under 18, or take medication affected by diet. Tracking calories isn't right for everyone: if you have a current or past eating disorder or a difficult relationship with food, please get support from a qualified professional before using any form of calorie tracking.</p>
+</main>
+<footer>MPF Coaching · Maria Paradise · mpfcoaching.co.uk</footer>
+
+<script>
+(function(){
+  function seg(id){var el=document.getElementById(id);var v=el.querySelector('.on').dataset.v;
+    el.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;el.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');v=b.dataset.v;calc();});
+    return function(){return v};}
+  var sex=seg('sex'),goal=seg('goal'),meals=seg('meals');
+  ['age','wt','ht','act'].forEach(function(i){document.getElementById(i).addEventListener('input',calc)});
+  var R={loss:{adj:[-500,-300],p:[1.6,2.4],f:[0.8,1.2],lbl:'300–500 kcal below maintenance'},
+         muscle:{adj:[200,300],p:[1.6,2.2],f:[0.8,1.2],lbl:'200–300 kcal above maintenance'},
+         recomp:{adj:[0,0],p:[2.0,2.4],f:[0.8,1.0],lbl:'At maintenance'}};
+  function r10(x){return Math.round(x/10)*10}
+  function calc(){
+    var a=+document.getElementById('age').value,w=+document.getElementById('wt').value,h=+document.getElementById('ht').value,m=+document.getElementById('act').value;
+    var res=document.getElementById('res');
+    if(!(a>=16&&a<=100&&w>=30&&w<=300&&h>=120&&h<=230)){res.classList.remove('show');return;}
+    var bmr=10*w+6.25*h-5*a+(sex()==='m'?5:-161), tdee=bmr*m, g=R[goal()];
+    var calLo=tdee+g.adj[0], calHi=tdee+g.adj[1], cal=(calLo+calHi)/2;
+    var pLo=Math.round(w*g.p[0]),pHi=Math.round(w*g.p[1]),fLo=Math.round(w*g.f[0]),fHi=Math.round(w*g.f[1]);
+    var pMid=(pLo+pHi)/2,fMid=(fLo+fHi)/2,c=Math.max(0,Math.round((cal-pMid*4-fMid*9)/4));
+    document.getElementById('oTdee').textContent=r10(tdee).toLocaleString('en-GB');
+    document.getElementById('oCal').textContent=calLo===calHi?r10(cal).toLocaleString('en-GB'):r10(calLo).toLocaleString('en-GB')+'–'+r10(calHi).toLocaleString('en-GB');
+    document.getElementById('oCalNote').textContent='kcal/day · '+g.lbl;
+    document.getElementById('oP').textContent=pLo+'–'+pHi+'g';
+    document.getElementById('oF').textContent=fLo+'–'+fHi+'g';
+    document.getElementById('oC').textContent='~'+c+'g';
+    var tot=pMid*4+fMid*9+c*4;
+    document.getElementById('bP').style.width=(pMid*4/tot*100)+'%';
+    document.getElementById('bF').style.width=(fMid*9/tot*100)+'%';
+    document.getElementById('bC').style.width=(c*4/tot*100)+'%';
+    var n=+meals();
+    document.getElementById('oMeal').textContent='Across '+n+' meals, aim for roughly '+Math.round(pLo/n)+'–'+Math.round(pHi/n)+'g of protein each. It doesn\'t need to be perfect: 40g in one and 60g in another is fine.';
+    var warn=document.getElementById('warn');
+    if(calLo<bmr){warn.style.display='block';warn.textContent='Heads up: this target dips below your estimated resting metabolic rate ('+r10(bmr).toLocaleString('en-GB')+' kcal). Start at the top of the range or a smaller deficit, and please get personalised advice before going lower.';}
+    else warn.style.display='none';
+    res.classList.add('show');
+  }
+  // tabs
+  document.querySelectorAll('.tabs').forEach(function(t){
+    t.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;var g=t.dataset.group;
+      t.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+      document.querySelectorAll('.pane[data-group="'+g+'"]').forEach(p=>p.classList.toggle('on',p.id===b.dataset.p));});
+  });
+  // checklist
+  var boxes=document.querySelectorAll('#check input'),score=document.getElementById('score');
+  var msgs=['Tick what you already do.','Room to tighten up. These gaps can easily hide a few hundred calories a day.','Getting there. Close the gaps and your numbers start meaning something.','Solid. A couple more habits and your tracking will be bang on.','Elite tracker. If you\'re still stuck, it\'s time to adjust the plan, not the tracking.'];
+  boxes.forEach(function(b){b.addEventListener('change',function(){var n=[].filter.call(boxes,x=>x.checked).length;
+    score.textContent=n===0?msgs[0]:n+'/7 · '+(n<=2?msgs[1]:n<=4?msgs[2]:n<=6?msgs[3]:msgs[4]);});});
+})();
+</script>
+</body>
+</html>

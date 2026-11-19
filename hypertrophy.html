@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The MPF Hypertrophy Guide for Dummies | MPF Coaching</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
+<style>
+@font-face{font-family:"PlayfairL";src:url(fonts/pf400.woff2);font-weight:400}
+@font-face{font-family:"PlayfairL";src:url(fonts/pf400i.woff2);font-weight:400;font-style:italic}
+@font-face{font-family:"PlayfairL";src:url(fonts/pf700.woff2);font-weight:700}
+@font-face{font-family:"PlayfairL";src:url(fonts/pf900.woff2);font-weight:900}
+@font-face{font-family:"MontL";src:url(fonts/m400.woff2);font-weight:400}
+@font-face{font-family:"MontL";src:url(fonts/m600.woff2);font-weight:600}
+@font-face{font-family:"MontL";src:url(fonts/m700.woff2);font-weight:700}
+:root{--gold:#C9A64B;--gold-l:#E4CF8A;--gold-d:#9C7A2C;--ink:#111;--cream:#FBF7EE;--muted:#5b5547;
+--grad:linear-gradient(120deg,#9C7A2C 0%,#C9A64B 45%,#E8D79A 100%);
+--serif:"Playfair Display","PlayfairL",Georgia,serif;--sans:"Montserrat","MontL",system-ui,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);font-size:16px;line-height:1.65;color:#1b1a17;background:var(--cream);-webkit-font-smoothing:antialiased}
+.wrap{max-width:680px;margin:0 auto;padding:0 22px}
+a{color:var(--gold-d)}
+.top{position:sticky;top:0;z-index:5;background:rgba(17,17,17,.95);padding:10px 0}
+.top .wrap{display:flex;justify-content:space-between;align-items:center}
+.top a{color:var(--gold-l);text-decoration:none;font-size:13px;font-weight:600;letter-spacing:.06em}
+.top .cta{background:var(--grad);color:var(--ink);padding:8px 14px;border-radius:20px;font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+
+.cover{background:#111;color:#fff;text-align:center;padding:56px 0 60px;position:relative}
+.cover:before{content:"";position:absolute;inset:14px;border:1px solid rgba(201,166,75,.4);pointer-events:none}
+.cover img{width:150px;margin:0 auto 26px;display:block}
+.cover .kick{font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--gold-l);margin-bottom:14px}
+.cover h1{font-family:var(--serif);font-weight:900;font-size:clamp(34px,9vw,54px);line-height:1.05}
+.cover h1 em{display:block;font-style:italic;font-weight:400;color:var(--gold)}
+.cover .sub{font-family:var(--serif);font-style:italic;font-size:19px;color:#d8ccb0;margin-top:16px}
+.cover .by{margin-top:26px;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:#a89a78}
+
+.tldr{background:#fff;border:1.5px solid var(--gold);border-radius:12px;padding:24px 22px;margin:34px 0 10px}
+.tldr h2{font-family:var(--serif);font-size:22px;margin-bottom:12px}
+.tldr ol{padding-left:20px}
+.tldr li{margin-bottom:7px}
+.toc{margin:22px 0 0;font-size:14px;columns:2;column-gap:20px}
+.toc a{display:block;text-decoration:none;color:#3a362e;padding:4px 0;break-inside:avoid}
+.toc a b{color:var(--gold-d);margin-right:6px}
+
+section.ch{padding:42px 0 6px;break-inside:auto}
+.num{font-family:var(--serif);font-weight:900;font-size:15px;color:var(--gold-d);letter-spacing:.12em}
+h2.t{font-family:var(--serif);font-weight:900;font-size:clamp(26px,6.5vw,34px);line-height:1.12;margin:4px 0 16px;break-after:avoid}
+h3{font-family:var(--serif);font-weight:700;font-size:20px;margin:22px 0 6px;break-after:avoid}
+p{margin-bottom:12px}
+ul.b{list-style:none;margin:4px 0 14px}
+ul.b li{position:relative;padding-left:24px;margin-bottom:8px}
+ul.b li:before{content:"";position:absolute;left:0;top:8px;width:11px;height:11px;border-radius:50%;background:var(--grad)}
+.lol{font-family:var(--serif);font-style:italic;color:var(--gold-d)}
+sup{font-size:10px;color:var(--gold-d)}
+.note{background:#111;color:#e9e0c9;border-radius:10px;padding:18px 20px;margin:18px 0;font-size:15px;break-inside:avoid}
+.note b{color:var(--gold);letter-spacing:.14em;font-size:11px;display:block;margin-bottom:6px}
+.key{background:#f1e8cf;border-left:4px solid var(--gold);padding:14px 18px;border-radius:0 8px 8px 0;margin:16px 0;font-size:15px;break-inside:avoid}
+.key b{font-family:var(--serif)}
+table{width:100%;border-collapse:collapse;margin:14px 0 18px;font-size:14px;background:#fff;border-radius:10px;overflow:hidden;break-inside:avoid}
+th{background:#111;color:var(--gold-l);text-align:left;padding:10px 12px;font-size:12px;letter-spacing:.06em}
+td{padding:10px 12px;border-top:1px solid rgba(156,122,44,.2);vertical-align:top}
+td:first-child{font-weight:600}
+
+.cheat{background:#111;color:#f3ecdc;padding:44px 0;margin-top:40px}
+.cheat h2{font-family:var(--serif);font-size:30px;color:#fff;margin-bottom:6px}
+.cheat h2 em{color:var(--gold);font-weight:400}
+.cgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+.cgrid div{border:1px solid rgba(201,166,75,.4);border-radius:10px;padding:14px}
+.cgrid small{display:block;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+.cgrid b{font-family:var(--serif);font-size:22px;color:#fff;display:block;margin:2px 0}
+.cgrid span{font-size:13px;color:#cfc4aa}
+
+.cta-box{background:#111;color:#fff;text-align:center;border-radius:14px;padding:32px 24px;margin:36px 0;break-inside:avoid}
+.cta-box h2{font-family:var(--serif);font-size:26px;margin-bottom:10px}
+.cta-box p{color:#d8ccb0}
+.cta-box ul{list-style:none;margin:14px 0 20px;color:#e9e0c9;font-size:15px}
+.cta-box li{padding:4px 0}
+.cta-box li:before{content:"✓ ";color:var(--gold)}
+.btn{display:inline-block;background:var(--grad);color:var(--ink);font-weight:700;font-size:13px;letter-spacing:.16em;text-transform:uppercase;text-decoration:none;padding:16px 26px;border-radius:40px}
+.cta-box .small{font-size:12px;color:#a89a78;margin-top:14px}
+.refs{font-size:12px;color:#5b5547;line-height:1.5}
+.refs li{margin:0 0 6px 18px}
+.disc{font-size:12px;color:#5b5547;border-top:1px solid rgba(156,122,44,.3);padding-top:14px;margin-top:20px}
+footer{background:#0b0b0a;color:#6f6754;text-align:center;font-size:11px;letter-spacing:.2em;text-transform:uppercase;padding:22px 0}
+
+@media print{
+  @page{size:A4;margin:16mm 16mm 18mm}
+  body{font-size:10.6pt;background:#fff}
+  .top{display:none}
+  .wrap{max-width:none;padding:0}
+  .cover{height:265mm;display:flex;flex-direction:column;justify-content:center;margin:-16mm -16mm 0;page-break-after:always;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .cover img{width:58mm}
+  .tldr{margin-top:0}
+  .toc{columns:2}
+  section.ch{padding-top:20px}
+  .cheat{page-break-before:always;margin:0 -16mm;padding:16mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .note,.cheat,.cta-box,th,.btn,.key{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .cta-box{page-break-inside:avoid}
+  footer{display:none}
+  #refs{page-break-before:always}
+}
+.tool{background:#111;color:#efe6cf;border-radius:14px;padding:20px;margin:18px 0;border:1px solid rgba(201,166,75,.4)}
+.tl{font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+input[type=range]{width:100%;accent-color:#C9A64B;margin:8px 0}
+.rir-out b{display:block;font-family:var(--serif);font-size:24px;color:#fff}
+.rir-out span{display:block;color:#d8ccb0}
+.rir-out em{display:block;font-style:normal;margin-top:8px;font-weight:600;color:var(--gold-l)}
+.vrow{display:flex;gap:10px;align-items:center}
+.vrow select{flex:1;padding:12px;border-radius:10px;background:#1d1c19;color:#fff;border:1px solid rgba(201,166,75,.45);font-size:16px;font-family:var(--sans)}
+.step{display:flex;align-items:center;gap:10px}
+.step button{width:44px;height:44px;border-radius:50%;border:1.5px solid var(--gold);background:none;color:var(--gold);font-size:22px;cursor:pointer}
+.step b{font-family:var(--serif);font-size:26px;color:#fff;min-width:34px;text-align:center}
+.vbar{position:relative;height:12px;border-radius:8px;background:#2a2722;margin:16px 0 4px;overflow:hidden}
+.vbar i{position:absolute;left:0;top:0;bottom:0;background:var(--grad);transition:width .2s}
+.vbar span{position:absolute;top:0;bottom:0;width:2px;background:#111}
+.vscale{display:flex;justify-content:space-between;font-size:11px;color:#a89a78}
+.vmsg{margin:10px 0 0;font-weight:600;color:var(--gold-l)}
+@media print{.tool{display:none}}
+</style>
+</head>
+<body>
+
+<div class="top"><div class="wrap"><a href="index.html">← MPF Coaching</a><a class="cta" href="https://forms.gle/ZtK6VXzdqNYYzVgG9">Work with me</a></div></div>
+
+<header class="cover"><div class="wrap">
+  <img src="img/logo.png" alt="MPF Coaching">
+  <div class="kick">Free guide · MPF Coaching</div>
+  <h1>The MPF Hypertrophy Guide <em>for Dummies</em></h1>
+  <div class="sub">All the science, none of the jargon (and hopefully a laugh or two)</div>
+  <div class="by">By Maria Paradise · mpfcoaching.co.uk</div>
+</div></header>
+
+<main class="wrap">
+
+<div class="tldr">
+  <h2>The 60-second version</h2>
+  <ol>
+    <li><b>Growth comes from tension.</b> Muscles grow when they're challenged under load, not when they're "torn".</li>
+    <li><b>Pick a weight you can lift for 6–30 reps</b>, then push each working set to 1–3 reps short of failure.</li>
+    <li><b>Aim for roughly 10–20 hard sets per muscle per week</b>, spread across your sessions.</li>
+    <li><b>Control the weight.</b> Full range, a proper stretch, no swinging, no bouncing.</li>
+    <li><b>Do a bit more over time</b> (weight, reps or sets), and write it down so you actually know.</li>
+    <li><b>Form before load. Always.</b></li>
+  </ol>
+  <div class="toc">
+    <a href="#terms"><b>01</b>Quick terms</a>
+    <a href="#size"><b>02</b>Size vs strength</a>
+    <a href="#pillars"><b>03</b>The three pillars</a>
+    <a href="#tension"><b>04</b>Keep the tension on</a>
+    <a href="#tempo"><b>05</b>Tempo</a>
+    <a href="#reps"><b>06</b>Rep ranges</a>
+    <a href="#rir"><b>07</b>RIR &amp; RPE</a>
+    <a href="#warmup"><b>08</b>Warm-ups &amp; sets</a>
+    <a href="#log"><b>09</b>The logbook</a>
+    <a href="#overload"><b>10</b>Progressive overload</a>
+    <a href="#failure"><b>11</b>Training to failure</a>
+    <a href="#drops"><b>12</b>Drop sets &amp; exhaust</a>
+    <a href="#safety"><b>13</b>Safety first</a>
+    <a href="#plan"><b>14</b>Why you need a plan</a>
+  </div>
+</div>
+
+<section class="ch" id="terms">
+  <div class="num">01</div><h2 class="t">Quick terms before we start</h2>
+  <p>Total beginner? Start here. None of this is complicated, but gym language throws people off before they've even started, so let's clear it up in one go.</p>
+  <ul class="b">
+    <li><b>Rep (repetition):</b> one full movement, e.g. one bicep curl, up and down.</li>
+    <li><b>Set:</b> a group of reps done back to back. "3 sets of 10" means 10 reps, rest, 10 more, rest, 10 more.</li>
+    <li><b>1RM (one-rep max):</b> the heaviest weight you could lift once with good form. Mostly a reference point, not something you train at often.</li>
+    <li><b>Compound exercise:</b> uses more than one joint and muscle group, e.g. a squat.</li>
+    <li><b>Isolation exercise:</b> targets one muscle through one joint, e.g. a bicep curl.</li>
+    <li><b>Volume:</b> the total work you do, usually sets × reps × weight, per exercise or across the week.</li>
+    <li><b>Failure:</b> the point where you can't do another rep with good form. <span class="lol">Your face will make a noise it doesn't normally make.</span></li>
+  </ul>
+  <p>Everything else (RIR, RPE, tempo and so on) gets explained in plain English in its own section before it's ever used to tell you what to do.</p>
+</section>
+
+<section class="ch" id="size">
+  <div class="num">02</div><h2 class="t">This is a "get bigger" guide, not a "lift heavier" guide</h2>
+  <h3>Same gym, completely different job</h3>
+  <p>Hypertrophy (bigger muscles) and strength (a bigger 1-rep max) are cousins, not twins. A powerlifter and a bodybuilder can share a rack and still be training almost completely different systems, a bit like a marathon runner and a sprinter who both "run" but would be useless swapping races. Mixing the two up is one of the most common reasons people train hard for months and barely change shape.</p>
+  <h3>What actually drives each one</h3>
+  <p><b>Hypertrophy</b> is driven mainly by mechanical tension: the pulling force a muscle fibre feels under load, which the cell turns into a "build more protein" signal. Enough of that signal, applied consistently over weeks, makes a muscle physically bigger.<sup>1</sup></p>
+  <p><b>Strength</b> is mostly a skill and nervous-system problem. Early strength gains come overwhelmingly from your brain and spinal cord getting better at recruiting more fibres, firing them faster and coordinating them on that specific lift.<sup>22,23</sup> That's why a beginner's squat can shoot up in the first few months with barely any visible muscle growth, and why strength is quite specific to the exact exercise trained, while size transfers to the muscle whichever exercise built it.<sup>24</sup></p>
+  <table>
+    <tr><th></th><th>Hypertrophy (this guide)</th><th>Strength</th></tr>
+    <tr><td>Goal</td><td>Bigger muscles</td><td>Bigger 1-rep max</td></tr>
+    <tr><td>Main driver</td><td>Mechanical tension + metabolic stress, with enough volume</td><td>Neural efficiency: recruitment, rate coding, coordination</td></tr>
+    <tr><td>Load</td><td>30–85% of your max</td><td>80%+ of your max</td></tr>
+    <tr><td>Reps</td><td>6–30</td><td>1–6</td></tr>
+    <tr><td>Effort</td><td>Hard: RPE 7–10</td><td>Hard, but fewer sets to true failure</td></tr>
+    <tr><td>Rest</td><td>60–120 sec is plenty</td><td>2–5 min. Your nervous system needs the nap</td></tr>
+    <tr><td>Transfer</td><td>To the muscle, whatever the exercise</td><td>Mostly to the specific lift</td></tr>
+  </table>
+  <div class="note"><b>COACH'S NOTE</b>Most people who say they "want to get bigger" are quietly following a strength programme, or a Frankenstein mix of both. Knowing which one you're actually doing changes nearly every decision in your training.</div>
+</section>
+
+<section class="ch" id="pillars">
+  <div class="num">03</div><h2 class="t">The three pillars of hypertrophy</h2>
+  <p>You don't need to "tear" your muscles to grow them. Your muscles don't know what a bicep curl is. All they know is "something heavy just tried to move me, I'd better get bigger so that's easier next time." <span class="lol">Your muscles are not smart, but they are extremely committed to not being embarrassed twice.</span> Growth is driven mostly by mechanical tension and metabolic stress (the "pump"), with muscle damage playing a much smaller role than gym folklore suggests.<sup>1</sup> On top of overall volume and progressive overload, three variables come up again and again.</p>
+
+  <h3>Pillar 1 · Mind-muscle connection</h3>
+  <p>Deliberately focusing on the muscle you're working genuinely increases its activity, especially with light-to-moderate weights (up to about 60% of your max).<sup>2,3</sup> Load the bar close to your max and it stops mattering. <span class="lol">There's no spare brainpower for "feeling the squeeze" when you're busy not getting crushed.</span> To be honest about the evidence: it mostly shows more electrical activity in the muscle, not proof of more growth.<sup>4</sup></p>
+  <ul class="b">
+    <li>Use it on lighter isolation moves: bicep curls, not your 1RM deadlift</li>
+    <li>Slow the lowering slightly and actually squeeze at the top</li>
+    <li>Don't try to "feel" a heavy compound lift. Just lift it (and maybe pray a little)</li>
+  </ul>
+
+  <h3>Pillar 2 · Full range of motion</h3>
+  <p>Full range beats partial reps for growth, on average.<sup>5</sup> The newer research is fussier: reps done in the deep stretch (the bottom of a squat, not the top) can match or even beat full range for some muscles.<sup>6,7</sup> The style that consistently comes last is the shortened partial, those tiny half-reps at the top of a curl.</p>
+  <ul class="b">
+    <li>Default to full range with a proper stretch at the bottom</li>
+    <li>"Lengthened partials" (staying low) make a handy finisher</li>
+    <li>Quarter reps at the top are ego reps. <span class="lol">Nobody's impressed, they're busy filming their own set.</span></li>
+  </ul>
+
+  <h3>Pillar 3 · Time under tension</h3>
+  <p>Reps lasting anywhere from about half a second to 8 seconds build muscle equally well, as long as sets go close to failure and total work is the same.<sup>8</sup> <span class="lol">So you can stop the dramatic "one Mississippi" count out loud.</span> What doesn't work is turning every rep into a 10-second ordeal, mostly because you have to use a much lighter weight to survive it.<sup>8</sup></p>
+  <div class="key"><b>Bottom line:</b> a controlled, non-bouncy rep is all you need. Total effort and volume matter far more than the clock.</div>
+</section>
+
+<section class="ch" id="tension">
+  <div class="num">04</div><h2 class="t">Don't let your muscles clock off mid-set</h2>
+  <p>Tension is the pulling force your muscle feels while holding or moving a weight, and it's what tells your body to grow. Any moment in a rep where that tension drops to near zero is a moment that isn't working for you. Locking out fully can shift the load onto bone and connective tissue, and a dead stop at the bottom lets the weight hang on your joints instead of your muscle.</p>
+  <h3>How people accidentally break tension</h3>
+  <ul class="b">
+    <li><b>Locking out fully on isolation moves</b> like curls, pushdowns and leg extensions</li>
+    <li><b>Letting the plates touch down</b> on plate-loaded machines. <span class="lol">The plates are having a lovely nap. Your muscle is not invited.</span></li>
+    <li><b>Using momentum:</b> swinging, hip-thrusting or bouncing the weight up</li>
+    <li><b>Quitting the moment it gets uncomfortable.</b> That discomfort is the stimulus, not a reason to stop</li>
+  </ul>
+  <h3>Simple fixes</h3>
+  <ul class="b">
+    <li>Stop just short of full lockout on isolation moves</li>
+    <li>No dead stops, and stop just before the plates touch (unless a pause is planned)</li>
+    <li>Move the weight with the muscle, not with body English</li>
+    <li>Squeeze at peak contraction instead of passing straight through it</li>
+    <li>Push through the burn towards genuine failure or near-failure</li>
+  </ul>
+  <div class="note"><b>COACH'S NOTE</b>On heavy compound lifts (squat, deadlift, bench), a controlled lockout is still the safer, correct technique. Save the "no lockout" cue for isolation and machine work, not your max squat.</div>
+</section>
+
+<section class="ch" id="tempo">
+  <div class="num">05</div><h2 class="t">Tempo: how to actually use it</h2>
+  <p>Tempo is written as four numbers: <b>lowering – pause at the bottom – lifting – pause at the top</b>. So <b>3-1-1-0</b> means 3 seconds down, 1 second pause in the stretch, 1 second up, no pause at the top. <span class="lol">It looks like maths homework, but nobody's checking your working.</span></p>
+  <ul class="b">
+    <li><b>Lowering:</b> 2–4 seconds, under control. Free tension for nothing</li>
+    <li><b>Pause at the bottom:</b> 0–2 seconds. Kills the bounce, keeps you honest</li>
+    <li><b>Lifting:</b> push like you mean it, even if the weight moves slowly</li>
+  </ul>
+  <p>Tempo has a wide "it doesn't really matter" window, so treat it as a tool for technique and focus, not something to lose sleep over.<sup>8</sup></p>
+</section>
+
+<section class="ch" id="reps">
+  <div class="num">06</div><h2 class="t">Rep ranges: 6–30</h2>
+  <h3>A weight-picker, not a finish line</h3>
+  <p>Rep ranges help you <b>pick a weight</b>. They don't tell you when to rack it. "6–12 reps" is a guide to how heavy the bar should be, not a red light that says stop even though you've got two good reps left. What decides when the set's done is how close you are to failure.</p>
+  <p>Research shows similar growth from light and heavy loads when sets are pushed hard, anywhere from roughly 30% to 85%+ of your max (broadly 6–30+ reps).<sup>9,10</sup> How close you get to failure predicts growth better than the rep number does.</p>
+  <table>
+    <tr><th>Range</th><th>Good for</th><th>Why</th></tr>
+    <tr><td>6–12</td><td>Compound lifts</td><td>Efficient, more mechanical tension</td></tr>
+    <tr><td>12–20</td><td>Accessory work</td><td>Good pump, easier on joints</td></tr>
+    <tr><td>20–30</td><td>Isolation / machines</td><td>Going heavy would be awkward or risky</td></tr>
+  </table>
+  <div class="note"><b>COACH'S NOTE</b>If you rack the bar the second you hit 12 even though it felt easy, you've turned a useful guideline into an arbitrary rule. Your muscles don't know you hit a nice round number. They just know whether they were challenged.</div>
+</section>
+
+<section class="ch" id="rir">
+  <div class="num">07</div><h2 class="t">RIR &amp; RPE: how to measure effort</h2>
+  <p><b>Reps in reserve (RIR)</b> is your best guess at how many more reps you could have done before true failure. "I could've done two more" = 2 RIR. Nothing left at all = 0 RIR.<sup>20</sup></p>
+  <p><b>RPE</b> (rate of perceived exertion) is RIR flipped onto a 1–10 scale, where 10 means failure.<sup>21</sup> It's handy because your "max" isn't fixed. It changes with sleep, stress and whatever life throws at you, and RPE lets you adjust on the day.</p>
+  <table>
+    <tr><th>RIR</th><th>RPE</th><th>What it feels like</th></tr>
+    <tr><td>0</td><td>10</td><td>Failure. The bar isn't moving and neither are you</td></tr>
+    <tr><td>1</td><td>9</td><td>Brutal. One more rep, maybe, if you really mean it</td></tr>
+    <tr><td>2</td><td>8</td><td>Hard. Two more reps, no more chit-chat</td></tr>
+    <tr><td>3</td><td>7</td><td>Tough but civil. Three more possible</td></tr>
+    <tr><td>4+</td><td>6 or less</td><td>Warm-up / feeder set energy</td></tr>
+  </table>
+  <div class="tool">
+    <div class="tl">Try it · effort dial</div>
+    <p style="margin:0 0 8px">Just finished a set? How many more good reps could you have done?</p>
+    <input type="range" id="rirDial" min="0" max="5" value="2" step="1">
+    <div class="rir-out"><b id="rirN">2 RIR · RPE 8</b><span id="rirT">Hard. Two more reps, no more chit-chat.</span><em id="rirV">✓ Bang on for a hypertrophy working set.</em></div>
+  </div>
+  <div class="key"><b>Target:</b> most working sets for hypertrophy should sit around <b>1–3 RIR (RPE 7–9)</b>.</div>
+  <p>Fair warning: beginners are notoriously bad at guessing RIR, and most think they're closer to failure than they really are.<sup>21</sup> <span class="lol">Different problem from the person who "definitely had 5 more" right after collapsing off the bench. Same lack of self-awareness.</span> It gets better with practice.</p>
+  <div class="note"><b>COACH'S NOTE</b>Judging your own effort is hard, even after years of training. A coach watching your sets can tell you when you're actually at 2 RIR, not just what your brain is telling you.</div>
+</section>
+
+<section class="ch" id="warmup">
+  <div class="num">08</div><h2 class="t">Warm-ups, and how I coach working sets</h2>
+  <h3>One general warm-up + two feeder sets</h3>
+  <p>A general warm-up, then two ramp-up ("feeder") sets before your working weight, preps your joints and nervous system without burning energy you need for the real work.</p>
+  <h3>Then: two proper working sets to failure</h3>
+  <p>That's my go-to. Hard enough that the last rep isn't pretty. <span class="lol">Think "concerned facial expression", not "gentle Sunday stroll".</span> It's one good method among many. Straight sets, RIR-based sets, drop sets and more sets at lighter effort all apply the same science, and the best one depends on your recovery, schedule, injury history and how your week's going.</p>
+  <h3>Why two sets is enough (when it is)</h3>
+  <p>Two sets per exercise only works because it's never the only work a muscle gets that week. Across a full programme covering every major movement (squat, hinge, push, pull, carry) and hitting each muscle from more than one angle, those sets add up to the <b>10–20 hard sets per muscle per week</b> that research links to solid growth.<sup>25</sup> Two sets is a per-exercise dose, not a per-week one.</p>
+  <div class="tool">
+    <div class="tl">Try it · weekly volume checker</div>
+    <p style="margin:0 0 10px">Pick a muscle, then add up every hard set that trains it across your week.</p>
+    <div class="vrow"><select id="vm"><option>Chest</option><option>Back</option><option>Shoulders</option><option>Quads</option><option>Hamstrings</option><option>Glutes</option><option>Biceps</option><option>Triceps</option><option>Calves</option></select>
+    <div class="step"><button type="button" id="vminus">−</button><b id="vn">8</b><button type="button" id="vplus">+</button></div></div>
+    <div class="vbar"><i id="vfill"></i><span style="left:33.3%"></span><span style="left:66.6%"></span></div>
+    <div class="vscale"><span>0</span><span>10</span><span>20</span><span>30</span></div>
+    <p id="vmsg" class="vmsg"></p>
+  </div>
+  <h3>When two sets is not enough</h3>
+  <ul class="b">
+    <li>A muscle only appears in one exercise, once a week. That's under-dosed, not efficient</li>
+    <li>You're a complete beginner still learning technique. Extra lighter practice sets matter more than chasing failure</li>
+    <li>A specific muscle is lagging and needs direct extra volume</li>
+    <li>Recovery is poor (illness, bad sleep, high stress) and the body can't absorb it that week</li>
+  </ul>
+</section>
+
+<section class="ch" id="log">
+  <div class="num">09</div><h2 class="t">Why I make every client use a logbook</h2>
+  <p><b>You can't progress what you don't measure.</b> Without a written record, "did I lift more than last week?" is a guess, and guesses drift. Most people who think they've plateaued haven't. They've lost track and repeated the same numbers for weeks.</p>
+  <p>It also fixes the RIR problem. If your top set has read "8 reps, felt like a 7" for a month, that's a fact I can act on. Without the log, it's just a vibe. <span class="lol">Vibes don't build muscle. Mechanical tension does.</span></p>
+  <h3>What to log</h3>
+  <ul class="b">
+    <li>Exercise, weight and reps for every working set</li>
+    <li>A quick effort rating (RPE or RIR) per set</li>
+    <li>Anything unusual: bad sleep, high stress, a niggle, feeling great</li>
+  </ul>
+</section>
+
+<section class="ch" id="overload">
+  <div class="num">10</div><h2 class="t">Progressive overload: the "line must go up" rule</h2>
+  <p>Progressive overload means gradually asking a bit more of your muscles over time. Some progression is necessary for continued growth, though it isn't perfectly linear, and just "doing more" won't work forever once recovery or nutrition become the bottleneck.<sup>14</sup> <span class="lol">Grunting loudly does not count as a training variable.</span></p>
+  <ul class="b">
+    <li><b>Weight:</b> add load, same rep range</li>
+    <li><b>Reps:</b> add reps at the same weight before bumping the load</li>
+    <li><b>Sets:</b> add volume to a lagging muscle</li>
+    <li><b>Control:</b> deeper stretch or less momentum, same weight</li>
+    <li><b>Density:</b> same work, slightly less rest</li>
+  </ul>
+  <p>Adding load and adding reps produced basically the same gains over 8 weeks in a direct comparison, so adding reps when the next weight jump feels too big is a legitimate strategy, not a cop-out.<sup>15</sup></p>
+</section>
+
+<section class="ch" id="failure">
+  <div class="num">11</div><h2 class="t">Training to failure: the full story</h2>
+  <ul class="b">
+    <li><b>True failure:</b> you genuinely can't do another rep with decent form. The bar wins</li>
+    <li><b>Technical failure:</b> your form goes before true failure. The safer stopping point on heavy compounds</li>
+  </ul>
+  <p>Pushing closer to failure is thought to recruit more of the fibres that respond best to growth. <span class="lol">The stubborn ones that only dance after the third song.</span> A 2023 meta-analysis found a real but small edge for sets taken closer to failure,<sup>12</sup> but an 8-week trial comparing true failure with stopping 1–2 reps short found essentially identical growth, with much more fatigue in the failure group.<sup>13</sup></p>
+  <h3>How to apply it</h3>
+  <ul class="b">
+    <li>Most sets: stop at 0–3 RIR</li>
+    <li>Save true failure for isolation moves, machines and the last set of an exercise</li>
+    <li>Go easy on taking heavy squats, deadlifts and bench to true failure. The risk-to-reward isn't great</li>
+  </ul>
+  <div class="note"><b>COACH'S NOTE</b>Change is genuinely possible on your own. What a coach adds isn't secret knowledge. It's knowing exactly when to adapt your training as you progress, plateau, or life gets in the way.</div>
+</section>
+
+<section class="ch" id="drops">
+  <div class="num">12</div><h2 class="t">Drop sets &amp; post-exhaust: when to bother</h2>
+  <h3>Drop sets</h3>
+  <p>Hit failure, drop the weight by about 20–25%, and keep going with barely a breath. Two meta-analyses found trivial differences in growth versus normal sets, but drop sets cut training time by roughly 30–70%.<sup>11,16</sup> <span class="lol">They won't make you grow faster, but they'll get you out of the gym faster.</span></p>
+  <ul class="b">
+    <li>Use when short on time, or for extra volume without extra sets</li>
+    <li>Best on the last set of an isolation or machine move</li>
+    <li>One or two per session is plenty. The fatigue bill adds up fast</li>
+  </ul>
+  <h3>Post-exhaust (and pre-exhaust)</h3>
+  <p>Post-exhaust pairs a compound lift with an isolation finisher for the same muscle (leg press, then leg extensions). That's really just the sensible rule of doing big lifts first.<sup>17</sup> Pre-exhaust (isolation first) has mixed evidence, mostly because it weakens the compound lift that follows,<sup>18,19</sup> and recent work found it performs about the same as normal order, not better.<sup>19</sup></p>
+  <div class="key"><b>Don't expect a secret hack.</b> Total volume and effort still do the heavy lifting (pun intended).</div>
+</section>
+
+<section class="ch" id="safety">
+  <div class="num">13</div><h2 class="t">Safety first (yes, even in a guide with jokes)</h2>
+  <p>Training hard and training safely aren't in competition. <span class="lol">Chasing failure on a heavy squat with sloppy form is how "pushing close to failure" turns into "pushing the ambulance call button".</span></p>
+  <ul class="b">
+    <li><b>Form before load, always.</b> A lighter weight done properly beats a heavier one done badly</li>
+    <li><b>Know fatigue from pain.</b> A burning, tired muscle is normal. Sharp, sudden or joint pain is not, so stop the set</li>
+    <li><b>Use safety equipment</b> on heavy lifts: spotter arms, a spotter or a Smith machine. <span class="lol">Pride has crushed more people than barbells.</span></li>
+    <li><b>Warm up properly</b> and <b>progress load gradually</b></li>
+    <li><b>Get technique coaching early.</b> Bad habits get heavier the longer they stick</li>
+  </ul>
+  <h3>Get medical clearance first if you…</h3>
+  <p>have a heart, joint or musculoskeletal condition, are recovering from injury or surgery, are pregnant, or are new to exercise after a long break. Nothing in this guide overrides advice from a medical professional who knows your history.</p>
+  <h3>Stop immediately and seek help if you get</h3>
+  <ul class="b">
+    <li>Sudden, sharp or shooting pain during a lift</li>
+    <li>Chest pain, dizziness, or breathlessness beyond normal hard-set breathing</li>
+    <li>A joint that gives way, clicks painfully or swells after training</li>
+    <li>An injury that doesn't improve after a few days' rest</li>
+  </ul>
+</section>
+
+<section class="ch" id="plan">
+  <div class="num">14</div><h2 class="t">Why this guide alone isn't a programme</h2>
+  <p>Everything above is solid science, but science gives you <b>principles</b>, not a <b>personalised plan</b>. <span class="lol">Your body didn't read the textbook. Frankly, it can't read at all.</span> The details need building around you:</p>
+  <ul class="b">
+    <li><b>Your proportions:</b> limb length and joint set-up change which exercises suit you</li>
+    <li><b>Your lifestyle:</b> how many days you can train and how well you recover</li>
+    <li><b>Your injuries:</b> the textbook version of an exercise isn't always right for your joints</li>
+    <li><b>Your nutrition:</b> without the right fuel, the training has nothing to build with</li>
+  </ul>
+  <p>Two people can follow the same evidence-based principles and get very different results, purely because one plan was built around them and the other wasn't.</p>
+</section>
+
+</main>
+
+<section class="cheat"><div class="wrap">
+  <div class="num" style="color:var(--gold)">CHEAT SHEET</div>
+  <h2>Screenshot <em>this page.</em></h2>
+  <div class="cgrid">
+    <div><small>Reps</small><b>6–30</b><span>Pick the weight from the range</span></div>
+    <div><small>Effort</small><b>1–3 RIR</b><span>RPE 7–9 on most working sets</span></div>
+    <div><small>Weekly volume</small><b>10–20 sets</b><span>Hard sets per muscle, per week</span></div>
+    <div><small>Rest</small><b>60–120s</b><span>Between hypertrophy sets</span></div>
+    <div><small>Tempo</small><b>2–4s down</b><span>Control the lowering, no bounce</span></div>
+    <div><small>Range</small><b>Full + stretch</b><span>Skip the top-end quarter reps</span></div>
+    <div><small>Warm-up</small><b>General + 2</b><span>Two feeder sets, then work</span></div>
+    <div><small>Progress</small><b>Log it</b><span>More weight, reps or sets over time</span></div>
+  </div>
+</div></section>
+
+<main class="wrap">
+  <div class="cta-box">
+    <h2>Want a programme built around <span style="color:var(--gold);font-style:italic;font-weight:400">you</span>, not a textbook?</h2>
+    <p>This guide gives you the principles. Your sets, reps, exercises and progression need building around your body and your goals. That's where coaching comes in.</p>
+    <ul>
+      <li>A programme built around your recovery</li>
+      <li>Form feedback on your lifts</li>
+      <li>Progress tracked and adjusted every week</li>
+    </ul>
+    <a class="btn" href="https://forms.gle/ZtK6VXzdqNYYzVgG9">Apply &amp; book your free call</a>
+    <div class="small">Free, no obligation, no hard sell. Or book straight in: <a href="https://calendly.com/mpfcoaching-info/30" style="color:var(--gold-l)">calendly.com/mpfcoaching-info/30</a><br>info@mpfcoaching.co.uk · <a href="https://www.instagram.com/mariaparadisefitness" style="color:var(--gold-l)">@mariaparadisefitness</a></div>
+  </div>
+
+  <section id="refs" style="padding-bottom:30px">
+    <h3>References</h3>
+    <ol class="refs">
+      <li>Damas et al., J Physiol 2016. Resistance training-induced changes in integrated myofibrillar protein synthesis are related to hypertrophy only after attenuation of muscle damage.</li>
+      <li>Calatayud et al., Eur J Appl Physiol 2016. Importance of mind-muscle connection during progressive resistance training.</li>
+      <li>Snyder &amp; Fry, J Strength Cond Res 2012. Internal attentional focus and bench press EMG.</li>
+      <li>Vigotsky et al., Eur J Appl Physiol 2016. Limitations of EMG as a hypertrophy proxy.</li>
+      <li>Pallarés et al., Scand J Med Sci Sports 2021. Effects of range of motion on resistance training adaptations: a systematic review and meta-analysis.</li>
+      <li>Wolf, Androulakis-Korakakis, Fisher, Schoenfeld &amp; Steele, Int J Strength Cond 2023. Partial vs full range of motion resistance training: a systematic review and meta-analysis.</li>
+      <li>Kassiano et al., J Strength Cond Res 2023. Greater gastrocnemius hypertrophy after partial range of motion training at long muscle lengths.</li>
+      <li>Schoenfeld, Ogborn &amp; Krieger, Sports Med 2015. Effect of repetition duration on muscle hypertrophy.</li>
+      <li>Schoenfeld, Grgic, Ogborn &amp; Krieger, J Strength Cond Res 2017. Strength and hypertrophy adaptations between low- vs high-load resistance training.</li>
+      <li>Schoenfeld, Grgic, Van Every &amp; Plotkin, Sports 2021. Loading recommendations for muscle strength, hypertrophy, and local endurance.</li>
+      <li>Coleman et al., Int J Strength Cond 2022. Muscular adaptations in drop set vs traditional training: a meta-analysis.</li>
+      <li>Refalo, Helms, Trexler, Hamilton &amp; Fyfe, Sports Med 2023. Influence of resistance training proximity-to-failure on skeletal muscle hypertrophy.</li>
+      <li>Refalo et al., J Sports Sci 2024. Similar muscle hypertrophy following eight weeks of training to failure or with repetitions-in-reserve.</li>
+      <li>Refalo et al., Sports Med 2024. Progression of total training volume in resistance training studies and its application to muscle growth.</li>
+      <li>Plotkin et al., PeerJ 2022. Progressive overload without progressing load?</li>
+      <li>Sødal, Kristiansen, Larsen &amp; van den Tillaar, Sports Med Open 2023. Effects of drop sets on skeletal muscle hypertrophy.</li>
+      <li>Sforzo &amp; Touey, J Strength Cond Res 1996. Exercise order and neuromuscular fatigue.</li>
+      <li>Gentil et al., J Strength Cond Res 2007. Pre-exhaustion exercise order and EMG outcomes.</li>
+      <li>Schoenfeld et al., 2025 preprint. Front-loading fatigue: does the pre-exhaustion method influence resistance training-induced muscular adaptations?</li>
+      <li>Zourdos et al., J Strength Cond Res 2016. Novel resistance training-specific RPE scale measuring repetitions in reserve.</li>
+      <li>Helms, Cronin, Storey &amp; Zourdos, Strength Cond J 2016. Application of the RIR-based RPE scale for resistance training.</li>
+      <li>Sale, Med Sci Sports Exerc 1988. Neural adaptation to resistance training.</li>
+      <li>Del Vecchio et al., J Physiol 2019. Muscle force increase after 4 weeks of strength training is mediated by motor unit recruitment and rate coding.</li>
+      <li>Folland &amp; Williams, Sports Med 2007. Morphological and neurological contributions to increased strength.</li>
+      <li>Schoenfeld, Ogborn &amp; Krieger, J Sports Sci 2017. Dose-response relationship between weekly training volume and muscle mass.</li>
+    </ol>
+    <p class="disc">This guide is for general education and isn't a substitute for personalised medical or professional coaching advice. Always prioritise safe technique over hitting a number, and see a doctor before starting a new training programme if you have any health conditions, injuries or concerns.</p>
+  </section>
+</main>
+<footer>MPF Coaching · Maria Paradise · mpfcoaching.co.uk</footer>
+<script>
+(function(){
+var T=[["Failure. The bar isn't moving and neither are you.","✓ Fine on isolation and machine work. Go easy on heavy compounds."],
+["Brutal. One more rep, maybe, if you really mean it.","✓ Great for a hypertrophy working set."],
+["Hard. Two more reps, no more chit-chat.","✓ Bang on for a hypertrophy working set."],
+["Tough but civil. Three more reps possible.","✓ Still in the zone. Next set, push a little closer."],
+["Warm-up / feeder set energy.","✗ Too easy for a working set. Add weight or reps."],
+["Warm-up / feeder set energy.","✗ That's a warm-up. Beginners: you probably had even more left than you think."]];
+var r=document.getElementById('rirDial');
+function u(){var v=+r.value;document.getElementById('rirN').textContent=(v>=5?'5+':v)+' RIR · RPE '+(v>=4?(10-v)+' or less':10-v);document.getElementById('rirT').textContent=T[v][0];document.getElementById('rirV').textContent=T[v][1];}
+r.addEventListener('input',u);u();
+var n=8,vn=document.getElementById('vn'),vm=document.getElementById('vm');
+function v(){vn.textContent=n;document.getElementById('vfill').style.width=Math.min(100,n/30*100)+'%';
+var m=vm.value.toLowerCase(),msg;
+if(n<6)msg='Under-dosed. '+vm.value+' needs more hard sets to grow well.';
+else if(n<10)msg='A decent start. Most trained lifters grow best with 10–20 hard sets for '+m+' a week.';
+else if(n<=20)msg='✓ In the sweet spot for '+m+': 10–20 hard sets a week.';
+else msg='That\'s a lot. More isn\'t always better if recovery can\'t keep up. Check you\'re actually recovering.';
+document.getElementById('vmsg').textContent=msg;}
+document.getElementById('vminus').onclick=function(){n=Math.max(0,n-1);v()};
+document.getElementById('vplus').onclick=function(){n=Math.min(40,n+1);v()};
+vm.onchange=v;v();
+})();
+</script>
+</body>
+</html>

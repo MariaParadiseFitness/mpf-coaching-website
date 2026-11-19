@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Work with me | MPF Online Coaching</title>
+<meta name="description" content="Online coaching with Maria Paradise: structure you can stick to, flexibility you can live with, and support every week.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --gold:#C9A64B;--gold-l:#E4CF8A;--gold-d:#9C7A2C;
+  --ink:#111;--ink2:#1a1916;--cream:#FBF7EE;--muted:#5b5547;--line:rgba(156,122,44,.28);
+  --grad:linear-gradient(120deg,#9C7A2C 0%,#C9A64B 45%,#E8D79A 100%);
+  --serif:"Playfair Display",Georgia,serif;--sans:"Montserrat",system-ui,sans-serif;--script:"Great Vibes",cursive;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);font-size:16px;line-height:1.6;color:var(--ink);background:var(--cream);-webkit-font-smoothing:antialiased;padding-bottom:84px}
+img{max-width:100%;display:block}
+a{color:inherit}
+.wrap{max-width:620px;margin:0 auto;padding:0 22px}
+section{padding:64px 0}
+.dark{background:var(--ink);color:#f3ecdc}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:var(--gold-d);margin-bottom:12px}
+.dark .eyebrow{color:var(--gold)}
+h1,h2,h3{font-family:var(--serif);line-height:1.1}
+h2{font-size:clamp(30px,8vw,40px);font-weight:900;margin-bottom:20px}
+h2 em,h1 em{font-style:italic;font-weight:400;color:var(--gold-d)}
+.dark h2 em,.dark h1 em{color:var(--gold)}
+h3{font-size:20px;font-weight:700;margin-bottom:8px}
+p{margin-bottom:14px}
+.lead{font-size:18px}
+.joke{font-family:var(--serif);font-style:italic;color:var(--gold-d)}
+.dark .joke,.on-dark .joke{color:var(--gold)}
+.rule{width:56px;height:4px;background:var(--grad);border-radius:2px;margin:0 0 22px}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--grad);color:var(--ink);font-weight:700;font-size:13px;letter-spacing:.16em;text-transform:uppercase;text-decoration:none;padding:17px 26px;border-radius:40px;box-shadow:0 6px 20px rgba(156,122,44,.35);transition:transform .15s}
+.btn:active{transform:scale(.97)}
+.btn.block{display:flex;width:100%}
+.sub-link{display:block;text-align:center;font-size:13px;margin-top:14px;color:#cfc4aa}
+.sub-link a{color:var(--gold);font-weight:600}
+
+/* hero */
+.hero{position:relative;min-height:100svh;min-height:100vh;color:#fff;text-align:center;overflow:hidden;background:#111;display:flex;align-items:flex-end}
+.hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 18%}
+.hero-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(17,17,17,.15) 0%,rgba(17,17,17,.05) 30%,rgba(17,17,17,.75) 62%,#111 88%)}
+.hero:after{content:"";position:absolute;inset:14px;border:1px solid rgba(201,166,75,.45);pointer-events:none;border-radius:4px}
+.hero-in{position:relative;z-index:1;padding-top:52vh;padding-bottom:40px;width:100%}
+.hero-logo{position:absolute;top:26px;left:26px;width:74px;z-index:2;filter:drop-shadow(0 2px 6px rgba(0,0,0,.5))}
+.hero .tag{font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--gold-l);margin-bottom:12px}
+.hero h1{font-size:clamp(44px,12.5vw,66px);font-weight:900;line-height:1.02}
+.hero h1 em{display:block;color:var(--gold)}
+.hero-sub{font-family:var(--serif);font-style:italic;font-size:20px;color:#efe6cf;margin:12px 0 10px}
+.hero-line{font-size:15px;color:#d8ccb0;max-width:400px;margin:0 auto 24px;line-height:1.55}
+.hero-line b{color:var(--gold-l);font-weight:600}
+.proof{display:flex;justify-content:center;gap:10px;margin-top:26px;flex-wrap:wrap}
+.proof div{border:1px solid rgba(201,166,75,.55);background:rgba(17,17,17,.5);border-radius:30px;padding:8px 14px;font-size:12px;color:var(--gold-l)}
+.proof b{color:#fff;font-family:var(--serif);font-size:15px;margin-right:4px}
+
+/* blocks */
+.mon{display:flex;gap:16px;align-items:center;background:#fff;border:1.5px dashed var(--gold);border-radius:10px;padding:16px 18px;margin:22px 0}
+.mon .cal{flex:0 0 58px;height:62px;border-radius:6px;background:#2a2722;color:var(--gold);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-weight:900;font-size:18px}
+.mon p{margin:0;font-size:14px}
+.mon .t{font-family:var(--serif);font-weight:700;font-size:16px;margin-bottom:2px}
+.quote{font-family:var(--serif);font-style:italic;font-size:22px;line-height:1.4;border-left:4px solid var(--gold);padding:2px 0 2px 18px;margin:26px 0}
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:20px 0 22px}
+.three div{background:var(--ink);color:#fff;text-align:center;padding:20px 6px;font-family:var(--serif);font-weight:700;font-size:16px;border-radius:6px}
+.three small{display:block;font-family:var(--sans);font-size:10px;letter-spacing:.2em;color:var(--gold);margin-bottom:4px;font-weight:600}
+ul.tick{list-style:none;margin:0 0 16px}
+ul.tick li{position:relative;padding-left:28px;margin-bottom:10px}
+ul.tick li:before{content:"";position:absolute;left:0;top:6px;width:14px;height:14px;border-radius:50%;background:var(--grad)}
+ul.cross li:before{content:"✕";background:none;width:auto;height:auto;top:0;color:#8a7f68;font-size:15px}
+.split{display:grid;gap:14px;margin:22px 0}
+@media(min-width:560px){.split{grid-template-columns:1fr 1fr}}
+.split>div{border-radius:10px;padding:24px 22px}
+.split .a{background:var(--ink);color:#f3ecdc}
+.split .a h3{color:var(--gold)}
+.split .b{background:#fff;border:1.5px solid var(--gold)}
+.formula{text-align:center;font-family:var(--serif);font-size:20px;margin-top:28px}
+.formula small{display:block;font-family:var(--sans);font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-d);margin-top:6px}
+
+/* gallery */
+.gallery{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:6px 22px 18px;margin:0 -22px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.gallery::-webkit-scrollbar{display:none}
+.gallery figure{flex:0 0 82%;max-width:400px;scroll-snap-align:center;background:var(--ink2);border-radius:12px;overflow:hidden;border:1px solid rgba(201,166,75,.3)}
+.gallery img{width:100%;aspect-ratio:4/5;object-fit:cover;object-position:center top;background:#222}
+.gallery figcaption{padding:14px 16px;font-size:14px;color:#d8ccb0}
+.gallery figcaption b{display:block;font-family:var(--serif);color:var(--gold);font-size:18px;margin-bottom:2px}
+.swipe{text-align:center;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:#a89a78;margin-top:4px}
+
+/* cards */
+.cards{display:grid;gap:14px}
+.card{background:#fff;border-radius:10px;padding:22px 20px;border-top:4px solid var(--gold);box-shadow:0 2px 10px rgba(0,0,0,.05)}
+.card .n{font-family:var(--serif);font-weight:900;font-size:26px;color:var(--gold-d);line-height:1;margin-bottom:8px}
+.card p,.card li{font-size:15px;color:#3a362e}
+.card ul.tick li{margin-bottom:6px;padding-left:24px}
+.card ul.tick li:before{width:11px;height:11px;top:7px}
+.card p:last-child,.card ul:last-child{margin-bottom:0}
+
+/* mid cta */
+.cta-band{background:var(--ink);color:#fff;border-radius:14px;padding:30px 24px;text-align:center;margin-top:30px}
+.cta-band h3{font-size:24px;color:#fff}
+.cta-band p{color:#cfc4aa;font-size:15px}
+
+/* testimonials */
+.tcard{background:var(--ink2);border:1px solid rgba(201,166,75,.3);border-radius:12px;padding:24px 22px;margin-bottom:16px}
+.tcard .stars{color:var(--gold);letter-spacing:3px;font-size:14px;margin-bottom:10px}
+.tcard blockquote{font-family:var(--serif);font-size:18px;line-height:1.5;color:#f3ecdc;margin-bottom:14px}
+.tcard .who{display:flex;align-items:center;gap:12px;font-size:14px;color:#cfc4aa}
+.tcard .who img{width:56px;height:56px;border-radius:50%;object-fit:cover;object-position:center;border:2px solid var(--gold)}
+.tcard .who b{color:#fff;display:block}
+.tcard .res{display:inline-block;background:var(--grad);color:var(--ink);font-weight:700;font-size:12px;padding:4px 10px;border-radius:20px;margin-bottom:12px}
+
+/* steps */
+.step{display:flex;gap:18px;padding:20px 0;border-bottom:1px solid rgba(201,166,75,.25)}
+.step:last-child{border:0}
+.step .num{flex:0 0 46px;height:46px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-weight:900;font-size:20px;color:var(--ink)}
+.step h3{color:#fff;font-size:20px;margin-bottom:4px}
+.step p{margin:0;color:#cfc4aa;font-size:15px}
+
+/* expect */
+.expect{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0 6px}
+.expect div{background:#fff;border-left:4px solid var(--gold);padding:14px;font-size:14px;border-radius:0 6px 6px 0}
+
+/* pricing */
+.tiers{display:grid;gap:18px;margin-top:26px}
+.tier{background:#fff;border:1.5px solid rgba(156,122,44,.4);border-radius:14px;padding:30px 22px 22px;text-align:center;position:relative}
+.tier.hot{background:var(--ink);color:#f3ecdc;border:2px solid var(--gold);box-shadow:0 10px 30px rgba(156,122,44,.3)}
+.badge{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:var(--grad);color:var(--ink);font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;padding:6px 14px;border-radius:20px;white-space:nowrap}
+.tier .name{font-size:12px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:var(--gold-d)}
+.tier.hot .name{color:var(--gold)}
+.tier .price{font-family:var(--serif);font-weight:900;font-size:52px;line-height:1;margin:12px 0 4px}
+.tier .per{font-size:14px;color:var(--muted)}
+.tier.hot .per{color:#cfc4aa}
+.tier .was{font-size:14px;color:#8a7f68;text-decoration:line-through;margin-top:6px}
+.tier .save{display:inline-block;margin-top:10px;font-size:13px;font-weight:700;color:var(--ink);background:#f1e5bf;padding:5px 12px;border-radius:20px}
+.tier.hot .save{background:var(--grad)}
+.tier ul{list-style:none;text-align:left;margin:18px 0 0;font-size:15px}
+.tier li{padding:9px 0 9px 24px;position:relative;border-top:1px solid rgba(156,122,44,.18)}
+.tier li:before{content:"✓";position:absolute;left:0;color:var(--gold-d);font-weight:700}
+.tier.hot li:before{color:var(--gold)}
+.tier li.no{color:#a0977f}
+.tier li.no:before{content:"–";color:#a0977f}
+.tier .btn{margin-top:18px}
+.tier:not(.hot) .btn{background:none;border:1.5px solid var(--gold-d);color:var(--gold-d);box-shadow:none}
+.incl{margin-top:22px;background:#fff;border-left:4px solid var(--gold);padding:16px 18px;font-size:15px;border-radius:0 8px 8px 0}
+
+/* faq */
+details{border-bottom:1px solid var(--line);padding:18px 0}
+summary{list-style:none;cursor:pointer;font-family:var(--serif);font-weight:700;font-size:18px;display:flex;justify-content:space-between;gap:12px;align-items:center}
+summary::-webkit-details-marker{display:none}
+summary:after{content:"+";font-family:var(--sans);font-size:24px;color:var(--gold-d);transition:transform .2s;flex:0 0 auto}
+details[open] summary:after{transform:rotate(45deg)}
+details p{margin:10px 0 0;font-size:15px;color:#3a362e}
+
+/* end */
+.sig{font-family:var(--script);font-size:52px;color:var(--gold-d);line-height:1;margin-top:4px}
+.final{text-align:center}
+.final h2{color:#fff}
+.contact{margin-top:26px;font-size:14px;color:var(--gold-l);line-height:2}
+.contact a{color:var(--gold-l);text-decoration:none}
+footer{background:#0b0b0a;color:#6f6754;text-align:center;font-size:11px;letter-spacing:.2em;text-transform:uppercase;padding:24px 0}
+
+/* sticky */
+.sticky{position:fixed;left:0;right:0;bottom:0;z-index:20;background:rgba(17,17,17,.94);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:12px 16px calc(12px + env(safe-area-inset-bottom));border-top:1px solid rgba(201,166,75,.35);transform:translateY(110%);transition:transform .3s}
+.sticky.show{transform:none}
+.sticky .btn{display:flex;width:100%;max-width:520px;margin:0 auto;padding:15px 20px;font-size:12px}
+.about-hero{width:100%;border-radius:12px;border:1px solid rgba(201,166,75,.45);aspect-ratio:4/5;object-fit:cover;object-position:center 20%}
+.stage{display:grid;grid-template-columns:1fr 1.15fr 1fr;gap:8px;margin-top:22px}
+.stage img{width:100%;aspect-ratio:3/5;object-fit:cover;object-position:center top;border-radius:8px;border:1px solid rgba(201,166,75,.35)}
+.caption-small{text-align:center;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#a89a78;margin-top:12px}
+.links{background:#111;padding:10px 0 40px}
+.lk{display:flex;justify-content:space-between;align-items:center;gap:12px;text-decoration:none;color:#f3ecdc;border:1px solid rgba(201,166,75,.45);border-radius:14px;padding:17px 20px;margin-bottom:12px;font-weight:600;font-size:15px;background:#1a1916}
+.lk i{font-style:normal;color:var(--gold);font-size:18px}
+.lk.primary{background:var(--grad);color:var(--ink);border:0}
+.lk.primary i{color:var(--ink)}
+.guide{background:#1a1916;border:1px solid rgba(201,166,75,.4);border-radius:14px;padding:24px 22px;margin-top:16px}
+.guide h3{color:#fff;font-size:21px}
+.guide p{color:#cfc4aa;font-size:15px}
+.g-tag{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--ink);background:var(--grad);padding:4px 10px;border-radius:20px;margin-bottom:10px}
+.g-btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+.g-btns .btn{padding:13px 20px;font-size:11px}
+.btn.ghost{background:none;border:1.5px solid var(--gold);color:var(--gold);box-shadow:none}
+.bb{margin:24px 0 6px;border:1px solid rgba(201,166,75,.5);border-radius:14px;padding:22px 20px;background:linear-gradient(160deg,#1d1a12,#111)}
+.bb-q{font-family:var(--serif);font-style:italic;font-size:22px;line-height:1.35;color:#fff;margin-bottom:16px}
+.bb-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.bb-grid div{background:#1a1916;border-radius:10px;padding:12px;font-size:13px;color:#d8ccb0}
+.bb-grid small{display:block;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:4px;font-weight:700}
+.tvid{margin:0 0 16px}
+.tvid video{width:100%;max-width:340px;display:block;margin:0 auto;aspect-ratio:9/16;object-fit:cover;border-radius:12px;border:1px solid rgba(201,166,75,.45);background:#000}
+.tvid span{display:block;text-align:center;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-top:8px}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<header class="hero">
+  <img class="hero-img" src="img/maria-shoot.jpg" alt="Maria Paradise, MPF Coaching">
+  <div class="hero-shade"></div>
+  <img class="hero-logo" src="img/logo.png" alt="MPF Coaching">
+  <div class="hero-in wrap">
+    <div class="tag">MPF Online Coaching · Maria Paradise</div>
+    <h1>Want to work <em>with me?</em></h1>
+    <p class="hero-sub">Everything you need to know.</p>
+    <p class="hero-line">Tired of being on/off with your fitness? It's time to build a body you actually feel confident in, and keep it. <b>No extremes. No starting over.</b></p>
+    <a class="btn" href="https://forms.gle/ZtK6VXzdqNYYzVgG9" id="heroCta">Apply &amp; book your free call</a>
+    <div class="proof">
+      <div><b>−40kg</b>no fat loss jabs</div>
+      <div><b>−30kg</b>in 10 months</div>
+      <div><b>−20kg</b>in 8 months</div>
+    </div>
+  </div>
+</header>
+
+<!-- QUICK LINKS -->
+<nav class="links" id="links">
+  <div class="wrap">
+    <a class="lk primary" href="https://forms.gle/ZtK6VXzdqNYYzVgG9"><span>Apply for online coaching</span><i>→</i></a>
+    <a class="lk" href="https://calendly.com/mpfcoaching-info/30"><span>Book a free call</span><i>→</i></a>
+    <a class="lk" href="https://www.instagram.com/mpfcoachingresults"><span>See more client results @mpfcoachingresults</span><i>→</i></a>
+    <a class="lk" href="#guides"><span>Free guides: muscle building &amp; flexible dieting</span><i>↓</i></a>
+    <a class="lk" href="#about"><span>How I coach · everything you need to know</span><i>↓</i></a>
+    <a class="lk" href="https://instagram.com/mariaparadisefitness"><span>Instagram @mariaparadisefitness</span><i>→</i></a>
+  </div>
+</nav>
+
+<!-- ABOUT -->
+<section class="dark about" id="about">
+  <div class="wrap">
+    <div class="eyebrow">Meet your coach</div>
+    <h2>Hi, I'm Maria. <em>I practise what I preach.</em></h2>
+    <p class="lead" style="color:#d8ccb0">I help people lose fat, build muscle and build habits that actually last.</p>
+    <p style="color:#cfc4aa">I've been coaching for nearly a decade, both 1-2-1 and online, working with men and women who are done with the restart cycle. Fat loss and body recomposition are my thing.</p>
+    <p style="color:#cfc4aa">I also compete, so everything I teach you (the structure, the tracking, the consistency) is exactly what I use to get myself on stage. <span class="joke">The fake tan is optional for you. Mandatory for me.</span></p>
+    <div class="bb">
+      <div class="bb-q">I'll teach you how to get the results of a bodybuilder, with an approach that's flexible and achievable for normal life.</div>
+      <div class="bb-grid">
+        <div><small>Bodybuilders get</small>Structure, tracking, progressive training, real results</div>
+        <div><small>You also get</small>Flexibility, eating out, family life, no extremes</div>
+      </div>
+    </div>
+    <div class="stage">
+      <img src="img/maria-stage1.jpg" alt="Maria on stage" loading="lazy">
+      <img src="img/maria-backstage.jpg" alt="Maria backstage on show day" loading="lazy">
+      <img src="img/maria-stage2.jpg" alt="Maria posing on stage" loading="lazy">
+    </div>
+    <div class="caption-small">Show day. Same structure, same consistency I'll teach you.</div>
+  </div>
+</section>
+
+<!-- SOUND FAMILIAR -->
+<section>
+  <div class="wrap">
+    <div class="eyebrow">Sound familiar?</div>
+    <h2>Always starting over? <em>I can help you fix that.</em></h2>
+    <p class="lead">You're "good" for a few days, then fall off. You start again on Monday. And you never quite get to where you want to be.</p>
+    <div class="mon"><div class="cal">MON</div><div>
+      <p class="t">"Fresh Start Monday": a track record</p>
+      <p>Times started: every week. Times it made it past Wednesday: zero. Last seen near the biscuit tin.</p></div></div>
+    <div class="quote">The problem isn't that you don't care, or that you aren't trying hard enough. It's that you've never had the right structure and guidance to make it stick.</div>
+    <p>In nearly a decade of coaching, I've seen exactly where people get stuck and, more importantly, how to get them out of it. My online coaching gives you that same level of support, wherever you are.</p>
+
+    <div class="rule" style="margin-top:36px"></div>
+    <div class="eyebrow">This isn't about being perfect</div>
+    <h3 style="font-size:24px">Most people don't fail because they're lazy. They fail because their plan doesn't fit their life.</h3>
+    <div class="three">
+      <div><small>TOO</small>Restrictive</div>
+      <div><small>TOO</small>Unrealistic</div>
+      <div><small>TOO</small>All-or-nothing</div>
+    </div>
+    <p>So you rely on motivation, and when the motivation drops, everything drops with it. <span class="joke">Motivation is a lot like a January gym membership: technically still active, never actually seen again.</span></p>
+    <p>I've been there myself, and that on-off cycle is exhausting. That's why I don't coach perfection. <strong>I coach something you can actually keep doing.</strong></p>
+  </div>
+</section>
+
+<!-- APPROACH -->
+<section style="background:#f5efe1">
+  <div class="wrap">
+    <div class="eyebrow">My approach</div>
+    <h2>No extremes. <em>Just structure you can repeat.</em></h2>
+    <p class="lead"><strong>Bodybuilder results, built for normal life.</strong> I take the same methods that get physiques on stage and adapt them so they're flexible and achievable for you.</p>
+    <p class="lead">I coach structure, consistency and progression in a way that works for you. I build the plan around your lifestyle, not the other way round, because results don't come from being perfect. They come from what you can repeat.</p>
+    <ul class="tick">
+      <li>A routine you can realistically stick to</li>
+      <li>Moving away from the "all or nothing" mindset</li>
+      <li>Habits that hold up even when life gets busy</li>
+      <li>Support through the weeks that don't feel easy</li>
+    </ul>
+    <p><strong>You won't be doing this alone.</strong> I'm with you the whole way. <span class="joke">Think of me as the voice in your head, but with a qualification.</span></p>
+
+    <div class="rule" style="margin-top:36px"></div>
+    <div class="eyebrow">Flexible but structured</div>
+    <h3 style="font-size:24px">This isn't guesswork, and it isn't restriction for the sake of it. It's controlled flexibility.</h3>
+    <div class="split">
+      <div class="a on-dark"><h3>The structure</h3><ul class="tick">
+        <li>Clear calorie and macro targets (where needed)</li>
+        <li>Structured training with progress tracked</li>
+        <li>Set routines for steps, cardio and recovery</li></ul></div>
+      <div class="b"><h3>The flexibility</h3><ul class="tick">
+        <li>Eat out without the guilt <span class="joke">(nobody has ever died from one Domino's)</span></li>
+        <li>Enjoy your life and social plans</li>
+        <li>Adapt when the week isn't perfect</li></ul></div>
+    </div>
+    <div class="formula"><b>Structure</b> creates results. <b>Flexibility</b> makes them last.<small>I help you balance both</small></div>
+  </div>
+</section>
+
+<!-- RESULTS -->
+<section class="dark">
+  <div class="wrap">
+    <div class="eyebrow">Real clients, real results</div>
+    <h2>Don't just take <em>my word for it.</em></h2>
+    <div class="gallery">
+      <figure><img src="img/online30.jpg" alt="Client transformation, 30kg lost fully online" loading="lazy"><figcaption><b>−30kg · fully online</b>23kg down, and then she kept going. No fat loss jabs, just pure dedication.</figcaption></figure>
+      <figure><img src="img/online-men.jpg" alt="Online client transformation" loading="lazy"><figcaption><b>Online coaching</b>You don't need to live near me to get results like this.</figcaption></figure>
+      <figure><img src="img/forty.jpg" alt="Client transformation, 40kg lost" loading="lazy"><figcaption><b>−40kg</b>No fat loss jabs necessary.</figcaption></figure>
+      <figure><img src="img/jeff.jpg" alt="Jeff's transformation" loading="lazy"><figcaption><b>Jeff · −30kg</b>In 10 months, and still following the programme today.</figcaption></figure>
+      <figure><img src="img/jack.jpg" alt="Jack's transformation" loading="lazy"><figcaption><b>Jack · −5kg in 11 weeks</b>Fat loss while keeping as much muscle as possible.</figcaption></figure>
+      <figure><img src="img/women.jpg" alt="Women's transformation" loading="lazy"><figcaption><b>Women's results</b>My girls absolutely crush their transformations.</figcaption></figure>
+      <figure><img src="img/fifty.jpg" alt="Client transformation at nearly 50" loading="lazy"><figcaption><b>Alex · nearly 50</b>"Physically and mentally in the best place I've ever been."</figcaption></figure>
+      <figure><img src="img/men.jpg" alt="Men's transformation" loading="lazy"><figcaption><b>Men's results</b>Trust the process.</figcaption></figure>
+      <figure><img src="img/ansu.jpg" alt="Client transformation" loading="lazy"><figcaption><b>Ansu · body recomp</b>Now you can see the difference.</figcaption></figure>
+      <figure><img src="img/women2.jpg" alt="Women's transformation" loading="lazy"><figcaption><b>Women's results</b>Leaner, stronger, and abs to show for it.</figcaption></figure>
+      <figure><img src="img/brother.jpg" alt="Men's transformation" loading="lazy"><figcaption><b>Men's results</b>POV: your brother actually follows the plan.</figcaption></figure>
+      <figure><img src="img/back.jpg" alt="Women's transformation, back view" loading="lazy"><figcaption><b>Women's results</b>The back view says it all.</figcaption></figure>
+      <figure><img src="img/alex2.jpg" alt="Alex side view transformation" loading="lazy"><figcaption><b>Alex · side view</b>The physical change is obvious. The mental change is even bigger.</figcaption></figure>
+      <figure><img src="img/glutes.jpg" alt="Glute transformation" loading="lazy"><figcaption><b>Glute gains</b>When the transformation gives you a BBL 🍑</figcaption></figure>
+    </div>
+    <div class="swipe">Swipe for more →</div>
+    <div style="text-align:center;margin-top:18px"><a class="btn ghost" href="https://www.instagram.com/mpfcoachingresults">See every result on @mpfcoachingresults</a></div>
+
+    <div style="margin-top:40px">
+      <div class="tcard">
+        <div class="stars">★★★★★</div><span class="res">−30kg in 10 months</span>
+        <blockquote>"I went in blind… Fast forward 10 months later and I lost 30kgs, but more importantly she coached me into maintaining a healthy lifestyle. To this day I still follow her programme."</blockquote>
+        <div class="who"><img src="img/av-jeff.jpg" alt="Jeff"><div><b>Jeff B.</b>Client since 2022</div></div>
+      </div>
+      <div class="tcard">
+        <div class="stars">★★★★★</div><span class="res">−20kg in 8 months</span>
+        <blockquote>"The results have been incredible… I've improved my fitness beyond anything I thought possible, and become the fittest I've ever been. She hasn't just helped me get results. She has given me the knowledge and confidence to maintain them."</blockquote>
+        <div class="tvid"><video src="img/poorna-testimonial.mp4" poster="img/poorna-poster.jpg" controls playsinline preload="none"></video><span>▶ Watch Poorna tell it in her own words</span></div>
+        <div class="who"><img src="img/poorna.jpg" alt="Poorna before and after"><div><b>Poorna T.</b>Stronger than ever</div></div>
+      </div>
+      <div class="tcard">
+        <div class="stars">★★★★★</div><span class="res">93kg → 88kg in 11 weeks</span>
+        <blockquote>"It never feels like she's just a PT giving you a plan and leaving you to get on with it. She genuinely cares about your progress and wants to see you do well."</blockquote>
+        <div class="who"><img src="img/av-jack.jpg" alt="Jack"><div><b>Jack W.</b>Happier with his physique than ever</div></div>
+      </div>
+      <div class="tcard">
+        <div class="stars">★★★★★</div>
+        <blockquote>"50 years old in a few months… physically and mentally in the best place I ever been, and it all started when I nervously approached you."</blockquote>
+        <div class="who"><img src="img/av-alex.jpg" alt="Alex"><div><b>Alex</b>Proof it's never too late</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHAT YOU GET -->
+<section>
+  <div class="wrap">
+    <div class="eyebrow">What you'll get</div>
+    <h2>Your online coaching, <em>all in one place.</em></h2>
+    <div class="cards">
+      <div class="card"><div class="n">01</div><h3>Clear goals + structured phases</h3>
+        <p>We don't "wing it". Your journey is split into phases: fat loss, maintenance and growth. Each one has clear targets, a purpose and a direction, so you always know what you're working towards, and why.</p></div>
+      <div class="card"><div class="n">02</div><h3>Personalised training programme</h3>
+        <ul class="tick"><li>Progression built in</li><li>Clear sets, reps, tempo, rest and RIR</li><li>Exercises that suit <strong>you</strong>, not a random plan</li><li>No more wandering the gym like a lost soul in leggings</li></ul></div>
+      <div class="card"><div class="n">03</div><h3>Form guidance + video analysis</h3>
+        <p>Send me your lifts any time for technique corrections, better execution and mind-muscle connection. So you train safely, ideally before your lower back files a formal complaint.</p></div>
+      <div class="card"><div class="n">04</div><h3>Full nutrition guidance + tracking lesson</h3>
+        <p>This is where things really change. I don't just give you numbers, I teach you how to:</p>
+        <ul class="tick"><li>Track calories and macros properly</li><li>Build meals that support your goals</li><li>Eat out without feeling you've "failed"</li><li>Manage hunger and your mindset around food</li></ul></div>
+      <div class="card"><div class="n">05</div><h3>Weekly check-ins</h3>
+        <p>Every week we review your progress photos, weight trend, strength, steps, cardio, nutrition, sleep, stress and recovery. Then I adjust everything based on <strong>you</strong>. <span class="joke">And yes, I will see the weekend in your check-in. I always see the weekend.</span></p></div>
+      <div class="card"><div class="n">06</div><h3>Online coaching hub</h3>
+        <p>Your programme, check-ins, progress trackers, nutrition targets and resources, all organised in one Google Drive.</p></div>
+      <div class="card"><div class="n">07</div><h3>Training logbook system</h3>
+        <p>You'll log your lifts every session, because real progress comes from getting stronger over time. "I think I lifted about that last time" isn't tracking, it's guessing with extra steps.</p></div>
+      <div class="card"><div class="n">08</div><h3>Ongoing support</h3>
+        <p>Direct WhatsApp support, check-in feedback and an optional community group chat. You're not handed a plan and left to it. <span class="joke">I reply faster than your ex ever did.</span></p></div>
+    </div>
+    <div class="cta-band on-dark">
+      <h3>Already know you're ready?</h3>
+      <p>No need to read the rest. Your Mondays will thank you.</p>
+      <a class="btn" href="https://forms.gle/ZtK6VXzdqNYYzVgG9">Apply &amp; book your call</a>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="dark">
+  <div class="wrap">
+    <div class="eyebrow">How it works</div>
+    <h2>From application <em>to results.</em></h2>
+    <div class="step"><div class="num">1</div><div><h3>Apply</h3><p>Fill in the short application form so I can learn about you, your goals and your lifestyle.</p></div></div>
+    <div class="step"><div class="num">2</div><div><h3>Your free call</h3><p>We'll chat about where you are now, where you want to be and whether we're the right fit. No pressure, no hard sell.</p></div></div>
+    <div class="step"><div class="num">3</div><div><h3>Your plan is built</h3><p>Your training programme, nutrition targets and coaching hub are set up around your life.</p></div></div>
+    <div class="step"><div class="num">4</div><div><h3>Learn the system</h3><p>Your tracking lesson, logbook and routines, so you understand what you're doing and why.</p></div></div>
+    <div class="step"><div class="num">5</div><div><h3>Check in, adjust, progress</h3><p>Weekly check-ins keep you accountable as we move through your phases. <span class="joke">Your old "start again Monday" habit will not be attending.</span></p></div></div>
+  </div>
+</section>
+
+<!-- FIT -->
+<section>
+  <div class="wrap">
+    <div class="eyebrow">Is this right for you?</div>
+    <h2>Let's make sure <em>we're a good fit.</em></h2>
+    <div class="split">
+      <div class="a on-dark"><h3>This is for you if…</h3><ul class="tick">
+        <li>You're tired of starting over</li><li>You've struggled to stay consistent</li>
+        <li>You want support as well as structure</li><li>You're ready to change, properly this time</li></ul></div>
+      <div class="b"><h3>This isn't for you if…</h3><ul class="tick cross">
+        <li>You want a quick fix <span class="joke">(the detox tea people would love your money)</span></li>
+        <li>You're not ready to be consistent</li>
+        <li>You're not open to being guided <span class="joke">(or you think leg day is a myth)</span></li></ul></div>
+    </div>
+    <div class="rule" style="margin-top:36px"></div>
+    <div class="eyebrow">What to expect from me</div>
+    <div class="expect">
+      <div>A coach who listens and understands you</div>
+      <div>A plan that fits your life, not one that takes it over</div>
+      <div>Clear guidance, not confusion</div>
+      <div>Accountability when you need it most</div>
+      <div>Support on the hard days, not just the easy ones</div>
+      <div>Structure that actually sticks</div>
+    </div>
+    <div class="quote" style="font-size:20px">And most importantly, someone who genuinely cares about your progress.</div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section style="background:#f5efe1" id="pricing">
+  <div class="wrap">
+    <div class="eyebrow">Your investment</div>
+    <h2>Choose how you <em>want to start.</em></h2>
+    <p>Every option includes the full coaching package. Commit for longer and you skip the set-up fee and save more. <span class="joke">Cheaper than another year of starting over on Monday.</span></p>
+    <div class="tiers">
+      <div class="tier hot">
+        <div class="badge">Most popular</div>
+        <div class="name">3 months upfront</div>
+        <div class="price">£525</div>
+        <div class="per">just £175 a month</div>
+        <div class="was">£600 paying monthly</div>
+        <div class="save">Save £75 · set-up FREE</div>
+        <ul><li>Full online coaching</li><li>Weekly check-ins</li><li>WhatsApp support</li><li>Set-up fee waived</li><li>Perfect for your first phase</li></ul>
+        <a class="btn block" href="https://forms.gle/ZtK6VXzdqNYYzVgG9">Apply &amp; book your call</a>
+      </div>
+      <div class="tier">
+        <div class="badge">Best value</div>
+        <div class="name">6 months upfront</div>
+        <div class="price">£900</div>
+        <div class="per">just £150 a month</div>
+        <div class="was">£1,125 paying monthly</div>
+        <div class="save">Save £225 · set-up FREE</div>
+        <ul><li>Full online coaching</li><li>Weekly check-ins</li><li>WhatsApp support</li><li>Set-up fee waived</li><li>£25 off every month</li></ul>
+        <a class="btn block" href="https://forms.gle/ZtK6VXzdqNYYzVgG9">Apply &amp; book your call</a>
+      </div>
+      <div class="tier">
+        <div class="name">Monthly</div>
+        <div class="price">£175</div>
+        <div class="per">per month</div>
+        <div class="per" style="margin-top:6px">+ £75 one-off set-up fee</div>
+        <ul><li>Full online coaching</li><li>Weekly check-ins</li><li>WhatsApp support</li><li class="no">Set-up fee applies</li><li class="no">3-month minimum recommended</li></ul>
+        <a class="btn block" href="https://forms.gle/ZtK6VXzdqNYYzVgG9">Apply &amp; book your call</a>
+      </div>
+    </div>
+    <div class="incl"><strong>The set-up includes</strong> your personal online coaching hub (programme, trackers, check-ins and targets, all built for you) and your full nutrition and tracking lesson.</div>
+    <div class="quote" style="font-size:19px">Not sure which option is right for you? We'll work it out together on your free call.</div>
+  </div>
+</section>
+
+<!-- FREE GUIDES -->
+<section class="dark" id="guides">
+  <div class="wrap">
+    <div class="eyebrow">Free guides</div>
+    <h2>Start learning <em>today, for free.</em></h2>
+    <p style="color:#cfc4aa">The same principles I coach every client on, written in plain English. <span class="joke">Jokes included at no extra cost.</span></p>
+    <div class="guide">
+      <div class="g-tag">Training</div>
+      <h3>The MPF Hypertrophy Guide for Dummies</h3>
+      <p>How to actually build muscle: rep ranges, effort, tempo, training to failure and progressive overload, minus the jargon. Includes an effort dial, weekly volume checker and a one-page cheat sheet.</p>
+      <div class="g-btns"><a class="btn" href="hypertrophy.html">Open interactive guide</a><a class="btn ghost" href="https://drive.google.com/file/d/1BzRpomxX0i_gelfdQKJBNXfKhsbxtvHT/view?usp=drivesdk">Download PDF</a></div>
+    </div>
+    <div class="guide">
+      <div class="g-tag">Nutrition</div>
+      <h3>The MPF Flexible Dieting Guide</h3>
+      <p>Includes a calorie &amp; macro calculator. An 8-step guide to building a diet plan that actually works: your maintenance calories, macros, tracking, pizza nights, takeaways and eating out. Works for omnivores, vegetarians and vegans.</p>
+      <div class="g-btns"><a class="btn" href="diet.html">Open interactive guide</a><a class="btn ghost" href="https://drive.google.com/file/d/1XlKh3UU-W845fa7arDmvqzXvkfVz8NYW/view?usp=drivesdk">Download PDF</a></div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section>
+  <div class="wrap">
+    <div class="eyebrow">Your questions, answered</div>
+    <h2>Before you <em>ask…</em></h2>
+    <details><summary>I'm a beginner. Is this for me?</summary><p>Absolutely. Your programme spells out exactly what to do (sets, reps, tempo, rest), you can send me videos of your lifts for form feedback, and your nutrition lesson teaches you tracking from scratch. Nobody expects you to know it all on day one.</p></details>
+    <details><summary>Do I need a gym?</summary><p>Yes. Your programme is built around gym equipment so we can properly track your lifts and keep you progressing week after week.</p></details>
+    <details><summary>How long do I need to commit?</summary><p>Ideally a minimum of 3 months. Real, lasting change takes time, and that's long enough to build the habits and see results you can actually keep. <span class="joke">The 6-day miracle plan is available elsewhere. It doesn't work there either.</span></p></details>
+    <details><summary>What happens when I go on holiday?</summary><p>Holidays are part of the coaching, not a break from it. We plan for them together based on your goals, so you can enjoy yourself without undoing your progress. <span class="joke">No, you don't need to pack a food scale.</span></p></details>
+    <details><summary>What if I have a bad week?</summary><p>Tell me. That's what I'm here for. We look at what happened, adjust, and get you back on track. One bad week won't undo your progress. Giving up will.</p></details>
+    <details><summary>What do I get when I start?</summary><p>Your own online coaching hub, set up with your programme, trackers and targets, plus your full nutrition and tracking lesson, so you're ready to go from week one.</p></details>
+    <details><summary>How much does it cost?</summary><p>See the <a href="#pricing" style="color:var(--gold-d);font-weight:600">pricing options</a>. Paying 3 or 6 months upfront skips the set-up fee and saves you the most. We can talk it all through on your free call.</p></details>
+  </div>
+</section>
+
+<!-- GOAL + PROMISE -->
+<section style="background:#f5efe1">
+  <div class="wrap">
+    <div class="eyebrow">The real goal</div>
+    <h2>This isn't just about losing weight.</h2>
+    <ul class="tick">
+      <li>Feeling confident in your body</li><li>Knowing how to keep your results</li>
+      <li>A routine you don't keep restarting</li><li>Something that lasts</li>
+    </ul>
+    <p class="joke" style="font-size:19px">Goodbye, all-or-nothing mindset. You will not be missed.</p>
+    <div class="rule" style="margin-top:34px"></div>
+    <div class="eyebrow">A promise from me</div>
+    <p class="lead" style="font-family:var(--serif);font-size:21px">I'm always learning, always evolving, always growing, because you deserve a coach who never stands still.</p>
+    <p>I promise to give you the best of me: my time, my knowledge, my support and my honesty, every step of the way. Brutally honest sometimes, lovingly always.</p>
+    <div class="sig">Maria</div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="dark final" id="final">
+  <div class="wrap">
+    <h2>Ready to stop <em>starting over?</em></h2>
+    <p class="lead" style="color:#d8ccb0">If you're serious about results that actually last, let's talk. <span class="joke">Otherwise, see you next Monday. And the one after that.</span></p>
+    <a class="btn block" href="https://forms.gle/ZtK6VXzdqNYYzVgG9" style="margin-top:22px">Apply &amp; book your free call</a>
+    <span class="sub-link">Already applied? <a href="https://calendly.com/mpfcoaching-info/30">Pick a time for your call here</a></span>
+    <div class="contact">
+      <a href="https://instagram.com/mariaparadisefitness">@mariaparadisefitness</a><br>
+      info@mpfcoaching.co.uk
+    </div>
+  </div>
+</section>
+<footer>MPF Online Coaching · Maria Paradise</footer>
+
+<div class="sticky" id="sticky"><a class="btn" href="https://forms.gle/ZtK6VXzdqNYYzVgG9">Apply &amp; book your free call</a></div>
+
+<script>
+(function(){
+  var s=document.getElementById('sticky'),h=document.getElementById('heroCta'),f=document.getElementById('final');
+  var heroGone=false,finalIn=false;
+  function upd(){s.classList.toggle('show',heroGone&&!finalIn)}
+  if('IntersectionObserver' in window){
+    new IntersectionObserver(function(e){heroGone=!e[0].isIntersecting;upd()}).observe(h);
+    new IntersectionObserver(function(e){finalIn=e[0].isIntersecting;upd()}).observe(f);
+  } else { s.classList.add('show'); }
+})();
+</script>
+</body>
+</html>
