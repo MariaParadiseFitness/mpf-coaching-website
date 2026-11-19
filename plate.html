@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Build Your Plate: Free Meal Builder | MPF Coaching</title>
+<link rel="canonical" href="https://mpfcoaching.co.uk/plate.html">
+<meta name="description" content="Build a balanced meal in seconds. Pick your protein, carbs, veg and extras and see your calories and macros add up live. Free from MPF Coaching.">
+<link rel="icon" type="image/png" href="img/favicon.png">
+<meta property="og:title" content="Build Your Plate | MPF Coaching"><meta property="og:description" content="A free interactive meal builder: see your calories and protein add up as you build your plate.">
+<meta property="og:image" content="https://mpfcoaching.co.uk/img/og.jpg"><meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#C9A64B;--gold-l:#E4CF8A;--gold-d:#9C7A2C;--ink:#111;--ink2:#1a1916;--cream:#FBF7EE;--muted:#5b5547;
+--grad:linear-gradient(120deg,#9C7A2C 0%,#C9A64B 45%,#E8D79A 100%);
+--serif:"Playfair Display",Georgia,serif;--sans:"Montserrat",system-ui,sans-serif;
+--c-protein:#C9A64B;--c-carbs:#E8D79A;--c-veg:#6FA86B;--c-fats:#B5683B;--c-treats:#C2588A}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);font-size:16px;line-height:1.6;color:#1b1a17;background:var(--cream);-webkit-font-smoothing:antialiased}
+.wrap{max-width:1100px;margin:0 auto;padding:0 20px}
+a{color:var(--gold-d)}
+button{font-family:inherit;cursor:pointer}
+.top{position:sticky;top:0;z-index:20;background:rgba(17,17,17,.95);padding:10px 0}
+.top .wrap{display:flex;justify-content:space-between;align-items:center}
+.top a{color:var(--gold-l);text-decoration:none;font-size:13px;font-weight:600}
+.top .cta{background:var(--grad);color:var(--ink);padding:8px 14px;border-radius:20px;font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+.cover{background:radial-gradient(80% 100% at 50% 0%,#2a2519 0%,#111 70%);color:#fff;text-align:center;padding:48px 0 44px}
+.cover img{width:120px;margin:0 auto 18px;display:block}
+.kick{font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--gold-l);margin-bottom:12px;font-weight:700}
+.cover h1{font-family:var(--serif);font-weight:900;font-size:clamp(34px,8vw,56px);line-height:1.05}
+.cover h1 em{font-style:italic;font-weight:400;color:var(--gold)}
+.cover p{color:#d8ccb0;max-width:560px;margin:14px auto 0;font-size:16px}
+.hands{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:20px}
+.hands span{border:1px solid rgba(201,166,75,.5);border-radius:20px;padding:6px 12px;font-size:12px;color:var(--gold-l)}
+
+.layout{display:grid;gap:22px;padding:26px 0 40px}
+@media(min-width:960px){.layout{grid-template-columns:1.25fr .95fr;align-items:start}.side{position:sticky;top:64px}}
+
+.card{background:#fff;border-radius:16px;padding:20px;box-shadow:0 2px 14px rgba(0,0,0,.05);border:1px solid rgba(156,122,44,.18)}
+.step{font-size:11px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-d);margin-bottom:6px}
+h2{font-family:var(--serif);font-weight:900;font-size:24px;line-height:1.15;margin-bottom:12px}
+
+.goals{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.goals button{border:1.5px solid rgba(156,122,44,.35);background:#fff;border-radius:12px;padding:10px 6px;font-weight:700;font-size:13px;color:#1b1a17}
+.goals button small{display:block;font-weight:500;font-size:11px;color:var(--muted)}
+.goals button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.goals button.on small{color:var(--gold-l)}
+.sl{margin:10px 0 4px}
+.sl label{display:flex;justify-content:space-between;font-size:13px;font-weight:600}
+.sl label b{color:var(--gold-d)}
+input[type=range]{width:100%;accent-color:var(--gold-d)}
+
+.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin:4px -2px 14px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{flex:0 0 auto;border:none;background:#f1ead9;border-radius:30px;padding:9px 14px;font-weight:700;font-size:13px;color:#3a362e;display:flex;align-items:center;gap:6px}
+.tabs button i{width:10px;height:10px;border-radius:50%;display:inline-block}
+.tabs button.on{background:var(--ink);color:#fff}
+.tabs button .ct{background:var(--gold);color:var(--ink);border-radius:10px;font-size:10px;padding:1px 6px;font-style:normal}
+
+.foods{display:grid;grid-template-columns:1fr;gap:8px}
+@media(min-width:600px){.foods{grid-template-columns:1fr 1fr}}
+.food{display:flex;align-items:center;gap:10px;border:1.5px solid rgba(156,122,44,.2);border-radius:12px;padding:10px 10px 10px 12px;background:#fff;transition:border-color .15s,background .15s}
+.food.on{border-color:var(--gold);background:#fffaf0}
+.food .em{font-size:24px;width:30px;text-align:center;flex:0 0 30px}
+.food .nm{flex:1;min-width:0}
+.food .nm b{display:block;font-size:14px;line-height:1.25}
+.food .nm span{display:block;font-size:11.5px;color:var(--muted);line-height:1.35}
+.qty{display:flex;align-items:center;gap:6px}
+.qty button{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--gold);background:#fff;font-size:18px;font-weight:700;color:var(--gold-d);line-height:1}
+.qty button.add{background:var(--ink);border-color:var(--ink);color:var(--gold-l)}
+.qty output{min-width:22px;text-align:center;font-weight:700;font-size:14px}
+.food:not(.on) .qty .minus,.food:not(.on) .qty output{display:none}
+
+.presets{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.presets button{border:1.5px dashed rgba(156,122,44,.55);background:#fffaf0;border-radius:30px;padding:8px 14px;font-weight:600;font-size:13px;color:#3a362e}
+.presets button:hover{border-style:solid}
+
+.side .card{background:var(--ink2);color:#f3ecdc;border-color:rgba(201,166,75,.45);box-shadow:0 0 0 1px rgba(201,166,75,.25),0 0 30px rgba(201,166,75,.12)}
+.side h2{color:#fff}
+.plate-wrap{display:flex;gap:18px;align-items:center}
+.plate{position:relative;width:170px;height:170px;flex:0 0 170px}
+.plate svg{width:100%;height:100%;transform:rotate(-90deg)}
+.plate .mid{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.plate .mid b{font-family:var(--serif);font-weight:900;font-size:34px;line-height:1;color:#fff}
+.plate .mid span{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#cfc4aa}
+.legend{font-size:12.5px;display:grid;gap:5px}
+.legend div{display:flex;align-items:center;gap:8px;color:#d8ccb0}
+.legend i{width:11px;height:11px;border-radius:3px;display:inline-block;flex:0 0 11px}
+.legend em{font-style:normal;margin-left:auto;color:#fff;font-weight:600}
+.bars{margin-top:18px;display:grid;gap:11px}
+.bar label{display:flex;justify-content:space-between;font-size:13px;font-weight:600;margin-bottom:4px;color:#f3ecdc}
+.bar label span{color:#cfc4aa;font-weight:500}
+.track{height:10px;border-radius:10px;background:rgba(255,255,255,.08);overflow:hidden}
+.fill{height:100%;border-radius:10px;background:var(--grad);transition:width .3s}
+.fill.over{background:linear-gradient(90deg,#c2584a,#e08a6b)}
+.macros{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.macros div{background:rgba(255,255,255,.05);border-radius:10px;padding:10px 6px;text-align:center}
+.macros b{display:block;font-family:var(--serif);font-weight:900;font-size:22px;color:#fff}
+.macros span{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:#cfc4aa}
+.coach{margin-top:16px;border-left:3px solid var(--gold);background:rgba(201,166,75,.08);border-radius:0 10px 10px 0;padding:12px 14px;font-size:14px;line-height:1.5}
+.coach b{display:block;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-l);margin-bottom:4px}
+.list{margin-top:14px;font-size:13px;color:#d8ccb0;display:grid;gap:4px}
+.list div{display:flex;justify-content:space-between;gap:10px}
+.list div span:last-child{color:#fff;white-space:nowrap}
+.acts{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.acts button{flex:1;border-radius:30px;padding:11px 12px;font-weight:700;font-size:12px;letter-spacing:.1em;text-transform:uppercase;border:1.5px solid rgba(201,166,75,.6);background:transparent;color:var(--gold-l)}
+.acts button.pri{background:var(--grad);color:var(--ink);border:none}
+.note{font-size:11.5px;color:var(--muted);margin-top:14px;line-height:1.5}
+
+.bottom{background:#111;color:#fff;text-align:center;padding:46px 0}
+.bottom h2{font-family:var(--serif);font-weight:900;font-size:clamp(26px,6vw,36px);color:#fff}
+.bottom h2 em{font-style:italic;font-weight:400;color:var(--gold)}
+.bottom p{color:#d8ccb0;max-width:520px;margin:10px auto 22px}
+.btn{display:inline-block;background:var(--grad);color:var(--ink);text-decoration:none;font-weight:700;font-size:13px;letter-spacing:.16em;text-transform:uppercase;padding:16px 28px;border-radius:40px}
+.bottom .more{display:block;margin-top:16px;color:var(--gold-l);font-size:13px}
+footer{background:#0b0b0b;color:#a89a78;text-align:center;font-size:12px;padding:18px}
+.main,.side{min-width:0}
+.mini{display:none}
+@media(max-width:959px){.mini{display:flex;position:fixed;left:12px;right:12px;bottom:12px;z-index:25;background:rgba(17,17,17,.96);border:1px solid var(--gold);border-radius:40px;padding:10px 12px 10px 20px;align-items:center;gap:14px;color:#fff;font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,.35)}.mini b{font-family:var(--serif);font-size:18px;color:var(--gold-l)}.mini button{margin-left:auto;background:var(--grad);border:none;border-radius:30px;padding:9px 14px;font-weight:700;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink)}body{padding-bottom:70px}}
+.toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,40px);opacity:0;background:var(--ink);color:#fff;border:1px solid var(--gold);padding:10px 18px;border-radius:30px;font-size:13px;transition:.25s;z-index:30}
+.toast.show{transform:translate(-50%,0);opacity:1}
+</style>
+</head>
+<body>
+<div class="top"><div class="wrap"><a href="index.html">← MPF Coaching</a><a class="cta" href="https://calendly.com/mpfcoaching-info/30">Work with me</a></div></div>
+
+<header class="cover">
+  <div class="wrap">
+    <img src="img/logo.png" alt="MPF Coaching">
+    <div class="kick">Free tool · MPF Coaching</div>
+    <h1>Build your <em>plate.</em></h1>
+    <p>Pick your protein, carbs, veg and extras, and watch your calories and macros add up live. No food is banned. It's all about portions.</p>
+    <div class="hands"><span>✋ Palm of protein</span><span>✊ Fist of carbs</span><span>✊ Fist of veg</span><span>👍 Thumb of fats</span></div>
+  </div>
+</header>
+
+<div class="wrap">
+<div class="layout">
+  <div class="main">
+    <div class="card" style="margin-bottom:16px">
+      <div class="step">Step 1</div>
+      <h2>What's your goal?</h2>
+      <div class="goals" id="goals">
+        <button data-k="450" data-p="35">Fat loss<small>~450 kcal meal</small></button>
+        <button data-k="600" data-p="35" class="on">Maintain<small>~600 kcal meal</small></button>
+        <button data-k="750" data-p="40">Build muscle<small>~750 kcal meal</small></button>
+      </div>
+      <div class="sl"><label>Calories for this meal <b><span id="kv">600</span> kcal</b></label><input type="range" id="kt" min="250" max="1200" step="25" value="600"></div>
+      <div class="sl"><label>Protein for this meal <b><span id="pv">35</span> g</b></label><input type="range" id="pt" min="15" max="70" step="5" value="35"></div>
+      <p class="note" style="margin-top:6px">Not sure of your numbers? Work out your daily target with the <a href="diet.html#calc">free calorie &amp; macro calculator</a>, then divide it by how many meals you eat.</p>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+      <div class="step">Step 2</div>
+      <h2>Build your plate</h2>
+      <div class="tabs" id="tabs"></div>
+      <div class="foods" id="foods"></div>
+    </div>
+
+    <div class="card">
+      <div class="step">Short on ideas?</div>
+      <h2>Try a ready-made plate</h2>
+      <div class="presets" id="presets"></div>
+    </div>
+  </div>
+
+  <aside class="side">
+    <div class="card">
+      <div class="step" style="color:var(--gold-l)">Your plate</div>
+      <h2>How it adds up</h2>
+      <div class="plate-wrap">
+        <div class="plate">
+          <svg viewBox="0 0 42 42" id="donut"><circle cx="21" cy="21" r="15.915" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="6"></circle></svg>
+          <div class="mid"><b id="kcal">0</b><span>kcal</span></div>
+        </div>
+        <div class="legend" id="legend"></div>
+      </div>
+      <div class="bars">
+        <div class="bar"><label>Calories <span id="kl">0 / 600</span></label><div class="track"><div class="fill" id="kb" style="width:0"></div></div></div>
+        <div class="bar"><label>Protein <span id="pl">0 / 35g</span></label><div class="track"><div class="fill" id="pb" style="width:0"></div></div></div>
+      </div>
+      <div class="macros"><div><b id="mp">0g</b><span>Protein</span></div><div><b id="mc">0g</b><span>Carbs</span></div><div><b id="mf">0g</b><span>Fat</span></div></div>
+      <div class="coach"><b>Coach's note</b><span id="tip">Start with a palm-sized portion of protein. It keeps you full and protects your muscle.</span></div>
+      <div class="list" id="list"></div>
+      <div class="acts"><button id="copy">Copy my plate</button><button id="clear">Clear</button></div>
+      <div class="acts"><button class="pri" onclick="location.href='https://calendly.com/mpfcoaching-info/30'">Want this done for you? Book a free call</button></div>
+    </div>
+    <p class="note">Values are typical averages for the portion shown. Brands vary, so check labels when you can. This is a guide, not medical advice. If you have a medical condition or an eating disorder history, speak to your GP first.</p>
+  </aside>
+</div>
+</div>
+
+<section class="bottom">
+  <div class="wrap">
+    <h2>Built for <em>normal life.</em></h2>
+    <p>This is exactly how I teach my clients to eat: no banned foods, just the right portions for your goal. Want me to build your plan around your life?</p>
+    <a class="btn" href="https://calendly.com/mpfcoaching-info/30">Book your free call</a>
+    <a class="more" href="diet.html">Read the free Flexible Dieting Guide →</a>
+  </div>
+</section>
+<footer>MPF Coaching · Maria Paradise · <a href="privacy.html" style="color:#a89a78">Privacy</a></footer>
+<div class="mini" id="mini"><span><b id="mk">0</b> kcal</span><span><b id="mpp">0g</b> protein</span><button onclick="document.querySelector('.side').scrollIntoView({behavior:'smooth'})">See plate</button></div>
+<div class="toast" id="toast">Copied to clipboard</div>
+
+<script>
+var CATS=[
+ {id:'protein',name:'Protein',col:'var(--c-protein)',hex:'#C9A64B'},
+ {id:'carbs',name:'Carbs',col:'var(--c-carbs)',hex:'#E8D79A'},
+ {id:'veg',name:'Veg & fruit',col:'var(--c-veg)',hex:'#6FA86B'},
+ {id:'fats',name:'Fats',col:'var(--c-fats)',hex:'#B5683B'},
+ {id:'treats',name:'Sauces & treats',col:'var(--c-treats)',hex:'#C2588A'}
+];
+// [id, cat, emoji, name, portion, kcal, protein, carbs, fat]
+var F=[
+ ['chk','protein','🍗','Chicken breast','150g cooked · palm-size',240,45,0,5],
+ ['tky','protein','🥩','Turkey mince (5%)','125g raw',160,27,0,6],
+ ['bef','protein','🥩','Lean beef mince (5%)','125g raw',170,26,0,7],
+ ['sal','protein','🐟','Salmon fillet','120g',250,25,0,16],
+ ['cod','protein','🐟','Cod / white fish','150g',130,28,0,1],
+ ['tun','protein','🥫','Tuna (drained)','1 tin, 110g',120,27,0,1],
+ ['prw','protein','🦐','Prawns','150g',100,23,0,1],
+ ['egg','protein','🥚','Eggs','2 large',150,13,1,10],
+ ['ewh','protein','🥚','Egg whites','150ml',70,15,1,0],
+ ['grk','protein','🥛','0% Greek yoghurt','200g',110,20,7,0],
+ ['cot','protein','🧀','Cottage cheese','150g',110,17,5,2],
+ ['tof','protein','🌱','Firm tofu','150g',180,20,3,10],
+ ['whe','protein','🥤','Protein shake','1 scoop with water',120,24,3,2],
+
+ ['ric','carbs','🍚','White / basmati rice','150g cooked · fist-size',195,4,43,0],
+ ['pot','carbs','🥔','Potatoes','200g boiled',150,4,34,0],
+ ['swe','carbs','🍠','Sweet potato','200g',170,3,40,0],
+ ['pas','carbs','🍝','Pasta','180g cooked (75g dry)',270,10,54,2],
+ ['noo','carbs','🍜','Noodles','150g cooked',200,7,40,2],
+ ['wrp','carbs','🌯','Wrap','1 large',190,6,32,4],
+ ['brd','carbs','🍞','Bread','2 slices',190,8,34,2],
+ ['bag','carbs','🥯','Bagel','1 plain',230,9,45,1],
+ ['oat','carbs','🥣','Oats','50g dry',190,6,30,4],
+ ['chp','carbs','🍟','Oven chips','150g',250,4,37,9],
+
+ ['sld','veg','🥗','Mixed salad','big bowl',30,2,5,0],
+ ['brc','veg','🥦','Broccoli / green veg','100g · fist-size',35,3,4,0],
+ ['stf','veg','🫑','Stir-fry veg','150g',50,3,8,0],
+ ['pep','veg','🧅','Peppers & onions','100g',35,1,7,0],
+ ['spn','veg','🍃','Spinach','big handful',10,1,1,0],
+ ['ber','veg','🫐','Berries','100g',50,1,11,0],
+ ['ban','veg','🍌','Banana','1 medium',105,1,27,0],
+
+ ['avo','fats','🥑','Avocado','half',120,1,2,11],
+ ['oil','fats','🫒','Olive oil','1 tbsp · thumb-size',120,0,0,14],
+ ['chd','fats','🧀','Cheddar','30g',125,7,0,10],
+ ['moz','fats','🧀','Light mozzarella','60g',80,11,1,4],
+ ['fet','fats','🧀','Feta','30g',80,5,0,6],
+ ['pnb','fats','🥜','Peanut butter','1 tbsp (15g)',95,4,2,8],
+ ['nut','fats','🌰','Mixed nuts','25g',150,5,3,13],
+
+ ['may','treats','🥄','Light mayo','1 tbsp',45,0,1,4],
+ ['ket','treats','🍅','Ketchup','1 tbsp',15,0,3,0],
+ ['per','treats','🌶️','Peri-peri sauce','1 tbsp',15,0,2,1],
+ ['swc','treats','🌶️','Sweet chilli sauce','1 tbsp',40,0,10,0],
+ ['sls','treats','🥫','Salsa','2 tbsp',15,0,3,0],
+ ['cho','treats','🍫','Chocolate','2 squares (20g)',105,1,12,6],
+ ['cri','treats','🥔','Crisps','1 bag (25g)',130,2,13,8],
+ ['ckk','treats','🍪','Cookie','1 medium',150,2,20,7]
+];
+var PRE=[
+ ['🌯 Burrito bowl',{chk:1,ric:1,pep:1,sls:1,avo:1,sld:1}],
+ ['🌶️ Nando\'s-style',{chk:1,chp:1,sld:1,per:1}],
+ ['🍕 Fakeaway pizza night',{wrp:1,moz:1,chk:1,pep:1,ket:1}],
+ ['🍝 Bolognese',{bef:1,pas:1,pep:1,brc:1}],
+ ['🥣 Breakfast oats',{oat:1,whe:1,ber:1,pnb:1}],
+ ['🍳 Eggs on toast',{egg:1,ewh:1,brd:1,spn:1}],
+ ['🐟 Salmon & sweet potato',{sal:1,swe:1,brc:1}],
+ ['🥡 Prawn stir-fry',{prw:1,noo:1,stf:1,swc:1}]
+];
+var Q={},tab='protein',byId={};F.forEach(function(f){byId[f[0]]=f});
+var $=function(id){return document.getElementById(id)};
+var tgtK=600,tgtP=35;
+
+function renderTabs(){
+  $('tabs').innerHTML=CATS.map(function(c){
+    var n=F.filter(function(f){return f[1]==c.id&&Q[f[0]]}).length;
+    return '<button class="'+(c.id==tab?'on':'')+'" data-t="'+c.id+'"><i style="background:'+c.col+'"></i>'+c.name+(n?'<em class="ct">'+n+'</em>':'')+'</button>';
+  }).join('');
+}
+function renderFoods(){
+  $('foods').innerHTML=F.filter(function(f){return f[1]==tab}).map(function(f){
+    var q=Q[f[0]]||0;
+    return '<div class="food'+(q?' on':'')+'" data-id="'+f[0]+'"><div class="em">'+f[2]+'</div><div class="nm"><b>'+f[3]+'</b><span>'+f[4]+' · '+f[5]+' kcal · '+f[6]+'g protein</span></div><div class="qty"><button class="minus" aria-label="Less">−</button><output>'+(q%1?q.toFixed(1):q)+'</output><button class="'+(q?'':'add')+' plus" aria-label="More">+</button></div></div>';
+  }).join('');
+}
+function totals(){
+  var t={k:0,p:0,c:0,f:0,cat:{}};CATS.forEach(function(c){t.cat[c.id]=0});
+  for(var id in Q){var f=byId[id],q=Q[id];t.k+=f[5]*q;t.p+=f[6]*q;t.c+=f[7]*q;t.f+=f[8]*q;t.cat[f[1]]+=f[5]*q}
+  return t;
+}
+function render(){
+  renderTabs();renderFoods();
+  var t=totals(),K=Math.round(t.k),P=Math.round(t.p);
+  $('kcal').textContent=K;$('mk').textContent=K;$('mpp').textContent=P+'g';
+  $('mp').textContent=P+'g';$('mc').textContent=Math.round(t.c)+'g';$('mf').textContent=Math.round(t.f)+'g';
+  $('kl').textContent=K+' / '+tgtK;$('pl').textContent=P+' / '+tgtP+'g';
+  var kb=$('kb');kb.style.width=Math.min(100,t.k/tgtK*100)+'%';kb.classList.toggle('over',t.k>tgtK*1.1);
+  $('pb').style.width=Math.min(100,t.p/tgtP*100)+'%';
+  // donut
+  var svg='<circle cx="21" cy="21" r="15.915" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="6"></circle>',off=0;
+  if(t.k>0)CATS.forEach(function(c){var pc=t.cat[c.id]/t.k*100;if(pc>0){svg+='<circle cx="21" cy="21" r="15.915" fill="none" stroke="'+c.hex+'" stroke-width="6" stroke-dasharray="'+pc+' '+(100-pc)+'" stroke-dashoffset="'+(-off)+'"></circle>';off+=pc}});
+  $('donut').innerHTML=svg;
+  $('legend').innerHTML=CATS.map(function(c){return '<div><i style="background:'+c.hex+'"></i>'+c.name+'<em>'+Math.round(t.cat[c.id])+'</em></div>'}).join('');
+  // list
+  $('list').innerHTML=Object.keys(Q).map(function(id){var f=byId[id];return '<div><span>'+f[2]+' '+(Q[id]>1?Q[id]+' × ':'')+f[3]+'</span><span>'+Math.round(f[5]*Q[id])+' kcal</span></div>'}).join('');
+  $('tip').textContent=tip(t);
+}
+function tip(t){
+  var has=function(c){return t.cat[c]>0};
+  if(t.k===0)return 'Start with a palm-sized portion of protein. It keeps you full and protects your muscle.';
+  if(!has('protein'))return 'Add a protein first. Aim for a palm-sized portion: chicken, fish, eggs, Greek yoghurt or tofu.';
+  if(t.p<tgtP*0.8)return 'Protein is a bit low. Add another portion or a protein side like Greek yoghurt or egg whites to hit '+tgtP+'g.';
+  if(!has('veg'))return 'Add a fist of veg or fruit. It adds volume and fibre for barely any calories, so you stay fuller for longer.';
+  if(t.k>tgtK*1.1)return 'You\'re '+Math.round(t.k-tgtK)+' kcal over. Don\'t remove the food you love, just shrink a carb or fat portion a little.';
+  if(t.k<tgtK*0.8)return 'You\'ve got about '+Math.round(tgtK-t.k)+' kcal left. Add a carb, some fats or a little treat. Flexible, remember?';
+  return 'Nailed it. Protein ✓ Veg ✓ Calories on target ✓ That\'s a balanced plate you can actually repeat.';
+}
+$('tabs').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;tab=b.dataset.t;render()});
+$('foods').addEventListener('click',function(e){
+  var b=e.target.closest('button'),row=e.target.closest('.food');if(!row)return;
+  var id=row.dataset.id,q=Q[id]||0;
+  if(b&&b.classList.contains('minus'))q=Math.max(0,q-0.5);
+  else if(b&&b.classList.contains('plus'))q=q?q+0.5:1;
+  else if(!q)q=1;else return;
+  if(q)Q[id]=q;else delete Q[id];render();
+});
+$('presets').innerHTML=PRE.map(function(p,i){return '<button data-i="'+i+'">'+p[0]+'</button>'}).join('');
+$('presets').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;Q=Object.assign({},PRE[b.dataset.i][1]);tab='protein';render();if(window.innerWidth<960)document.querySelector('.side').scrollIntoView({behavior:'smooth'})});
+$('goals').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;[].forEach.call($('goals').children,function(x){x.classList.remove('on')});b.classList.add('on');tgtK=+b.dataset.k;tgtP=+b.dataset.p;$('kt').value=tgtK;$('pt').value=tgtP;$('kv').textContent=tgtK;$('pv').textContent=tgtP;render()});
+$('kt').addEventListener('input',function(){tgtK=+this.value;$('kv').textContent=tgtK;[].forEach.call($('goals').children,function(x){x.classList.remove('on')});render()});
+$('pt').addEventListener('input',function(){tgtP=+this.value;$('pv').textContent=tgtP;render()});
+$('clear').addEventListener('click',function(){Q={};render()});
+$('copy').addEventListener('click',function(){
+  var t=totals();if(!t.k)return;
+  var txt='My MPF plate ('+Math.round(t.k)+' kcal, '+Math.round(t.p)+'g protein, '+Math.round(t.c)+'g carbs, '+Math.round(t.f)+'g fat)\n'+Object.keys(Q).map(function(id){var f=byId[id];return '• '+(Q[id]!=1?Q[id]+' × ':'')+f[3]+' ('+f[4]+')'}).join('\n')+'\nBuilt at mpfcoaching.co.uk/plate.html';
+  var done=function(){var el=$('toast');el.classList.add('show');setTimeout(function(){el.classList.remove('show')},1800)};
+  if(navigator.clipboard)navigator.clipboard.writeText(txt).then(done,function(){});
+});
+render();
+</script>
+</body>
+</html>
