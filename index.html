@@ -302,6 +302,19 @@ section[id],header[id]{scroll-margin-top:84px}
 .n-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.n-row .n{margin:0}
 .c-ico{width:42px;height:42px;border-radius:50%;background:#111;color:var(--gold);display:flex;align-items:center;justify-content:center;flex:0 0 auto}
 .c-ico svg{width:22px;height:22px}
+.g-wrap{position:relative}
+.g-nav{display:none}
+.gallery{scroll-behavior:smooth}
+@media(min-width:760px){
+  .g-wrap{width:100vw;margin-left:calc(50% - 50vw)}
+  .gallery{margin:0;padding:6px 64px 18px;gap:20px;scroll-snap-type:x mandatory}
+  .gallery figure{flex:0 0 calc((100vw - 128px - 60px)/4);max-width:none;scroll-snap-align:start}
+  .g-nav{display:flex;align-items:center;justify-content:center;position:absolute;top:42%;z-index:2;width:48px;height:48px;border-radius:50%;border:1px solid var(--gold);background:rgba(17,17,17,.85);color:var(--gold);font-size:30px;line-height:1;cursor:pointer}
+  .g-prev{left:10px}.g-next{right:10px}
+  .g-nav:hover{background:var(--gold);color:#111}
+  .swipe{display:none}
+}
+@media(min-width:1500px){.gallery figure{flex-basis:calc((100vw - 128px - 80px)/5)}}
 </style>
 </head>
 <body>
@@ -421,7 +434,9 @@ section[id],header[id]{scroll-margin-top:84px}
   <div class="wrap">
     <div class="eyebrow">Real clients, real results</div>
     <h2>Don't just take <em>my word for it.</em></h2>
-    <div class="gallery">
+    <div class="g-wrap">
+    <button class="g-nav g-prev" aria-label="Previous">‹</button>
+    <div class="gallery" id="gallery">
       <figure><img src="img/online30.jpg" alt="Client transformation, 30kg lost fully online" loading="lazy"><figcaption><b>−30kg · fully online</b>23kg down, and then she kept going. Pure dedication.</figcaption></figure>
       <figure><img src="img/online-men.jpg" alt="Online client transformation" loading="lazy"><figcaption><b>Online coaching</b>You don't need to live near me to get results like this.</figcaption></figure>
       <figure><img src="img/forty.jpg" alt="Client transformation, 40kg lost" loading="lazy"><figcaption><b>−40kg</b>No fat loss jabs necessary.</figcaption></figure>
@@ -438,6 +453,8 @@ section[id],header[id]{scroll-margin-top:84px}
       <figure><img src="img/trans-front.jpg" alt="Client transformation, front view" loading="lazy"><figcaption><b>Lean &amp; defined</b>Belly gone, shoulders and chest built.</figcaption></figure>
       <figure><img src="img/trans-side.jpg" alt="Client transformation, side view" loading="lazy"><figcaption><b>Side-on difference</b>Tighter waist, bigger arms, and that smile says it all.</figcaption></figure>
       <figure><img src="img/glutes.jpg" alt="Glute transformation" loading="lazy"><figcaption><b>Glute gains</b>When the transformation gives you a BBL 🍑</figcaption></figure>
+    </div>
+    <button class="g-nav g-next" aria-label="Next">›</button>
     </div>
     <div class="swipe">Swipe for more →</div>
     <div style="text-align:center;margin-top:18px"><a class="btn ghost" href="https://www.instagram.com/mpfcoachingresults">See every result on @mpfcoachingresults</a></div>
@@ -760,6 +777,21 @@ var GUIDE_FORM={action:"",name:"",email:"",guide:""};
   function close(){l.classList.remove('open');b.classList.remove('x');b.setAttribute('aria-expanded','false');sc()}
   b.onclick=function(){var o=l.classList.toggle('open');b.classList.toggle('x',o);b.setAttribute('aria-expanded',o);sc()};
   l.querySelectorAll('a').forEach(function(a){a.addEventListener('click',close)});
+})();
+</script>
+<script>
+(function(){
+  var g=document.getElementById('gallery'); if(!g) return;
+  var step=function(){var f=g.querySelector('figure');return f?f.getBoundingClientRect().width+parseFloat(getComputedStyle(g).gap||14):300};
+  function next(){ if(g.scrollLeft+g.clientWidth>=g.scrollWidth-5) g.scrollTo({left:0}); else g.scrollBy({left:step()}); }
+  function prev(){ if(g.scrollLeft<=5) g.scrollTo({left:g.scrollWidth}); else g.scrollBy({left:-step()}); }
+  document.querySelector('.g-next').onclick=function(){next();reset()};
+  document.querySelector('.g-prev').onclick=function(){prev();reset()};
+  var t, paused=false;
+  function reset(){clearInterval(t); t=setInterval(function(){ if(!paused && !document.hidden) next(); },3500);}
+  ['mouseenter','touchstart','focusin'].forEach(function(e){g.addEventListener(e,function(){paused=true},{passive:true})});
+  ['mouseleave','touchend','focusout'].forEach(function(e){g.addEventListener(e,function(){setTimeout(function(){paused=false},2500)},{passive:true})});
+  if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches) reset();
 })();
 </script>
 </body>
