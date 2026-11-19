@@ -419,6 +419,35 @@ section[id],header[id]{scroll-margin-top:84px}
 .ig-btns .btn{font-size:11px;padding:13px 18px}
 .btn.ghost{background:none;border:1.5px solid var(--gold-d);color:var(--gold-d);box-shadow:none}
 @media(min-width:1024px){.hero-img{right:7%!important;width:44%!important;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 28%,#000 78%,transparent 100%),linear-gradient(180deg,transparent 0,#000 12%,#000 84%,transparent 100%)!important;mask-image:linear-gradient(90deg,transparent 0,#000 28%,#000 78%,transparent 100%),linear-gradient(180deg,transparent 0,#000 12%,#000 84%,transparent 100%)!important;-webkit-mask-composite:source-in!important;mask-composite:intersect!important}}
+.merge-rule{height:1px;background:rgba(156,122,44,.35);margin:52px 0 44px}
+.dark .merge-rule{background:rgba(201,166,75,.3)}
+.dark .split .b{color:var(--ink)}
+.pt-panel{border-radius:18px;padding:30px 22px;margin-top:34px;background:#111}
+.pt-panel h2{font-size:clamp(26px,7vw,34px)}
+@media(min-width:760px){.pt-panel{padding:40px}}
+#faq .ig-grid{margin-top:14px}
+@media(min-width:1024px){
+  #how .wrap,#pricing .wrap,#guides .wrap{max-width:1100px}
+  .steps-row{display:grid;grid-template-columns:repeat(5,1fr);gap:18px}
+  .steps-row .step{flex-direction:column;gap:10px;border:1px solid rgba(201,166,75,.3);border-radius:14px;padding:18px}
+  .tiers{grid-template-columns:repeat(3,1fr);align-items:stretch}
+  #guides .guide{display:inline-block;vertical-align:top;width:calc(50% - 10px)}
+  #guides .guide+.guide{margin-left:16px}
+}
+@media(max-width:759px){
+  .steps-row .step{gap:12px;padding:12px 0}
+  .steps-row .step .num{flex-basis:36px;height:36px;font-size:16px}
+  .steps-row .step h3{font-size:17px}
+  .steps-row .step p{font-size:14px}
+  #how .split{grid-template-columns:1fr 1fr;gap:8px}
+  #how .split>div{padding:16px 12px}
+  #how .split h3{font-size:15px;margin-bottom:8px}
+  #how .split li{font-size:13px;padding-left:20px;margin-bottom:7px}
+  #how .split li:before{width:10px;height:10px;top:5px}
+  #how .split .joke{display:none}
+}
+.steps-row .step .num{flex:0 0 auto!important;width:46px;height:46px;align-self:flex-start}
+.dark .split .a{border:1px solid rgba(201,166,75,.4);background:#1a1916}
 </style>
 </head>
 <body>
@@ -481,12 +510,7 @@ section[id],header[id]{scroll-margin-top:84px}
         <div><small>You also get</small>Flexibility, eating out, family life, no extremes</div>
       </div>
     </div>
-  </div>
-</section>
-
-<!-- RESULTS -->
-<section class="dark" id="results" style="border-top:1px solid rgba(201,166,75,.25)">
-  <div class="wrap">
+    <div class="merge-rule" id="results"></div>
     <div class="eyebrow">Real clients, real results</div>
     <h2>Don't just take <em>my word for it.</em></h2>
     <div class="g-wrap">
@@ -577,12 +601,8 @@ section[id],header[id]{scroll-margin-top:84px}
       <div><small>TOO</small>All-or-nothing</div>
     </div>
     <p>So you rely on motivation, and when it drops, everything drops with it. That's why I don't coach perfection. <strong>I coach something you can actually keep doing.</strong> <span class="joke">Motivation is like a January gym membership: technically active, never seen again.</span></p>
-  </div>
-</section>
 
-<!-- APPROACH -->
-<section style="background:#f5efe1">
-  <div class="wrap">
+    <div class="merge-rule"></div>
     <div class="eyebrow">My approach</div>
     <h2>No extremes. <em>Just structure you can repeat.</em></h2>
     <p class="lead">I coach structure, consistency and progression in a way that works for you. I build the plan around your lifestyle, not the other way round, because results don't come from being perfect. They come from what you can repeat.</p>
@@ -638,21 +658,17 @@ section[id],header[id]{scroll-margin-top:84px}
 </section>
 
 <!-- HOW IT WORKS -->
-<section class="dark">
+<section class="dark" id="how">
   <div class="wrap">
     <div class="eyebrow">How it works</div>
     <h2>From application <em>to results.</em></h2>
-    <div class="step"><div class="num">1</div><div><h3>Apply</h3><p>Fill in the short application form so I can learn about you, your goals and your lifestyle.</p></div></div>
+    <div class="steps-row"><div class="step"><div class="num">1</div><div><h3>Apply</h3><p>Fill in the short application form so I can learn about you, your goals and your lifestyle.</p></div></div>
     <div class="step"><div class="num">2</div><div><h3>Your free call</h3><p>We'll chat about where you are now, where you want to be and whether we're the right fit. No pressure, no hard sell.</p></div></div>
     <div class="step"><div class="num">3</div><div><h3>Your plan is built</h3><p>Your training programme, nutrition targets and coaching hub are set up around your life.</p></div></div>
     <div class="step"><div class="num">4</div><div><h3>Learn the system</h3><p>Your tracking lesson, logbook and routines, so you understand what you're doing and why.</p></div></div>
-    <div class="step"><div class="num">5</div><div><h3>Check in, adjust, progress</h3><p>Weekly check-ins keep you accountable as we move through your phases. <span class="joke">Your old "start again Monday" habit will not be attending.</span></p></div></div>
-  </div>
-</section>
+    <div class="step"><div class="num">5</div><div><h3>Check in, adjust, progress</h3><p>Weekly check-ins keep you accountable as we move through your phases. <span class="joke">Your old "start again Monday" habit will not be attending.</span></p></div></div></div>
 
-<!-- FIT -->
-<section>
-  <div class="wrap">
+    <div class="merge-rule"></div>
     <div class="eyebrow">Is this right for you?</div>
     <h2>Let's make sure <em>we're a good fit.</em></h2>
     <div class="split">
@@ -706,12 +722,7 @@ section[id],header[id]{scroll-margin-top:84px}
     </div>
     <div class="incl"><strong>The set-up includes</strong> your personal online coaching hub (programme, trackers, check-ins and targets, all built for you) and your full nutrition and tracking lesson.</div>
     <div class="quote" style="font-size:19px">Not sure which option is right for you? We'll work it out together on your free call.</div>
-  </div>
-</section>
-
-<!-- IN-PERSON PT -->
-<section class="dark" id="pt">
-  <div class="wrap">
+    <div class="dark pt-panel" id="pt">
     <div class="eyebrow">Prefer to train with me in person?</div>
     <h2>1-2-1 personal training, <em>side by side.</em></h2>
     <p class="pt-loc">📍 PureGym Charlton, south-east London</p>
@@ -738,6 +749,7 @@ section[id],header[id]{scroll-margin-top:84px}
     </div>
     <div style="text-align:center;margin-top:26px"><a class="btn" href="https://app.acuityscheduling.com/schedule.php?owner=38832646">Book in-person PT</a></div>
     <span class="sub-link">Not sure which package? <a href="https://calendly.com/mpfcoaching-info/30">Book a free call</a> or message me <a href="https://instagram.com/mariaparadisefitness">@mariaparadisefitness</a></span>
+    </div>
   </div>
 </section>
 
@@ -773,23 +785,15 @@ section[id],header[id]{scroll-margin-top:84px}
     <details><summary>What happens when I go on holiday?</summary><p>Holidays are part of the coaching, not a break from it. We plan for them together based on your goals, so you can enjoy yourself without undoing your progress. <span class="joke">No, you don't need to pack a food scale.</span></p></details>
     <details><summary>What if I have a bad week?</summary><p>Tell me. That's what I'm here for. We look at what happened, adjust, and get you back on track. One bad week won't undo your progress. Giving up will.</p></details>
     <details><summary>How much does it cost?</summary><p>See the <a href="#pricing" style="color:var(--gold-d);font-weight:600">pricing options</a>. Paying 3 or 6 months upfront skips the set-up fee and saves you the most. We can talk it all through on your free call.</p></details>
-  </div>
-</section>
 
-<!-- GOAL + PROMISE -->
-<section style="background:#f5efe1">
-  <div class="wrap">
+    <div class="merge-rule"></div>
     <div class="eyebrow">A promise from me</div>
     <img class="promise-img" src="img/maria-smile.jpg" alt="Maria smiling in the gym" loading="lazy">
     <p class="lead" style="font-family:var(--serif);font-size:21px">I'm always learning, always evolving, always growing, because you deserve a coach who never stands still.</p>
     <p>I promise to give you the best of me: my time, my knowledge, my support and my honesty, every step of the way. Brutally honest sometimes, lovingly always.</p>
     <div class="sig">Maria</div>
-  </div>
-</section>
 
-<!-- INSTAGRAM -->
-<section class="ig">
-  <div class="wrap">
+    <div class="merge-rule"></div>
     <div class="eyebrow">Follow along</div>
     <h2>Find me on <em>Instagram.</em></h2>
     <div class="ig-grid"><a href="https://www.instagram.com/mariaparadisefitness" class="ig-t"><img src="img/stage-corridor.jpg" alt="" loading="lazy"></a><a href="https://www.instagram.com/mariaparadisefitness" class="ig-t"><img src="img/coach-deadlift.jpg" alt="" loading="lazy"></a><a href="https://www.instagram.com/mariaparadisefitness" class="ig-t"><img src="img/maria-food.jpg" alt="" loading="lazy"></a><a href="https://www.instagram.com/mariaparadisefitness" class="ig-t"><img src="img/maria-gym.jpg" alt="" loading="lazy"></a><a href="https://www.instagram.com/mariaparadisefitness" class="ig-t"><img src="img/coach-row.jpg" alt="" loading="lazy"></a><a href="https://www.instagram.com/mariaparadisefitness" class="ig-t"><img src="img/stage-back.jpg" alt="" loading="lazy"></a></div>
