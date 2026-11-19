@@ -520,6 +520,26 @@ section[id],header[id]{scroll-margin-top:84px}
 .stage img{border:1.5px solid rgba(214,184,100,.9)!important;animation:goldglow 4s ease-in-out infinite}
 .stage img:nth-child(2){animation-delay:-2s}
 @media(prefers-reduced-motion:reduce){.stage img{animation:none;box-shadow:0 0 0 1px rgba(201,166,75,.8),0 0 24px rgba(201,166,75,.35)}}
+.tb-dd{position:relative;display:flex;align-items:center}
+.tb-dd-t i{font-style:normal;font-size:10px;color:var(--gold);margin-left:3px}
+.tb-sub{position:absolute;top:100%;left:50%;transform:translate(-50%,8px);min-width:290px;background:#111;border:1px solid rgba(201,166,75,.5);border-radius:14px;padding:8px;box-shadow:0 0 0 1px rgba(232,206,130,.15),0 18px 40px rgba(0,0,0,.5);opacity:0;visibility:hidden;transition:.18s;display:flex;flex-direction:column;gap:2px;margin-top:10px}
+.tb-sub:before{content:"";position:absolute;left:0;right:0;top:-20px;height:20px}
+.tb-dd:hover .tb-sub,.tb-dd:focus-within .tb-sub{opacity:1;visibility:visible;transform:translate(-50%,0)}
+.tb-sub a{display:block;padding:10px 12px;border-radius:10px;text-decoration:none}
+.tb-sub a:hover{background:rgba(201,166,75,.12)}
+.tb-sub a b{display:block;color:#fff;font-size:13.5px;font-weight:600;letter-spacing:0}
+.tb-sub a span{display:block;color:#a89a78;font-size:12px;font-weight:500;letter-spacing:0;margin-top:1px}
+@media(max-width:860px){
+  .tb-links{max-height:100vh;overflow-y:auto}
+  .tb-dd{flex-direction:column;align-items:stretch}
+  .tb-dd-t i{display:none}
+  .tb-sub{position:static;transform:none!important;opacity:1;visibility:visible;min-width:0;background:none;border:none;box-shadow:none;padding:2px 0 8px 14px;margin:0}
+  .tb-sub:before{display:none}
+  .tb-links .tb-sub a{font-family:var(--sans);font-size:15px;padding:9px 0;border-bottom:1px solid rgba(201,166,75,.1)}
+  .tb-sub a b{font-size:15px}
+  .tb-sub a span{display:none}
+}
+@media(min-width:1024px){.hero-in{padding-left:48px!important;padding-right:48px!important;box-sizing:border-box}}
 </style>
 </head>
 <body>
@@ -527,7 +547,13 @@ section[id],header[id]{scroll-margin-top:84px}
 <nav class="topbar" id="topbar">
   <a class="tb-logo" href="#top"><img src="img/logo.png" alt="MPF Coaching"></a>
   <div class="tb-links" id="tbLinks">
-    <a href="#results">Results</a><a href="#coaching">Online coaching</a><a href="#pt">In-person PT</a><a href="#pricing">Pricing</a><a href="#guides">Free guides</a><a href="#faq">FAQ</a>
+    <a href="#results">Results</a><a href="#coaching">Online coaching</a><a href="#pt">In-person PT</a><a href="#pricing">Pricing</a><div class="tb-dd"><a href="#guides" class="tb-dd-t">Free guides &amp; tools <i>▾</i></a><div class="tb-sub">
+      <a href="hypertrophy.html"><b>📘 Hypertrophy guide</b><span>How to build muscle</span></a>
+      <a href="diet.html"><b>🥗 Flexible dieting guide</b><span>Eat what you love, hit your goals</span></a>
+      <a href="diet.html#calc"><b>🧮 Calorie &amp; macro calculator</b><span>Your numbers in seconds</span></a>
+      <a href="plate.html"><b>🍽️ Build your plate</b><span>Interactive meal builder</span></a>
+      <a href="recipes.html"><b>📖 High-protein recipes</b><span>22 meals + free recipe book</span></a>
+    </div></div><a href="recipes.html">Recipes</a><a href="#faq">FAQ</a>
     <a class="tb-mob-cta" href="https://calendly.com/mpfcoaching-info/30">Book your free call</a>
   </div>
   <a class="tb-cta" href="https://calendly.com/mpfcoaching-info/30">Book a call</a>
