@@ -178,7 +178,16 @@ details p{margin:10px 0 0;font-size:15px;color:#3a362e}
 .final h2{color:#fff}
 .contact{margin-top:26px;font-size:14px;color:var(--gold-l);line-height:2}
 .contact a{color:var(--gold-l);text-decoration:none}
-footer{background:#0b0b0a;color:#6f6754;text-align:center;font-size:11px;letter-spacing:.2em;text-transform:uppercase;padding:24px 0}
+.site-foot{background:#0b0b0a;color:#a89a78;padding:48px 0 110px;font-size:14px}
+.f-logo{width:110px;margin-bottom:12px}
+.f-tag{font-family:var(--serif);font-style:italic;color:var(--gold-l);font-size:17px;margin-bottom:26px}
+.f-cols{display:grid;gap:26px}
+@media(min-width:620px){.f-cols{grid-template-columns:repeat(3,1fr)}}
+.f-cols h4{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+.f-cols a,.f-cols span{display:block;color:#d8ccb0;text-decoration:none;padding:5px 0}
+.f-cols a:hover{color:var(--gold)}
+.f-base{margin-top:34px;padding-top:18px;border-top:1px solid rgba(201,166,75,.2);font-size:12px;color:#6f6754}
+.f-base a{color:#a89a78}
 
 /* sticky */
 .sticky{position:fixed;left:0;right:0;bottom:0;z-index:20;background:rgba(17,17,17,.94);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:12px 16px calc(12px + env(safe-area-inset-bottom));border-top:1px solid rgba(201,166,75,.35);transform:translateY(110%);transition:transform .3s}
@@ -651,7 +660,18 @@ section[id],header[id]{scroll-margin-top:84px}
     </div>
   </div>
 </section>
-<footer>MPF Online Coaching · Maria Paradise</footer>
+<footer class="site-foot">
+  <div class="wrap">
+    <img src="img/logo.png" alt="MPF Coaching" class="f-logo">
+    <p class="f-tag">Bodybuilder results, built for normal life.</p>
+    <div class="f-cols">
+      <div><h4>Coaching</h4><a href="https://forms.gle/ZtK6VXzdqNYYzVgG9">Apply for online coaching</a><a href="https://calendly.com/mpfcoaching-info/30">Book a free call</a><a href="https://app.acuityscheduling.com/schedule.php?owner=38832646">Book in-person PT</a><a href="#pricing">Pricing</a></div>
+      <div><h4>Free stuff</h4><a href="hypertrophy.html">Hypertrophy guide</a><a href="diet.html">Flexible dieting guide</a><a href="diet.html#calc">Calorie &amp; macro calculator</a><a href="https://www.instagram.com/mpfcoachingresults">Client results</a></div>
+      <div><h4>Find me</h4><a href="https://www.instagram.com/mariaparadisefitness">Instagram @mariaparadisefitness</a><a href="mailto:info@mpfcoaching.co.uk">info@mpfcoaching.co.uk</a><span>📍 PureGym Charlton, south-east London</span></div>
+    </div>
+    <div class="f-base">© 2026 MPF Coaching · Maria Paradise · <a href="privacy.html">Privacy policy</a></div>
+  </div>
+</footer>
 
 <div class="sticky" id="sticky"><a class="btn" href="https://forms.gle/ZtK6VXzdqNYYzVgG9">Apply &amp; book your free call</a></div>
 
@@ -674,7 +694,7 @@ section[id],header[id]{scroll-margin-top:84px}
     <p>Pop your details in and the guide opens straight away. I'll also send you the odd tip and offer. <span class="joke">No spam. I'm far too busy coaching for that.</span></p>
     <input type="text" id="gName" placeholder="First name" autocomplete="given-name">
     <input type="email" id="gEmail" placeholder="Email address" autocomplete="email">
-    <label class="ok"><input type="checkbox" id="gOk"> I'm happy to get emails from MPF Coaching. I can unsubscribe any time.</label>
+    <label class="ok"><input type="checkbox" id="gOk"> I'm happy to get emails from MPF Coaching. I can unsubscribe any time. <a href="privacy.html" style="color:var(--gold-l)">Privacy</a></label>
     <div class="gate-err" id="gErr"></div>
     <button class="btn block" type="submit">Open the guide</button>
   </form>
