@@ -293,6 +293,12 @@ section[id],header[id]{scroll-margin-top:84px}
 .who-for b{color:#fff}
 .hub-row{display:flex;gap:14px;align-items:flex-start}.sheet-ico{flex:0 0 40px;width:40px;height:50px;margin-top:2px}.hub-row p{margin:0}
 .promise-img{display:block;width:100%;max-width:380px;aspect-ratio:4/5;object-fit:cover;object-position:center 10%;border-radius:16px;border:1.5px solid rgba(156,122,44,.6);box-shadow:0 14px 34px rgba(0,0,0,.18);margin:6px 0 22px}
+.flex-img{width:100%;aspect-ratio:4/3;object-fit:cover;object-position:center 25%;border-radius:10px;margin-bottom:14px}
+.coach-pics{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0 22px}
+.coach-pics img{width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:10px;border:1px solid rgba(201,166,75,.45)}
+.coach-pics img:nth-child(3){grid-column:span 2;aspect-ratio:16/9;object-position:center 30%}
+@media(min-width:760px){.coach-pics{grid-template-columns:1fr 1fr 1fr}.coach-pics img:nth-child(3){grid-column:auto;aspect-ratio:4/5}}
+.final-img{display:block;width:100%;max-width:360px;margin:0 auto 26px;aspect-ratio:4/5;object-fit:cover;object-position:center 15%;border-radius:16px;border:1.5px solid rgba(201,166,75,.6);box-shadow:0 14px 36px rgba(0,0,0,.5)}
 </style>
 </head>
 <body>
@@ -331,7 +337,7 @@ section[id],header[id]{scroll-margin-top:84px}
     <h2>Hi, I'm Maria. <em>I practise what I preach.</em></h2>
     <div class="stage">
       <img src="img/maria-stage1.jpg" alt="Maria on stage" loading="lazy">
-      <img src="img/maria-backstage.jpg" alt="Maria backstage on show day" loading="lazy">
+      <img src="img/maria-gym-pose.jpg" alt="Maria in the gym" loading="lazy">
       <img src="img/maria-stage2.jpg" alt="Maria posing on stage" loading="lazy">
     </div>
     <p class="lead" style="color:#d8ccb0">I help people lose fat, build muscle and build habits that actually last.</p>
@@ -398,7 +404,7 @@ section[id],header[id]{scroll-margin-top:84px}
         <li>Clear calorie and macro targets (where needed)</li>
         <li>Structured training with progress tracked</li>
         <li>Set routines for steps, cardio and recovery</li></ul></div>
-      <div class="b"><h3>The flexibility</h3><ul class="tick">
+      <div class="b"><img class="flex-img" src="img/maria-food.jpg" alt="Maria enjoying a burger night out" loading="lazy"><h3>The flexibility</h3><ul class="tick">
         <li>Eat out without the guilt <span class="joke">(nobody has ever died from one Domino's)</span></li>
         <li>Enjoy your life and social plans</li>
         <li>Adapt when the week isn't perfect</li></ul></div>
@@ -587,6 +593,11 @@ section[id],header[id]{scroll-margin-top:84px}
     <div class="eyebrow">Prefer to train with me in person?</div>
     <h2>1-2-1 personal training, <em>side by side.</em></h2>
     <p class="pt-loc">📍 PureGym Charlton, south-east London</p>
+    <div class="coach-pics">
+      <img src="img/coach-deadlift.jpg" alt="Maria coaching a client's deadlift setup" loading="lazy">
+      <img src="img/coach-cable.jpg" alt="Maria coaching a cable exercise" loading="lazy">
+      <img src="img/coach-row.jpg" alt="Maria cueing a client during dumbbell rows" loading="lazy">
+    </div>
     <p style="color:#cfc4aa">Same approach, same results, with me right next to you every rep: coaching your form, pushing your sets and making sure nothing gets skipped. <span class="joke">Yes, including leg day.</span></p>
     <ul class="tick" style="color:#e9e0c9;margin-top:14px">
       <li>Sessions built around your goals, tracked and progressed every week</li>
@@ -665,6 +676,7 @@ section[id],header[id]{scroll-margin-top:84px}
 <!-- FINAL CTA -->
 <section class="dark final" id="final">
   <div class="wrap">
+    <img class="final-img" src="img/maria-flex.jpg" alt="Maria flexing and smiling in the gym" loading="lazy">
     <h2>Ready to stop <em>starting over?</em></h2>
     <p class="lead" style="color:#d8ccb0">If you're serious about results that actually last, let's talk. <span class="joke">Otherwise, see you next Monday. And the one after that.</span></p>
     <a class="btn block" href="https://forms.gle/ZtK6VXzdqNYYzVgG9" style="margin-top:22px">Apply &amp; book your free call</a>
