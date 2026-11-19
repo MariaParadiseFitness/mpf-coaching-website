@@ -369,7 +369,6 @@ section[id],header[id]{scroll-margin-top:84px}
   .r-side .tcard .stars{margin-bottom:6px}
   .r-hint{display:none}
 }
-@media(min-width:1024px){.tcard .more{display:none}}
 .r-hint{text-align:center;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:#a89a78;margin-top:10px}
 @media(min-width:1024px){.r-hint{display:none}}
 @media(min-width:1024px){
@@ -482,6 +481,20 @@ section[id],header[id]{scroll-margin-top:84px}
   #sf .split .a{display:flex;flex-direction:column;justify-content:center}
 }
 .pt:not(.hot) b{color:#141414!important}.pt:not(.hot) span{color:#6b6253!important}
+@media(min-width:1024px){
+  #results .wrap{max-width:1320px}
+  .reviews{grid-template-columns:1fr 1.05fr 1fr 1fr!important;gap:16px!important}
+  .reviews .tcard{padding:18px 18px 16px}
+  .reviews .tcard blockquote{font-size:15.5px;line-height:1.5;margin-bottom:10px}
+  .r-side .tcard blockquote{display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer}
+  .r-side .tcard.open blockquote{-webkit-line-clamp:unset;display:block}
+  .r-side .tcard .more{display:inline-block!important;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin:-4px 0 10px;cursor:pointer}
+  .r-side .tcard.open .more,.r-side .tcard .more[hidden]{display:none!important}
+  .reviews .tcard .who img{width:46px;height:46px}
+  .reviews .tcard .who{font-size:13px}
+  .t-feature .tvid video{max-height:420px;width:auto;max-width:100%;margin:0 auto}
+}
+.tcard .more[hidden]{display:none!important}
 </style>
 </head>
 <body>
@@ -594,10 +607,17 @@ section[id],header[id]{scroll-margin-top:84px}
       </div>
       <div class="r-col r-side">
       <div class="tcard">
-        <div class="stars">★★★★★</div><span class="res">Fixed her relationship with food</span>
+        <div class="stars">★★★★★</div><span class="res">Food freedom</span>
         <blockquote>"I spent the majority of my life having an unhealthy relationship with food, and now I'm in the best place I've ever been in terms of my relationship with food and my physique. Maria made my sessions fun again and I quickly saw results I'd been aiming for for a couple of years."</blockquote>
-        <div class="who"><div><b>Amy</b>Food freedom and a physique she loves</div></div>
+        <div class="who"><div><b>Amy</b>Fixed her relationship with food</div></div>
       </div>
+      <div class="tcard">
+        <div class="stars">★★★★★</div><span class="res">HIIT to lifting</span>
+        <blockquote>"Before working with her, I mainly focused on HIIT workouts and mat Pilates. Now I feel confident lifting weights and truly understand the importance of strength training for women. My body is stronger and more toned, and she's become more like a friend than just a PT."</blockquote>
+        <div class="who"><div><b>Divya T.</b>Stronger, toned and confident</div></div>
+      </div>
+      </div>
+      <div class="r-col r-side">
       <div class="tcard">
         <div class="stars">★★★★★</div><span class="res">93kg → 88kg in 11 weeks</span>
         <blockquote>"It never feels like she's just a PT giving you a plan and leaving you to get on with it. She genuinely cares about your progress and wants to see you do well."</blockquote>
@@ -915,7 +935,7 @@ document.querySelectorAll('.r-side .tcard').forEach(function(c){
   var q=c.querySelector('blockquote'); if(!q) return;
   var m=document.createElement('span'); m.className='more'; m.textContent='Read more';
   q.after(m);
-  requestAnimationFrame(function(){ if(q.scrollHeight<=q.clientHeight+2) m.style.display='none'; });
+  requestAnimationFrame(function(){ if(q.scrollHeight<=q.clientHeight+2) m.setAttribute('hidden',''); });
   c.addEventListener('click',function(){c.classList.add('open')});
 });
 </script>
