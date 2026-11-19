@@ -3,8 +3,22 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Work with me | MPF Online Coaching</title>
-<meta name="description" content="Online coaching with Maria Paradise: structure you can stick to, flexibility you can live with, and support every week.">
+<title>MPF Coaching | Online Coaching &amp; PT with Maria Paradise</title>
+<meta name="description" content="Online coaching and in-person PT with Maria Paradise. Fat loss and body recomp: bodybuilder results with a flexible approach built for normal life. Free guides, real client results, free call.">
+<link rel="canonical" href="https://mpfcoaching.co.uk/">
+<link rel="icon" type="image/png" href="img/favicon.png">
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+<meta name="theme-color" content="#111111">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="MPF Coaching">
+<meta property="og:title" content="Want to work with me? | MPF Coaching with Maria Paradise">
+<meta property="og:description" content="Bodybuilder results, built for normal life. Online coaching, in-person PT, free guides and real client results.">
+<meta property="og:url" content="https://mpfcoaching.co.uk/">
+<meta property="og:image" content="https://mpfcoaching.co.uk/img/og.jpg">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://mpfcoaching.co.uk/img/og.jpg">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"ProfessionalService","name":"MPF Coaching","url":"https://mpfcoaching.co.uk/","image":"https://mpfcoaching.co.uk/img/og.jpg","email":"info@mpfcoaching.co.uk","founder":{"@type":"Person","name":"Maria Paradise"},"description":"Online fitness coaching and in-person personal training specialising in fat loss and body recomposition.","sameAs":["https://www.instagram.com/mariaparadisefitness","https://www.instagram.com/mpfcoachingresults"]}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
@@ -45,8 +59,8 @@ p{margin-bottom:14px}
 
 /* hero */
 .hero{position:relative;min-height:100svh;min-height:100vh;color:#fff;text-align:center;overflow:hidden;background:#111;display:flex;align-items:flex-end}
-.hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 18%}
-.hero-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(17,17,17,.15) 0%,rgba(17,17,17,.05) 30%,rgba(17,17,17,.75) 62%,#111 88%)}
+.hero-img{position:absolute;left:0;right:0;top:0;width:100%;height:68%;object-fit:cover;object-position:center 30%}
+.hero-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(17,17,17,.15) 0%,rgba(17,17,17,.0) 30%,rgba(17,17,17,.85) 58%,#111 68%)}
 .hero:after{content:"";position:absolute;inset:14px;border:1px solid rgba(201,166,75,.45);pointer-events:none;border-radius:4px}
 .hero-in{position:relative;z-index:1;padding-top:52vh;padding-bottom:40px;width:100%}
 .hero-logo{position:absolute;top:26px;left:26px;width:74px;z-index:2;filter:drop-shadow(0 2px 6px rgba(0,0,0,.5))}
@@ -169,8 +183,8 @@ footer{background:#0b0b0a;color:#6f6754;text-align:center;font-size:11px;letter-
 .sticky.show{transform:none}
 .sticky .btn{display:flex;width:100%;max-width:520px;margin:0 auto;padding:15px 20px;font-size:12px}
 .about-hero{width:100%;border-radius:12px;border:1px solid rgba(201,166,75,.45);aspect-ratio:4/5;object-fit:cover;object-position:center 20%}
-.stage{display:grid;grid-template-columns:1fr 1.15fr 1fr;gap:8px;margin-top:22px}
-.stage img{width:100%;aspect-ratio:3/5;object-fit:cover;object-position:center top;border-radius:8px;border:1px solid rgba(201,166,75,.35)}
+.stage{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:22px}
+.stage img{width:100%;aspect-ratio:3/4;object-fit:cover;object-position:center top;border-radius:8px;border:1px solid rgba(201,166,75,.35)}
 .caption-small{text-align:center;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#a89a78;margin-top:12px}
 .links{background:#111;padding:10px 0 40px}
 .lk{display:flex;justify-content:space-between;align-items:center;gap:12px;text-decoration:none;color:#f3ecdc;border:1px solid rgba(201,166,75,.45);border-radius:14px;padding:17px 20px;margin-bottom:12px;font-weight:600;font-size:15px;background:#1a1916}
@@ -192,15 +206,71 @@ footer{background:#0b0b0a;color:#6f6754;text-align:center;font-size:11px;letter-
 .tvid{margin:0 0 16px}
 .tvid video{width:100%;max-width:340px;display:block;margin:0 auto;aspect-ratio:9/16;object-fit:cover;border-radius:12px;border:1px solid rgba(201,166,75,.45);background:#000}
 .tvid span{display:block;text-align:center;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-top:8px}
+
+/* toolbar */
+.topbar{position:fixed;top:0;left:0;right:0;z-index:30;display:flex;align-items:center;gap:14px;padding:10px 16px;padding-top:calc(10px + env(safe-area-inset-top));transition:background .25s,box-shadow .25s}
+.topbar.solid{background:rgba(17,17,17,.96);box-shadow:0 1px 0 rgba(201,166,75,.35);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.tb-logo img{width:48px;display:block;filter:drop-shadow(0 2px 6px rgba(0,0,0,.5))}
+.tb-links{display:flex;gap:22px;margin-left:auto}
+.tb-links a{color:#f3ecdc;text-decoration:none;font-size:13px;font-weight:600;letter-spacing:.04em}
+.tb-links a:hover{color:var(--gold)}
+.tb-mob-cta{display:none}
+.tb-cta{background:var(--grad);color:var(--ink);text-decoration:none;font-weight:700;font-size:11px;letter-spacing:.16em;text-transform:uppercase;padding:10px 16px;border-radius:30px}
+.tb-burger{display:none;background:none;border:0;width:40px;height:40px;cursor:pointer;flex-direction:column;justify-content:center;gap:5px;align-items:center}
+.tb-burger span{display:block;width:22px;height:2px;background:#fff;border-radius:2px;transition:.2s}
+@media(max-width:860px){
+  .tb-links{position:fixed;top:0;left:0;right:0;flex-direction:column;gap:0;background:#111;padding:calc(72px + env(safe-area-inset-top)) 24px 26px;transform:translateY(-105%);transition:transform .3s;border-bottom:1px solid rgba(201,166,75,.4)}
+  .tb-links.open{transform:none}
+  .tb-links a{font-family:var(--serif);font-size:24px;padding:12px 0;border-bottom:1px solid rgba(201,166,75,.18)}
+  .tb-mob-cta{display:block;margin-top:18px;text-align:center;background:var(--grad);color:var(--ink)!important;font-family:var(--sans)!important;font-size:13px!important;letter-spacing:.14em;text-transform:uppercase;border-radius:40px;padding:16px!important;border:0!important}
+  .tb-cta{margin-left:auto;position:relative;z-index:2}
+  .tb-burger{display:flex;position:relative;z-index:2}
+  .tb-logo{position:relative;z-index:2}
+  .tb-burger.x span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+  .tb-burger.x span:nth-child(2){opacity:0}
+  .tb-burger.x span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+}
+section[id],header[id]{scroll-margin-top:70px}
+/* in-person PT */
+.pt-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px}
+@media(min-width:560px){.pt-grid{grid-template-columns:repeat(4,1fr)}}
+.pt{background:#fff;border:1.5px solid rgba(156,122,44,.35);border-radius:12px;padding:16px 10px;text-align:center;position:relative}
+.pt.hot{background:var(--ink);color:#f3ecdc;border-color:var(--gold)}
+.pt .badge{font-size:9px;padding:4px 9px;top:-10px}
+.pt small{display:block;font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-d)}
+.pt.hot small{color:var(--gold)}
+.pt b{display:block;font-family:var(--serif);font-weight:900;font-size:28px;margin:4px 0 2px}
+.pt span{font-size:12px;color:var(--muted)}
+.pt.hot span{color:#cfc4aa}
+/* guide gate */
+.gate{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.72);display:none;align-items:flex-end;justify-content:center;padding:16px}
+.gate.open{display:flex}
+@media(min-width:560px){.gate{align-items:center}}
+.gate-box{background:#111;color:#f3ecdc;border:1px solid rgba(201,166,75,.5);border-radius:16px;padding:26px 22px;width:100%;max-width:440px;position:relative}
+.gate-box h3{color:#fff;font-size:24px;margin-bottom:6px}
+.gate-box p{color:#cfc4aa;font-size:14px}
+.gate-box input[type=text],.gate-box input[type=email]{width:100%;padding:14px;border-radius:10px;border:1px solid rgba(201,166,75,.45);background:#1d1c19;color:#fff;font-size:16px;font-family:var(--sans);margin-bottom:10px}
+.gate-box label.ok{display:flex;gap:10px;font-size:12px;color:#cfc4aa;margin:4px 0 14px;align-items:flex-start}
+.gate-box label.ok input{accent-color:#C9A64B;margin-top:2px}
+.gate-x{position:absolute;top:10px;right:12px;background:none;border:0;color:#a89a78;font-size:26px;cursor:pointer}
+.gate-err{color:#f0b36b;font-size:13px;min-height:18px;margin-bottom:6px}
 </style>
 </head>
 <body>
 
+<nav class="topbar" id="topbar">
+  <a class="tb-logo" href="#top"><img src="img/logo.png" alt="MPF Coaching"></a>
+  <div class="tb-links" id="tbLinks">
+    <a href="#results">Results</a><a href="#coaching">Online coaching</a><a href="#pt">In-person PT</a><a href="#pricing">Pricing</a><a href="#guides">Free guides</a><a href="#faq">FAQ</a>
+    <a class="tb-mob-cta" href="https://forms.gle/ZtK6VXzdqNYYzVgG9">Apply &amp; book your free call</a>
+  </div>
+  <a class="tb-cta" href="https://forms.gle/ZtK6VXzdqNYYzVgG9">Apply</a>
+  <button class="tb-burger" id="tbBurger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+</nav>
 <!-- HERO -->
-<header class="hero">
-  <img class="hero-img" src="img/maria-shoot.jpg" alt="Maria Paradise, MPF Coaching">
+<header class="hero" id="top">
+  <img class="hero-img" src="img/maria-hero.jpg" alt="Maria Paradise, MPF Coaching">
   <div class="hero-shade"></div>
-  <img class="hero-logo" src="img/logo.png" alt="MPF Coaching">
   <div class="hero-in wrap">
     <div class="tag">MPF Online Coaching · Maria Paradise</div>
     <h1>Want to work <em>with me?</em></h1>
@@ -222,6 +292,7 @@ footer{background:#0b0b0a;color:#6f6754;text-align:center;font-size:11px;letter-
     <a class="lk" href="https://calendly.com/mpfcoaching-info/30"><span>Book a free call</span><i>→</i></a>
     <a class="lk" href="https://www.instagram.com/mpfcoachingresults"><span>See more client results @mpfcoachingresults</span><i>→</i></a>
     <a class="lk" href="#guides"><span>Free guides: muscle building &amp; flexible dieting</span><i>↓</i></a>
+    <a class="lk" href="#pt"><span>In-person 1-2-1 PT</span><i>↓</i></a>
     <a class="lk" href="#about"><span>How I coach · everything you need to know</span><i>↓</i></a>
     <a class="lk" href="https://instagram.com/mariaparadisefitness"><span>Instagram @mariaparadisefitness</span><i>→</i></a>
   </div>
@@ -244,10 +315,9 @@ footer{background:#0b0b0a;color:#6f6754;text-align:center;font-size:11px;letter-
     </div>
     <div class="stage">
       <img src="img/maria-stage1.jpg" alt="Maria on stage" loading="lazy">
-      <img src="img/maria-backstage.jpg" alt="Maria backstage on show day" loading="lazy">
       <img src="img/maria-stage2.jpg" alt="Maria posing on stage" loading="lazy">
     </div>
-    <div class="caption-small">Show day. Same structure, same consistency I'll teach you.</div>
+    <div class="caption-small">On stage at the PCA. Same structure, same consistency I'll teach you.</div>
   </div>
 </section>
 
@@ -309,7 +379,7 @@ footer{background:#0b0b0a;color:#6f6754;text-align:center;font-size:11px;letter-
 </section>
 
 <!-- RESULTS -->
-<section class="dark">
+<section class="dark" id="results">
   <div class="wrap">
     <div class="eyebrow">Real clients, real results</div>
     <h2>Don't just take <em>my word for it.</em></h2>
@@ -345,6 +415,16 @@ footer{background:#0b0b0a;color:#6f6754;text-align:center;font-size:11px;letter-
         <div class="who"><img src="img/poorna.jpg" alt="Poorna before and after"><div><b>Poorna T.</b>Stronger than ever</div></div>
       </div>
       <div class="tcard">
+        <div class="stars">★★★★★</div><span class="res">−35kg and counting</span>
+        <blockquote>"I started in a very low place, riddled with anxiety and the highest weight I had ever been. Training with Maria has helped me tackle it all. I'm now over 35kg down and in a much better physical and mental position. She makes you feel confident in the gym and that you belong."</blockquote>
+        <div class="who"><div><b>Rhia</b>35kg down and counting</div></div>
+      </div>
+      <div class="tcard">
+        <div class="stars">★★★★★</div><span class="res">Fixed her relationship with food</span>
+        <blockquote>"I spent the majority of my life having an unhealthy relationship with food, and now I'm in the best place I've ever been in terms of my relationship with food and my physique. Maria made my sessions fun again and I quickly saw results I'd been aiming for for a couple of years."</blockquote>
+        <div class="who"><div><b>Amy</b>Food freedom and a physique she loves</div></div>
+      </div>
+      <div class="tcard">
         <div class="stars">★★★★★</div><span class="res">93kg → 88kg in 11 weeks</span>
         <blockquote>"It never feels like she's just a PT giving you a plan and leaving you to get on with it. She genuinely cares about your progress and wants to see you do well."</blockquote>
         <div class="who"><img src="img/av-jack.jpg" alt="Jack"><div><b>Jack W.</b>Happier with his physique than ever</div></div>
@@ -359,7 +439,7 @@ footer{background:#0b0b0a;color:#6f6754;text-align:center;font-size:11px;letter-
 </section>
 
 <!-- WHAT YOU GET -->
-<section>
+<section id="coaching">
   <div class="wrap">
     <div class="eyebrow">What you'll get</div>
     <h2>Your online coaching, <em>all in one place.</em></h2>
@@ -472,6 +552,32 @@ footer{background:#0b0b0a;color:#6f6754;text-align:center;font-size:11px;letter-
   </div>
 </section>
 
+<!-- IN-PERSON PT -->
+<section class="dark" id="pt">
+  <div class="wrap">
+    <div class="eyebrow">Prefer to train with me in person?</div>
+    <h2>1-2-1 personal training, <em>side by side.</em></h2>
+    <p style="color:#cfc4aa">Same approach, same results, with me right next to you every rep: coaching your form, pushing your sets and making sure nothing gets skipped. <span class="joke">Yes, including leg day.</span></p>
+    <ul class="tick" style="color:#e9e0c9;margin-top:14px">
+      <li>Sessions built around your goals, tracked and progressed every week</li>
+      <li>Hands-on form coaching so you train safely and get more from every set</li>
+      <li>Nutrition guidance included, so the work in the gym actually shows</li>
+    </ul>
+    <div class="pt-grid">
+      <div class="pt"><small>Single</small><b>£67.50</b><span>1 session</span></div>
+      <div class="pt"><small>2 sessions</small><b>£125</b><span>£62.50 each</span></div>
+      <div class="pt"><small>4 sessions</small><b>£230</b><span>£57.50 each</span></div>
+      <div class="pt"><small>6 sessions</small><b>£330</b><span>£55 each</span></div>
+      <div class="pt hot"><div class="badge">Most popular</div><small>8 sessions</small><b>£440</b><span>£55 each</span></div>
+      <div class="pt"><small>10 sessions</small><b>£525</b><span>£52.50 each</span></div>
+      <div class="pt hot"><div class="badge">Best value</div><small>12 sessions</small><b>£600</b><span>£50 each</span></div>
+      <div class="pt"><small>16 sessions</small><b>£800</b><span>£50 each · fully locked in</span></div>
+    </div>
+    <div style="text-align:center;margin-top:26px"><a class="btn" href="https://calendly.com/mpfcoaching-info/30">Book a free call about PT</a></div>
+    <span class="sub-link">Or message me on Instagram <a href="https://instagram.com/mariaparadisefitness">@mariaparadisefitness</a></span>
+  </div>
+</section>
+
 <!-- FREE GUIDES -->
 <section class="dark" id="guides">
   <div class="wrap">
@@ -482,19 +588,19 @@ footer{background:#0b0b0a;color:#6f6754;text-align:center;font-size:11px;letter-
       <div class="g-tag">Training</div>
       <h3>The MPF Hypertrophy Guide for Dummies</h3>
       <p>How to actually build muscle: rep ranges, effort, tempo, training to failure and progressive overload, minus the jargon. Includes an effort dial, weekly volume checker and a one-page cheat sheet.</p>
-      <div class="g-btns"><a class="btn" href="hypertrophy.html">Open interactive guide</a><a class="btn ghost" href="https://drive.google.com/file/d/1BzRpomxX0i_gelfdQKJBNXfKhsbxtvHT/view?usp=drivesdk">Download PDF</a></div>
+      <div class="g-btns"><a class="btn" data-guide="Hypertrophy guide" href="hypertrophy.html">Open interactive guide</a><a class="btn ghost" data-guide="Hypertrophy guide (PDF)" href="https://drive.google.com/file/d/1BzRpomxX0i_gelfdQKJBNXfKhsbxtvHT/view?usp=drivesdk">Download PDF</a></div>
     </div>
     <div class="guide">
       <div class="g-tag">Nutrition</div>
       <h3>The MPF Flexible Dieting Guide</h3>
       <p>Includes a calorie &amp; macro calculator. An 8-step guide to building a diet plan that actually works: your maintenance calories, macros, tracking, pizza nights, takeaways and eating out. Works for omnivores, vegetarians and vegans.</p>
-      <div class="g-btns"><a class="btn" href="diet.html">Open interactive guide</a><a class="btn ghost" href="https://drive.google.com/file/d/1XlKh3UU-W845fa7arDmvqzXvkfVz8NYW/view?usp=drivesdk">Download PDF</a></div>
+      <div class="g-btns"><a class="btn" data-guide="Flexible dieting guide" href="diet.html">Open interactive guide</a><a class="btn ghost" data-guide="Flexible dieting guide (PDF)" href="https://drive.google.com/file/d/1XlKh3UU-W845fa7arDmvqzXvkfVz8NYW/view?usp=drivesdk">Download PDF</a></div>
     </div>
   </div>
 </section>
 
 <!-- FAQ -->
-<section>
+<section id="faq">
   <div class="wrap">
     <div class="eyebrow">Your questions, answered</div>
     <h2>Before you <em>ask…</em></h2>
@@ -552,6 +658,50 @@ footer{background:#0b0b0a;color:#6f6754;text-align:center;font-size:11px;letter-
     new IntersectionObserver(function(e){heroGone=!e[0].isIntersecting;upd()}).observe(h);
     new IntersectionObserver(function(e){finalIn=e[0].isIntersecting;upd()}).observe(f);
   } else { s.classList.add('show'); }
+})();
+</script>
+<div class="gate" id="gate" role="dialog" aria-modal="true" aria-labelledby="gateT">
+  <form class="gate-box" id="gateForm" novalidate>
+    <button type="button" class="gate-x" id="gateX" aria-label="Close">×</button>
+    <div class="eyebrow">Free guide</div>
+    <h3 id="gateT">Where shall I send tips?</h3>
+    <p>Pop your details in and the guide opens straight away. I'll also send you the odd tip and offer. <span class="joke">No spam. I'm far too busy coaching for that.</span></p>
+    <input type="text" id="gName" placeholder="First name" autocomplete="given-name">
+    <input type="email" id="gEmail" placeholder="Email address" autocomplete="email">
+    <label class="ok"><input type="checkbox" id="gOk"> I'm happy to get emails from MPF Coaching. I can unsubscribe any time.</label>
+    <div class="gate-err" id="gErr"></div>
+    <button class="btn block" type="submit">Open the guide</button>
+  </form>
+</div>
+<script>
+/* Guide sign-up. Paste your Google Form details here to switch it on. */
+var GUIDE_FORM={action:"",name:"",email:"",guide:""};
+(function(){
+  var on=!!GUIDE_FORM.action, gate=document.getElementById('gate'), target=null, label='';
+  function done(){try{return localStorage.getItem('mpfGuide')==='1'}catch(e){return false}}
+  document.querySelectorAll('[data-guide]').forEach(function(a){a.addEventListener('click',function(e){
+    if(!on||done())return; e.preventDefault(); target=a.href; label=a.dataset.guide; gate.classList.add('open'); document.getElementById('gName').focus();});});
+  document.getElementById('gateX').onclick=function(){gate.classList.remove('open')};
+  gate.addEventListener('click',function(e){if(e.target===gate)gate.classList.remove('open')});
+  document.getElementById('gateForm').addEventListener('submit',function(e){
+    e.preventDefault(); var n=gName.value.trim(), m=gEmail.value.trim(), err=document.getElementById('gErr');
+    if(!n){err.textContent='Add your first name.';return}
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(m)){err.textContent='That email doesn\'t look quite right.';return}
+    if(!gOk.checked){err.textContent='Tick the box so I can send you the guide.';return}
+    var fd=new FormData(); fd.append(GUIDE_FORM.name,n); fd.append(GUIDE_FORM.email,m); if(GUIDE_FORM.guide)fd.append(GUIDE_FORM.guide,label);
+    fetch(GUIDE_FORM.action,{method:'POST',mode:'no-cors',body:fd}).catch(function(){}).finally(function(){
+      try{localStorage.setItem('mpfGuide','1')}catch(e){} window.location.href=target;});
+  });
+})();
+</script>
+<script>
+(function(){
+  var tb=document.getElementById('topbar'),b=document.getElementById('tbBurger'),l=document.getElementById('tbLinks');
+  function sc(){tb.classList.toggle('solid',window.scrollY>40||l.classList.contains('open'))}
+  window.addEventListener('scroll',sc,{passive:true}); sc();
+  function close(){l.classList.remove('open');b.classList.remove('x');b.setAttribute('aria-expanded','false');sc()}
+  b.onclick=function(){var o=l.classList.toggle('open');b.classList.toggle('x',o);b.setAttribute('aria-expanded',o);sc()};
+  l.querySelectorAll('a').forEach(function(a){a.addEventListener('click',close)});
 })();
 </script>
 </body>
