@@ -41,7 +41,7 @@ h2{font-family:var(--serif);font-weight:900;font-size:clamp(24px,4vw,32px);line-
 .note{background:#151410;border:1px solid rgba(201,166,75,.25);border-left:3px solid var(--gold);border-radius:12px;padding:14px 16px;font-size:14px;color:#cfc4aa;margin-bottom:16px}
 .note b{color:#fff}
 .frame{border-radius:22px;overflow:hidden;border:1px solid rgba(214,184,100,.7);box-shadow:0 0 0 1px rgba(232,206,130,.25),0 0 40px rgba(201,166,75,.2);background:#111;margin-bottom:46px}
-.frame iframe{display:block;width:100%;height:860px;border:0;background:#fff}
+.frame iframe{display:block;width:100%;height:1100px;border:0;background:#fff}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
 @media(max-width:760px){.grid{grid-template-columns:1fr}}
 .card{background:#151410;border:1px solid rgba(201,166,75,.3);border-radius:20px;padding:26px 24px}
@@ -76,7 +76,9 @@ h2{font-family:var(--serif);font-weight:900;font-size:clamp(24px,4vw,32px);line-
   <section id="book">
     <h2>Book your <em>next session.</em></h2>
     <div class="note"><b>Got a package?</b> Enter your package code at checkout and you won't be charged. Use the same email you bought your package with.</div>
-    <div class="frame"><iframe src="https://app.acuityscheduling.com/schedule.php?owner=38832646&amp;appointmentType=90953993&amp;ref=embedded_csp" title="Book a PT session with Maria" loading="lazy"></iframe></div>
+    <div class="frame"><iframe src="https://app.acuityscheduling.com/schedule.php?owner=38832646&amp;appointmentType=90953993&amp;ref=embedded_csp" title="Book a PT session with Maria" scrolling="no" id="acuity"></iframe></div>
+    <script src="https://embed.acuityscheduling.com/js/embed.js"></script>
+    <script>window.addEventListener("message",function(e){if(!/acuityscheduling\.com$/.test((new URL(e.origin)).hostname))return;var m=typeof e.data=="string"&&e.data.match(/^sizing:(\d+)/);if(m)document.getElementById("acuity").style.height=(+m[1]+40)+"px"});</script>
   </section>
 
   <div class="grid">
