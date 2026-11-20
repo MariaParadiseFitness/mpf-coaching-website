@@ -545,6 +545,14 @@ section[id],header[id]{scroll-margin-top:84px}
 .f-badge{display:inline-flex;align-items:center;justify-content:center;width:190px;height:190px;border-radius:50%;background:radial-gradient(circle,#FBF7EE 0%,#efe3c4 100%);box-shadow:0 0 0 2px var(--gold),0 0 0 7px rgba(201,166,75,.18),0 0 50px rgba(201,166,75,.45);margin-bottom:16px}
 .f-badge .f-logo{width:150px!important;margin:0!important}
 .f-brand .f-tag{margin:0;font-size:20px}
+.pr-tabs{display:flex;gap:10px;justify-content:center;margin:26px auto 26px;max-width:640px}
+.pr-tab{flex:1;background:#111;color:#e9e0c9;border:1px solid rgba(201,166,75,.35);border-radius:14px;padding:14px 12px;font:600 15px Montserrat,sans-serif;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;transition:.2s}
+.pr-tab small{font-weight:500;font-size:12px;color:#b9ad90}
+.pr-tab.on{background:linear-gradient(120deg,#9C7A2C,#C9A64B 45%,#E4CF8A);color:#111;border-color:#E4CF8A;box-shadow:0 0 18px rgba(201,166,75,.45)}
+.pr-tab.on small{color:#2a2414}
+.pr-pane{display:none}.pr-pane.on{display:block}
+#pricing .pt-panel.pr-pane{margin-top:0}
+.pr-h{text-align:center;font-family:'Playfair Display',serif;color:#E4CF8A;font-size:22px;margin:0 0 18px}
 </style>
 </head>
 <body>
@@ -556,7 +564,7 @@ section[id],header[id]{scroll-margin-top:84px}
       <a href="hypertrophy.html"><b>📘 Hypertrophy guide</b><span>How to build muscle</span></a>
       <a href="diet.html"><b>🥗 Flexible dieting guide</b><span>Eat what you love, hit your goals</span></a>
       <a href="diet.html#calc"><b>🧮 Calorie &amp; macro calculator</b><span>Your numbers in seconds</span></a>
-    </div></div><a href="#faq">FAQ</a>
+    </div></div><a href="#faq">FAQ</a><a href="https://thebuffbabesclub.com" target="_blank" rel="noopener" class="tb-merch">Merch ↗</a>
     <a class="tb-mob-cta" href="https://calendly.com/mpfcoaching-info/30">Book your free call</a>
   </div>
   <a class="tb-cta" href="https://calendly.com/mpfcoaching-info/30">Book a call</a>
@@ -641,7 +649,7 @@ section[id],header[id]{scroll-margin-top:84px}
     <button class="g-nav g-next" aria-label="Next">›</button>
     </div>
     <div class="swipe">Swipe for more →</div>
-    <div style="text-align:center;margin-top:18px"><a class="btn ghost" href="https://www.instagram.com/mpfcoachingresults">See every result on @mpfcoachingresults</a></div>
+    <div style="text-align:center;margin-top:18px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap"><a class="btn ghost" href="https://www.instagram.com/mpfcoachingresults" target="_blank" rel="noopener">📸 Client results @mpfcoachingresults</a><a class="btn ghost" href="https://www.instagram.com/mariaparadisefitness" target="_blank" rel="noopener">📸 Follow me @mariaparadisefitness</a></div>
 
     <div class="reviews">
       <div class="r-col r-side">
@@ -788,6 +796,11 @@ section[id],header[id]{scroll-margin-top:84px}
     <div class="eyebrow">Your investment</div>
     <h2>Choose how you <em>want to start.</em></h2>
     <p>Every option includes the full coaching package. Commit for longer and you skip the set-up fee and save more. <span class="joke">Cheaper than another year of starting over on Monday.</span></p>
+    <div class="pr-tabs" role="tablist">
+      <button class="pr-tab on" data-t="online" role="tab">💻 Online coaching<small>from £150 / month</small></button>
+      <button class="pr-tab" data-t="pt" role="tab">🏋️ In-person PT<small>from £50 / session · Charlton</small></button>
+    </div>
+    <div class="pr-pane on" id="pr-online"><h3 class="pr-h">Online coaching prices</h3>
     <div class="tiers">
       <div class="tier hot">
         <div class="badge">Most popular</div>
@@ -821,8 +834,9 @@ section[id],header[id]{scroll-margin-top:84px}
     <div class="incl"><strong>The set-up includes</strong> your personal online coaching hub (programme, trackers, check-ins and targets, all built for you) and your full nutrition and tracking lesson.</div>
     <div class="quote" style="font-size:19px">Not sure which option is right for you? We'll work it out together on your free call.</div>
     <p class="mpf10" style="text-align:center;font-size:14px;margin:18px auto 0;max-width:620px">🎁 <b>Signed up for my free guides?</b> Mention your sign-up code on your free call for 10% off your first month of online coaching. Valid for 14 days from sign-up. <a href="diet.html">Not signed up yet? Unlock them free →</a></p>
-<div class="dark pt-panel" id="pt">
-    <div class="eyebrow">Prefer to train with me in person?</div>
+</div>
+<div class="dark pt-panel pr-pane" id="pt"><h3 class="pr-h">In-person PT prices · PureGym Charlton</h3>
+    <div class="eyebrow">Train with me in person</div>
     <h2>1-2-1 personal training, <em>side by side.</em></h2>
     <p class="pt-loc">📍 PureGym Charlton, south-east London</p>
     <div class="coach-pics">
@@ -919,7 +933,7 @@ section[id],header[id]{scroll-margin-top:84px}
     <div class="f-cols">
       <div><h4>Coaching</h4><a href="https://calendly.com/mpfcoaching-info/30">Book a free call</a><a href="#pt">In-person PT</a><a href="#pricing">Pricing</a></div>
       <div><h4>Free stuff</h4><a href="hypertrophy.html">Hypertrophy guide</a><a href="diet.html">Flexible dieting guide</a><a href="diet.html#calc">Calorie &amp; macro calculator</a><a href="https://www.instagram.com/mpfcoachingresults">Client results</a></div>
-      <div><h4>Find me</h4><a href="https://www.instagram.com/mariaparadisefitness">Instagram @mariaparadisefitness</a><a href="https://www.facebook.com/mariaparadisefitness">Facebook: Maria Paradise Fitness</a><a href="mailto:info@mpfcoaching.co.uk">info@mpfcoaching.co.uk</a><span>📍 PureGym Charlton, south-east London</span></div>
+      <div><h4>Find me</h4><a href="https://www.instagram.com/mariaparadisefitness">Instagram @mariaparadisefitness</a><a href="https://www.instagram.com/mpfcoachingresults">Results @mpfcoachingresults</a><a href="https://thebuffbabesclub.com" target="_blank" rel="noopener">Merch: The Buff Babes Club</a><a href="https://www.facebook.com/mariaparadisefitness">Facebook: Maria Paradise Fitness</a><a href="mailto:info@mpfcoaching.co.uk">info@mpfcoaching.co.uk</a><span>📍 PureGym Charlton, south-east London</span></div>
     </div>
     <div class="f-base">© 2026 MPF Coaching · Maria Paradise · <a href="privacy.html">Privacy policy</a></div>
   </div>
@@ -1000,5 +1014,9 @@ document.querySelectorAll('.r-side .tcard').forEach(function(c){
 document.querySelectorAll('#coaching .card').forEach(function(c){c.addEventListener('click',function(){ if(innerWidth<760) c.classList.toggle('open'); });});
 </script>
 
+<script>(function(){var tb=document.querySelectorAll('.pr-tab');function show(t){tb.forEach(function(b){b.classList.toggle('on',b.dataset.t==t)});document.getElementById('pr-online').classList.toggle('on',t=='online');document.getElementById('pt').classList.toggle('on',t=='pt');}
+tb.forEach(function(b){b.addEventListener('click',function(){show(b.dataset.t)})});
+document.querySelectorAll('a[href="#pt"]').forEach(function(a){a.addEventListener('click',function(){show('pt')})});
+if(location.hash=='#pt')show('pt');})();</script>
 </body>
 </html>
