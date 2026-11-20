@@ -1,7 +1,7 @@
 /* MPF education gate: asks for name + email once, then unlocks every guide, tool and recipe.
    To switch it on, paste your Google Form details below (action = the form's formResponse URL,
    name/email/guide = the entry.XXXX ids from a pre-filled link). Leave action empty to keep it off. */
-var MPF_GATE={action:"",name:"",email:"",guide:""};
+var MPF_GATE={action:"https://docs.google.com/forms/d/e/1FAIpQLSdA15cYhMQJkAxDUQuvMN7dfcx65YS_MyNwJl6x_bq7SjiDEw/formResponse",name:"entry.1506624811",email:"entry.901543487",guide:""};
 (function(){
   var KEY='mpfGuide';
   function unlocked(){try{return localStorage.getItem(KEY)==='1'}catch(e){return false}}
