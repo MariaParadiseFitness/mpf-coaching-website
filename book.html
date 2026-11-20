@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Book Your Free Call | MPF Coaching</title>
+<link rel="canonical" href="https://mpfcoaching.co.uk/book.html">
+<meta name="description" content="Book a free call with Maria Paradise: online coaching or in-person personal training.">
+<link rel="icon" type="image/png" href="img/favicon.png">
+<meta property="og:title" content="Book your free call | MPF Coaching"><meta property="og:image" content="https://mpfcoaching.co.uk/img/og.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#C9A64B;--gold-l:#E4CF8A;--gold-d:#9C7A2C;--grad:linear-gradient(120deg,#9C7A2C 0%,#C9A64B 45%,#E8D79A 100%);--serif:"Playfair Display",Georgia,serif;--sans:"Montserrat",system-ui,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);color:#efe6cf;background:radial-gradient(90% 50% at 50% 0%,#221f17 0%,#0e0e0e 65%) fixed,#0e0e0e;-webkit-font-smoothing:antialiased}
+a{color:var(--gold-l)}
+.top{position:sticky;top:0;z-index:5;background:rgba(14,14,14,.92);backdrop-filter:blur(8px);border-bottom:1px solid rgba(201,166,75,.18)}
+.top .in{max-width:1040px;margin:0 auto;padding:12px 22px;display:flex;justify-content:space-between;align-items:center}
+.top a{color:var(--gold-l);text-decoration:none;font-size:13px;font-weight:600}
+.wrap{max-width:1040px;margin:0 auto;padding:40px 22px 60px}
+.hero{display:flex;gap:22px;align-items:center;margin-bottom:30px;flex-wrap:wrap}
+.hero img.me{width:96px;height:96px;border-radius:50%;object-fit:cover;object-position:50% 12%;border:2px solid var(--gold);box-shadow:0 0 0 4px #0e0e0e,0 0 0 5px rgba(228,207,138,.5),0 0 26px rgba(201,166,75,.4)}
+.kick{font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:8px}
+h1{font-family:var(--serif);font-weight:900;font-size:clamp(32px,6vw,48px);line-height:1.05;color:#fff}
+h1 em{font-style:italic;font-weight:400;color:var(--gold-l)}
+.lead{color:#cfc4aa;margin-top:10px;font-size:15.5px;line-height:1.6;max-width:620px}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:22px}
+.tab{display:flex;gap:14px;align-items:center;text-align:left;background:#151410;border:1px solid rgba(201,166,75,.3);color:#efe6cf;border-radius:18px;padding:18px 18px;cursor:pointer;font:inherit;transition:.2s}
+.tab .ic{flex:0 0 46px;height:46px;border-radius:14px;display:grid;place-content:center;font-size:22px;background:#0e0e0e;border:1px solid rgba(201,166,75,.3)}
+.tab b{display:block;font-size:16px;color:#fff}.tab span{font-size:12.5px;color:#b5a988}
+.tab.on{background:linear-gradient(120deg,rgba(156,122,44,.4),rgba(201,166,75,.14));border-color:var(--gold-l);box-shadow:0 0 22px rgba(201,166,75,.3)}
+@media(max-width:560px){.tabs{grid-template-columns:1fr}}
+.frame{border-radius:22px;overflow:hidden;border:1px solid rgba(214,184,100,.7);box-shadow:0 0 0 1px rgba(232,206,130,.25),0 0 40px rgba(201,166,75,.2);background:#111;min-height:720px}
+.frame iframe{display:block;width:100%;height:760px;border:0}
+.trust{display:flex;gap:18px;flex-wrap:wrap;justify-content:center;margin-top:22px;font-size:13px;color:#b5a988}
+.trust span:before{content:"✓ ";color:var(--gold)}
+</style>
+</head>
+<body>
+<div class="top"><div class="in"><a href="index.html">← MPF Coaching</a><a href="index.html#pricing">See pricing</a></div></div>
+<main class="wrap">
+  <div class="hero"><img class="me" src="img/maria-profile.jpg" alt="Maria Paradise"><div><div class="kick">Free 25-minute call</div><h1>Let's talk about <em>your goals.</em></h1><p class="lead">With 8 years of coaching experience, we'll work out a plan together to get you moving forward, whether or not you decide to sign up. Pick the call that suits you.</p></div></div>
+  <div class="tabs">
+    <button class="tab on" data-k="online"><span class="ic">💻</span><span><b>Online coaching call</b><span>Phone call · anywhere in the world</span></span></button>
+    <button class="tab" data-k="pt"><span class="ic">🏋️</span><span><b>In-person PT call</b><span>Meet in person or by phone · south-east London</span></span></button>
+  </div>
+  <div class="frame"><iframe id="cal" title="Book a call with Maria" loading="lazy"></iframe></div>
+  <div class="trust"><span>Free, no obligation</span><span>No pressure, no hard sell</span><span>Reminder sent before your call</span></div>
+</main>
+<script>
+var U={online:'https://calendly.com/mpfcoaching-info/30',pt:'https://calendly.com/mpfcoaching-info/in-person-pt'};
+var P='?embed_domain=mpfcoaching.co.uk&embed_type=Inline&hide_gdpr_banner=1&background_color=111111&text_color=efe6cf&primary_color=c9a64b';
+function show(k){document.querySelectorAll('.tab').forEach(function(t){t.classList.toggle('on',t.dataset.k==k)});document.getElementById('cal').src=U[k]+P;}
+document.querySelectorAll('.tab').forEach(function(t){t.onclick=function(){show(t.dataset.k);history.replaceState(null,'','#'+t.dataset.k)}});
+show(location.hash=='#pt'?'pt':'online');
+</script>
+</body>
+</html>

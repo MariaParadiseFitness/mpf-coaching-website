@@ -104,7 +104,7 @@ footer{background:#0b0b0b;color:#a89a78;text-align:center;font-size:12px;padding
 </style>
 </head>
 <body>
-<div class="top"><div class="wrap"><a href="index.html">← MPF Coaching</a><a class="cta" href="https://calendly.com/mpfcoaching-info/30">Work with me</a></div></div>
+<div class="top"><div class="wrap"><a href="index.html">← MPF Coaching</a><a class="cta" href="book.html#online">Work with me</a></div></div>
 
 <header class="cover">
   <div class="wrap">
@@ -130,7 +130,7 @@ footer{background:#0b0b0b;color:#a89a78;text-align:center;font-size:12px;padding
   <div class="wrap">
     <h2>Want meals built around <em>your goals?</em></h2>
     <p>My coaching clients get their calories, macros and meals set up around their life, with my support every week.</p>
-    <a class="btn" href="https://calendly.com/mpfcoaching-info/30">Book your free call</a>
+    <a class="btn" href="book.html#online">Book your free call</a>
     <a class="more" href="plate.html">Try the Build Your Plate tool →</a>
   </div>
 </section>
@@ -154,7 +154,7 @@ function open(id){
   $('full').innerHTML='<button class="x" aria-label="Close" onclick="closeR()">×</button>'+ph(r)+'<div class="fb"><h2>'+r.title+'</h2><p class="tg">'+r.tag+'</p>'+mrow(r)+'<div class="meta"><span>⏱ '+r.time+'</span><span>🍽 '+(r.makes?'Makes '+r.serves+' (macros per piece)':'Serves '+r.serves+' (macros per serving)')+'</span></div>'+
   '<div class="cols"><div><h4>Ingredients</h4><div class="ing">'+r.ing.map(function(i){return '<label><input type="checkbox"><span>'+i+'</span></label>'}).join('')+'</div></div>'+
   '<div><h4>Method</h4><ol class="steps">'+r.method.map(function(s,i){return '<li><b>'+(i+1)+'</b><span>'+s+'</span></li>'}).join('')+'</ol><div class="tipbox"><b>Maria\'s tip</b>'+r.tip+'</div></div></div>'+
-  '<div class="acts"><button onclick="window.print()">Print recipe</button><a class="pri" href="https://calendly.com/mpfcoaching-info/30">Get a plan built for you</a></div></div>';
+  '<div class="acts"><button onclick="window.print()">Print recipe</button><a class="pri" href="book.html#online">Get a plan built for you</a></div></div>';
   $('ov').classList.add('open');document.body.style.overflow='hidden';history.replaceState(null,'','#'+id);
 }
 function closeR(){$('ov').classList.remove('open');document.body.style.overflow='';history.replaceState(null,'',location.pathname)}
