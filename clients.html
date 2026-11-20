@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Client Area | MPF Coaching</title>
+<meta name="robots" content="noindex">
+<link rel="canonical" href="https://mpfcoaching.co.uk/clients.html">
+<meta name="description" content="MPF Coaching client area: book your PT sessions, check your bookings and buy session packages.">
+<link rel="icon" type="image/png" href="img/favicon.png">
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+<meta name="theme-color" content="#111111">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#C9A64B;--gold-l:#E4CF8A;--gold-d:#9C7A2C;--grad:linear-gradient(120deg,#9C7A2C 0%,#C9A64B 45%,#E8D79A 100%);--serif:"Playfair Display",Georgia,serif;--sans:"Montserrat",system-ui,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);color:#efe6cf;background:radial-gradient(90% 50% at 50% 0%,#221f17 0%,#0e0e0e 65%) fixed,#0e0e0e;-webkit-font-smoothing:antialiased;line-height:1.6}
+a{color:var(--gold-l)}
+.top{position:sticky;top:0;z-index:5;background:rgba(14,14,14,.92);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid rgba(201,166,75,.18)}
+.top .in{max-width:1040px;margin:0 auto;padding:12px 22px;display:flex;justify-content:space-between;align-items:center}
+.top a{color:var(--gold-l);text-decoration:none;font-size:13px;font-weight:600}
+.wrap{max-width:1040px;margin:0 auto;padding:40px 22px 60px}
+.hero{display:flex;gap:22px;align-items:center;margin-bottom:30px;flex-wrap:wrap}
+.hero img.me{width:96px;height:96px;border-radius:50%;object-fit:cover;object-position:50% 12%;border:2px solid var(--gold);box-shadow:0 0 0 4px #0e0e0e,0 0 0 5px rgba(228,207,138,.5),0 0 26px rgba(201,166,75,.4)}
+.kick{font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:8px}
+h1{font-family:var(--serif);font-weight:900;font-size:clamp(32px,6vw,48px);line-height:1.05;color:#fff}
+h1 em,h2 em{font-style:italic;font-weight:400;color:var(--gold-l)}
+h2{font-family:var(--serif);font-weight:900;font-size:clamp(24px,4vw,32px);line-height:1.15;color:#fff;margin-bottom:14px}
+.lead{color:#cfc4aa;margin-top:10px;font-size:15.5px;max-width:620px}
+.acts{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:34px}
+@media(max-width:760px){.acts{grid-template-columns:1fr}}
+.act{display:flex;gap:14px;align-items:center;background:#151410;border:1px solid rgba(201,166,75,.3);border-radius:18px;padding:18px;text-decoration:none;color:#efe6cf;transition:.2s}
+.act:hover{border-color:var(--gold-l);box-shadow:0 0 22px rgba(201,166,75,.25)}
+.act.main{background:linear-gradient(120deg,rgba(156,122,44,.4),rgba(201,166,75,.14));border-color:var(--gold-l)}
+.act .ic{flex:0 0 46px;height:46px;border-radius:14px;display:grid;place-content:center;font-size:22px;background:#0e0e0e;border:1px solid rgba(201,166,75,.3)}
+.act b{display:block;font-size:16px;color:#fff}
+.act span span{display:block;font-size:12.5px;color:#b5a988;line-height:1.4}
+.note{background:#151410;border:1px solid rgba(201,166,75,.25);border-left:3px solid var(--gold);border-radius:12px;padding:14px 16px;font-size:14px;color:#cfc4aa;margin-bottom:16px}
+.note b{color:#fff}
+.frame{border-radius:22px;overflow:hidden;border:1px solid rgba(214,184,100,.7);box-shadow:0 0 0 1px rgba(232,206,130,.25),0 0 40px rgba(201,166,75,.2);background:#111;margin-bottom:46px}
+.frame iframe{display:block;width:100%;height:860px;border:0;background:#fff}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:760px){.grid{grid-template-columns:1fr}}
+.card{background:#151410;border:1px solid rgba(201,166,75,.3);border-radius:20px;padding:26px 24px}
+.steps{list-style:none;counter-reset:s}
+.steps li{counter-increment:s;position:relative;padding:0 0 16px 44px;font-size:14.5px;color:#cfc4aa}
+.steps li:last-child{padding-bottom:0}
+.steps li:before{content:counter(s);position:absolute;left:0;top:-2px;width:30px;height:30px;border-radius:50%;background:var(--grad);color:#111;font-weight:700;font-size:14px;display:grid;place-content:center}
+.steps b,.rules b{color:#fff}
+.rules{list-style:none}
+.rules li{padding:0 0 12px 24px;position:relative;font-size:14.5px;color:#cfc4aa}
+.rules li:last-child{padding-bottom:0}
+.rules li:before{content:"✓";position:absolute;left:0;color:var(--gold);font-weight:700}
+.help{text-align:center;margin-top:40px;font-size:14px;color:#b5a988}
+.btn{display:inline-block;margin-top:12px;background:var(--grad);color:#111;text-decoration:none;font-weight:700;font-size:12px;letter-spacing:.16em;text-transform:uppercase;padding:14px 26px;border-radius:40px;box-shadow:0 0 24px rgba(201,166,75,.3)}
+</style>
+</head>
+<body>
+<div class="top"><div class="in"><a href="index.html">← MPF Coaching</a><a href="mailto:info@mpfcoaching.co.uk">Need help?</a></div></div>
+<main class="wrap">
+  <div class="hero"><img class="me" src="img/maria-profile.jpg" alt="Maria Paradise"><div><div class="kick">Client area · In-person PT</div><h1>Welcome back, <em>let's get to work.</em></h1><p class="lead">Book your sessions, check what you've got coming up and top up your package, all in one place.</p></div></div>
+
+  <div class="acts">
+    <a class="act main" href="#book"><span class="ic">📅</span><span><b>Book a session</b><span>See my live availability below</span></span></a>
+    <a class="act" id="myBookings" href="https://app.acuityscheduling.com/schedule.php?owner=38832646&amp;appointmentType=90953993" target="_blank" rel="noopener"><span class="ic">👤</span><span><b>My bookings &amp; packages</b><span>Log in to see your sessions and codes</span></span></a>
+    <a class="act" href="https://app.acuityscheduling.com/catalog/a5bbccbc/?categories=Private%201%E2%80%931%20Training%20%252526%20Coaching%20" target="_blank" rel="noopener"><span class="ic">🎟️</span><span><b>Buy a package</b><span>Single sessions or session blocks</span></span></a>
+  </div>
+
+  <section id="book">
+    <h2>Book your <em>next session.</em></h2>
+    <div class="note"><b>Got a package?</b> The calendar shows my single-session rate (£67.50). Enter your package code at checkout and you won't be charged. Use the same email you bought your package with.</div>
+    <div class="frame"><iframe src="https://app.acuityscheduling.com/schedule.php?owner=38832646&amp;appointmentType=90953993&amp;ref=embedded_csp" title="Book a PT session with Maria" loading="lazy"></iframe></div>
+  </section>
+
+  <div class="grid">
+    <div class="card">
+      <h2>How it <em>works.</em></h2>
+      <ol class="steps">
+        <li><b>Buy your package.</b> You'll get a code by email straight away.</li>
+        <li><b>Book your sessions</b> on the calendar above and enter your code at checkout.</li>
+        <li><b>Log in any time</b> with "My bookings &amp; packages" to see what you've booked and how many sessions you have left. First time? Tap Sign up and use the same email as your package.</li>
+      </ol>
+    </div>
+    <div class="card">
+      <h2>Booking <em>rules.</em></h2>
+      <ul class="rules">
+        <li>Book all your sessions <b>within 7 days of buying</b> your package.</li>
+        <li>Sessions must be used <b>within 56 days</b> of purchase.</li>
+        <li>Book at least <b>48 hours ahead</b>, and up to 56 days in advance.</li>
+        <li>Reschedule or cancel up to <b>24 hours before</b> your session, using the link in your confirmation email or your account.</li>
+        <li>Sessions not booked or used in time are void.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="help">Stuck or can't find a time that works?<br><a class="btn" href="mailto:info@mpfcoaching.co.uk">Message me</a></div>
+</main>
+</body>
+</html>
