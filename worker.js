@@ -528,6 +528,57 @@ async function handleApi(request, env, url) {
   }
 
 
+
+  // ---- coach: bulk import a client's history (from their old Google Sheet) ----
+  if (path === "/portal/api/coach/import" && request.method === "POST") {
+    if (!coach) return json({ error: "forbidden" }, 403);
+    const id = (url.searchParams.get("id") || "").toLowerCase();
+    const c = Object.values(r).find((x) => x.id === id);
+    if (!c) return json({ error: "unknown" }, 404);
+    const body = await request.json().catch(() => null);
+    if (!body) return json({ error: "bad" }, 400);
+    const inDays = body.days || {}, byMonth = {}, all = {};
+    for (const [d, v] of Object.entries(inDays)) {
+      if (!isDate(d)) continue;
+      const clean = cleanDay(v);
+      if (!Object.keys(clean).length) continue;
+      (byMonth[d.slice(0, 7)] = byMonth[d.slice(0, 7)] || {})[d] = { ...clean, _at: "imported" };
+    }
+    const sk = `${dkey(c.id)}/summary.json`;
+    const sm = await getJSON(env, sk, {});
+    sm.weights = sm.weights || {};
+    const logged = new Set(sm.logged || []);
+    for (const [m, days] of Object.entries(byMonth)) {
+      const key = `${dkey(c.id)}/log/${m}.json`;
+      const doc = await getJSON(env, key, {});
+      for (const [d, v] of Object.entries(days)) if (!doc[d] || doc[d]._at === "imported") doc[d] = v; // never overwrite what the client logged in the portal
+      await putJSON(env, key, doc);
+      for (const [d, v] of Object.entries(doc)) {
+        all[d] = v;
+        logged.add(d);
+        const w = num(v.weight);
+        if (w && w > 20 && w < 400) sm.weights[d] = w;
+      }
+    }
+    sm.logged = [...logged].sort().slice(-400);
+    let nci = 0;
+    if (body.checkins && typeof body.checkins === "object") {
+      const ck = `${dkey(c.id)}/checkins.json`;
+      const cis = await getJSON(env, ck, {});
+      sm.checkins = sm.checkins || {};
+      for (const [due, answers] of Object.entries(body.checkins)) {
+        if (!isDate(due) || !Array.isArray(answers) || cis[due]) continue;
+        const stats = weekStats(all, due), prev = weekStats(all, fromT(toT(due) - 7 * DAY_MS));
+        stats.change = stats.weight && prev.weight ? +(stats.weight - prev.weight).toFixed(1) : null;
+        cis[due] = { answers: answers.slice(0, QUESTIONS.length).map((a) => String(a || "").slice(0, 3000)), questions: QUESTIONS, stats, at: due + "T12:00:00.000Z", imported: true };
+        sm.checkins[due] = cis[due].at;
+        nci++;
+      }
+      await putJSON(env, ck, cis);
+    }
+    await putJSON(env, sk, sm);
+    return json({ ok: true, days: Object.values(byMonth).reduce((n, m) => n + Object.keys(m).length, 0), checkins: nci });
+  }
   if (path === "/portal/api/coach/templates") {
     if (!coach) return json({ error: "forbidden" }, 403);
     const key = `${dkey("_templates")}/programmes.json`;
