@@ -258,6 +258,29 @@ function checkinStatus(c, s, today) {
   return { due: next, done: false, upcoming: true, missed: due, day };
 }
 
+// ---- training programmes: _data/<id>/programmes.json  {current:"<pid>", programmes:[{id,title,notes,workouts,created,updated}]} ----
+const EX_KEYS = ["name", "sets", "reps", "load", "tempo", "rir", "rest", "notes"];
+function cleanProgrammes(doc) {
+  const str = (v, n) => String(v == null ? "" : v).trim().slice(0, n);
+  const now = new Date().toISOString();
+  const programmes = (Array.isArray(doc && doc.programmes) ? doc.programmes : []).slice(0, 30).map((p) => ({
+    id: str(p.id, 40).replace(/[^a-z0-9]/gi, "") || Math.random().toString(36).slice(2, 10),
+    title: str(p.title, 80) || "Programme",
+    notes: str(p.notes, 3000),
+    created: str(p.created, 30) || now,
+    updated: str(p.updated, 30) || now,
+    workouts: (Array.isArray(p.workouts) ? p.workouts : []).slice(0, 14).map((w) => ({
+      name: str(w.name, 80) || "Workout",
+      notes: str(w.notes, 1500),
+      exercises: (Array.isArray(w.exercises) ? w.exercises : []).slice(0, 40)
+        .map((e) => Object.fromEntries(EX_KEYS.map((k) => [k, str(e && e[k], k === "notes" ? 400 : 80)])))
+        .filter((e) => EX_KEYS.some((k) => e[k])),
+    })),
+  }));
+  const current = programmes.some((p) => p.id === doc.current) ? doc.current : (programmes[0] ? programmes[0].id : "");
+  return { current, programmes };
+}
+
 async function handleApi(request, env, url) {
   const w = await who(request, env);
   if (w instanceof Response) return w;
@@ -388,6 +411,52 @@ async function handleApi(request, env, url) {
     return json({ ok: true, due, checkin: all[due] });
   }
 
+  // ---- training programme ----
+  if (path === "/portal/api/programme" && request.method === "GET") {
+    if (!client) return json({ error: "unknown" }, 403);
+    return json(await getJSON(env, `${dkey(client.id)}/programmes.json`, { current: "", programmes: [] }));
+  }
+
+  // ---- profile photo: _data/<id>/avatar ----
+  if (path === "/portal/api/avatar" && request.method === "POST") {
+    if (!client) return json({ error: "unknown" }, 403);
+    const form = await request.formData();
+    const file = form.get("photo");
+    if (!file || typeof file === "string" || !/^image\/(jpeg|png|webp)$/.test(file.type)) return json({ error: "type" }, 400);
+    if (file.size > 5 * 1024 * 1024) return json({ error: "size" }, 413);
+    await env.PHOTOS.put(`${dkey(client.id)}/avatar`, file.stream(), { httpMetadata: { contentType: file.type }, customMetadata: { at: String(Date.now()) } });
+    return json({ ok: true, v: Date.now() });
+  }
+  if ((path === "/portal/api/avatar" && request.method === "DELETE")) {
+    if (!client) return json({ error: "unknown" }, 403);
+    await env.PHOTOS.delete(`${dkey(client.id)}/avatar`);
+    return json({ ok: true });
+  }
+  if (path === "/portal/api/avatar" || path === "/portal/api/coach/avatar") {
+    let id;
+    if (path === "/portal/api/avatar") { if (!client) return json({ error: "unknown" }, 403); id = client.id; }
+    else { if (!coach) return json({ error: "forbidden" }, 403); id = (url.searchParams.get("id") || "").toLowerCase().replace(/[^a-z0-9_-]/g, ""); }
+    const obj = await env.PHOTOS.get(`${dkey(id)}/avatar`);
+    if (!obj) return new Response("", { status: 404, headers: { "cache-control": "no-store" } });
+    return new Response(obj.body, { headers: { "content-type": obj.httpMetadata?.contentType || "image/jpeg", "cache-control": "private, max-age=300", "x-content-type-options": "nosniff" } });
+  }
+
+  // ---- first-login setup checklist: _data/<id>/setup.json {done:{key:at}, completed:at} ----
+  if (path === "/portal/api/setup") {
+    if (!client) return json({ error: "unknown" }, 403);
+    const key = `${dkey(client.id)}/setup.json`;
+    const st = await getJSON(env, key, { done: {}, completed: null });
+    if (request.method === "POST") {
+      const b = await request.json().catch(() => ({}));
+      if (typeof b.key === "string" && /^[a-z]{2,20}$/.test(b.key)) {
+        if (b.done) st.done[b.key] = new Date().toISOString(); else delete st.done[b.key];
+      }
+      if (b.complete === true) st.completed = st.completed || new Date().toISOString();
+      await putJSON(env, key, st);
+    }
+    return json({ ...st, skip: client.onboarded === true });
+  }
+
   // ---- coach ----
   if (path === "/portal/api/coach/clients") {
     if (!coach) return json({ error: "forbidden" }, 403);
@@ -404,12 +473,14 @@ async function handleApi(request, env, url) {
       const logged = sm.logged || [];
       const weekAgo = fromT(toT(today) - 6 * DAY_MS);
       const wts = summaryWeights(sm);
+      const setup = c.onboarded === true ? { skip: true } : await getJSON(env, `${dkey(c.id)}/setup.json`, { done: {}, completed: null });
       const thisWeek = photos.filter((p) => p.week === week).map((p) => p.angle);
       list.push({
         id: c.id, name: c.name, phase: c.phase || "", checkin: checkinDay(c), start: c.start || "",
         type: c.type === "pt" ? "pt" : "online", phone: String(c.phone || "").replace(/[^0-9]/g, ""),
         lastLog: logged[logged.length - 1] || "", loggedWeek: logged.filter((d) => d >= weekAgo && d <= today).length,
         lastWeight: wts.length ? wts[wts.length - 1] : null, check: checkinStatus(c, sm, today),
+        setup: setup.skip ? { done: true } : { done: !!setup.completed, n: Object.keys(setup.done || {}).length },
         active: c.active !== false, week, tracker: c.tracker || "", folder: c.folder || "",
         photosThisWeek: [...new Set(thisWeek)], lastUpload: photos.reduce((m, p) => (p.uploaded > m ? p.uploaded : m), ""),
         photoCount: photos.length,
@@ -454,6 +525,24 @@ async function handleApi(request, env, url) {
     const c = Object.values(r).find((x) => x.id === id);
     if (!c) return json({ error: "unknown" }, 404);
     return json({ day: checkinDay(c), checkins: await getJSON(env, `${dkey(c.id)}/checkins.json`, {}) });
+  }
+
+  if (path === "/portal/api/coach/programmes") {
+    if (!coach) return json({ error: "forbidden" }, 403);
+    const id = (url.searchParams.get("id") || "").toLowerCase();
+    const c = Object.values(r).find((x) => x.id === id);
+    if (!c) return json({ error: "unknown" }, 404);
+    const key = `${dkey(c.id)}/programmes.json`;
+    if (request.method === "POST") {
+      const body = await request.json().catch(() => null);
+      if (!body) return json({ error: "bad" }, 400);
+      const doc = cleanProgrammes(body);
+      const old = await getJSON(env, key, null);
+      if (old) await putJSON(env, `${dkey(c.id)}/programmes-backup/${Date.now()}.json`, old); // every previous version is kept
+      await putJSON(env, key, doc);
+      return json({ ok: true, ...doc });
+    }
+    return json(await getJSON(env, key, { current: "", programmes: [] }));
   }
 
   return json({ error: "not found" }, 404);

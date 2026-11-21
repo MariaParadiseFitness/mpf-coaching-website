@@ -88,6 +88,7 @@ td b{color:#fff;font-size:15px}
 .wc-key .k2{width:7px;height:7px;border-radius:50%;background:#6b5f43;margin-left:10px}
 .wc-empty{color:var(--mute);font-size:14px;padding:20px 4px;text-align:center}
 @media(max-width:600px){.wc-stats b{font-size:17px}}
+.cav{width:34px;height:34px;border-radius:50%;object-fit:cover;float:left;margin:2px 10px 0 0;border:1.5px solid var(--gold)}
 </style>
 </head>
 <body>
@@ -113,9 +114,10 @@ td b{color:#fff;font-size:15px}
       <button class="btn g" id="closeBtn" type="button">Close</button>
     </div>
     <div class="wc" id="wChart" style="margin-bottom:18px"></div>
-    <div class="filters" id="pTabs"><button class="on" data-p="ci">Check-ins</button><button data-p="log">Daily log</button><button data-p="ph">Photos</button></div>
+    <div class="filters" id="pTabs"><button class="on" data-p="ci">Check-ins</button><button data-p="log">Daily log</button><button data-p="pg">Programmes</button><button data-p="ph">Photos</button></div>
     <div id="pCi"></div>
     <div id="pLog" hidden></div>
+    <div id="pPg" hidden></div>
     <div id="pPh" hidden>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px"><button class="btn" id="cmpBtn" type="button">Compare 2 weeks</button><button class="btn g" id="dlBtn" type="button">Download all</button></div>
     <div class="sub" id="cmpHelp" hidden style="margin-top:-6px">Tick two weeks below, then press Compare.</div>
@@ -128,6 +130,7 @@ td b{color:#fff;font-size:15px}
 <div class="msg" id="msg" hidden></div>
 <script src="/portal/chart.js"></script>
 <script src="/portal/log.js"></script>
+<script src="/portal/programme.js"></script>
 <script>
 (function(){
   var $=function(i){return document.getElementById(i)};
@@ -159,12 +162,12 @@ td b{color:#fff;font-size:15px}
     var list=pool.filter(function(c){return filter==='all'||(filter==='active'?c.active:!c.active)});
     $('rows').innerHTML=list.map(function(c){
       var n=c.photosThisWeek.length;
-      return '<tr class="row" data-id="'+esc(c.id)+'"><td><b>'+esc(c.name)+'</b><br><span style="font-size:12px;color:var(--mute)">'+(c.type==='pt'?'Face to face':'Online')+' · '+esc(c.checkin)+'s</span></td><td>'+ciPill(c)+(remind(c)?'<div style="margin-top:6px">'+remind(c)+'</div>':'')+'</td><td>'+logPill(c)+'</td><td class="hide-m">'+(n===3?'<span class="pill ok">✓ 3</span>':'<span class="pill '+(n?'part':'off')+'">'+n+' of 3</span>')+'</td><td class="hide-m">'+(c.lastWeight?'<b>'+esc(c.lastWeight.kg)+'</b> kg':'–')+'</td></tr>';
+      return '<tr class="row" data-id="'+esc(c.id)+'"><td>'+(preview?'':'<img class="cav" alt="" src="/portal/api/coach/avatar?id='+encodeURIComponent(c.id)+'" onerror="this.remove()">')+'<b>'+esc(c.name)+'</b>'+(c.setup&&!c.setup.done?' <span class="pill part">Setting up '+(c.setup.n||0)+'</span>':'')+'<br><span style="font-size:12px;color:var(--mute)">'+(c.type==='pt'?'Face to face':'Online')+' · '+esc(c.checkin)+'s</span></td><td>'+ciPill(c)+(remind(c)?'<div style="margin-top:6px">'+remind(c)+'</div>':'')+'</td><td>'+logPill(c)+'</td><td class="hide-m">'+(n===3?'<span class="pill ok">✓ 3</span>':'<span class="pill '+(n?'part':'off')+'">'+n+' of 3</span>')+'</td><td class="hide-m">'+(c.lastWeight?'<b>'+esc(c.lastWeight.kg)+'</b> kg':'–')+'</td></tr>';
     }).join('')||'<tr><td colspan="5" style="text-align:center">No clients here yet.</td></tr>';
     [].forEach.call(document.querySelectorAll('tr.row'),function(tr){tr.onclick=function(e){if(e.target.closest('a'))return;open(tr.getAttribute('data-id'))}});
   }
   [].forEach.call(document.querySelectorAll('#fType button'),function(b){b.onclick=function(){[].forEach.call(document.querySelectorAll('#fType button'),function(x){x.classList.remove('on')});b.classList.add('on');tfilter=b.getAttribute('data-t');draw()}});
-  [].forEach.call(document.querySelectorAll('#pTabs button'),function(b){b.onclick=function(){[].forEach.call(document.querySelectorAll('#pTabs button'),function(x){x.classList.remove('on')});b.classList.add('on');var p=b.getAttribute('data-p');$('pCi').hidden=p!=='ci';$('pLog').hidden=p!=='log';$('pPh').hidden=p!=='ph'}});
+  [].forEach.call(document.querySelectorAll('#pTabs button'),function(b){b.onclick=function(){[].forEach.call(document.querySelectorAll('#pTabs button'),function(x){x.classList.remove('on')});b.classList.add('on');var p=b.getAttribute('data-p');$('pCi').hidden=p!=='ci';$('pLog').hidden=p!=='log';$('pPg').hidden=p!=='pg';$('pPh').hidden=p!=='ph'}});
   [].forEach.call(document.querySelectorAll('.filters button[data-f]'),function(b){b.onclick=function(){[].forEach.call(document.querySelectorAll('.filters button[data-f]'),function(x){x.classList.remove('on')});b.classList.add('on');filter=b.getAttribute('data-f');draw()}});
   function src(p){return p.local||('/portal/api/photo?key='+encodeURIComponent(p.key))}
   function latest(w,a){return curPhotos.filter(function(p){return p.week===w&&p.angle===a})[0]}
@@ -178,6 +181,7 @@ td b{color:#fff;font-size:15px}
     cur=clients.filter(function(c){return c.id===id})[0];if(!cur)return;
     $('panel').hidden=false;$('pName').innerHTML=esc(cur.name)+' <em>· week '+cur.week+'</em>';$('pKick').textContent=(cur.type==='pt'?'Face to face':'Online')+' · checks in '+cur.checkin+'s';$('pRows').innerHTML='<p style="color:var(--mute)">Loading…</p>';
     var from=MPFLog.fromT(MPFLog.toT(todayStr)-27*864e5);
+    MPFProgramme.Editor($('pPg'),{id:id,name:cur.name.split(' ')[0],demo:preview,demoDoc:MPFProgramme.demo});
     if(preview){var dd=MPFLog.demoDays(todayStr,30);$('pLog').innerHTML=MPFLog.logTable(dd,from,todayStr);$('pCi').innerHTML=MPFLog.checkinList({})}
     else{
       $('pCi').innerHTML='<p style="color:var(--mute)">Loading…</p>';$('pLog').innerHTML='<p style="color:var(--mute)">Loading…</p>';

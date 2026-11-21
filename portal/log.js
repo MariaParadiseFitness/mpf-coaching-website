@@ -129,6 +129,7 @@
           '<div class="ci-btns"><span class="lg-msg"></span><button class="btn" type="submit">Send my check-in</button></div></form>';
       }
       el.innerHTML=h;
+      if(o.onState)o.onState({due:due,done:!!c,diff:diff});
       var f=el.querySelector('form');
       if(f){
         f.addEventListener('input',function(){saveDraft(f)});
