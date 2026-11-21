@@ -1,3 +1,5 @@
 .DS_Store
 *.icloud
 Thumbs.db
+.wrangler/
+node_modules/
