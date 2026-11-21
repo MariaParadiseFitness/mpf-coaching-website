@@ -114,6 +114,30 @@ section{margin-bottom:52px;scroll-margin-top:80px}
 details.app{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:12px;padding:14px 16px;font-size:14px;color:var(--soft)}
 details.app summary{cursor:pointer;color:#fff;font-weight:600}
 details.app b{color:#fff}
+.ph-week{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.slot{position:relative;aspect-ratio:3/4;border-radius:16px;border:1.5px dashed rgba(201,166,75,.55);background:#0e0e0e;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;text-align:center;padding:10px;transition:.2s}
+.slot:hover{border-color:var(--gold-l);box-shadow:0 0 18px rgba(201,166,75,.2)}
+.slot input{display:none}
+.slot .pl{font-size:30px}
+.slot b{color:#fff;font-size:14px}
+.slot small{color:var(--mute);font-size:11.5px}
+.slot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.slot.has{border-style:solid;border-color:var(--gold)}
+.slot .lbl{position:absolute;left:8px;top:8px;background:rgba(14,14,14,.85);color:var(--gold-l);font-size:10.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:4px 8px;border-radius:20px;z-index:2}
+.slot .redo{position:absolute;right:8px;bottom:8px;z-index:2;background:rgba(14,14,14,.85);color:#fff;font-size:11px;padding:5px 9px;border-radius:20px}
+.slot.busy:after{content:"Uploading…";position:absolute;inset:0;background:rgba(14,14,14,.8);display:grid;place-content:center;color:var(--gold-l);font-weight:700;font-size:13px;z-index:3}
+.ph-bar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:space-between;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px}
+.ph-bar p{font-size:13.5px;color:var(--soft);margin:0}
+.ph-bar .btn{padding:12px 20px}
+.ph-hist{margin-top:22px}
+.ph-hist h3{font-family:var(--serif);font-size:20px;color:#fff;margin-bottom:10px}
+.ph-row{display:grid;grid-template-columns:90px repeat(3,1fr);gap:10px;align-items:center;margin-bottom:10px}
+.ph-row .wk{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:700}
+.ph-row a,.ph-row span.e{display:block;aspect-ratio:3/4;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#0e0e0e}
+.ph-row img{width:100%;height:100%;object-fit:cover;display:block}
+.ph-row span.e{display:grid;place-content:center;color:#4d463a;font-size:12px}
+.ph-note{font-size:12.5px;color:var(--mute);margin-top:10px}
+@media(max-width:600px){.ph-week{gap:8px}.slot b{font-size:12.5px}.slot small{display:none}.ph-row{grid-template-columns:56px repeat(3,1fr);gap:6px}}
 footer{text-align:center;color:#7d735c;font-size:12px;padding:20px}
 @media(max-width:820px){
   .week{grid-template-columns:1fr}
@@ -129,12 +153,12 @@ footer{text-align:center;color:#7d735c;font-size:12px;padding:20px}
 <body>
 <div class="top"><div class="in">
   <a href="/"><img src="/img/logo.png" alt="MPF Coaching"></a>
-  <nav class="tabs"><a href="#start">Get started</a><a href="#folder">My folder</a><a href="#week">My week</a><a href="#tracker">My tracker</a><a href="#guides">Guides</a><a href="#support">Support</a></nav>
+  <nav class="tabs"><a href="#start">Get started</a><a href="#photos">Photos</a><a href="#folder">My folder</a><a href="#week">My week</a><a href="#tracker">My tracker</a><a href="#guides">Guides</a><a href="#support">Support</a></nav>
   <a class="out" href="/cdn-cgi/access/logout">Log out</a>
 </div></div>
 
 <main class="wrap" id="app" hidden>
-  <div class="preview" id="previewBar" hidden>👀 Preview mode: this is how the portal looks to a client. Buttons are switched off until real client details are added.</div>
+  <div class="preview" id="previewBar" hidden>👀 Preview mode: this is how the portal looks to a client. Try the photo boxes: in preview, photos stay on your device and are not uploaded anywhere.</div>
 
   <div class="hero">
     <img class="me" src="/img/maria-profile.jpg" alt="Maria Paradise">
@@ -163,13 +187,23 @@ footer{text-align:center;color:#7d735c;font-size:12px;padding:20px}
     </div>
   </section>
 
+  <!-- PHOTOS -->
+  <section id="photos">
+    <h2>My check-in <em>photos.</em></h2>
+    <div class="sub" id="phSub">Week 1 · front, side and back. Tap a box to take or choose a photo.</div>
+    <div class="ph-week" id="phWeek"></div>
+    <div class="ph-bar"><p id="phStatus">Upload all 3, then let me know your check-in is done.</p><a class="btn" id="doneBtn" target="_blank" rel="noopener">Done, tell Maria ✅</a></div>
+    <div class="ph-note">🔒 Private: only you and Maria can see your photos. Same time, same spot, same lighting each week, ideally first thing in the morning.</div>
+    <div class="ph-hist" id="phHist" hidden><h3>Your progress so far</h3><div id="phRows"></div></div>
+  </section>
+
   <!-- MY FOLDER -->
   <section id="folder">
     <h2>My <em>folder.</em></h2>
     <div class="sub">Your tracker and your uploads. Only you and Maria can see these.</div>
     <div class="acts">
       <a class="act main" id="lTracker" target="_blank" rel="noopener"><span class="ic">📊</span><span><b>Open my tracker</b><span>Daily tracker, check-in, training and logbook</span></span></a>
-      <a class="act" id="lPhotos" target="_blank" rel="noopener"><span class="ic">📸</span><span><b>Upload check-in photos</b><span>Front, side and back, every week</span></span></a>
+      <a class="act" href="#photos"><span class="ic">📸</span><span><b>Upload check-in photos</b><span>Front, side and back, every week</span></span></a>
       <a class="act" href="https://wa.me/447592791137?text=Hi%20Maria%2C%20here%27s%20my%20training%20video%20%F0%9F%8E%A5" target="_blank" rel="noopener"><span class="ic">🎥</span><span><b>Send me a training video</b><span>On WhatsApp, so I can reply fast</span></span></a>
       <a class="act" id="lFolder" target="_blank" rel="noopener"><span class="ic">📁</span><span><b>My whole folder</b><span>Everything in one place</span></span></a>
     </div>
@@ -186,15 +220,15 @@ footer{text-align:center;color:#7d735c;font-size:12px;padding:20px}
           <li><b>Every day:</b> fill in your Daily Tracker: weight, steps, cardio, calories, sleep and how you feel.</li>
           <li><b>Every session:</b> log your weights and reps in your Logbook.</li>
           <li><b>Track your food</b> in MyFitnessPal using what you learned in your nutrition lesson.</li>
-          <li><b>On <span class="dayname">Wednesday</span>:</b> complete your Weekly Check-In, upload your photos, then message me to say it's done.</li>
+          <li><b>On <span class="dayname">Wednesday</span>:</b> complete your Weekly Check-In, upload your photos here, then tap <b>Done, tell Maria</b>.</li>
           <li><b>Any time:</b> send me videos of your lifts on WhatsApp for quick form feedback, and tell me how you're feeling so I can adjust.</li>
         </ul>
       </div>
       <div class="card" style="text-align:center;display:flex;flex-direction:column;justify-content:center">
         <div class="count" id="cdNum">0</div>
         <div class="count-l" id="cdLbl">days until check-in</div>
-        <p style="color:var(--mute);font-size:13.5px;margin:14px 0 16px">Photos: same time, same spot, same lighting. Front, side and back, named like <b style="color:#fff">Week 12 - Front</b>.</p>
-        <a class="btn" id="lPhotos2" target="_blank" rel="noopener">Upload photos</a>
+        <p style="color:var(--mute);font-size:13.5px;margin:14px 0 16px">Photos: same time, same spot, same lighting. Front, side and back, uploaded right here in your portal.</p>
+        <a class="btn" href="#photos">Upload photos</a>
       </div>
     </div>
   </section>
@@ -259,7 +293,7 @@ footer{text-align:center;color:#7d735c;font-size:12px;padding:20px}
     {t:'Get your kit together',d:'Kitchen scales, bodyweight scales, a tape measure and a step counter you wear on your wrist, like a Fitbit or smartwatch. Your phone isn\'t accurate enough as it\'s not always on you.'},
     {t:'Open your tracker and fill in your Client Page',d:'Add your start date, your main goal and your goal date, plus your short and long term goals. Use the walkthrough below if you get stuck.',k:'tracker',lt:'Open my tracker'},
     {t:'Book your nutrition lesson',d:'Your 1-hour phone call where I teach you how to track properly and build your own meals. Pick a time that suits you and I\'ll call you.',l:'https://calendly.com/mpfcoaching-info/nutrition-lesson',lt:'Book my lesson'},
-    {t:'Take your starting photos',d:'Front, side and back, first thing in the morning. Upload them to your Progress Photos folder named Week 0 - Front, Week 0 - Side, Week 0 - Back.',k:'photos',lt:'Upload photos'},
+    {t:'Take your starting photos',d:'Front, side and back, first thing in the morning. Upload them in the Photos section of this portal.',l:'#photos',lt:'Upload photos'},
     {t:'Join the client community',d:'Optional, but a great place for support, motivation and wins.',l:'https://chat.whatsapp.com/FTD83kWGqnf03YwR4prUZN',lt:'Join the group'},
     {t:'Save this portal to your home screen',d:'So everything is one tap away. Instructions are at the bottom of this page.',l:'#support',lt:'Show me how'}
   ];
@@ -278,12 +312,13 @@ footer{text-align:center;color:#7d735c;font-size:12px;padding:20px}
 
   function linkOr(el,url){if(!el)return;if(url){el.href=url;el.classList.remove('off')}else{el.removeAttribute('href');el.classList.add('off')}}
 
-  function render(c,email){
+  function render(c,email,meta){
+    meta=meta||{};
     $('app').hidden=false;
     $('nm').textContent=(c.name||'friend')+'.';
     document.title='Welcome, '+(c.name||'')+' | MPF Coaching';
     var urls={tracker:c.tracker?SHEET+c.tracker+'/edit':'',photos:c.photos?DRIVE+c.photos:'',videos:c.videos?DRIVE+c.videos:'',folder:c.folder?DRIVE+c.folder:''};
-    linkOr($('lTracker'),urls.tracker);linkOr($('lPhotos'),urls.photos);linkOr($('lPhotos2'),urls.photos);linkOr($('lFolder'),urls.folder);
+    linkOr($('lTracker'),urls.tracker);linkOr($('lFolder'),urls.folder);
     var day=c.checkin||'Wednesday';
     $('stDay').textContent=day;document.querySelectorAll('.dayname').forEach(function(e){e.textContent=day});
     $('stPhase').textContent=c.phase||'Fat loss';
@@ -311,6 +346,61 @@ footer{text-align:center;color:#7d735c;font-size:12px;padding:20px}
     $('showSteps').onclick=function(){window.__showSteps=true;paint()};
     paint();
 
+    // photos
+    var ANG=['front','side','back'],LBL={front:'Front',side:'Side',back:'Back'},ICON={front:'🧍',side:'🚶',back:'🔙'};
+    var curWeek=meta.week||parseInt($('stWeek').textContent,10)||1,photos=[],enabled=!!meta.photos,demo=!!meta.demo;
+    $('phSub').textContent='Week '+curWeek+' · front, side and back. Tap a box to take or choose a photo.';
+    function src(p){return p.local||('/portal/api/photo?key='+encodeURIComponent(p.key))}
+    function latest(week,angle){return photos.filter(function(p){return p.week===week&&p.angle===angle})[0]}
+    function drawWeek(){
+      var box=$('phWeek');box.innerHTML='';var n=0;
+      ANG.forEach(function(a){
+        var p=latest(curWeek,a);if(p)n++;
+        var l=document.createElement('label');l.className='slot'+(p?' has':'');
+        l.innerHTML=(p?'<span class="lbl">'+LBL[a]+'</span><img alt="'+LBL[a]+' photo" src="'+esc(src(p))+'"><span class="redo">Retake</span>':'<span class="pl">'+ICON[a]+'</span><b>'+LBL[a]+'</b><small>Tap to add</small>')+'<input type="file" accept="image/*">';
+        l.querySelector('input').onchange=function(e){var f=e.target.files[0];if(f)upload(f,a,l)};
+        box.appendChild(l);
+      });
+      $('phStatus').textContent=n===3?'All 3 uploaded 🙌 Now tap Done so I know to review your check-in.':(n?n+' of 3 uploaded. Keep going!':'Upload all 3, then let me know your check-in is done.');
+      $('doneBtn').href='https://wa.me/447592791137?text='+encodeURIComponent('Hi Maria, my week '+curWeek+' check-in is done ✅ '+(n===3?'Photos uploaded to the portal.':'('+n+' of 3 photos uploaded)'));
+      drawHist();
+    }
+    function drawHist(){
+      var weeks={};photos.forEach(function(p){if(p.week!==curWeek)weeks[p.week]=1});
+      var ws=Object.keys(weeks).map(Number).sort(function(a,b){return b-a});
+      $('phHist').hidden=!ws.length;
+      $('phRows').innerHTML=ws.map(function(w){return '<div class="ph-row"><div class="wk">Week '+w+'</div>'+ANG.map(function(a){var p=latest(w,a);return p?'<a href="'+esc(src(p))+'" target="_blank" rel="noopener"><img loading="lazy" alt="Week '+w+' '+a+'" src="'+esc(src(p))+'"></a>':'<span class="e">-</span>'}).join('')+'</div>'}).join('');
+    }
+    function shrink(file){
+      return new Promise(function(res){
+        if(!window.createImageBitmap){res(file);return}
+        createImageBitmap(file).then(function(bmp){
+          var max=2000,sc=Math.min(1,max/Math.max(bmp.width,bmp.height)),cv=document.createElement('canvas');
+          cv.width=Math.round(bmp.width*sc);cv.height=Math.round(bmp.height*sc);cv.getContext('2d').drawImage(bmp,0,0,cv.width,cv.height);
+          cv.toBlob(function(b){res(b?new File([b],'photo.jpg',{type:'image/jpeg'}):file)},'image/jpeg',0.86);
+        }).catch(function(){res(file)});
+      });
+    }
+    function upload(file,angle,slot){
+      slot.classList.add('busy');
+      shrink(file).then(function(f){
+        if(demo){photos.unshift({week:curWeek,angle:angle,local:URL.createObjectURL(f)});drawWeek();return}
+        var fd=new FormData();fd.append('photo',f);fd.append('angle',angle);fd.append('week',curWeek);
+        return fetch('/portal/api/photos',{method:'POST',body:fd,credentials:'same-origin'}).then(function(r){return r.json().then(function(j){
+          if(!r.ok)throw new Error(j.error||'upload');
+          photos.unshift({key:j.key,week:j.week,angle:j.angle});drawWeek();
+        })});
+      }).catch(function(err){slot.classList.remove('busy');alert(err&&err.message==='size'?'That photo is too big. Try taking it again.':'Sorry, that upload did not work. Please try again, or message me.')});
+    }
+    if(demo){drawWeek()}
+    else if(enabled){
+      fetch('/portal/api/photos',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){photos=j.photos||[];if(j.week)curWeek=j.week;drawWeek()}).catch(drawWeek);
+    }else{
+      $('phWeek').innerHTML='<div style="grid-column:1/-1;background:var(--card);border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:12px;padding:14px 16px;font-size:14px;color:var(--soft)">Photo uploads are being switched on. For now, keep sending your photos the usual way.</div>';
+      $('phStatus').textContent='Let me know when your check-in is done.';
+      $('doneBtn').href='https://wa.me/447592791137?text='+encodeURIComponent('Hi Maria, my check-in is done ✅');
+    }
+
     // tracker guide
     var nav=$('gnav'),pane=$('gpane');
     TABS.forEach(function(t,i){
@@ -323,14 +413,15 @@ footer{text-align:center;color:#7d735c;font-size:12px;padding:20px}
 
   function message(h,p,btn){var m=$('msgBox');m.hidden=false;m.innerHTML='<img src="/img/logo.png" alt="MPF Coaching" style="height:46px;margin-bottom:20px"><h2>'+h+'</h2><p>'+p+'</p>'+(btn||'')}
 
-  if(preview){$('previewBar').hidden=false;render({name:'Sam',checkin:'Wednesday',phase:'Fat loss',start:new Date(Date.now()-9*864e5*7).toISOString().slice(0,10)},'');return}
+  if(preview){$('previewBar').hidden=false;render({name:'Sam',checkin:'Wednesday',phase:'Fat loss',start:new Date(Date.now()-9*864e5*7).toISOString().slice(0,10)},'',{week:10,photos:true,demo:true});return}
 
   fetch('/portal/api/me',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json().then(function(j){return {s:r.status,j:j}})}).then(function(x){
     var j=x.j;
     if(!j.configured){message('Portal <em>coming soon.</em>','Your new client portal is being set up. Your coaching carries on as normal in the meantime.','<a class="btn" href="https://wa.me/447592791137">Message Maria</a>');return}
     if(x.s===401||!j.signedIn){message('Please <em>log in.</em>','Your session has ended. Log in again with your email to open your portal.','<a class="btn" href="/cdn-cgi/access/logout">Log in again</a>');return}
+    if(!j.known&&j.coach){location.replace('/portal/coach/');return}
     if(!j.known){message('Nearly <em>there.</em>','You\'re signed in as <b style="color:#fff">'+esc(j.email)+'</b>, but your portal isn\'t linked to this email yet. Message me and I\'ll get you set up.','<a class="btn" href="https://wa.me/447592791137">Message Maria</a><p style="margin-top:16px"><a href="/cdn-cgi/access/logout">Log out</a></p>');return}
-    render(j.client,j.email);
+    render(j.client,j.email,{week:j.week,photos:j.photos});
   }).catch(function(){message('Something went <em>wrong.</em>','Please refresh the page. If it keeps happening, message me.','<a class="btn" href="https://wa.me/447592791137">Message Maria</a>')});
 })();
 </script>
