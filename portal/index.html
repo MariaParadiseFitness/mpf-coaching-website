@@ -12,7 +12,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
-<link rel="manifest" href="/portal/manifest.webmanifest">
+<link rel="manifest" href="/portal/manifest.webmanifest" id="mf">
+<script>if(/[?&]preview\b/.test(location.search)){document.getElementById("mf").href="/portal/preview.webmanifest";document.write('<meta name="apple-mobile-web-app-title" content="MPF Test">')}</script>
 <link rel="stylesheet" href="/portal/log.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -222,7 +223,7 @@ body.gated #topTabs{visibility:hidden}
 </div></div>
 
 <main class="wrap" id="app" hidden>
-  <div class="preview" id="previewBar" hidden>👀 Preview mode: this is how the portal looks to a client. Try the photo boxes: in preview, photos stay on your device and are not uploaded anywhere.</div>
+  <div class="preview" id="previewBar" hidden>👀 Test client (Sam): this is exactly what your clients see. Nothing here is saved or sent anywhere, so tap around freely. Add <b>?setup</b> to the link to see the first-login checklist.</div>
 
   <div class="hello" data-view="today">
     <label class="av" id="avBox" title="Add your photo"><img id="avImg" alt="" hidden><span class="av-ph" id="avPh">📷</span><span class="av-edit">Edit</span><input type="file" accept="image/*" id="avIn"></label>
