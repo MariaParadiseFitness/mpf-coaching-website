@@ -5,3 +5,8 @@ wrangler.jsonc
 CNAME
 README.md
 _s.html
+worker.js
+package.json
+package-lock.json
+node_modules
+.wrangler

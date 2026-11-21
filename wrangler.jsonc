@@ -1,7 +1,11 @@
 {
   "name": "mpf-coaching-website",
   "compatibility_date": "2026-11-01",
+  "main": "worker.js",
+  "keep_vars": true,
   "assets": {
-    "directory": "."
+    "directory": ".",
+    "binding": "ASSETS",
+    "run_worker_first": ["/portal/api/*"]
   }
 }
