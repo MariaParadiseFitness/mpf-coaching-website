@@ -143,6 +143,7 @@ details.app b{color:#fff}
 .ph-row img{width:100%;height:100%;object-fit:cover;display:block}
 .ph-row span.e{display:grid;place-content:center;color:#4d463a;font-size:12px}
 .ph-note{font-size:12.5px;color:var(--mute);margin-top:10px}
+.ph-priv{background:#0e0e0e;border:1px solid rgba(201,166,75,.3);border-radius:12px;padding:10px 12px}.ph-priv summary{cursor:pointer;color:#e8d79a}.ph-priv p{margin:6px 0 0}
 @media(max-width:600px){.ph-week{gap:8px}.slot b{font-size:12.5px}.slot small{display:none}.ph-row{grid-template-columns:56px repeat(3,1fr);gap:6px}}
 footer{text-align:center;color:#7d735c;font-size:12px;padding:20px}
 @media(max-width:820px){
@@ -320,7 +321,13 @@ body.gated #topTabs{visibility:hidden}
     <div class="sub" id="phSub">Week 1 · front, side and back. Tap a box to take or choose a photo.</div>
     <div class="ph-week" id="phWeek"></div>
     <div class="ph-bar"><p id="phStatus">Upload all 3, then send your weekly check-in.</p><a class="btn" id="doneBtn" href="#checkin">Go to my check-in</a></div>
-    <div class="ph-note">🔒 Private: only you and Maria can see your photos. Same time, same spot, same lighting each week, ideally first thing in the morning.</div>
+    <div class="ph-note">📸 Same time, same spot, same lighting each week, ideally first thing in the morning.</div>
+    <details class="ph-note ph-priv" open><summary><b>🔒 Your photos are private</b></summary>
+      <p>Only you and Maria can ever see your photos. No other client can open them, even with a link.</p>
+      <p>They are stored in a private, secure space that has no public web address, so they can't be found on Google or anywhere else online.</p>
+      <p>They are never posted, shared or used anywhere without your permission, and they aren't saved on your phone when you view them. They load fresh each time, behind your login.</p>
+      <p>Want a photo removed? Just ask Maria and it will be permanently deleted.</p>
+    </details>
     <div class="ph-hist" id="phHist" hidden><h3>Your progress so far</h3><div id="phRows"></div></div>
   </section>
 
