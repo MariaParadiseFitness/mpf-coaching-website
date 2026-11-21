@@ -407,7 +407,7 @@ body.gated #topTabs{visibility:hidden}
   var preview=/[?&]preview\b/.test(location.search);
 
   var STEPS=[
-    {key:'form',t:'Fill in your onboarding form',d:'Your health questions (PAR-Q), medical history, goals, training and food. This is everything I need to work out your calories and macros and build your meal plan and training. About 10 minutes, and it saves as you go.',l:'#onboard',lt:'Open my form'},
+    {key:'form',t:'Fill in your onboarding form',d:'Your health questions (PAR-Q), medical history, goals, training and food. This is everything I need to work out your calories and macros and build your meal plan and training. About 10 minutes, and it saves as you go.',ptD:'Your health questions (PAR-Q), medical history, goals, training and food. Please fill this in before our first session so I can work out your calories and macros and get your meal plan and training ready. About 10 minutes, and it saves as you go.',l:'#onboard',lt:'Open my form'},
     {key:'mfp',t:'Download a calorie counter',d:'MyFitnessPal, or any other calorie counting app you like. Use it to track your food, then add your daily totals to your daily log here in the portal.'},
     {key:'kit',t:'Get your kit together',d:'Kitchen scales, bodyweight scales, a tape measure and a step counter you wear on your wrist, like a Fitbit or smartwatch. Your phone isn\'t accurate enough as it\'s not always on you.'},
     {key:'avatar',t:'Add your profile photo',d:'A photo of your face for your account, so your portal feels like yours.',av:true,lt:'Add my photo'},
@@ -449,7 +449,7 @@ body.gated #topTabs{visibility:hidden}
     document.title='Welcome, '+(c.name||'')+' | MPF Coaching';
     var urls={tracker:c.tracker?SHEET+c.tracker+'/edit':'',photos:c.photos?DRIVE+c.photos:'',videos:c.videos?DRIVE+c.videos:'',folder:c.folder?DRIVE+c.folder:''};
     linkOr($('lFolder'),urls.folder);$('lFolder').hidden=!urls.folder;
-    if(meta.demo)MPFProgramme.View($('pgBox'),MPFProgramme.demo);else fetch('/portal/api/programme',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){MPFProgramme.View($('pgBox'),j)}).catch(function(){MPFProgramme.View($('pgBox'),null)});
+    if(meta.demo)MPFProgramme.View($('pgBox'),MPFProgramme.demo,{demo:true});else fetch('/portal/api/programme',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){MPFProgramme.View($('pgBox'),j)}).catch(function(){MPFProgramme.View($('pgBox'),null)});
     var day=c.checkin||(c.type==='pt'?'Sunday':'Wednesday');
     $('stDay').textContent=day;document.querySelectorAll('.dayname').forEach(function(e){e.textContent=day});
     $('stPhase').textContent=c.phase||'Fat loss';
@@ -463,7 +463,7 @@ body.gated #topTabs{visibility:hidden}
     var pt=c.type==='pt';if(pt){STEPS=STEPS.filter(function(x){return !x.online});$('lNutri').hidden=true}
     $('sessions').classList.remove('gone');[].forEach.call(document.querySelectorAll('.ptonly'),function(a){a.hidden=false});$('bnav').classList.add('six');
     if(!pt)$('sessSub').textContent='Want to train with Maria in person? Book a face to face session at PureGym Charlton.';
-    STEPS.forEach(function(x){x.opt=pt&&!!x.ptOpt});
+    STEPS.forEach(function(x){x.opt=pt&&!!x.ptOpt;if(pt&&x.ptD)x.d=x.ptD});
     var done={},ol=$('steps');
     STEPS.forEach(function(s,i){
       var li=document.createElement('li');li.className='step';

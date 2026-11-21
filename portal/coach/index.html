@@ -143,10 +143,11 @@ html,body{overflow-x:hidden}
       <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end"><button class="btn" id="readyBtn" type="button" hidden>Plan ready</button><button class="btn g" id="closeBtn" type="button">Close</button></div>
     </div>
     <div class="wc" id="wChart" style="margin-bottom:18px"></div>
-    <div class="filters" id="pTabs"><button data-p="ob">Onboarding</button><button class="on" data-p="ci">Check-ins</button><button data-p="log">Daily log</button><button data-p="tg">Targets</button><button data-p="mp">Meal plan</button><button data-p="pg">Programmes</button><button data-p="ph">Photos</button></div>
+    <div class="filters" id="pTabs"><button data-p="ob">Onboarding</button><button class="on" data-p="ci">Check-ins</button><button data-p="log">Daily log</button><button data-p="tg">Targets</button><button data-p="mp">Meal plan</button><button data-p="pg">Programmes</button><button data-p="wk">Workouts</button><button data-p="ph">Photos</button></div>
     <div id="pCi"></div>
     <div id="pLog" hidden></div>
     <div id="pPg" hidden></div>
+    <div id="pWk" hidden></div>
     <div id="pOb" hidden></div>
     <div id="pMp" hidden></div>
     <div id="pTg" hidden></div>
@@ -217,7 +218,7 @@ html,body{overflow-x:hidden}
     cur=clients.filter(function(c){return c.id===id})[0];if(!cur)return;
     $('panel').hidden=false;$('panel').scrollTop=0;if(innerWidth<=820)document.body.style.overflow='hidden';$('pName').innerHTML=esc(cur.name)+' <em>· week '+cur.week+'</em>';$('pKick').textContent=(cur.type==='pt'?'Face to face':'Online')+' · checks in '+cur.checkin+'s';$('pRows').innerHTML='<p style="color:var(--mute)">Loading…</p>';
     var from=MPFLog.fromT(MPFLog.toT(todayStr)-27*864e5);
-    var showTab=function(p){[].forEach.call(document.querySelectorAll('#pTabs button'),function(x){x.classList.toggle('on',x.getAttribute('data-p')===p)});['ci','log','tg','pg','ob','mp','ph'].forEach(function(k){var el=$({ci:'pCi',log:'pLog',tg:'pTg',pg:'pPg',ob:'pOb',mp:'pMp',ph:'pPh'}[k]);if(el)el.hidden=k!==p})};
+    var showTab=function(p){[].forEach.call(document.querySelectorAll('#pTabs button'),function(x){x.classList.toggle('on',x.getAttribute('data-p')===p)});['ci','log','tg','pg','wk','ob','mp','ph'].forEach(function(k){var el=$({ci:'pCi',log:'pLog',tg:'pTg',pg:'pPg',wk:'pWk',ob:'pOb',mp:'pMp',ph:'pPh'}[k]);if(el)el.hidden=k!==p})};
     var isNew=cur.form!==null&&cur.form!==undefined;
     document.querySelector('#pTabs [data-p=ob]').hidden=!isNew;showTab(isNew&&!cur.planReady?'ob':'ci');
     var rb=$('readyBtn');rb.hidden=!isNew;
@@ -230,6 +231,7 @@ html,body{overflow-x:hidden}
     window.__mp=MPFMeal.Editor($('pMp'),{id:id,name:cur.name.split(' ')[0],demo:preview});
     targetsEditor(id);
     MPFProgramme.Editor($('pPg'),{id:id,name:cur.name.split(' ')[0],demo:preview,demoDoc:MPFProgramme.demo});
+    if(preview)$('pWk').innerHTML=MPFProgramme.historyHTML([]);else{$('pWk').innerHTML='<p style="color:var(--mute)">Loading…</p>';fetch('/portal/api/coach/workouts?id='+encodeURIComponent(id),{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){$('pWk').innerHTML=MPFProgramme.historyHTML(j.sessions)}).catch(function(){$('pWk').innerHTML='<p class="ci-note">Could not load workouts.</p>'})}
     if(preview){var dd=MPFLog.demoDays(todayStr,30);$('pLog').innerHTML=MPFLog.logTable(dd,from,todayStr);$('pCi').innerHTML=MPFLog.checkinList({})}
     else{
       $('pCi').innerHTML='<p style="color:var(--mute)">Loading…</p>';$('pLog').innerHTML='<p style="color:var(--mute)">Loading…</p>';

@@ -1,12 +1,12 @@
 /* MPF training programme: read-only view (client) and editor (coach). Stored on the website, not in Google Sheets. */
 (function(){
   var esc=function(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
-  var COLS=[{k:'name',l:'Exercise',w:'w-name'},{k:'sets',l:'Sets',w:'w-s'},{k:'reps',l:'Reps',w:'w-s'},{k:'tempo',l:'Tempo',w:'w-s'},{k:'rir',l:'RIR',w:'w-s'},{k:'rest',l:'Rest',w:'w-s'},{k:'notes',l:'Notes',w:'w-notes'}];
+  var COLS=[{k:'ss',l:'SS',w:'w-ss'},{k:'name',l:'Exercise',w:'w-name'},{k:'sets',l:'Sets',w:'w-s'},{k:'reps',l:'Reps',w:'w-s'},{k:'tempo',l:'Tempo',w:'w-s'},{k:'rir',l:'RIR',w:'w-s'},{k:'rest',l:'Rest',w:'w-s'},{k:'notes',l:'Notes',w:'w-notes'}];
   function upd(p){return p&&p.updated?new Date(p.updated).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}):''}
 
   /* ---------- client: read-only ---------- */
   function order(doc){var cur=doc.current,ps=(doc.programmes||[]).slice();ps.sort(function(a,b){return (b.id===cur)-(a.id===cur)||(b.created>a.created?1:-1)});return ps}
-  function View(el,doc){
+  function View(el,doc,opts){opts=opts||{};
     var ps=doc&&doc.programmes?order(doc):[];
     if(!ps.length){el.innerHTML='<div class="pg-empty">Your coach will assign your training programme soon. It will appear here as soon as it is ready.</div>';return}
     var pi=0,cur=0;
@@ -14,18 +14,25 @@
       var prog=ps[pi],isCur=prog.id===doc.current,w=prog.workouts[cur]||{exercises:[]};
       var h='<div class="pg-list"><small>My programmes</small><div class="pg-tabs">'+ps.map(function(p,i){return '<button type="button" data-p="'+i+'" class="'+(i===pi?'on':'')+'">'+(p.id===doc.current?'★ ':'')+esc(p.title)+'</button>'}).join('')+'</div></div>';
       h+='<div class="pg-top"><h3>'+esc(prog.title)+' <span class="pill '+(isCur?'ok':'off')+'">'+(isCur?'Current':'Past programme')+'</span></h3><small>Updated '+esc(upd(prog))+'</small></div>';
+      if(prog.goal)h+='<p class="pg-key" style="margin:0 0 6px"><b>Goal:</b> '+esc(prog.goal)+'</p>';
+      if(prog.schedule)h+='<div class="pg-note"><b>Weekly schedule</b><br>'+esc(prog.schedule)+'</div>';
       if(prog.notes)h+='<div class="pg-note">'+esc(prog.notes)+'</div>';
       if(!prog.workouts.length){el.innerHTML=h+'<div class="pg-empty">No workouts in this programme yet.</div>';bind();return}
       h+='<div class="pg-tabs">'+prog.workouts.map(function(x,i){return '<button type="button" data-i="'+i+'" class="'+(i===cur?'on':'')+'">'+esc(x.name)+'</button>'}).join('')+'</div>';
+      if(w.focus)h+='<p class="pg-key" style="margin:4px 0 8px"><b>Focus:</b> '+esc(w.focus)+'</p>';
       if(w.notes)h+='<div class="pg-note">'+esc(w.notes)+'</div>';
-      h+='<div class="pg-wrap"><table class="pg"><thead><tr><th>#</th>'+COLS.map(function(c){return '<th class="'+c.w+'">'+c.l+'</th>'}).join('')+'</tr></thead><tbody>'+
-        w.exercises.map(function(e,i){return '<tr><td class="n">'+(i+1)+'</td>'+COLS.map(function(c){return '<td class="'+c.w+'">'+esc(e[c.k])+'</td>'}).join('')+'</tr>'}).join('')+'</tbody></table></div>';
+      var hasSS=w.exercises.some(function(e){return e.ss}),cols=COLS.filter(function(c){return c.k!=='ss'||hasSS});
+      h+='<div class="pg-wrap"><table class="pg"><thead><tr><th>#</th>'+cols.map(function(c){return '<th class="'+c.w+'">'+c.l+'</th>'}).join('')+'</tr></thead><tbody>'+
+        w.exercises.map(function(e,i){return '<tr'+(e.ss?' class="ssrow"':'')+'><td class="n">'+(i+1)+'</td>'+cols.map(function(c){return '<td class="'+c.w+'">'+(c.k==='ss'&&e.ss?'<span class="sspill">'+esc(e.ss)+'</span>':esc(e[c.k]))+'</td>'}).join('')+'</tr>'}).join('')+'</tbody></table></div>';
+      if(hasSS)h+='<p class="pg-key"><b>SS</b> = superset: exercises with the same letter (A1, A2) are done back to back, then rest.</p>';
+      if(isCur)h+='<button class="btn" type="button" id="logW" style="margin-top:12px">📝 Log this workout</button><div id="logBox"></div>';
       h+='<p class="pg-key"><b>RIR</b> = reps in reserve: how many more good reps you could have done. <b>Tempo</b> e.g. 3-1-1-0 = 3 seconds down, 1 second pause, 1 second up, 0 at the top.</p>';
       el.innerHTML=h;bind();
     }
     function bind(){
       [].forEach.call(el.querySelectorAll('[data-p]'),function(b){b.onclick=function(){pi=+b.getAttribute('data-p');cur=0;draw()}});
       [].forEach.call(el.querySelectorAll('[data-i]'),function(b){b.onclick=function(){cur=+b.getAttribute('data-i');draw()}});
+      var lb=el.querySelector('#logW');if(lb)lb.onclick=function(){lb.hidden=true;Logger(el.querySelector('#logBox'),ps[pi],ps[pi].workouts[cur],opts)};
     }
     draw();
   }
@@ -41,8 +48,8 @@
       doc.programmes.forEach(pad);prog=doc.programmes.filter(function(p){return p.id===doc.current})[0]||doc.programmes[0];cur=0;dirty=false;draw()}
     function readInputs(){
       var t=el.querySelector('[name=title]');if(!t)return;
-      prog.title=t.value;prog.notes=el.querySelector('[name=pnotes]').value;
-      var w=prog.workouts[cur];w.name=el.querySelector('[name=wname]').value||'Workout';w.notes=el.querySelector('[name=wnotes]').value;
+      prog.title=t.value;prog.notes=el.querySelector('[name=pnotes]').value;prog.goal=el.querySelector('[name=pgoal]').value;prog.schedule=el.querySelector('[name=psched]').value;
+      var w=prog.workouts[cur];w.name=el.querySelector('[name=wname]').value||'Workout';w.notes=el.querySelector('[name=wnotes]').value;w.focus=el.querySelector('[name=wfocus]').value;
       [].forEach.call(el.querySelectorAll('tr[data-r]'),function(tr){var e=w.exercises[+tr.getAttribute('data-r')];COLS.forEach(function(c){e[c.k]=tr.querySelector('[data-k="'+c.k+'"]').value})});
     }
     function draw(){
@@ -50,12 +57,15 @@
       var h='<div class="pg-list"><small>'+(tpl?'Templates':'Programmes')+'</small><div class="pg-tabs">'+doc.programmes.map(function(p){return '<button type="button" data-pid="'+esc(p.id)+'" class="'+(p===prog?'on':'')+'">'+(!tpl&&p.id===doc.current?'★ ':'')+esc(p.title||'Programme')+'</button>'}).join('')+'<button type="button" class="add" data-a="newp">+ New '+(tpl?'template':'programme')+'</button>'+(tpl?'':'<button type="button" class="add" data-a="fromtpl">+ From a template</button>')+'</div></div>'+
         '<div class="pe-mini" style="margin-bottom:12px">'+(tpl?'':'<span class="pill '+(isCur?'ok':'off')+'" style="align-self:center">'+(isCur?'★ Current: the client sees this first':'Past programme: the client can still look back at it')+'</span>'+(isCur?'':'<button type="button" data-a="makecur">Make this the current programme</button>'))+'<button type="button" data-a="copyp">Copy into a new '+(tpl?'template':'programme')+'</button>'+(tpl?'':'<button type="button" data-a="savetpl">Save as a template</button>')+'<button type="button" data-a="delp" class="del">Delete '+(tpl?'template':'programme')+'</button></div><div id="tplPick"></div>'+
         '<div class="pe-row"><label>Programme name<input name="title" placeholder="e.g. Phase 1: Full body" value="'+esc(prog.title)+'"></label></div>'+
-        '<label class="pe-full">Notes for the whole programme<textarea name="pnotes" rows="2" placeholder="e.g. Warm up for 5 minutes before every session">'+esc(prog.notes)+'</textarea></label>'+
+        '<label class="pe-full">Goal<input name="pgoal" value="'+esc(prog.goal||'')+'" placeholder="e.g. Hypertrophy and strength"></label>'+
+        '<label class="pe-full">Notes for the whole programme<textarea name="pnotes" rows="3" placeholder="e.g. Warm up for 5 minutes before every session">'+esc(prog.notes)+'</textarea></label>'+
+        '<label class="pe-full">Weekly schedule<textarea name="psched" rows="2" placeholder="e.g. Monday: Push · Tuesday: Pull · Wednesday: Rest">'+esc(prog.schedule||'')+'</textarea></label>'+
         '<div class="pg-tabs">'+prog.workouts.map(function(x,i){return '<button type="button" data-i="'+i+'" class="'+(i===cur?'on':'')+'">'+esc(x.name||'Workout')+'</button>'}).join('')+'<button type="button" class="add" data-a="addw">+ Add workout</button></div>'+
         '<div class="pe-row"><label>Workout name<input name="wname" value="'+esc(w.name)+'"></label><div class="pe-mini"><button type="button" data-a="dupw">Duplicate</button><button type="button" data-a="lw">← Move</button><button type="button" data-a="rw">Move →</button><button type="button" data-a="delw" class="del">Delete workout</button></div></div>'+
+        '<label class="pe-full">Focus<input name="wfocus" value="'+esc(w.focus||'')+'" placeholder="e.g. Quads, chest, shoulders, triceps"></label>'+
         '<label class="pe-full">Workout notes<textarea name="wnotes" rows="2" placeholder="Optional">'+esc(w.notes)+'</textarea></label>'+
         '<div class="pg-wrap"><table class="pg pe"><thead><tr><th>#</th>'+COLS.map(function(c){return '<th class="'+c.w+'">'+c.l+'</th>'}).join('')+'<th></th></tr></thead><tbody>'+
-        w.exercises.map(function(e,i){return '<tr data-r="'+i+'"><td class="n">'+(i+1)+'</td>'+COLS.map(function(c){return '<td class="'+c.w+'"><input data-k="'+c.k+'" value="'+esc(e[c.k]||'')+'"'+(c.k==='name'?' placeholder="Exercise"':'')+'></td>'}).join('')+'<td class="act"><button type="button" data-a="up" data-r="'+i+'" title="Move up">↑</button><button type="button" data-a="down" data-r="'+i+'" title="Move down">↓</button><button type="button" data-a="delr" data-r="'+i+'" title="Delete row" class="del">✕</button></td></tr>'}).join('')+
+        w.exercises.map(function(e,i){return '<tr data-r="'+i+'"><td class="n">'+(i+1)+'</td>'+COLS.map(function(c){return '<td class="'+c.w+'"><input data-k="'+c.k+'" value="'+esc(e[c.k]||'')+'"'+(c.k==='name'?' placeholder="Exercise"':c.k==='ss'?' placeholder="A1"':'')+'></td>'}).join('')+'<td class="act"><button type="button" data-a="up" data-r="'+i+'" title="Move up">↑</button><button type="button" data-a="down" data-r="'+i+'" title="Move down">↓</button><button type="button" data-a="delr" data-r="'+i+'" title="Delete row" class="del">✕</button></td></tr>'}).join('')+
         '</tbody></table></div><div class="pe-mini" style="margin-top:8px"><button type="button" data-a="addr">+ Add exercise</button></div>'+
         '<div class="lg-save"><span class="lg-msg">'+(prog.updated?'Last saved '+esc(upd(prog)):'Not saved yet')+'</span><button class="btn" type="button" data-a="save">Save '+(tpl?'template':'programme')+'</button></div>';
       el.innerHTML=h;
@@ -130,5 +140,36 @@
     {name:'Workout A',notes:'Lower body focus',exercises:[{name:'Hack squat',sets:'3',reps:'8-10',load:'',tempo:'3-1-1-0',rir:'2',rest:'2-3 min',notes:'Full depth'},{name:'Romanian deadlift',sets:'3',reps:'8-10',tempo:'3-0-1-0',rir:'2',rest:'2 min'},{name:'Leg extension',sets:'2',reps:'12-15',rir:'1',rest:'90s'},{name:'Seated leg curl',sets:'2',reps:'12-15',rir:'1',rest:'90s'}]},
     {name:'Workout B',notes:'Upper body focus',exercises:[{name:'Incline DB press',sets:'3',reps:'8-10',tempo:'3-1-1-0',rir:'2',rest:'2 min'},{name:'Lat pulldown',sets:'3',reps:'10-12',rir:'2',rest:'2 min'},{name:'Cable lateral raise',sets:'3',reps:'12-15',rir:'1',rest:'60s'}]}]};
   var DEMO2=JSON.parse(JSON.stringify(DEMO1));DEMO2.id='p2';DEMO2.created='2026-11-01';DEMO2.title='Phase 2: Upper / lower';DEMO2.workouts[0].name='Lower';DEMO2.workouts[1].name='Upper';
-  window.MPFProgramme={View:View,Editor:Editor,demo:{current:'p2',programmes:[DEMO1,DEMO2]}};
+  /* ---------- client: log a workout (weight and reps per set) ---------- */
+  var today=function(){try{return new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/London',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date())}catch(e){return new Date().toISOString().slice(0,10)}};
+  function lastFor(sessions,name){for(var i=0;i<(sessions||[]).length;i++){var e=(sessions[i].exercises||[]).filter(function(x){return x.name===name})[0];if(e&&e.sets.some(function(s){return s.kg||s.reps}))return {date:sessions[i].date,sets:e.sets}}return null}
+  function setsTxt(sets){return sets.filter(function(s){return s.kg||s.reps}).map(function(s){return (s.kg?s.kg+'kg':'')+(s.kg&&s.reps?' × ':'')+(s.reps||'')}).join(', ')}
+  function Logger(box,prog,w,opts){
+    var sessions=null;
+    function draw(){
+      var nSets=function(e){var n=parseInt(e.sets,10);return n>0&&n<13?n:3};
+      box.innerHTML='<div class="wl"><div class="wl-top"><h3>'+esc(w.name)+'</h3><label>Date <input type="date" id="wlDate" value="'+today()+'"></label></div>'+
+        w.exercises.map(function(e,i){var last=lastFor(sessions,e.name);var rows='';for(var k=0;k<nSets(e);k++)rows+='<div class="wl-set" data-s="'+k+'"><span>Set '+(k+1)+'</span><input data-f="kg" inputmode="decimal" placeholder="kg"><input data-f="reps" inputmode="numeric" placeholder="reps"><button type="button" class="wl-done" aria-label="Set done">✓</button></div>';
+          return '<div class="wl-ex" data-e="'+i+'"><div class="wl-h">'+(e.ss?'<span class="sspill">'+esc(e.ss)+'</span> ':'')+'<b>'+esc(e.name)+'</b><small>'+esc([e.sets&&e.sets+' sets',e.reps&&e.reps+' reps',e.tempo&&'tempo '+e.tempo,e.rest&&'rest '+e.rest].filter(Boolean).join(' · '))+'</small></div>'+
+            (last?'<p class="wl-last">Last time ('+new Date(last.date+'T12:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short'})+'): '+esc(setsTxt(last.sets))+'</p>':'')+rows+'<input class="wl-note" data-f="note" placeholder="Notes (optional)"></div>'}).join('')+
+        '<label class="pe-full">How did the session go?<textarea id="wlNotes" rows="2"></textarea></label><div class="ci-btns"><span class="lg-msg" id="wlMsg"></span><button class="btn" type="button" id="wlSave">Save workout</button></div></div>';
+      [].forEach.call(box.querySelectorAll('.wl-done'),function(b){b.onclick=function(){b.classList.toggle('on')}});
+      box.querySelector('#wlSave').onclick=save;
+    }
+    function save(){
+      var ex=w.exercises.map(function(e,i){var eb=box.querySelector('[data-e="'+i+'"]');return {name:e.name,ss:e.ss||'',notes:eb.querySelector('[data-f=note]').value,sets:[].map.call(eb.querySelectorAll('.wl-set'),function(r){return {kg:r.querySelector('[data-f=kg]').value,reps:r.querySelector('[data-f=reps]').value,done:r.querySelector('.wl-done').classList.contains('on')}})}});
+      if(!ex.some(function(e){return e.sets.some(function(s){return s.kg||s.reps})})){box.querySelector('#wlMsg').textContent='Add at least one set first.';return}
+      var body={date:box.querySelector('#wlDate').value,programme:prog.title,workout:w.name,notes:box.querySelector('#wlNotes').value,exercises:ex},m=box.querySelector('#wlMsg');m.textContent='Saving…';
+      if(opts.demo){m.textContent='Saved ✓ (preview only)';m.className='lg-msg ok';return}
+      fetch('/portal/api/workout',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify(body)}).then(function(r){if(!r.ok)throw 0;m.textContent='Saved ✓ Great work 💪';m.className='lg-msg ok';box.querySelector('#wlSave').disabled=true}).catch(function(){m.textContent='Not saved. Check your signal and try again.';m.className='lg-msg warn'});
+    }
+    if(opts.demo){sessions=[];draw();return}
+    box.innerHTML='<p style="color:var(--mute)">Loading…</p>';
+    fetch('/portal/api/workouts',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){sessions=j.sessions||[];draw()}).catch(function(){sessions=[];draw()});
+  }
+  function historyHTML(sessions){
+    if(!sessions||!sessions.length)return '<p class="ci-note">No workouts logged yet.</p>';
+    return sessions.map(function(s,n){return '<details class="ci-card"'+(n===0?' open':'')+'><summary><b>'+esc(s.workout)+'</b><span>'+new Date(s.date+'T12:00:00').toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})+'</span></summary><div class="ci-ans">'+s.exercises.filter(function(e){return e.sets.some(function(x){return x.kg||x.reps})||e.notes}).map(function(e){return '<div><b>'+(e.ss?esc(e.ss)+' · ':'')+esc(e.name)+'</b><p>'+esc(setsTxt(e.sets))+(e.notes?'<br><i>'+esc(e.notes)+'</i>':'')+'</p></div>'}).join('')+(s.notes?'<div><b>Session notes</b><p>'+esc(s.notes)+'</p></div>':'')+'</div></details>'}).join('');
+  }
+  window.MPFProgramme={historyHTML:historyHTML,View:View,Editor:Editor,demo:{current:'p2',programmes:[DEMO1,DEMO2]}};
 })();

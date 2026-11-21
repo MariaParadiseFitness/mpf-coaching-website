@@ -272,19 +272,19 @@ function checkinStatus(c, s, today) {
 }
 
 // ---- training programmes: _data/<id>/programmes.json  {current:"<pid>", programmes:[{id,title,notes,workouts,created,updated}]} ----
-const EX_KEYS = ["name", "sets", "reps", "tempo", "rir", "rest", "notes"];
+const EX_KEYS = ["ss", "name", "sets", "reps", "tempo", "rir", "rest", "notes"];
 function cleanProgrammes(doc) {
   const str = (v, n) => String(v == null ? "" : v).trim().slice(0, n);
   const now = new Date().toISOString();
   const programmes = (Array.isArray(doc && doc.programmes) ? doc.programmes : []).slice(0, 30).map((p) => ({
     id: str(p.id, 40).replace(/[^a-z0-9]/gi, "") || Math.random().toString(36).slice(2, 10),
     title: str(p.title, 80) || "Programme",
-    notes: str(p.notes, 3000),
+    notes: str(p.notes, 3000), goal: str(p.goal, 120), schedule: str(p.schedule, 400),
     created: str(p.created, 30) || now,
     updated: str(p.updated, 30) || now,
     workouts: (Array.isArray(p.workouts) ? p.workouts : []).slice(0, 14).map((w) => ({
       name: str(w.name, 80) || "Workout",
-      notes: str(w.notes, 1500),
+      notes: str(w.notes, 1500), focus: str(w.focus, 160),
       exercises: (Array.isArray(w.exercises) ? w.exercises : []).slice(0, 40)
         .map((e) => Object.fromEntries(EX_KEYS.map((k) => [k, str(e && e[k], k === "notes" ? 400 : 80)])))
         .filter((e) => EX_KEYS.some((k) => e[k])),
@@ -337,6 +337,18 @@ function cleanForm(body) {
     out[k] = Array.isArray(v) ? v.slice(0, 20).map((x) => String(x).slice(0, 200)) : String(v == null ? "" : v).slice(0, 3000);
   }
   return out;
+}
+
+async function readWorkouts(env, id, daysBack) {
+  const out = [], today = londonToday();
+  let t = toT(fromT(toT(today) - daysBack * DAY_MS).slice(0, 7) + "-01");
+  for (let i = 0; i < 6 && t <= toT(today); i++) {
+    const doc = await getJSON(env, `${dkey(id)}/workouts/${fromT(t).slice(0, 7)}.json`, {});
+    for (const [d, list] of Object.entries(doc)) for (const sss of list) out.push(sss);
+    const dt = new Date(t);
+    t = Date.UTC(dt.getUTCFullYear(), dt.getUTCMonth() + 1, 1);
+  }
+  return out.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : a.at < b.at ? 1 : -1));
 }
 
 async function handleApi(request, env, url) {
@@ -539,6 +551,34 @@ async function handleApi(request, env, url) {
   if (path === "/portal/api/mealplans") {
     if (!client) return json({ error: "unknown" }, 403);
     return json(await getJSON(env, `${dkey(client.id)}/mealplans.json`, { current: "", plans: [] }));
+  }
+
+  // ---- workout log (weights and reps per set): _data/<id>/workouts/<YYYY-MM>.json {date:[session,...]} ----
+  if (path === "/portal/api/workouts" && request.method === "GET") {
+    if (!client) return json({ error: "unknown" }, 403);
+    return json({ sessions: await readWorkouts(env, client.id, 120) });
+  }
+  if (path === "/portal/api/workout" && request.method === "POST") {
+    if (!client) return json({ error: "unknown" }, 403);
+    const b = await request.json().catch(() => ({}));
+    const today = londonToday();
+    if (!isDate(b.date) || (toT(today) - toT(b.date)) / DAY_MS > 30 || toT(b.date) > toT(today) + DAY_MS) return json({ error: "date" }, 400);
+    const str = (v, n) => String(v == null ? "" : v).trim().slice(0, n);
+    const sess = {
+      id: str(b.id, 20).replace(/[^a-z0-9]/gi, "") || Math.random().toString(36).slice(2, 10),
+      date: b.date, programme: str(b.programme, 80), workout: str(b.workout, 80), notes: str(b.notes, 1500), at: new Date().toISOString(),
+      exercises: (Array.isArray(b.exercises) ? b.exercises : []).slice(0, 40).map((e) => ({
+        name: str(e.name, 80), ss: str(e.ss, 6), notes: str(e.notes, 600),
+        sets: (Array.isArray(e.sets) ? e.sets : []).slice(0, 12).map((x) => ({ kg: str(x.kg, 10), reps: str(x.reps, 10), done: !!x.done })),
+      })),
+    };
+    const key = `${dkey(client.id)}/workouts/${b.date.slice(0, 7)}.json`;
+    const doc = await getJSON(env, key, {});
+    const list = (doc[b.date] || []).filter((x) => x.id !== sess.id);
+    if (b.delete !== true) list.push(sess);
+    if (list.length) doc[b.date] = list; else delete doc[b.date];
+    await putJSON(env, key, doc);
+    return json({ ok: true, session: b.delete === true ? null : sess });
   }
 
   // ---- coach ----
@@ -751,6 +791,14 @@ async function handleApi(request, env, url) {
       return json({ ok: true, ...doc });
     }
     return json(await getJSON(env, key, { current: "", plans: [] }));
+  }
+
+  if (path === "/portal/api/coach/workouts") {
+    if (!coach) return json({ error: "forbidden" }, 403);
+    const id = (url.searchParams.get("id") || "").toLowerCase();
+    const c = Object.values(r).find((x) => x.id === id);
+    if (!c) return json({ error: "unknown" }, 404);
+    return json({ sessions: await readWorkouts(env, c.id, 120) });
   }
   if (path === "/portal/api/coach/templates") {
     if (!coach) return json({ error: "forbidden" }, 403);
