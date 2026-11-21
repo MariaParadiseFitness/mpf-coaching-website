@@ -538,8 +538,10 @@ async function handleApi(request, env, url) {
     const key = `${dkey(client.id)}/onboarding.json`;
     if (request.method === "POST") {
       const b = await request.json().catch(() => ({}));
-      const doc = { answers: cleanForm(b.answers), submitted: b.submit === true ? new Date().toISOString() : ((await getJSON(env, key, {})).submitted || null), updated: new Date().toISOString() };
+      const prevDoc = await getJSON(env, key, {});
+      const doc = { answers: cleanForm(b.answers), submitted: b.submit === true ? new Date().toISOString() : (prevDoc.submitted || null), updated: new Date().toISOString() };
       await putJSON(env, key, doc);
+      if (b.submit === true && !prevDoc.submitted) await notifyForm(env, client, doc.answers).catch(() => {});
       return json({ ok: true, ...doc });
     }
     return json(await getJSON(env, key, { answers: {}, submitted: null }));
@@ -833,6 +835,31 @@ async function handleApi(request, env, url) {
   }
 
   return json({ error: "not found" }, 404);
+}
+
+// ---- email Maria when a new client sends their onboarding form (Cloudflare Email Routing send_email binding) ----
+async function notifyForm(env, client, a) {
+  if (!env.MAILER || !env.NOTIFY_TO || !env.NOTIFY_FROM) return;
+  const { EmailMessage } = await import("cloudflare:email");
+  const flags = [];
+  for (let i = 1; i <= 7; i++) if (a["pq" + i] === "Yes") flags.push("PAR-Q question " + i + " answered YES");
+  if (a.ed && a.ed !== "No") flags.push("Eating disorder question: " + a.ed);
+  if (a.pregnant && !/^(No|Not applicable)$/.test(a.pregnant)) flags.push("Pregnancy: " + a.pregnant);
+  const kind = client.type === "pt" ? "Face to face" : "Online";
+  const lines = [
+    `${client.name} (${kind}) has sent their onboarding form.`, "",
+    flags.length ? "Please check:\n- " + flags.join("\n- ") + "\n" : "No health flags.\n",
+    `Goal: ${a.goal || "-"}`, `Weight: ${a.weight || "-"} kg, height ${a.height || "-"} cm, goal weight ${a.goalweight || "-"} kg`,
+    `Job: ${a.job || "-"} (${a.jobactivity || "-"})`, `Training days: ${a.days || "-"}`, "",
+    "Open your coach view to see everything and build their plan:", "https://mpfcoaching.co.uk/portal/coach/",
+  ];
+  const subj = `New onboarding form: ${client.name} (${kind})`;
+  const raw = [
+    `From: MPF Client Portal <${env.NOTIFY_FROM}>`, `To: ${env.NOTIFY_TO}`, `Subject: ${subj.replace(/[\r\n]/g, " ")}`,
+    `Message-ID: <${crypto.randomUUID()}@${env.NOTIFY_FROM.split("@")[1]}>`, `Date: ${new Date().toUTCString()}`,
+    "MIME-Version: 1.0", "Content-Type: text/plain; charset=utf-8", "Content-Transfer-Encoding: 8bit", "", lines.join("\r\n"),
+  ].join("\r\n");
+  await env.MAILER.send(new EmailMessage(env.NOTIFY_FROM, env.NOTIFY_TO, raw));
 }
 
 export default {
