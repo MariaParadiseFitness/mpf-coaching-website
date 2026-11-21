@@ -170,7 +170,7 @@ footer{text-align:center;color:#7d735c;font-size:12px;padding:20px}
     <div class="acts">
       <a class="act main" id="lTracker" target="_blank" rel="noopener"><span class="ic">📊</span><span><b>Open my tracker</b><span>Daily tracker, check-in, training and logbook</span></span></a>
       <a class="act" id="lPhotos" target="_blank" rel="noopener"><span class="ic">📸</span><span><b>Upload check-in photos</b><span>Front, side and back, every week</span></span></a>
-      <a class="act" id="lVideos" target="_blank" rel="noopener"><span class="ic">🎥</span><span><b>Upload training videos</b><span>Your lifts, for form feedback</span></span></a>
+      <a class="act" href="https://wa.me/447592791137?text=Hi%20Maria%2C%20here%27s%20my%20training%20video%20%F0%9F%8E%A5" target="_blank" rel="noopener"><span class="ic">🎥</span><span><b>Send me a training video</b><span>On WhatsApp, so I can reply fast</span></span></a>
       <a class="act" id="lFolder" target="_blank" rel="noopener"><span class="ic">📁</span><span><b>My whole folder</b><span>Everything in one place</span></span></a>
     </div>
   </section>
@@ -187,7 +187,7 @@ footer{text-align:center;color:#7d735c;font-size:12px;padding:20px}
           <li><b>Every session:</b> log your weights and reps in your Logbook.</li>
           <li><b>Track your food</b> in MyFitnessPal using what you learned in your nutrition lesson.</li>
           <li><b>On <span class="dayname">Wednesday</span>:</b> complete your Weekly Check-In, upload your photos, then message me to say it's done.</li>
-          <li><b>Any time:</b> send me videos of your lifts, and tell me how you're feeling so I can adjust.</li>
+          <li><b>Any time:</b> send me videos of your lifts on WhatsApp for quick form feedback, and tell me how you're feeling so I can adjust.</li>
         </ul>
       </div>
       <div class="card" style="text-align:center;display:flex;flex-direction:column;justify-content:center">
@@ -283,7 +283,7 @@ footer{text-align:center;color:#7d735c;font-size:12px;padding:20px}
     $('nm').textContent=(c.name||'friend')+'.';
     document.title='Welcome, '+(c.name||'')+' | MPF Coaching';
     var urls={tracker:c.tracker?SHEET+c.tracker+'/edit':'',photos:c.photos?DRIVE+c.photos:'',videos:c.videos?DRIVE+c.videos:'',folder:c.folder?DRIVE+c.folder:''};
-    linkOr($('lTracker'),urls.tracker);linkOr($('lPhotos'),urls.photos);linkOr($('lPhotos2'),urls.photos);linkOr($('lVideos'),urls.videos);linkOr($('lFolder'),urls.folder);
+    linkOr($('lTracker'),urls.tracker);linkOr($('lPhotos'),urls.photos);linkOr($('lPhotos2'),urls.photos);linkOr($('lFolder'),urls.folder);
     var day=c.checkin||'Wednesday';
     $('stDay').textContent=day;document.querySelectorAll('.dayname').forEach(function(e){e.textContent=day});
     $('stPhase').textContent=c.phase||'Fat loss';
