@@ -175,7 +175,7 @@
   }
 
     function targetsHTML(t){
-    if(!t||!Object.keys(t).some(function(k){return k!=='updated'}))return '<div class="pg-empty">Your daily targets will appear here once Maria has set them.</div>';
+    if(!t||!Object.keys(t).some(function(k){return k!=='updated'}))return '<div class="pg-empty">Your coach will assign you your calories and macros. They will appear here as soon as they are set.</div>';
     var L=[['cals','Calories','kcal'],['protein','Protein','g'],['carbs','Carbs','g'],['fat','Fat','g'],['steps','Steps',''],['water','Water','L'],['cardio','Cardio','mins'],['sleep','Sleep','hrs']];
     return '<div class="lg-stats tgt">'+L.filter(function(x){return t[x[0]]}).map(function(x){var v=t[x[0]];return '<div><small>'+x[1]+'</small><b>'+esc(v)+'</b>'+(x[2]&&!/[a-z]/i.test(v)?'<span>'+x[2]+'</span>':'')+'</div>'}).join('')+'</div>'+(t.notes?'<div class="pg-note">'+esc(t.notes)+'</div>':'')+(t.updated?'<p class="pg-key">Set by Maria · updated '+new Date(t.updated).toLocaleDateString('en-GB',{day:'numeric',month:'long'})+'</p>':'');
   }
