@@ -406,7 +406,7 @@ async function handleApi(request, env, url) {
     return new Response(obj.body, {
       headers: {
         "content-type": obj.httpMetadata?.contentType || "image/jpeg",
-        "cache-control": "private, max-age=3600",
+        "cache-control": "private, no-store",
         "x-content-type-options": "nosniff",
       },
     });
@@ -508,7 +508,7 @@ async function handleApi(request, env, url) {
     else { if (!coach) return json({ error: "forbidden" }, 403); id = (url.searchParams.get("id") || "").toLowerCase().replace(/[^a-z0-9_-]/g, ""); }
     const obj = await env.PHOTOS.get(`${dkey(id)}/avatar`);
     if (!obj) return new Response("", { status: 404, headers: { "cache-control": "no-store" } });
-    return new Response(obj.body, { headers: { "content-type": obj.httpMetadata?.contentType || "image/jpeg", "cache-control": "private, max-age=300", "x-content-type-options": "nosniff" } });
+    return new Response(obj.body, { headers: { "content-type": obj.httpMetadata?.contentType || "image/jpeg", "cache-control": "private, no-store", "x-content-type-options": "nosniff" } });
   }
 
   // ---- first-login setup checklist: _data/<id>/setup.json {done:{key:at}, completed:at} ----
