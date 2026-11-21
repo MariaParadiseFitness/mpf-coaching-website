@@ -13,7 +13,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <link rel="manifest" href="/portal/manifest.webmanifest" id="mf">
-<script>if(/[?&]preview\b/.test(location.search)){document.getElementById("mf").href="/portal/preview.webmanifest";document.write('<meta name="apple-mobile-web-app-title" content="MPF Test">')}</script>
+<script>if(/[?&]preview\b/.test(location.search)){document.getElementById("mf").href="/portal/preview.webmanifest";var t=document.querySelector('meta[name=apple-mobile-web-app-title]');if(t)t.content="MPF Test"}</script>
 <link rel="stylesheet" href="/portal/log.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
