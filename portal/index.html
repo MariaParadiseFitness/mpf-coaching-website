@@ -169,6 +169,8 @@ footer{text-align:center;color:#7d735c;font-size:12px;padding:20px}
 @media(max-width:600px){.wc-stats b{font-size:17px}}
 
 /* app layout */
+.step .opt{font-size:10px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--gold-l);border:1px solid var(--line);border-radius:20px;padding:2px 8px;vertical-align:middle;margin-left:4px}
+.step p.tip{color:var(--gold-l);font-size:13px;margin-top:6px}
 #app:not(.ready) [data-view]{display:none}
 .btn.fin{display:block;width:100%;margin-top:16px;padding:16px}
 .btn.fin:disabled{background:#2a2619;color:var(--mute);box-shadow:none;cursor:default}
@@ -370,7 +372,7 @@ body.gated #topTabs{visibility:hidden}
     {key:'kit',t:'Get your kit together',d:'Kitchen scales, bodyweight scales, a tape measure and a step counter you wear on your wrist, like a Fitbit or smartwatch. Your phone isn\'t accurate enough as it\'s not always on you.'},
     {key:'avatar',t:'Add your profile photo',d:'A photo of your face for your account, so your portal feels like yours.',av:true,lt:'Add my photo'},
     {key:'nutrition',online:true,t:'Book your nutrition lesson',d:'Your 1-hour phone call where I teach you how to track properly and build your own meals. Pick a time that suits you and I\'ll call you.',l:'https://calendly.com/mpfcoaching-info/nutrition-lesson',lt:'Book my lesson'},
-    {key:'photos',t:'Take your starting photos',d:'Front, side and back, first thing in the morning. Same spot and lighting you\'ll use every week.',l:'#photos',lt:'Upload my photos'},
+    {key:'photos',t:'Take your starting photos',d:'Front, side and back, first thing in the morning. Same spot and lighting you\'ll use every week.',ptOpt:'Optional. Not done them yet? No problem, we\'ll take them together in the gym.',l:'#photos',lt:'Upload my photos'},
     {key:'community',t:'Join the client community',d:'The MPF WhatsApp group: support, motivation and wins.',l:'https://chat.whatsapp.com/FTD83kWGqnf03YwR4prUZN',lt:'Join the group'},
     {key:'home',t:'Save this portal to your home screen',d:'iPhone (Safari): tap Share, then Add to Home Screen. Android (Chrome): tap the 3 dots, then Add to Home screen. Can\'t see it? Open the link in Safari or Chrome first, not inside Instagram or WhatsApp.'}
   ];
@@ -416,11 +418,12 @@ body.gated #topTabs{visibility:hidden}
 
     // first-login setup checklist (saved to their account)
     var pt=c.type==='pt';if(pt){STEPS=STEPS.filter(function(x){return !x.online});$('lNutri').hidden=true}
+    STEPS.forEach(function(x){x.opt=pt&&!!x.ptOpt});
     var done={},ol=$('steps');
     STEPS.forEach(function(s,i){
       var li=document.createElement('li');li.className='step';
       var href=s.l||'',btn=s.av?'<label class="go">'+esc(s.lt)+' →<input type="file" accept="image/*" hidden class="stepAv"></label>':(s.lt&&href?'<a class="go" href="'+esc(href)+'"'+(href.charAt(0)==='#'?'':' target="_blank" rel="noopener"')+'>'+esc(s.lt)+' →</a>':'');
-      li.innerHTML='<button class="tick" type="button" aria-label="Mark step '+(i+1)+' done"></button><div><b>'+(i+1)+'. '+esc(s.t)+'</b><p>'+esc(s.d)+'</p>'+btn+'</div>';
+      li.innerHTML='<button class="tick" type="button" aria-label="Mark step '+(i+1)+' done"></button><div><b>'+(i+1)+'. '+esc(s.t)+(s.opt?' <span class="opt">Optional</span>':'')+'</b><p>'+esc(s.d)+'</p>'+(s.opt?'<p class="tip">💡 '+esc(s.ptOpt)+'</p>':'')+btn+'</div>';
       li.querySelector('.tick').onclick=function(){tick(s.key,!done[s.key])};
       var f=li.querySelector('.stepAv');if(f)f.onchange=function(e){var file=e.target.files[0];if(file)avUp(file,$('avBox'),function(){tick('avatar',true)});e.target.value=''};
       ol.appendChild(li);
@@ -430,7 +433,7 @@ body.gated #topTabs{visibility:hidden}
       if(!meta.demo)fetch('/portal/api/setup',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({key:k,done:!!v})}).catch(function(){});
     }
     window.__tick=tick;
-    function allDone(){return STEPS.every(function(s){return done[s.key]})}
+    function allDone(){return STEPS.every(function(s){return s.opt||done[s.key]})}
     function paint(){
       var n=0;[].forEach.call(ol.children,function(li,i){var d=!!done[STEPS[i].key];li.classList.toggle('done',d);li.querySelector('.tick').textContent=d?'✓':'';if(d)n++});
       $('barFill').style.width=(n/STEPS.length*100)+'%';$('pct').textContent=n+' of '+STEPS.length+' done';
