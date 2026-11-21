@@ -527,6 +527,21 @@ async function handleApi(request, env, url) {
     return json({ day: checkinDay(c), checkins: await getJSON(env, `${dkey(c.id)}/checkins.json`, {}) });
   }
 
+
+  if (path === "/portal/api/coach/templates") {
+    if (!coach) return json({ error: "forbidden" }, 403);
+    const key = `${dkey("_templates")}/programmes.json`;
+    if (request.method === "POST") {
+      const body = await request.json().catch(() => null);
+      if (!body) return json({ error: "bad" }, 400);
+      const doc = cleanProgrammes(body);
+      const old = await getJSON(env, key, null);
+      if (old) await putJSON(env, `${dkey("_templates")}/backup/${Date.now()}.json`, old);
+      await putJSON(env, key, doc);
+      return json({ ok: true, ...doc });
+    }
+    return json(await getJSON(env, key, { current: "", programmes: [] }));
+  }
   if (path === "/portal/api/coach/programmes") {
     if (!coach) return json({ error: "forbidden" }, 403);
     const id = (url.searchParams.get("id") || "").toLowerCase();

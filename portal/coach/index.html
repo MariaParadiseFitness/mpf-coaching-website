@@ -104,6 +104,8 @@ td b{color:#fff;font-size:15px}
     <div><small>Check-ins waiting</small><b id="sWait">0</b></div>
     <div><small>Logged today</small><b id="sLog">0</b></div>
   </div>
+  <div style="margin-bottom:16px"><button class="btn g" type="button" id="tplBtn">📋 Programme templates</button></div>
+  <div class="panel" id="tplPanel" hidden><div class="ph-head"><div><div class="kick">Your library</div><h2>Programme <em>templates.</em></h2><div class="sub" style="margin:4px 0 0">Build programmes once here, then copy them into any client from their Programmes tab with <b>+ From a template</b>.</div></div><button class="btn g" id="tplClose" type="button">Close</button></div><div id="tplEd"></div></div>
   <div class="filters" id="fType"><button class="on" data-t="all">Everyone</button><button data-t="online">Online</button><button data-t="pt">Face to face</button></div>
   <div class="filters"><button class="on" data-f="active">Active</button><button data-f="all">All</button><button data-f="inactive">Inactive</button></div>
   <table><thead><tr><th>Client</th><th>Check-in</th><th>Daily log</th><th class="hide-m">Photos</th><th class="hide-m">Weight</th></tr></thead><tbody id="rows"></tbody></table>
@@ -193,6 +195,8 @@ td b{color:#fff;font-size:15px}
     fetch('/portal/api/coach/photos?id='+encodeURIComponent(id),{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){curPhotos=j.photos||[];drawPhotos();$('panel').scrollIntoView({behavior:'smooth'})});
   }
   $('closeBtn').onclick=function(){$('panel').hidden=true};
+  $('tplBtn').onclick=function(){$('tplPanel').hidden=false;MPFProgramme.Editor($('tplEd'),{tpl:true,name:'',demo:preview,demoDoc:{current:'',programmes:[]}});$('tplPanel').scrollIntoView({behavior:'smooth'})};
+  $('tplClose').onclick=function(){$('tplPanel').hidden=true};
   $('cmpBtn').onclick=function(){
     var picked=[].map.call(document.querySelectorAll('.pick:checked'),function(i){return +i.value}).sort(function(a,b){return a-b});
     if(picked.length!==2){$('cmpHelp').hidden=false;return}
