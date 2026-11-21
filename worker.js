@@ -546,6 +546,28 @@ async function handleApi(request, env, url) {
     }
     return json(await getJSON(env, key, { answers: {}, submitted: null }));
   }
+  // consents: health data, terms, and (separately) permission to post photos on social media
+  if (path === "/portal/api/consent") {
+    if (!client) return json({ error: "unknown" }, 403);
+    const key = `${dkey(client.id)}/consent.json`;
+    const cur = await getJSON(env, key, {});
+    if (request.method === "POST") {
+      const b = await request.json().catch(() => ({}));
+      const now = new Date().toISOString();
+      const next = { ...cur, history: (cur.history || []).slice(-50) };
+      if (b.health === true && !cur.health) next.health = now;
+      if (b.terms === true && !cur.terms) next.terms = now;
+      if (b.photos === "yes" || b.photos === "no") {
+        if (b.photos !== cur.photos) next.history.push({ photos: b.photos, at: now });
+        next.photos = b.photos; next.photosAt = now;
+      }
+      await putJSON(env, key, next);
+      const { history, ...pub } = next;
+      return json({ ok: true, ...pub });
+    }
+    const { history, ...pub } = cur;
+    return json(pub);
+  }
   if (path === "/portal/api/plan") {
     if (!client) return json({ error: "unknown" }, 403);
     return json(await getJSON(env, `${dkey(client.id)}/plan.json`, { ready: client.onboarded === true }));
@@ -612,6 +634,7 @@ async function handleApi(request, env, url) {
         active: c.active !== false, week, tracker: c.tracker || "", folder: c.folder || "",
         photosThisWeek: [...new Set(thisWeek)], lastUpload: photos.reduce((m, p) => (p.uploaded > m ? p.uploaded : m), ""),
         photoCount: photos.length,
+        consent: await (async () => { const k = await getJSON(env, `${dkey(c.id)}/consent.json`, {}); return { health: !!k.health, terms: !!k.terms, photos: k.photos || "" }; })(),
       });
     }
     list.sort((a, b) => (b.active - a.active) || a.name.localeCompare(b.name));

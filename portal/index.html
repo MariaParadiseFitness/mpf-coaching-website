@@ -143,6 +143,7 @@ details.app b{color:#fff}
 .ph-row img{width:100%;height:100%;object-fit:cover;display:block}
 .ph-row span.e{display:grid;place-content:center;color:#4d463a;font-size:12px}
 .ph-note{font-size:12.5px;color:var(--mute);margin-top:10px}
+.consent{display:block}.consent .ob-check{display:block;margin:8px 0;font-size:13.5px;line-height:1.45}.cn-ph{margin:10px 0}.cn-ph label{display:block;margin:6px 0;font-size:14px}.cn-ph small{display:block;color:var(--mute);font-size:12px;margin-top:4px}
 .ph-priv{background:#0e0e0e;border:1px solid rgba(201,166,75,.3);border-radius:12px;padding:10px 12px}.ph-priv summary{cursor:pointer;color:#e8d79a}.ph-priv p{margin:6px 0 0}
 @media(max-width:600px){.ph-week{gap:8px}.slot b{font-size:12.5px}.slot small{display:none}.ph-row{grid-template-columns:56px repeat(3,1fr);gap:6px}}
 footer{text-align:center;color:#7d735c;font-size:12px;padding:20px}
@@ -235,6 +236,17 @@ body.gated #topTabs{visibility:hidden}
       <div class="chips"><span>Week <b id="stWeek">1</b></span><span><b id="stPhase">Fat loss</b></span><span>Check-in <b id="stDay">Wednesday</b> · <i id="stNext">soon</i></span></div>
       <span id="stStart" hidden></span>
     </div>
+  </div>
+  <div class="due consent" id="consentBox" data-view="today" hidden>
+    <b>🔒 Your privacy and my terms</b>
+    <p style="margin:6px 0 10px">Before you carry on, please read and agree to these. It takes a minute.</p>
+    <label class="ob-check"><input type="checkbox" id="cnHealth"> I agree to MPF Coaching storing my health information (health questions, medical history, measurements, logs and progress photos) so Maria can coach me safely. I can ask for it to be deleted at any time.</label>
+    <label class="ob-check"><input type="checkbox" id="cnTerms"> I have read and agree to the <a href="/terms.html" target="_blank">coaching terms and conditions</a> and the <a href="/privacy.html" target="_blank">privacy policy</a>.</label>
+    <div class="cn-ph"><b>Can Maria share your progress photos on social media?</b>
+      <label><input type="radio" name="cnPh" value="no"> No, keep my photos private</label>
+      <label><input type="radio" name="cnPh" value="yes"> Yes, you can share them</label>
+      <small>Your photos are only ever posted if you say yes. You can change this any time in My account.</small></div>
+    <button class="btn" type="button" id="cnSave">Save</button> <span class="lg-msg" id="cnMsg"></span>
   </div>
   <a class="due" id="dueBanner" href="#checkin" data-view="today" hidden></a>
   <div class="due plan" id="planBanner" data-view="today" hidden></div>
@@ -365,6 +377,15 @@ body.gated #topTabs{visibility:hidden}
     </div>
   </section>
 
+  <section data-view="more" id="perms">
+    <h2>Privacy and <em>permissions.</em></h2>
+    <div class="cn-ph"><b>Social media: can Maria share your progress photos?</b>
+      <label><input type="radio" name="pmPh" value="no"> No, keep my photos private</label>
+      <label><input type="radio" name="pmPh" value="yes"> Yes, you can share them</label>
+      <small id="pmMsg">Your photos are only ever posted if you say yes. Changing this to No stops any future posts.</small></div>
+    <p class="ci-note" style="margin-top:10px">Read the <a href="/privacy.html" target="_blank">privacy policy</a> and the <a href="/terms.html" target="_blank">coaching terms</a>. To see or delete your information, message Maria or email info@mpfcoaching.co.uk.</p>
+  </section>
+
   <section data-view="more" id="support">
     <h2>Support.</h2>
     <div class="sub">You're never left to figure it out on your own.</div>
@@ -467,6 +488,18 @@ body.gated #topTabs{visibility:hidden}
     $('stNext').textContent=diff===0?'today':'in '+diff+(diff===1?' day':' days');
     $('accType').textContent=(c.type==='pt'?'Face to face':'Online coaching')+' · check-in every '+day;
 
+    // consents (health data, terms, social media photo permission)
+    (function(){
+      var paint=function(j){j=j||{};$('consentBox').hidden=!!(j.health&&j.terms)||!!demo;
+        [].forEach.call(document.querySelectorAll('input[name=pmPh],input[name=cnPh]'),function(r){r.checked=(r.value===j.photos)})};
+      window.__cn=paint;
+      var post=function(b){return fetch('/portal/api/consent',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify(b)}).then(function(r){if(!r.ok)throw 0;return r.json()})};
+      $('cnSave').onclick=function(){var ph=document.querySelector('input[name=cnPh]:checked');
+        if(!$('cnHealth').checked||!$('cnTerms').checked||!ph){$('cnMsg').textContent='Please tick both boxes and choose an answer about your photos.';return}
+        $('cnMsg').textContent='Saving…';post({health:true,terms:true,photos:ph.value}).then(paint).catch(function(){$('cnMsg').textContent='Not saved. Try again.'})};
+      [].forEach.call(document.querySelectorAll('input[name=pmPh]'),function(r){r.onchange=function(){if(demo)return;$('pmMsg').textContent='Saving…';post({photos:r.value}).then(function(j){paint(j);$('pmMsg').textContent=j.photos==='yes'?'Saved ✓ Maria may share your progress photos. Change to No any time.':'Saved ✓ Your photos stay private and will not be posted.'}).catch(function(){$('pmMsg').textContent='Not saved. Try again.'})}});
+      if(demo)paint({health:1,terms:1});else fetch('/portal/api/consent',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(paint).catch(function(){});
+    })();
     // first-login setup checklist (saved to their account)
     var pt=c.type==='pt';if(pt){STEPS=STEPS.filter(function(x){return !x.online});$('lNutri').hidden=true}
     if(pt&&c.onboarded!==true)$('ptFirst').hidden=false;
@@ -601,7 +634,7 @@ body.gated #topTabs{visibility:hidden}
     ci=MPFLog.CheckIn($('ciBox'),{onState:dueState,start:c.start,demo:demo,today:today,day:day,email:email,getDays:log.days,photoCount:function(){return window.__phN==null?null:window.__phN},
       demoQuestions:["What were this week's biggest wins/achievements?","Any comments on stress levels and management techniques?","How was gym performance this week?","How was recovery in general this week?","Number of weeks on current training set-up.","Number of weeks since deload.","Number of weeks in current phase (cut/bulk/maintenance).","Is there anything you struggled with this week?","Are there any areas you want to improve next week?","Is there anything you would like me to run through for you?"]});
     window.__ci=ci;
-    MPFOnboard.Form($('obBox'),{demo:demo,sex:c.sex,type:c.type,onSubmit:function(){if(window.__tick)window.__tick('form',true);setTimeout(function(){history.pushState(null,'','#start');go('start')},900)}});
+    MPFOnboard.Form($('obBox'),{demo:demo,sex:c.sex,type:c.type,onSubmit:function(ans){if(!demo&&ans){var pc=String(ans.photoconsent||'');fetch('/portal/api/consent',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({health:ans.healthconsent==='Yes',terms:ans.terms==='Yes',photos:/^Yes/.test(pc)?'yes':(pc?'no':'')})}).then(function(r){return r.json()}).then(function(j){window.__cn&&window.__cn(j)}).catch(function(){})}if(window.__tick)window.__tick('form',true);setTimeout(function(){history.pushState(null,'','#start');go('start')},900)}});
     var showPlan=function(p){var b=$('planBanner');if(!p||p.ready===undefined){b.hidden=true;return}
       if(!p.ready){b.hidden=false;b.innerHTML='✨ Maria is building your plan: your calories, macros, meal plan and training. You will see a banner here when it is ready. Keep logging your days in the meantime.'}
       else if(p.at&&Date.now()-Date.parse(p.at)<14*864e5){b.hidden=false;b.innerHTML='🎉 Your plan is ready! Your targets and meal plan are below, and your training is under Training. Book your nutrition lesson so I can talk you through it.'}

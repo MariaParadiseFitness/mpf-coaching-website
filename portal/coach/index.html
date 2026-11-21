@@ -218,7 +218,7 @@ html,body{overflow-x:hidden}
   }
   function open(id){
     cur=clients.filter(function(c){return c.id===id})[0];if(!cur)return;
-    $('panel').hidden=false;$('panel').scrollTop=0;if(innerWidth<=820)document.body.style.overflow='hidden';$('pName').innerHTML=esc(cur.name)+' <em>· week '+cur.week+'</em>';$('pKick').textContent=(cur.type==='pt'?'Face to face':'Online')+' · checks in '+cur.checkin+'s';$('pRows').innerHTML='<p style="color:var(--mute)">Loading…</p>';
+    $('panel').hidden=false;$('panel').scrollTop=0;if(innerWidth<=820)document.body.style.overflow='hidden';$('pName').innerHTML=esc(cur.name)+' <em>· week '+cur.week+'</em>';var cn=cur.consent||{};$('pKick').textContent=(cur.type==='pt'?'Face to face':'Online')+' · checks in '+cur.checkin+'s · '+(cn.photos==='yes'?'📸 OK to post photos':cn.photos==='no'?'🚫 Do NOT post photos':'🚫 No photo permission yet')+(cn.health&&cn.terms?'':' · terms not agreed yet');$('pRows').innerHTML='<p style="color:var(--mute)">Loading…</p>';
     var from=MPFLog.fromT(MPFLog.toT(todayStr)-27*864e5);
     var showTab=function(p){[].forEach.call(document.querySelectorAll('#pTabs button'),function(x){x.classList.toggle('on',x.getAttribute('data-p')===p)});['ci','log','tg','pg','wk','ob','mp','ph'].forEach(function(k){var el=$({ci:'pCi',log:'pLog',tg:'pTg',pg:'pPg',wk:'pWk',ob:'pOb',mp:'pMp',ph:'pPh'}[k]);if(el)el.hidden=k!==p})};
     var isNew=cur.form!==null&&cur.form!==undefined;

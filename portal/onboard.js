@@ -73,7 +73,10 @@
       {k:'other',l:'Anything else I should know?',t:'area'}
     ]},
     {t:'Confirm',i:'✅',q:[
-      {k:'consent',l:'The information I have given is accurate, and I will tell Maria if anything changes.',t:'check',req:1}
+      {k:'consent',l:'The information I have given is accurate, and I will tell Maria if anything changes.',t:'check',req:1},
+      {k:'healthconsent',l:'I agree to MPF Coaching storing my health information (including my health questions, medical history, measurements and progress photos) so Maria can plan my coaching safely. I can ask for it to be deleted at any time.',t:'check',req:1},
+      {k:'terms',l:'I have read and agree to the coaching terms and conditions (mpfcoaching.co.uk/terms.html) and the privacy policy (mpfcoaching.co.uk/privacy.html).',t:'check',req:1},
+      {k:'photoconsent',l:'Can Maria share your progress photos on social media (for example @mpfcoachingresults)? Your photos are only ever posted if you say yes here, and you can change your mind any time in your account.',t:'choice',o:['No, keep my photos private','Yes, with my face hidden','Yes, you can share them'],req:1}
     ]}
   ];
 
@@ -109,7 +112,7 @@
       var missing=[];SECTIONS.forEach(function(s){s.q.forEach(function(q){if(q.req&&visible(q,sex,type)&&!String(ans[q.k]||'').trim())missing.push(q)})});
       [].forEach.call(el.querySelectorAll('.ob-q'),function(n){n.classList.toggle('miss',missing.some(function(q){return q.k===n.getAttribute('data-q')}))});
       if(missing.length){var m=el.querySelector('#obMsg');m.textContent='Please fill in the questions marked in red ('+missing.length+').';m.className='lg-msg warn';el.querySelector('.ob-q.miss').scrollIntoView({block:'center'});return}
-      clearTimeout(timer);save(true).then(function(){if(o.onSubmit)o.onSubmit()});
+      clearTimeout(timer);save(true).then(function(){if(o.onSubmit)o.onSubmit(ans)});
     }
     if(o.demo){draw();return}
     fetch('/portal/api/onboarding',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){ans=j.answers||{};submitted=j.submitted;draw()}).catch(draw);
