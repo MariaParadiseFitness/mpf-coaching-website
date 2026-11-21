@@ -227,7 +227,7 @@ html,body{overflow-x:hidden}
       if(preview){cur.planReady=v;paintReady();return}
       fetch('/portal/api/coach/plan?id='+encodeURIComponent(id),{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({ready:v})}).then(function(r){if(!r.ok)throw 0;cur.planReady=v;paintReady();draw()}).catch(function(){alert('Not saved. Try again.')})};
     window.__obDoc=null;
-    if(isNew){$('pOb').innerHTML='<p style="color:var(--mute)">Loading…</p>';fetch('/portal/api/coach/onboarding?id='+encodeURIComponent(id),{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){window.__obDoc=j;$('pOb').innerHTML=MPFOnboard.answersHTML(j,cur.sex||'f');var w=j.answers&&j.answers.weight,wi=document.querySelector('#pTg [data-c=weight]');if(w&&wi&&!wi.value){wi.value=w;wi.dispatchEvent(new Event('input',{bubbles:true}))}})}
+    if(isNew){$('pOb').innerHTML='<p style="color:var(--mute)">Loading…</p>';fetch('/portal/api/coach/onboarding?id='+encodeURIComponent(id),{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){window.__obDoc=j;$('pOb').innerHTML=MPFOnboard.answersHTML(j,cur.sex||'f',cur.type);var w=j.answers&&j.answers.weight,wi=document.querySelector('#pTg [data-c=weight]');if(w&&wi&&!wi.value){wi.value=w;wi.dispatchEvent(new Event('input',{bubbles:true}))}})}
     window.__mp=MPFMeal.Editor($('pMp'),{id:id,name:cur.name.split(' ')[0],demo:preview});
     targetsEditor(id);
     MPFProgramme.Editor($('pPg'),{id:id,name:cur.name.split(' ')[0],demo:preview,demoDoc:MPFProgramme.demo});

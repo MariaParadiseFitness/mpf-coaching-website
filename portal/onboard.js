@@ -7,7 +7,7 @@
       {k:'fullname',l:'Full name',t:'text',req:1},
       {k:'dob',l:'Date of birth',t:'date',req:1},
       {k:'phone',l:'Mobile number',t:'text',im:'tel'},
-      {k:'emergency',l:'Emergency contact (name and number)',t:'text',req:1},
+      {k:'emergency',l:'Emergency contact (name and number)',t:'text',req:1,type:'pt'},
       {k:'job',l:'What do you do for work?',t:'text'},
       {k:'jobactivity',l:'How active is your job?',t:'choice',o:['Sitting most of the day','On my feet some of the day','On my feet most of the day','Physical job']},
       {k:'height',l:'Height (cm)',t:'num',req:1},
@@ -78,7 +78,7 @@
     ]}
   ];
 
-  function visible(q,sex){return !q.sex||q.sex===sex}
+  function visible(q,sex,type){return (!q.sex||q.sex===sex)&&(!q.type||q.type===type)}
   function input(q,v){
     var id='ob-'+q.k,n=' name="'+q.k+'" id="'+id+'"';
     if(q.t==='area')return '<textarea'+n+' rows="3">'+esc(v)+'</textarea>';
@@ -90,10 +90,10 @@
 
   /* client form */
   function Form(el,o){
-    o=o||{};var sex=o.sex||'f',ans={},submitted=null,timer;
+    o=o||{};var sex=o.sex||'f',type=o.type==='pt'?'pt':'online',ans={},submitted=null,timer;
     function draw(){
       el.innerHTML='<p class="ci-note" style="margin-bottom:14px">This tells me everything I need to build your calories, macros, meal plan and training. It takes about 10 minutes and saves as you go, so you can come back to it. Only Maria can see your answers.</p>'+
-        SECTIONS.map(function(s){var qs=s.q.filter(function(q){return visible(q,sex)});return '<fieldset class="ob-sec"><legend>'+s.i+' '+esc(s.t)+'</legend>'+(s.note?'<p class="ci-note">'+esc(s.note)+'</p>':'')+qs.map(function(q){return '<div class="ob-q" data-q="'+q.k+'"><label for="ob-'+q.k+'">'+esc(q.l)+(q.req?' <i>*</i>':'')+'</label>'+input(q,ans[q.k]||'')+'</div>'}).join('')+'</fieldset>'}).join('')+
+        SECTIONS.map(function(s){var qs=s.q.filter(function(q){return visible(q,sex,type)});return '<fieldset class="ob-sec"><legend>'+s.i+' '+esc(s.t)+'</legend>'+(s.note?'<p class="ci-note">'+esc(s.note)+'</p>':'')+qs.map(function(q){return '<div class="ob-q" data-q="'+q.k+'"><label for="ob-'+q.k+'">'+esc(q.l)+(q.req?' <i>*</i>':'')+'</label>'+input(q,ans[q.k]||'')+'</div>'}).join('')+'</fieldset>'}).join('')+
         '<div class="ci-btns"><span class="lg-msg" id="obMsg">'+(submitted?'Sent ✓ You can still update your answers.':'')+'</span><button class="btn" type="button" id="obSend">'+(submitted?'Update my answers':'Send my form to Maria')+'</button></div>';
       [].forEach.call(el.querySelectorAll('.ob-opts button'),function(b){b.onclick=function(){var k=b.parentNode.getAttribute('data-k');ans[k]=b.getAttribute('data-v');[].forEach.call(b.parentNode.children,function(x){x.classList.toggle('on',x===b)});later()}});
       el.oninput=function(e){var t=e.target;if(!t.name)return;ans[t.name]=t.type==='checkbox'?(t.checked?'Yes':''):t.value;later()};
@@ -107,7 +107,7 @@
       return fetch('/portal/api/onboarding',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({answers:ans,submit:submit})}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){submitted=j.submitted;m.textContent=submit?'Sent ✓ Thank you!':(submitted?'Saved ✓':'Saved. Send it when you are done.');m.className='lg-msg ok'}).catch(function(){m.textContent='Not saved. Check your signal.';m.className='lg-msg warn'});
     }
     function send(){
-      var missing=[];SECTIONS.forEach(function(s){s.q.forEach(function(q){if(q.req&&visible(q,sex)&&!String(ans[q.k]||'').trim())missing.push(q)})});
+      var missing=[];SECTIONS.forEach(function(s){s.q.forEach(function(q){if(q.req&&visible(q,sex,type)&&!String(ans[q.k]||'').trim())missing.push(q)})});
       [].forEach.call(el.querySelectorAll('.ob-q'),function(n){n.classList.toggle('miss',missing.some(function(q){return q.k===n.getAttribute('data-q')}))});
       if(missing.length){var m=el.querySelector('#obMsg');m.textContent='Please fill in the questions marked in red ('+missing.length+').';m.className='lg-msg warn';el.querySelector('.ob-q.miss').scrollIntoView({block:'center'});return}
       clearTimeout(timer);save(true).then(function(){if(o.onSubmit)o.onSubmit()});
@@ -117,12 +117,12 @@
   }
 
   /* coach: read-only answers */
-  function answersHTML(doc,sex){
+  function answersHTML(doc,sex,type){type=type==='pt'?'pt':'online';
     var a=(doc&&doc.answers)||{};
     if(!Object.keys(a).length)return '<p class="ci-note">They have not filled in their onboarding form yet.</p>';
     var flag=function(q,v){return (q.k.indexOf('pq')===0&&q.k!=='pqdetail'&&v==='Yes')||(q.k==='ed'&&v&&v!=='No')||(q.k==='pregnant'&&v&&v!=='No'&&v!=='Not applicable')};
     return '<p class="ci-note">'+(doc.submitted?'Sent '+new Date(doc.submitted).toLocaleString('en-GB',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'Started but <b>not sent yet</b>')+'</p>'+
-      SECTIONS.map(function(s){return '<details class="ci-card" open><summary><b>'+s.i+' '+esc(s.t)+'</b></summary><div class="ci-ans">'+s.q.filter(function(q){return visible(q,sex)}).map(function(q){var v=a[q.k];return '<div'+(flag(q,v)?' class="flag"':'')+'><b>'+esc(q.l)+'</b><p>'+(v?esc(v):'<i style="color:#6f6650">No answer</i>')+'</p></div>'}).join('')+'</div></details>'}).join('');
+      SECTIONS.map(function(s){return '<details class="ci-card" open><summary><b>'+s.i+' '+esc(s.t)+'</b></summary><div class="ci-ans">'+s.q.filter(function(q){return visible(q,sex,type)}).map(function(q){var v=a[q.k];return '<div'+(flag(q,v)?' class="flag"':'')+'><b>'+esc(q.l)+'</b><p>'+(v?esc(v):'<i style="color:#6f6650">No answer</i>')+'</p></div>'}).join('')+'</div></details>'}).join('');
   }
   window.MPFOnboard={Form:Form,answersHTML:answersHTML};
 })();
