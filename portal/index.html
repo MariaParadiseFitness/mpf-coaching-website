@@ -250,6 +250,12 @@ body.gated #topTabs{visibility:hidden}
     </div>
   </section>
 
+  <section data-view="today" id="targets">
+    <h2>My daily <em>targets.</em></h2>
+    <div class="sub">What to aim for each day. Maria updates these as you progress.</div>
+    <div class="pg-box" id="tgBox"><div class="pg-empty">Loading…</div></div>
+  </section>
+
   <!-- DAILY LOG -->
   <section data-view="today" id="log">
     <h2>My daily <em>log.</em></h2>
@@ -314,10 +320,10 @@ body.gated #topTabs{visibility:hidden}
     </div>
   </section>
 
-  <!-- SESSIONS (face to face only) -->
+  <!-- SESSIONS -->
   <section data-view="sessions" id="sessions" class="gone">
     <h2>My <em>sessions.</em></h2>
-    <div class="sub">Book, move or cancel your PT sessions with Maria at PureGym Charlton.</div>
+    <div class="sub" id="sessSub">Book, move or cancel your PT sessions with Maria at PureGym Charlton.</div>
     <div class="acts" style="margin-bottom:16px">
       <a class="act main" href="#bookNow"><span class="ic">📅</span><span><b>Book a session</b><span>Pick your times below</span></span></a>
       <a class="act" href="https://app.acuityscheduling.com/schedule.php?owner=38832646&amp;appointmentType=90953993" target="_blank" rel="noopener"><span class="ic">🗂️</span><span><b>My bookings</b><span>See, move or cancel sessions and check sessions left. Log in top right</span></span></a>
@@ -438,8 +444,9 @@ body.gated #topTabs{visibility:hidden}
     $('accType').textContent=(c.type==='pt'?'Face to face':'Online coaching')+' · check-in every '+day;
 
     // first-login setup checklist (saved to their account)
-    var pt=c.type==='pt';if(pt){STEPS=STEPS.filter(function(x){return !x.online});$('lNutri').hidden=true;
-      $('sessions').classList.remove('gone');[].forEach.call(document.querySelectorAll('.ptonly'),function(a){a.hidden=false});$('bnav').classList.add('six')}
+    var pt=c.type==='pt';if(pt){STEPS=STEPS.filter(function(x){return !x.online});$('lNutri').hidden=true}
+    $('sessions').classList.remove('gone');[].forEach.call(document.querySelectorAll('.ptonly'),function(a){a.hidden=false});$('bnav').classList.add('six');
+    if(!pt)$('sessSub').textContent='Want to train with Maria in person? Book a face to face session at PureGym Charlton.';
     STEPS.forEach(function(x){x.opt=pt&&!!x.ptOpt});
     var done={},ol=$('steps');
     STEPS.forEach(function(s,i){
@@ -569,6 +576,8 @@ body.gated #topTabs{visibility:hidden}
     ci=MPFLog.CheckIn($('ciBox'),{onState:dueState,demo:demo,today:today,day:day,email:email,getDays:log.days,photoCount:function(){return window.__phN==null?null:window.__phN},
       demoQuestions:["What were this week's biggest wins/achievements?","Any comments on stress levels and management techniques?","How was gym performance this week?","How was recovery in general this week?","Number of weeks on current training set-up.","Number of weeks since deload.","Number of weeks in current phase (cut/bulk/maintenance).","Is there anything you struggled with this week?","Are there any areas you want to improve next week?","Is there anything you would like me to run through for you?"]});
     window.__ci=ci;
+    if(demo){var dt={cals:'1,800',protein:'150',carbs:'180',fat:'55',steps:'10,000',water:'3',cardio:'2 x 20',sleep:'8',notes:'Hit your protein first, then fit carbs and fats around it.',updated:new Date().toISOString()};$('tgBox').innerHTML=MPFLog.targetsHTML(dt);log.setTargets(dt)}
+    else fetch('/portal/api/targets',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){$('tgBox').innerHTML=MPFLog.targetsHTML(j.targets);log.setTargets(j.targets)}).catch(function(){$('tgBox').innerHTML=MPFLog.targetsHTML(null)});
     $('ciSub').textContent='Every '+day+': upload your photos, check your week\'s numbers, answer the questions and send.';
     if(demo){weightsAll=[];mergeDays(demoDays)}
     else{fetch('/portal/api/weights',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){var keep=weightsAll;weightsAll=j.weights||[];if(keep.length){var m={};weightsAll.concat(keep).forEach(function(w){m[w.date]=w.kg});weightsAll=Object.keys(m).sort().map(function(d){return {date:d,kg:m[d]}})}redrawChart()}).catch(redrawChart)}

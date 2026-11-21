@@ -60,7 +60,7 @@
       if(f.t==='yn')return '<div class="lg-f" data-k="'+f.k+'">'+lab.replace('<label for="'+id+'"','<label')+'<div class="lg-yn" data-k="'+f.k+'"><button type="button" data-v="Yes">Yes</button><button type="button" data-v="No">No</button></div></div>';
       if(f.t==='area')return '<div class="lg-f lg-wide">'+lab+'<textarea id="'+id+'" name="'+f.k+'" rows="3" placeholder="'+esc(f.ph||'')+'"></textarea></div>';
       var type=f.t==='time'?'time':'text',im=f.t==='num'?' inputmode="decimal"':'';
-      return '<div class="lg-f"'+(f.if?' data-if="'+f.if+'"':'')+'>'+lab+'<input id="'+id+'" name="'+f.k+'" type="'+type+'"'+im+' placeholder="'+esc(f.ph||'')+'">'+(f.h?'<small>'+esc(f.h)+'</small>':'')+'</div>';
+      return '<div class="lg-f"'+(f.if?' data-if="'+f.if+'"':'')+'>'+lab+'<input id="'+id+'" name="'+f.k+'" type="'+type+'"'+im+' placeholder="'+esc(f.ph||'')+'">'+(f.h?'<small>'+esc(f.h)+'</small>':'')+'<small class="tg" data-tk="'+f.k+'" hidden></small></div>';
     }
     var keep=function(f){return !f.sex||f.sex===o.sex};
     form.innerHTML=GROUPS.map(function(g){return '<fieldset><legend>'+g.i+' '+esc(g.g)+'</legend><div class="lg-grid">'+g.f.filter(keep).map(field).join('')+'</div></fieldset>'}).join('');
@@ -101,7 +101,11 @@
     function load(d){days=d||{};fill();if(o.onSaved)o.onSaved(days)}
     if(demo)load(o.demoDays||{});
     else api('/portal/api/log?from='+fromT(toT(today)-60*DAY)+'&to='+today).then(function(j){if(j.today&&j.today!==today){today=j.today;cur=today}load(j.days)}).catch(function(){load({})});
-    return {days:function(){return days}};
+    function setTargets(t){
+      t=t||{};var U={cals:' kcal',protein:' g',carbs:' g',fat:' g',water:' L',cardio:' mins',sleep:' hrs'};
+      [].forEach.call(form.querySelectorAll('.tg'),function(n){var k=n.getAttribute('data-tk'),v=t[k];n.hidden=!v;if(v)n.textContent='🎯 Target: '+v+(/[a-z]/i.test(v)?'':(U[k]||''))});
+    }
+    return {days:function(){return days},setTargets:setTargets};
   }
 
   /* ---------------- weekly check-in (client) ---------------- */
@@ -170,6 +174,11 @@
     return ds.map(function(d,n){var c=all[d];return '<details class="ci-card"'+(n===0?' open':'')+'><summary><b>Week ending '+nice(d,{weekday:'short'})+'</b><span>Sent '+new Date(c.at).toLocaleString('en-GB',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})+'</span></summary>'+statsHTML(c.stats||{daysLogged:0})+'<div class="ci-ans">'+(c.questions||[]).map(function(q,i){return '<div><b>'+(i+1)+'. '+esc(q)+'</b><p>'+(esc(c.answers[i])||'<i>No answer</i>')+'</p></div>'}).join('')+'</div></details>'}).join('');
   }
 
-  window.MPFLog={Today:Today,CheckIn:CheckIn,logTable:logTable,checkinList:checkinList,weekStats:weekStats,londonToday:londonToday,fromT:fromT,toT:toT,nice:nice,
+    function targetsHTML(t){
+    if(!t||!Object.keys(t).some(function(k){return k!=='updated'}))return '<div class="pg-empty">Your daily targets will appear here once Maria has set them.</div>';
+    var L=[['cals','Calories','kcal'],['protein','Protein','g'],['carbs','Carbs','g'],['fat','Fat','g'],['steps','Steps',''],['water','Water','L'],['cardio','Cardio','mins'],['sleep','Sleep','hrs']];
+    return '<div class="lg-stats tgt">'+L.filter(function(x){return t[x[0]]}).map(function(x){var v=t[x[0]];return '<div><small>'+x[1]+'</small><b>'+esc(v)+'</b>'+(x[2]&&!/[a-z]/i.test(v)?'<span>'+x[2]+'</span>':'')+'</div>'}).join('')+'</div>'+(t.notes?'<div class="pg-note">'+esc(t.notes)+'</div>':'')+(t.updated?'<p class="pg-key">Set by Maria · updated '+new Date(t.updated).toLocaleDateString('en-GB',{day:'numeric',month:'long'})+'</p>':'');
+  }
+  window.MPFLog={targetsHTML:targetsHTML,Today:Today,CheckIn:CheckIn,logTable:logTable,checkinList:checkinList,weekStats:weekStats,londonToday:londonToday,fromT:fromT,toT:toT,nice:nice,
     demoDays:function(today,n){var o={},b=74.2;for(var i=n;i>=1;i--){if(i%5===3)continue;var d=fromT(toT(today)-i*DAY);b-=0.04;o[d]={weight:(b+Math.sin(i)*0.4).toFixed(1),steps:String(8000+Math.round(Math.cos(i)*2500)),protein:String(140+i%20),carbs:'180',fat:'55',sleep:'7:'+(10+i%40),trained:i%2?'Yes':'No',energy:String(6+i%4),mood:'8',stress:String(3+i%3),hunger:'5',adherence:'9',_at:'x'}}return o}};
 })();

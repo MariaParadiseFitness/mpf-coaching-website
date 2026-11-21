@@ -109,3 +109,5 @@ table.lt th:first-child,table.lt td:first-child{position:sticky;left:0;z-index:1
 table.lt th:first-child{background:#1d1b15;z-index:2}
 table.lt tr.miss td{font-style:italic;font-size:12px;padding-top:5px;padding-bottom:5px}
 table.lt tr.miss td:first-child{font-style:normal}
+.lg-f small.tg{color:var(--gold-l);font-weight:600}
+.lg-stats.tgt b{font-size:22px}

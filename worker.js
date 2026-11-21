@@ -293,6 +293,18 @@ function cleanProgrammes(doc) {
   return { current, programmes };
 }
 
+// ---- daily targets set by the coach: _data/<id>/targets.json ----
+const TARGET_KEYS = ["cals", "protein", "carbs", "fat", "steps", "water", "cardio", "sleep", "notes"];
+function cleanTargets(t) {
+  const out = {};
+  for (const k of TARGET_KEYS) {
+    const v = String((t && t[k]) == null ? "" : t[k]).trim().slice(0, k === "notes" ? 1500 : 40);
+    if (v) out[k] = v;
+  }
+  out.updated = new Date().toISOString();
+  return out;
+}
+
 async function handleApi(request, env, url) {
   const w = await who(request, env);
   if (w instanceof Response) return w;
@@ -469,6 +481,11 @@ async function handleApi(request, env, url) {
     return json({ ...st, skip: client.onboarded === true });
   }
 
+  if (path === "/portal/api/targets") {
+    if (!client) return json({ error: "unknown" }, 403);
+    return json({ targets: await getJSON(env, `${dkey(client.id)}/targets.json`, null) });
+  }
+
   // ---- coach ----
   if (path === "/portal/api/coach/clients") {
     if (!coach) return json({ error: "forbidden" }, 403);
@@ -618,6 +635,26 @@ async function handleApi(request, env, url) {
       return json({ ok: true, count: Object.keys(clean).length });
     }
     return json({ roster: await getJSON(env, "_data/_roster.json", {}), secret: Object.keys(JSON.parse(env.PORTAL_CLIENTS || "{}")) });
+  }
+
+  if (path === "/portal/api/coach/targets") {
+    if (!coach) return json({ error: "forbidden" }, 403);
+    const id = (url.searchParams.get("id") || "").toLowerCase();
+    const c = Object.values(r).find((x) => x.id === id);
+    if (!c) return json({ error: "unknown" }, 404);
+    const key = `${dkey(c.id)}/targets.json`;
+    if (request.method === "POST") {
+      const t = cleanTargets(await request.json().catch(() => ({})));
+      const old = await getJSON(env, key, null);
+      if (old) {
+        const hist = await getJSON(env, `${dkey(c.id)}/targets-history.json`, []);
+        hist.push(old);
+        await putJSON(env, `${dkey(c.id)}/targets-history.json`, hist.slice(-50));
+      }
+      await putJSON(env, key, t);
+      return json({ ok: true, targets: t });
+    }
+    return json({ targets: await getJSON(env, key, null) });
   }
   if (path === "/portal/api/coach/templates") {
     if (!coach) return json({ error: "forbidden" }, 403);
