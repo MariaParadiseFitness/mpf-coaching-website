@@ -133,6 +133,7 @@ html,body{overflow-x:hidden}
   </div>
   <div style="margin-bottom:16px"><button class="btn g" type="button" id="tplBtn">📋 Programme templates</button> <button class="btn g" type="button" id="mtplBtn">🥗 Meal plan templates</button></div>
   <div class="panel" id="tplPanel" hidden><div class="ph-head"><div><div class="kick">Your library</div><h2>Programme <em>templates.</em></h2><div class="sub" style="margin:4px 0 0">Build programmes once here, then copy them into any client from their Programmes tab with <b>+ From a template</b>.</div></div><button class="btn g" id="tplClose" type="button">Close</button></div><div id="tplEd"></div></div>
+  <input id="cSearch" type="search" placeholder="🔍 Search clients by name" autocomplete="off" style="width:100%;box-sizing:border-box;background:#0e0e0e;border:1px solid rgba(201,166,75,.35);border-radius:12px;color:#fff;font:inherit;font-size:16px;padding:11px 14px;margin:0 0 10px;outline:none">
   <div class="filters" id="fType"><button class="on" data-t="all">Everyone</button><button data-t="online">Online</button><button data-t="pt">Face to face</button></div>
   <div class="filters"><button class="on" data-f="active">Active</button><button data-f="all">All</button><button data-f="inactive">Inactive</button></div>
   <table><thead><tr><th>Client</th><th>Check-in</th><th>Daily log</th><th class="hide-m">Photos</th><th class="hide-m">Weight</th></tr></thead><tbody id="rows"></tbody></table>
@@ -191,7 +192,7 @@ html,body{overflow-x:hidden}
     return '<a class="btn g" style="padding:8px 12px" target="_blank" rel="noopener" href="https://wa.me/'+esc(c.phone||'')+'?text='+encodeURIComponent(txt)+'">Remind</a>';
   }
   function draw(){
-    var pool=clients.filter(function(c){return tfilter==='all'||c.type===tfilter}),act=pool.filter(function(c){return c.active});
+    var qv=(document.getElementById('cSearch')||{}).value||'';qv=qv.trim().toLowerCase();var pool=clients.filter(function(c){return (tfilter==='all'||c.type===tfilter)&&(!qv||(c.name||'').toLowerCase().indexOf(qv)>-1)}),act=pool.filter(function(c){return c.active});
     $('sActive').textContent=act.length;
     $('sDone').textContent=act.filter(function(c){return c.check&&c.check.done}).length;
     $('sWait').textContent=act.filter(function(c){return c.check&&(c.check.dueToday||c.check.late)}).length;
@@ -203,6 +204,7 @@ html,body{overflow-x:hidden}
     }).join('')||'<tr><td colspan="5" style="text-align:center">No clients here yet.</td></tr>';
     [].forEach.call(document.querySelectorAll('tr.row'),function(tr){tr.onclick=function(e){if(e.target.closest('a'))return;open(tr.getAttribute('data-id'))}});
   }
+  document.getElementById('cSearch').oninput=function(){draw()};
   [].forEach.call(document.querySelectorAll('#fType button'),function(b){b.onclick=function(){[].forEach.call(document.querySelectorAll('#fType button'),function(x){x.classList.remove('on')});b.classList.add('on');tfilter=b.getAttribute('data-t');draw()}});
   [].forEach.call(document.querySelectorAll('#pTabs button'),function(b){b.onclick=function(){[].forEach.call(document.querySelectorAll('#pTabs button'),function(x){x.classList.remove('on')});b.classList.add('on');var p=b.getAttribute('data-p');$('pCi').hidden=p!=='ci';$('pLog').hidden=p!=='log';$('pPg').hidden=p!=='pg';$('pTg').hidden=p!=='tg';$('pOb').hidden=p!=='ob';$('pMp').hidden=p!=='mp';$('pPh').hidden=p!=='ph'}});
   [].forEach.call(document.querySelectorAll('.filters button[data-f]'),function(b){b.onclick=function(){[].forEach.call(document.querySelectorAll('.filters button[data-f]'),function(x){x.classList.remove('on')});b.classList.add('on');filter=b.getAttribute('data-f');draw()}});
