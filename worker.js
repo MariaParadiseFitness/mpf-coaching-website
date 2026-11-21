@@ -266,8 +266,9 @@ function checkinStatus(c, s, today) {
   if (ci[next]) return { due: next, done: true, day };
   if (ci[due]) return { due, done: true, day };
   if (due === today) return { due, done: false, dueToday: true, day };
+  if (c.start && due < c.start) return { due: next, done: false, upcoming: true, missed: null, day };
   if ((toT(today) - toT(due)) / DAY_MS <= 3) return { due, done: false, late: true, day };
-  return { due: next, done: false, upcoming: true, missed: due, day };
+  return { due: next, done: false, upcoming: true, missed: c.start && due < c.start ? null : due, day };
 }
 
 // ---- training programmes: _data/<id>/programmes.json  {current:"<pid>", programmes:[{id,title,notes,workouts,created,updated}]} ----
@@ -302,6 +303,39 @@ function cleanTargets(t) {
     if (v) out[k] = v;
   }
   out.updated = new Date().toISOString();
+  return out;
+}
+
+// ---- meal plans: _data/<id>/mealplans.json {current, plans:[{id,title,notes,created,updated,days:[{name,notes,meals:[{name,notes,foods:[...]}]}]}]} ----
+function cleanMealplans(doc) {
+  const str = (v, n) => String(v == null ? "" : v).trim().slice(0, n);
+  const numS = (v) => { const x = parseFloat(String(v == null ? "" : v).replace(/,/g, "")); return isNaN(x) ? "" : String(Math.round(x * 10) / 10); };
+  const now = new Date().toISOString();
+  const plans = (Array.isArray(doc && doc.plans) ? doc.plans : []).slice(0, 30).map((p) => ({
+    id: str(p.id, 40).replace(/[^a-z0-9]/gi, "") || Math.random().toString(36).slice(2, 10),
+    title: str(p.title, 80) || "Meal plan", notes: str(p.notes, 3000),
+    created: str(p.created, 30) || now, updated: str(p.updated, 30) || now,
+    days: (Array.isArray(p.days) ? p.days : []).slice(0, 7).map((d) => ({
+      name: str(d.name, 60) || "Day", notes: str(d.notes, 1500),
+      meals: (Array.isArray(d.meals) ? d.meals : []).slice(0, 10).map((m) => ({
+        name: str(m.name, 60) || "Meal", notes: str(m.notes, 800),
+        foods: (Array.isArray(m.foods) ? m.foods : []).slice(0, 20).map((f) => ({
+          food: str(f.food, 80), amount: numS(f.amount), unit: str(f.unit, 20),
+          kcal: numS(f.kcal), p: numS(f.p), c: numS(f.c), f: numS(f.f),
+        })).filter((f) => f.food),
+      })),
+    })),
+  }));
+  const current = plans.some((p) => p.id === doc.current) ? doc.current : (plans[0] ? plans[0].id : "");
+  return { current, plans };
+}
+function cleanForm(body) {
+  const out = {};
+  let n = 0;
+  for (const [k, v] of Object.entries(body || {})) {
+    if (!/^[a-z0-9_]{1,30}$/i.test(k) || n++ > 120) continue;
+    out[k] = Array.isArray(v) ? v.slice(0, 20).map((x) => String(x).slice(0, 200)) : String(v == null ? "" : v).slice(0, 3000);
+  }
   return out;
 }
 
@@ -486,6 +520,27 @@ async function handleApi(request, env, url) {
     return json({ targets: await getJSON(env, `${dkey(client.id)}/targets.json`, null) });
   }
 
+  // ---- onboarding form, plan status, meal plans (client) ----
+  if (path === "/portal/api/onboarding") {
+    if (!client) return json({ error: "unknown" }, 403);
+    const key = `${dkey(client.id)}/onboarding.json`;
+    if (request.method === "POST") {
+      const b = await request.json().catch(() => ({}));
+      const doc = { answers: cleanForm(b.answers), submitted: b.submit === true ? new Date().toISOString() : ((await getJSON(env, key, {})).submitted || null), updated: new Date().toISOString() };
+      await putJSON(env, key, doc);
+      return json({ ok: true, ...doc });
+    }
+    return json(await getJSON(env, key, { answers: {}, submitted: null }));
+  }
+  if (path === "/portal/api/plan") {
+    if (!client) return json({ error: "unknown" }, 403);
+    return json(await getJSON(env, `${dkey(client.id)}/plan.json`, { ready: client.onboarded === true }));
+  }
+  if (path === "/portal/api/mealplans") {
+    if (!client) return json({ error: "unknown" }, 403);
+    return json(await getJSON(env, `${dkey(client.id)}/mealplans.json`, { current: "", plans: [] }));
+  }
+
   // ---- coach ----
   if (path === "/portal/api/coach/clients") {
     if (!coach) return json({ error: "forbidden" }, 403);
@@ -510,6 +565,8 @@ async function handleApi(request, env, url) {
         lastLog: logged[logged.length - 1] || "", loggedWeek: logged.filter((d) => d >= weekAgo && d <= today).length,
         lastWeight: wts.length ? wts[wts.length - 1] : null, check: checkinStatus(c, sm, today),
         setup: setup.skip ? { done: true } : { done: !!setup.completed, n: Object.keys(setup.done || {}).length },
+        form: c.onboarded === true ? null : !!(await getJSON(env, `${dkey(c.id)}/onboarding.json`, {})).submitted,
+        planReady: c.onboarded === true ? true : !!(await getJSON(env, `${dkey(c.id)}/plan.json`, {})).ready,
         active: c.active !== false, week, tracker: c.tracker || "", folder: c.folder || "",
         photosThisWeek: [...new Set(thisWeek)], lastUpload: photos.reduce((m, p) => (p.uploaded > m ? p.uploaded : m), ""),
         photoCount: photos.length,
@@ -655,6 +712,45 @@ async function handleApi(request, env, url) {
       return json({ ok: true, targets: t });
     }
     return json({ targets: await getJSON(env, key, null) });
+  }
+
+  if (path === "/portal/api/coach/onboarding" || path === "/portal/api/coach/plan" || path === "/portal/api/coach/mealplans") {
+    if (!coach) return json({ error: "forbidden" }, 403);
+    const id = (url.searchParams.get("id") || "").toLowerCase();
+    const c = Object.values(r).find((x) => x.id === id);
+    if (!c) return json({ error: "unknown" }, 404);
+    if (path === "/portal/api/coach/onboarding") return json(await getJSON(env, `${dkey(c.id)}/onboarding.json`, { answers: {}, submitted: null }));
+    if (path === "/portal/api/coach/plan") {
+      const key = `${dkey(c.id)}/plan.json`;
+      if (request.method === "POST") {
+        const b = await request.json().catch(() => ({}));
+        const doc = { ready: b.ready === true, at: new Date().toISOString() };
+        await putJSON(env, key, doc);
+        return json({ ok: true, ...doc });
+      }
+      return json(await getJSON(env, key, { ready: c.onboarded === true }));
+    }
+    const key = `${dkey(c.id)}/mealplans.json`;
+    if (request.method === "POST") {
+      const doc = cleanMealplans(await request.json().catch(() => ({})));
+      const old = await getJSON(env, key, null);
+      if (old) await putJSON(env, `${dkey(c.id)}/mealplans-backup/${Date.now()}.json`, old);
+      await putJSON(env, key, doc);
+      return json({ ok: true, ...doc });
+    }
+    return json(await getJSON(env, key, { current: "", plans: [] }));
+  }
+  if (path === "/portal/api/coach/mealtemplates") {
+    if (!coach) return json({ error: "forbidden" }, 403);
+    const key = `${dkey("_templates")}/mealplans.json`;
+    if (request.method === "POST") {
+      const doc = cleanMealplans(await request.json().catch(() => ({})));
+      const old = await getJSON(env, key, null);
+      if (old) await putJSON(env, `${dkey("_templates")}/meal-backup/${Date.now()}.json`, old);
+      await putJSON(env, key, doc);
+      return json({ ok: true, ...doc });
+    }
+    return json(await getJSON(env, key, { current: "", plans: [] }));
   }
   if (path === "/portal/api/coach/templates") {
     if (!coach) return json({ error: "forbidden" }, 403);

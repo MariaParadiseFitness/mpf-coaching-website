@@ -170,6 +170,7 @@ footer{text-align:center;color:#7d735c;font-size:12px;padding:20px}
 @media(max-width:600px){.wc-stats b{font-size:17px}}
 
 /* app layout */
+.due.plan{background:linear-gradient(120deg,#1d1b15,#2a2315);color:var(--gold-l);border:1px solid var(--gold-l);box-shadow:none}
 .bk-frame{border-radius:20px;overflow:hidden;border:1px solid rgba(214,184,100,.7);background:#fff;margin-top:12px}
 .bk-frame iframe{display:block;width:100%;height:1100px;border:0}
 .bnav.six{grid-template-columns:repeat(6,1fr)}.bnav.six a{font-size:9.5px}
@@ -235,8 +236,15 @@ body.gated #topTabs{visibility:hidden}
     </div>
   </div>
   <a class="due" id="dueBanner" href="#checkin" data-view="today" hidden></a>
+  <div class="due plan" id="planBanner" data-view="today" hidden></div>
   <div class="due" id="welcome" data-view="today" hidden>🎉 You're all set up! Start with today's log below. Your weight goes in first thing each morning.</div>
   <a class="due back" id="backSetup" href="#start" hidden>← Back to my checklist</a>
+
+<section data-view="onboard" id="onboard">
+    <h2>Your onboarding <em>form.</em></h2>
+    <div class="sub">Everything Maria needs to build your plan.</div>
+    <div class="ci" id="obBox"><div class="wc-empty">Loading…</div></div>
+  </section>
 
 <section data-view="setup" id="start">
     <div class="start" id="startBox">
@@ -254,6 +262,12 @@ body.gated #topTabs{visibility:hidden}
     <h2>My daily <em>targets.</em></h2>
     <div class="sub">What to aim for each day. Your coach sets these and updates them as you progress.</div>
     <div class="pg-box" id="tgBox"><div class="pg-empty">Loading…</div></div>
+  </section>
+
+  <section data-view="today" id="meals">
+    <h2>My meal <em>plan.</em></h2>
+    <div class="sub">Built by your coach to hit your targets. Tap a day if you have more than one.</div>
+    <div class="pg-box" id="mpBox"><div class="pg-empty">Loading…</div></div>
   </section>
 
   <!-- DAILY LOG -->
@@ -383,6 +397,8 @@ body.gated #topTabs{visibility:hidden}
 <script src="/portal/chart.js"></script>
 <script src="/portal/log.js"></script>
 <script src="/portal/programme.js"></script>
+<script src="/portal/onboard.js"></script>
+<script src="/portal/mealplan.js"></script>
 <script>
 (function(){
   var $=function(id){return document.getElementById(id)};
@@ -391,7 +407,7 @@ body.gated #topTabs{visibility:hidden}
   var preview=/[?&]preview\b/.test(location.search);
 
   var STEPS=[
-    {key:'parq',t:'Fill in your PAR-Q',d:'A short health questionnaire so I know about any injuries or health needs before I build your plan.',l:'https://forms.gle/74SR76bEd5uwhhUH8',lt:'Open PAR-Q'},
+    {key:'form',t:'Fill in your onboarding form',d:'Your health questions (PAR-Q), medical history, goals, training and food. This is everything I need to work out your calories and macros and build your meal plan and training. About 10 minutes, and it saves as you go.',l:'#onboard',lt:'Open my form'},
     {key:'mfp',t:'Download a calorie counter',d:'MyFitnessPal, or any other calorie counting app you like. Use it to track your food, then add your daily totals to your daily log here in the portal.'},
     {key:'kit',t:'Get your kit together',d:'Kitchen scales, bodyweight scales, a tape measure and a step counter you wear on your wrist, like a Fitbit or smartwatch. Your phone isn\'t accurate enough as it\'s not always on you.'},
     {key:'avatar',t:'Add your profile photo',d:'A photo of your face for your account, so your portal feels like yours.',av:true,lt:'Add my photo'},
@@ -405,7 +421,7 @@ body.gated #topTabs{visibility:hidden}
   // screens: Today, Check-in, Progress, Training, More
   function firstOf(v){return document.querySelector('[data-view="'+v+'"]:not(.gone):not([hidden])')}
   function go(id,noScroll){
-    if(window.__gated&&['start','photos','support'].indexOf(id)<0)id='start';
+    if(window.__gated&&['start','photos','support','onboard'].indexOf(id)<0)id='start';
     if(id==='sessions'&&$('sessions').classList.contains('gone'))id='log';
     $('app').classList.add('ready');
     var t=document.getElementById(id)||document.getElementById('log'),host=t.closest('[data-view]'),v=host?host.getAttribute('data-view'):'today';
@@ -573,9 +589,17 @@ body.gated #topTabs{visibility:hidden}
     }
     var today=meta.today||MPFLog.londonToday(),demoDays=demo?MPFLog.demoDays(today,70):null,ci;
     var log=MPFLog.Today($('logBox'),{demo:demo,demoDays:demoDays,today:today,sex:c.sex,onSaved:function(days){mergeDays(days);if(ci)ci.refresh()}});
-    ci=MPFLog.CheckIn($('ciBox'),{onState:dueState,demo:demo,today:today,day:day,email:email,getDays:log.days,photoCount:function(){return window.__phN==null?null:window.__phN},
+    ci=MPFLog.CheckIn($('ciBox'),{onState:dueState,start:c.start,demo:demo,today:today,day:day,email:email,getDays:log.days,photoCount:function(){return window.__phN==null?null:window.__phN},
       demoQuestions:["What were this week's biggest wins/achievements?","Any comments on stress levels and management techniques?","How was gym performance this week?","How was recovery in general this week?","Number of weeks on current training set-up.","Number of weeks since deload.","Number of weeks in current phase (cut/bulk/maintenance).","Is there anything you struggled with this week?","Are there any areas you want to improve next week?","Is there anything you would like me to run through for you?"]});
     window.__ci=ci;
+    MPFOnboard.Form($('obBox'),{demo:demo,sex:c.sex,onSubmit:function(){if(window.__tick)window.__tick('form',true);setTimeout(function(){history.pushState(null,'','#start');go('start')},900)}});
+    var showPlan=function(p){var b=$('planBanner');if(!p||p.ready===undefined){b.hidden=true;return}
+      if(!p.ready){b.hidden=false;b.innerHTML='✨ Maria is building your plan: your calories, macros, meal plan and training. You will see a banner here when it is ready. Keep logging your days in the meantime.'}
+      else if(p.at&&Date.now()-Date.parse(p.at)<14*864e5){b.hidden=false;b.innerHTML='🎉 Your plan is ready! Your targets and meal plan are below, and your training is under Training. Book your nutrition lesson so I can talk you through it.'}
+      else b.hidden=true};
+    if(demo){showPlan({ready:true,at:new Date().toISOString()});MPFMeal.View($('mpBox'),{current:'d',plans:[{id:'d',title:'Fat loss plan',notes:'Drink 3L of water a day.',updated:new Date().toISOString(),days:[{name:'Every day',meals:[{name:'Breakfast',foods:[{food:'Egg Whites',amount:'200',unit:'g',kcal:'86',p:'21.6',c:'0',f:'0'},{food:'Oats',amount:'40',unit:'g',kcal:'150',p:'5',c:'26',f:'3'}]},{name:'Lunch',foods:[{food:'Chicken Breast (Cooked)',amount:'150',unit:'g',kcal:'218',p:'48',c:'0',f:'2.9'},{food:'Jasmine Rice (dry)',amount:'60',unit:'g',kcal:'210',p:'4.6',c:'46.8',f:'0.5'}]}]}]}]})}
+    else{fetch('/portal/api/plan',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(showPlan).catch(function(){});
+      fetch('/portal/api/mealplans',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){MPFMeal.View($('mpBox'),j)}).catch(function(){MPFMeal.View($('mpBox'),null)})}
     if(demo){var dt={cals:'1,800',protein:'150',carbs:'180',fat:'55',steps:'10,000',water:'3',cardio:'2 x 20',sleep:'8',notes:'Hit your protein first, then fit carbs and fats around it.',updated:new Date().toISOString()};$('tgBox').innerHTML=MPFLog.targetsHTML(dt);log.setTargets(dt)}
     else fetch('/portal/api/targets',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){$('tgBox').innerHTML=MPFLog.targetsHTML(j.targets);log.setTargets(j.targets)}).catch(function(){$('tgBox').innerHTML=MPFLog.targetsHTML(null)});
     $('ciSub').textContent='Every '+day+': upload your photos, check your week\'s numbers, answer the questions and send.';

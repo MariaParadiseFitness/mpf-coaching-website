@@ -89,6 +89,33 @@ td b{color:#fff;font-size:15px}
 .wc-empty{color:var(--mute);font-size:14px;padding:20px 4px;text-align:center}
 @media(max-width:600px){.wc-stats b{font-size:17px}}
 .cav{width:34px;height:34px;border-radius:50%;object-fit:cover;float:left;margin:2px 10px 0 0;border:1.5px solid var(--gold)}
+
+/* phone layout */
+html,body{overflow-x:hidden}
+.filters{overflow-x:auto;scrollbar-width:none;flex-wrap:nowrap}
+.filters::-webkit-scrollbar{display:none}
+.filters button{flex:0 0 auto;white-space:nowrap}
+@media(max-width:820px){
+  .wrap{padding:20px 14px 60px}
+  table,tbody{display:block;width:100%}
+  thead{display:none}
+  tr.row{display:grid;grid-template-columns:1fr auto;gap:6px 10px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 14px;margin-bottom:10px}
+  tr.row td{display:block;background:none;border:0!important;padding:0;border-radius:0!important}
+  tr.row td:first-child{grid-column:1/-1}
+  tr.row td.hide-m{display:none}
+  .cav{width:30px;height:30px}
+  .panel{position:fixed;inset:0;z-index:40;margin:0;border-radius:0;border:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 14px 40px;background:#0e0e0e}
+  .panel .ph-head{position:sticky;top:0;z-index:5;background:rgba(14,14,14,.96);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:14px 0 10px;margin:0 -14px 12px;padding-left:14px;padding-right:14px;border-bottom:1px solid var(--line);flex-wrap:nowrap;align-items:center}
+  .panel .ph-head h2{font-size:22px}
+  .sum{grid-template-columns:1fr 1fr;gap:8px}
+  .sum b{font-size:24px}
+}
+.calc-h{font-family:var(--serif);color:#fff;font-size:19px;margin-bottom:10px}
+.lg-f select{width:100%;background:#0e0e0e;border:1px solid var(--line);border-radius:12px;color:#fff;font:inherit;font-size:16px;padding:11px 12px}
+.calc-sum{font-size:13px;color:var(--soft);margin:12px 0 8px}.calc-sum b{color:#fff}
+.calc-day{display:flex;gap:12px;flex-wrap:wrap;align-items:baseline;background:#0e0e0e;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:6px;font-size:14px}
+.calc-day b{color:var(--gold-l);min-width:110px}.calc-day span{color:#fff}
+.ci-ans .flag{background:rgba(217,72,59,.12);border-radius:8px;padding:10px}
 </style>
 </head>
 <body>
@@ -104,7 +131,7 @@ td b{color:#fff;font-size:15px}
     <div><small>Check-ins waiting</small><b id="sWait">0</b></div>
     <div><small>Logged today</small><b id="sLog">0</b></div>
   </div>
-  <div style="margin-bottom:16px"><button class="btn g" type="button" id="tplBtn">📋 Programme templates</button></div>
+  <div style="margin-bottom:16px"><button class="btn g" type="button" id="tplBtn">📋 Programme templates</button> <button class="btn g" type="button" id="mtplBtn">🥗 Meal plan templates</button></div>
   <div class="panel" id="tplPanel" hidden><div class="ph-head"><div><div class="kick">Your library</div><h2>Programme <em>templates.</em></h2><div class="sub" style="margin:4px 0 0">Build programmes once here, then copy them into any client from their Programmes tab with <b>+ From a template</b>.</div></div><button class="btn g" id="tplClose" type="button">Close</button></div><div id="tplEd"></div></div>
   <div class="filters" id="fType"><button class="on" data-t="all">Everyone</button><button data-t="online">Online</button><button data-t="pt">Face to face</button></div>
   <div class="filters"><button class="on" data-f="active">Active</button><button data-f="all">All</button><button data-f="inactive">Inactive</button></div>
@@ -113,13 +140,15 @@ td b{color:#fff;font-size:15px}
   <div class="panel" id="panel" hidden>
     <div class="ph-head">
       <div><div class="kick" id="pKick">Client</div><h2 id="pName">Client</h2></div>
-      <button class="btn g" id="closeBtn" type="button">Close</button>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end"><button class="btn" id="readyBtn" type="button" hidden>Plan ready</button><button class="btn g" id="closeBtn" type="button">Close</button></div>
     </div>
     <div class="wc" id="wChart" style="margin-bottom:18px"></div>
-    <div class="filters" id="pTabs"><button class="on" data-p="ci">Check-ins</button><button data-p="log">Daily log</button><button data-p="tg">Targets</button><button data-p="pg">Programmes</button><button data-p="ph">Photos</button></div>
+    <div class="filters" id="pTabs"><button data-p="ob">Onboarding</button><button class="on" data-p="ci">Check-ins</button><button data-p="log">Daily log</button><button data-p="tg">Targets</button><button data-p="mp">Meal plan</button><button data-p="pg">Programmes</button><button data-p="ph">Photos</button></div>
     <div id="pCi"></div>
     <div id="pLog" hidden></div>
     <div id="pPg" hidden></div>
+    <div id="pOb" hidden></div>
+    <div id="pMp" hidden></div>
     <div id="pTg" hidden></div>
     <div id="pPh" hidden>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px"><button class="btn" id="cmpBtn" type="button">Compare 2 weeks</button><button class="btn g" id="dlBtn" type="button">Download all</button></div>
@@ -134,6 +163,10 @@ td b{color:#fff;font-size:15px}
 <script src="/portal/chart.js"></script>
 <script src="/portal/log.js"></script>
 <script src="/portal/programme.js"></script>
+<script src="/portal/calc.js"></script>
+<script src="/portal/onboard.js"></script>
+<script src="/portal/foods.js"></script>
+<script src="/portal/mealplan.js"></script>
 <script>
 (function(){
   var $=function(i){return document.getElementById(i)};
@@ -165,12 +198,12 @@ td b{color:#fff;font-size:15px}
     var list=pool.filter(function(c){return filter==='all'||(filter==='active'?c.active:!c.active)});
     $('rows').innerHTML=list.map(function(c){
       var n=c.photosThisWeek.length;
-      return '<tr class="row" data-id="'+esc(c.id)+'"><td>'+(preview?'':'<img class="cav" alt="" src="/portal/api/coach/avatar?id='+encodeURIComponent(c.id)+'" onerror="this.remove()">')+'<b>'+esc(c.name)+'</b>'+(c.setup&&!c.setup.done?' <span class="pill part">Setting up '+(c.setup.n||0)+'</span>':'')+'<br><span style="font-size:12px;color:var(--mute)">'+(c.type==='pt'?'Face to face':'Online')+' · '+esc(c.checkin)+'s</span></td><td>'+ciPill(c)+(remind(c)?'<div style="margin-top:6px">'+remind(c)+'</div>':'')+'</td><td>'+logPill(c)+'</td><td class="hide-m">'+(n===3?'<span class="pill ok">✓ 3</span>':'<span class="pill '+(n?'part':'off')+'">'+n+' of 3</span>')+'</td><td class="hide-m">'+(c.lastWeight?'<b>'+esc(c.lastWeight.kg)+'</b> kg':'–')+'</td></tr>';
+      return '<tr class="row" data-id="'+esc(c.id)+'"><td>'+(preview?'':'<img class="cav" alt="" src="/portal/api/coach/avatar?id='+encodeURIComponent(c.id)+'" onerror="this.remove()">')+'<b>'+esc(c.name)+'</b>'+(c.form===false?' <span class="pill off">New · no form yet</span>':c.form===true&&!c.planReady?' <span class="pill part">Form in · build plan</span>':'')+(c.setup&&!c.setup.done&&c.form!==false?' <span class="pill part">Setting up '+(c.setup.n||0)+'</span>':'')+'<br><span style="font-size:12px;color:var(--mute)">'+(c.type==='pt'?'Face to face':'Online')+' · '+esc(c.checkin)+'s</span></td><td>'+ciPill(c)+(remind(c)?'<div style="margin-top:6px">'+remind(c)+'</div>':'')+'</td><td>'+logPill(c)+'</td><td class="hide-m">'+(n===3?'<span class="pill ok">✓ 3</span>':'<span class="pill '+(n?'part':'off')+'">'+n+' of 3</span>')+'</td><td class="hide-m">'+(c.lastWeight?'<b>'+esc(c.lastWeight.kg)+'</b> kg':'–')+'</td></tr>';
     }).join('')||'<tr><td colspan="5" style="text-align:center">No clients here yet.</td></tr>';
     [].forEach.call(document.querySelectorAll('tr.row'),function(tr){tr.onclick=function(e){if(e.target.closest('a'))return;open(tr.getAttribute('data-id'))}});
   }
   [].forEach.call(document.querySelectorAll('#fType button'),function(b){b.onclick=function(){[].forEach.call(document.querySelectorAll('#fType button'),function(x){x.classList.remove('on')});b.classList.add('on');tfilter=b.getAttribute('data-t');draw()}});
-  [].forEach.call(document.querySelectorAll('#pTabs button'),function(b){b.onclick=function(){[].forEach.call(document.querySelectorAll('#pTabs button'),function(x){x.classList.remove('on')});b.classList.add('on');var p=b.getAttribute('data-p');$('pCi').hidden=p!=='ci';$('pLog').hidden=p!=='log';$('pPg').hidden=p!=='pg';$('pTg').hidden=p!=='tg';$('pPh').hidden=p!=='ph'}});
+  [].forEach.call(document.querySelectorAll('#pTabs button'),function(b){b.onclick=function(){[].forEach.call(document.querySelectorAll('#pTabs button'),function(x){x.classList.remove('on')});b.classList.add('on');var p=b.getAttribute('data-p');$('pCi').hidden=p!=='ci';$('pLog').hidden=p!=='log';$('pPg').hidden=p!=='pg';$('pTg').hidden=p!=='tg';$('pOb').hidden=p!=='ob';$('pMp').hidden=p!=='mp';$('pPh').hidden=p!=='ph'}});
   [].forEach.call(document.querySelectorAll('.filters button[data-f]'),function(b){b.onclick=function(){[].forEach.call(document.querySelectorAll('.filters button[data-f]'),function(x){x.classList.remove('on')});b.classList.add('on');filter=b.getAttribute('data-f');draw()}});
   function src(p){return p.local||('/portal/api/photo?key='+encodeURIComponent(p.key))}
   function latest(w,a){return curPhotos.filter(function(p){return p.week===w&&p.angle===a})[0]}
@@ -182,8 +215,19 @@ td b{color:#fff;font-size:15px}
   }
   function open(id){
     cur=clients.filter(function(c){return c.id===id})[0];if(!cur)return;
-    $('panel').hidden=false;$('pName').innerHTML=esc(cur.name)+' <em>· week '+cur.week+'</em>';$('pKick').textContent=(cur.type==='pt'?'Face to face':'Online')+' · checks in '+cur.checkin+'s';$('pRows').innerHTML='<p style="color:var(--mute)">Loading…</p>';
+    $('panel').hidden=false;$('panel').scrollTop=0;if(innerWidth<=820)document.body.style.overflow='hidden';$('pName').innerHTML=esc(cur.name)+' <em>· week '+cur.week+'</em>';$('pKick').textContent=(cur.type==='pt'?'Face to face':'Online')+' · checks in '+cur.checkin+'s';$('pRows').innerHTML='<p style="color:var(--mute)">Loading…</p>';
     var from=MPFLog.fromT(MPFLog.toT(todayStr)-27*864e5);
+    var showTab=function(p){[].forEach.call(document.querySelectorAll('#pTabs button'),function(x){x.classList.toggle('on',x.getAttribute('data-p')===p)});['ci','log','tg','pg','ob','mp','ph'].forEach(function(k){var el=$({ci:'pCi',log:'pLog',tg:'pTg',pg:'pPg',ob:'pOb',mp:'pMp',ph:'pPh'}[k]);if(el)el.hidden=k!==p})};
+    var isNew=cur.form!==null&&cur.form!==undefined;
+    document.querySelector('#pTabs [data-p=ob]').hidden=!isNew;showTab(isNew&&!cur.planReady?'ob':'ci');
+    var rb=$('readyBtn');rb.hidden=!isNew;
+    var paintReady=function(){rb.textContent=cur.planReady?'✓ Plan ready':'Mark plan ready';rb.className=cur.planReady?'btn g':'btn'};paintReady();
+    rb.onclick=function(){var v=!cur.planReady;if(v&&!confirm('Mark '+cur.name+'\'s plan as ready? They will see a "Your plan is ready" banner in their portal.'))return;
+      if(preview){cur.planReady=v;paintReady();return}
+      fetch('/portal/api/coach/plan?id='+encodeURIComponent(id),{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({ready:v})}).then(function(r){if(!r.ok)throw 0;cur.planReady=v;paintReady();draw()}).catch(function(){alert('Not saved. Try again.')})};
+    window.__obDoc=null;
+    if(isNew){$('pOb').innerHTML='<p style="color:var(--mute)">Loading…</p>';fetch('/portal/api/coach/onboarding?id='+encodeURIComponent(id),{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){window.__obDoc=j;$('pOb').innerHTML=MPFOnboard.answersHTML(j,cur.sex||'f');var w=j.answers&&j.answers.weight,wi=document.querySelector('#pTg [data-c=weight]');if(w&&wi&&!wi.value){wi.value=w;wi.dispatchEvent(new Event('input',{bubbles:true}))}})}
+    window.__mp=MPFMeal.Editor($('pMp'),{id:id,name:cur.name.split(' ')[0],demo:preview});
     targetsEditor(id);
     MPFProgramme.Editor($('pPg'),{id:id,name:cur.name.split(' ')[0],demo:preview,demoDoc:MPFProgramme.demo});
     if(preview){var dd=MPFLog.demoDays(todayStr,30);$('pLog').innerHTML=MPFLog.logTable(dd,from,todayStr);$('pCi').innerHTML=MPFLog.checkinList({})}
@@ -196,15 +240,36 @@ td b{color:#fff;font-size:15px}
     $('wChart').innerHTML='<div class="wc-empty">Loading weight trend…</div>';fetch('/portal/api/coach/weights?id='+encodeURIComponent(id),{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){MPFChart($('wChart'),j.weights||[],{empty:'The weight graph appears once they have logged 2 morning weigh-ins.'})});
     fetch('/portal/api/coach/photos?id='+encodeURIComponent(id),{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){curPhotos=j.photos||[];drawPhotos();$('panel').scrollIntoView({behavior:'smooth'})});
   }
-  $('closeBtn').onclick=function(){$('panel').hidden=true};
+  $('closeBtn').onclick=function(){$('panel').hidden=true;document.body.style.overflow=''};
   function targetsEditor(id){
     var box=$('pTg'),F=[['cals','Calories','kcal'],['protein','Protein','g'],['carbs','Carbs','g'],['fat','Fat','g'],['steps','Steps','per day'],['water','Water','litres'],['cardio','Cardio','e.g. 2 x 20 mins'],['sleep','Sleep','hours']];
-    function draw(t){t=t||{};
-      box.innerHTML='<div class="pg-box"><div class="lg-grid">'+F.map(function(f){return '<div class="lg-f"><label>'+f[1]+' <i>'+f[2]+'</i></label><input data-t="'+f[0]+'" inputmode="'+(f[0]==='cardio'?'text':'decimal')+'" value="'+esc(t[f[0]]||'')+'"></div>'}).join('')+
+    function calcHTML(){return '<div class="pg-box"><h3 class="calc-h">🧮 Nutritional calculator</h3><div class="lg-grid">'+
+      '<div class="lg-f"><label>Bodyweight <i>kg</i></label><input data-c="weight" inputmode="decimal"></div>'+
+      '<div class="lg-f"><label>Body fat <i>% (your estimate)</i></label><input data-c="bf" inputmode="decimal" placeholder="e.g. 25"></div>'+
+      '<div class="lg-f"><label>Activity level</label><select data-c="activity">'+MPFCalc.activities.map(function(a){return '<option>'+a+'</option>'}).join('')+'</select></div>'+
+      '<div class="lg-f"><label>Goal</label><select data-c="goal"><option value="cut">Cut (7 days the same)</option><option value="cut1">Cut, 1 refeed day</option><option value="cut2">Cut, 2 refeed days</option><option value="maintain">Maintenance</option><option value="gain">Gain</option></select></div>'+
+      '<div class="lg-f" data-gain hidden><label>Monthly gain <i>% bodyweight</i></label><select data-c="rate"><option value="1.5">1.5% (beginner)</option><option value="1">1% (intermediate)</option><option value="0.5">0.5% (advanced)</option></select></div>'+
+      '</div><div id="calcOut"></div></div>'}
+    function runCalc(){
+      var g=function(k){var e=box.querySelector('[data-c='+k+']');return e?e.value:''};box.querySelector('[data-gain]').hidden=g('goal')!=='gain';
+      var r=MPFCalc.calc({weight:parseFloat(g('weight')),bf:parseFloat(g('bf')),activity:g('activity'),goal:g('goal'),rate:g('rate')}),out=box.querySelector('#calcOut');
+      if(!r){out.innerHTML='<p class="ci-note">Enter their weight and your body fat estimate.</p>';return}
+      var R=Math.round;
+      out.innerHTML='<div class="calc-sum">Lean mass <b>'+r.lbm.toFixed(1)+' kg</b> · RMR <b>'+R(r.rmr)+'</b> · Maintenance (TDEE) <b>'+R(r.tdee)+' kcal</b>'+(r.loss?' · Target loss <b>'+r.loss.toFixed(2)+' kg/week</b>':'')+(r.gain?' · Target gain <b>'+r.gain.toFixed(2)+' kg/month</b>':'')+'</div>'+
+        r.days.map(function(d){return '<div class="calc-day"><b>'+d.name+'</b><span>'+R(d.kcal)+' kcal</span><span>P '+R(d.p)+'g</span><span>C '+R(d.c)+'g</span><span>F '+R(d.f)+'g</span></div>'}).join('')+
+        '<button class="btn" type="button" id="calcUse" style="margin-top:10px">Use as targets</button>';
+      out.querySelector('#calcUse').onclick=function(){var d=r.days[0],set=function(k,v){var e=box.querySelector('[data-t='+k+']');if(e)e.value=v};set('cals',R(d.kcal));set('protein',R(d.p));set('carbs',R(d.c));set('fat',R(d.f));
+        if(r.days[1]){var x=r.days[1],n=box.querySelector('[data-t=notes]');n.value=(n.value?n.value+'\n':'')+'Refeed: '+x.name+' at '+R(x.kcal)+' kcal (P '+R(x.p)+'g, C '+R(x.c)+'g, F '+R(x.f)+'g). The other days are your targets above.'}
+        box.querySelector('.lg-msg').textContent='Filled in from the calculator. Check, then Save targets.';box.querySelector('.lg-msg').className='lg-msg warn';box.querySelector('[data-t=cals]').scrollIntoView({block:'center',behavior:'smooth'})};
+    }
+    function draw(t){t=t||{};if(window.__mp&&window.__mp.setTargets)window.__mp.setTargets(t);
+      box.innerHTML=calcHTML()+'<div class="pg-box"><h3 class="calc-h">🎯 Their daily targets</h3><div class="lg-grid">'+F.map(function(f){return '<div class="lg-f"><label>'+f[1]+' <i>'+f[2]+'</i></label><input data-t="'+f[0]+'" inputmode="'+(f[0]==='cardio'?'text':'decimal')+'" value="'+esc(t[f[0]]||'')+'"></div>'}).join('')+
         '<div class="lg-f lg-wide"><label>Notes for '+esc(cur.name.split(' ')[0])+'</label><textarea data-t="notes" rows="3" placeholder="e.g. Hit protein first. Refeed day on Saturdays.">'+esc(t.notes||'')+'</textarea></div></div>'+
         '<div class="ci-btns"><span class="lg-msg">'+(t.updated?'Last changed '+new Date(t.updated).toLocaleDateString('en-GB',{day:'numeric',month:'short'}):'Not set yet')+'</span><button class="btn" type="button" id="tgSave">Save targets</button></div></div>';
       var macro=function(){var g=function(k){return parseFloat((box.querySelector('[data-t='+k+']').value||'').replace(/,/g,''))||0},c=box.querySelector('[data-t=cals]');var k=4*g('protein')+4*g('carbs')+9*g('fat');c.placeholder=k?Math.round(k)+' from macros':''};
-      box.oninput=macro;macro();
+      box.oninput=function(e){if(e.target.hasAttribute('data-c'))runCalc();else macro()};box.onchange=function(e){if(e.target.tagName==='SELECT'&&e.target.hasAttribute('data-c'))runCalc()};macro();runCalc();
+      var ob=window.__obDoc,w=ob&&ob.answers&&ob.answers.weight;if(w){box.querySelector('[data-c=weight]').value=w;runCalc()}
+      var lastW=(cur.lastWeight&&cur.lastWeight.kg);if(lastW&&!box.querySelector('[data-c=weight]').value){box.querySelector('[data-c=weight]').value=lastW;runCalc()}
       $('tgSave').onclick=function(){
         var t2={};[].forEach.call(box.querySelectorAll('[data-t]'),function(i){t2[i.getAttribute('data-t')]=i.value.trim()});
         var c=box.querySelector('[data-t=cals]');if(!t2.cals&&c.placeholder)t2.cals=String(parseInt(c.placeholder,10));
@@ -217,8 +282,9 @@ td b{color:#fff;font-size:15px}
     if(preview){draw({});return}
     fetch('/portal/api/coach/targets?id='+encodeURIComponent(id),{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){draw(j.targets)}).catch(function(){draw({})});
   }
-  $('tplBtn').onclick=function(){$('tplPanel').hidden=false;MPFProgramme.Editor($('tplEd'),{tpl:true,name:'',demo:preview,demoDoc:{current:'',programmes:[]}});$('tplPanel').scrollIntoView({behavior:'smooth'})};
+  $('tplBtn').onclick=function(){$('tplPanel').hidden=false;$('tplPanel').querySelector('h2').innerHTML='Programme <em>templates.</em>';MPFProgramme.Editor($('tplEd'),{tpl:true,name:'',demo:preview,demoDoc:{current:'',programmes:[]}});$('tplPanel').scrollIntoView({behavior:'smooth'})};
   $('tplClose').onclick=function(){$('tplPanel').hidden=true};
+  $('mtplBtn').onclick=function(){$('tplPanel').hidden=false;$('tplPanel').querySelector('h2').innerHTML='Meal plan <em>templates.</em>';MPFMeal.Editor($('tplEd'),{tpl:true,name:'',demo:preview});$('tplPanel').scrollIntoView({behavior:'smooth'})};
   $('cmpBtn').onclick=function(){
     var picked=[].map.call(document.querySelectorAll('.pick:checked'),function(i){return +i.value}).sort(function(a,b){return a-b});
     if(picked.length!==2){$('cmpHelp').hidden=false;return}

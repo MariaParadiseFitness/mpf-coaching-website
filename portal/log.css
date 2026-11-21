@@ -111,3 +111,33 @@ table.lt tr.miss td{font-style:italic;font-size:12px;padding-top:5px;padding-bot
 table.lt tr.miss td:first-child{font-style:normal}
 .lg-f small.tg{color:var(--gold-l);font-weight:600}
 .lg-stats.tgt b{font-size:22px}
+/* meal plans */
+.mp-meal{background:#0e0e0e;border:1px solid var(--line);border-radius:16px;padding:12px 14px;margin-bottom:10px}
+.mp-mh{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline;margin-bottom:6px}
+.mp-mh b{color:#fff;font-family:var(--serif);font-size:18px}
+.mp-mh span{color:var(--mute);font-size:12px}
+.mp-meal ul{list-style:none}
+.mp-meal li{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-top:1px solid rgba(201,166,75,.12);font-size:14px;color:var(--soft)}
+.mp-meal li b{color:#fff;white-space:nowrap}
+.mp-note{font-size:13px;color:var(--gold-l);margin-bottom:4px}
+.mp-tot .okc{color:#7fd8a0}.mp-tot .offc{color:#f0b27a}
+table.mp{min-width:640px}
+table.mp td input[data-k=amount],table.mp td input[data-k=unit],table.mp td input[data-k=kcal],table.mp td input[data-k=p],table.mp td input[data-k=c],table.mp td input[data-k=f]{width:62px}
+.mp-mt{align-self:center;font-size:12px;color:var(--mute);margin-left:6px}
+/* onboarding form */
+.ob-sec{border:0;border-top:1px solid var(--line);padding:16px 0 4px;margin:0}
+.ob-sec legend{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);font-weight:700;padding-right:10px}
+.ob-q{margin:12px 0}
+.ob-q>label{display:block;font-size:14px;color:#fff;font-weight:600;margin-bottom:6px}
+.ob-q>label i{color:#ef8f85;font-style:normal}
+.ob-q input[type=text],.ob-q input[type=date],.ob-q textarea{width:100%;background:#0e0e0e;border:1px solid var(--line);border-radius:12px;color:#fff;font:inherit;font-size:16px;padding:11px 12px;outline:none;color-scheme:dark}
+.ob-q input:focus,.ob-q textarea:focus{border-color:var(--gold-l)}
+.ob-opts{display:flex;flex-wrap:wrap;gap:6px}
+.ob-opts button{background:#0e0e0e;border:1px solid var(--line);border-radius:30px;color:var(--soft);font:inherit;font-size:13.5px;font-weight:600;padding:9px 14px;cursor:pointer}
+.ob-opts button.on{background:var(--grad);color:#111;border-color:transparent}
+.ob-opts.lg-scale{display:grid}
+.ob-opts.lg-scale button{border-radius:10px;padding:9px 0}
+.ob-check{display:flex;gap:10px;align-items:center;color:var(--soft);font-size:15px}
+.ob-check input{width:22px;height:22px;accent-color:#C9A64B}
+.ob-q.miss>label{color:#ef8f85}
+.ob-q.miss input,.ob-q.miss textarea,.ob-q.miss .ob-opts{outline:1px solid #ef8f85;border-radius:12px}
