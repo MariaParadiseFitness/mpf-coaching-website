@@ -114,7 +114,7 @@ section{margin-bottom:52px;scroll-margin-top:80px}
 details.app{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:12px;padding:14px 16px;font-size:14px;color:var(--soft)}
 details.app summary{cursor:pointer;color:#fff;font-weight:600}
 details.app b{color:#fff}
-.ph-week{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.ph-week{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;max-width:620px}
 .slot{position:relative;aspect-ratio:3/4;border-radius:16px;border:1.5px dashed rgba(201,166,75,.55);background:#0e0e0e;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;text-align:center;padding:10px;transition:.2s}
 .slot:hover{border-color:var(--gold-l);box-shadow:0 0 18px rgba(201,166,75,.2)}
 .slot input{display:none}
@@ -126,10 +126,10 @@ details.app b{color:#fff}
 .slot .lbl{position:absolute;left:8px;top:8px;background:rgba(14,14,14,.85);color:var(--gold-l);font-size:10.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:4px 8px;border-radius:20px;z-index:2}
 .slot .redo{position:absolute;right:8px;bottom:8px;z-index:2;background:rgba(14,14,14,.85);color:#fff;font-size:11px;padding:5px 9px;border-radius:20px}
 .slot.busy:after{content:"Uploading…";position:absolute;inset:0;background:rgba(14,14,14,.8);display:grid;place-content:center;color:var(--gold-l);font-weight:700;font-size:13px;z-index:3}
-.ph-bar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:space-between;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px}
+.ph-bar{max-width:620px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:space-between;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px}
 .ph-bar p{font-size:13.5px;color:var(--soft);margin:0}
 .ph-bar .btn{padding:12px 20px}
-.ph-hist{margin-top:22px}
+.ph-hist{margin-top:22px;max-width:620px}
 .ph-hist h3{font-family:var(--serif);font-size:20px;color:#fff;margin-bottom:10px}
 .ph-row{display:grid;grid-template-columns:90px repeat(3,1fr);gap:10px;align-items:center;margin-bottom:10px}
 .ph-row .wk{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:700}
@@ -347,7 +347,7 @@ footer{text-align:center;color:#7d735c;font-size:12px;padding:20px}
     paint();
 
     // photos
-    var ANG=['front','side','back'],LBL={front:'Front',side:'Side',back:'Back'},ICON={front:'🧍',side:'🚶',back:'🔙'};
+    var ANG=['front','side','back'],LBL={front:'Front',side:'Side',back:'Back'},ICON={front:'📷',side:'📷',back:'📷'};
     var curWeek=meta.week||parseInt($('stWeek').textContent,10)||1,photos=[],enabled=!!meta.photos,demo=!!meta.demo;
     $('phSub').textContent='Week '+curWeek+' · front, side and back. Tap a box to take or choose a photo.';
     function src(p){return p.local||('/portal/api/photo?key='+encodeURIComponent(p.key))}
