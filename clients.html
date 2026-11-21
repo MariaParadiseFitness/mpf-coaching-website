@@ -30,11 +30,12 @@ h1{font-family:var(--serif);font-weight:900;font-size:clamp(32px,6vw,48px);line-
 h1 em,h2 em{font-style:italic;font-weight:400;color:var(--gold-l)}
 h2{font-family:var(--serif);font-weight:900;font-size:clamp(24px,4vw,32px);line-height:1.15;color:#fff;margin-bottom:14px}
 .lead{color:#cfc4aa;margin-top:10px;font-size:15.5px;max-width:620px}
-.acts{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:34px}
+.acts{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:34px}
 @media(max-width:760px){.acts{grid-template-columns:1fr}}
 .act{display:flex;gap:14px;align-items:center;background:#151410;border:1px solid rgba(201,166,75,.3);border-radius:18px;padding:18px;text-decoration:none;color:#efe6cf;transition:.2s}
 .act:hover{border-color:var(--gold-l);box-shadow:0 0 22px rgba(201,166,75,.25)}
 .act.main{background:linear-gradient(120deg,rgba(156,122,44,.4),rgba(201,166,75,.14));border-color:var(--gold-l)}
+.steps3 .act .ic{font-family:var(--serif);font-weight:900;color:#111;background:var(--grad);border:0}
 .act .ic{flex:0 0 46px;height:46px;border-radius:14px;display:grid;place-content:center;font-size:22px;background:#0e0e0e;border:1px solid rgba(201,166,75,.3)}
 .act b{display:block;font-size:16px;color:#fff}
 .act span span{display:block;font-size:12.5px;color:#b5a988;line-height:1.4}
@@ -68,17 +69,20 @@ h2{font-family:var(--serif);font-weight:900;font-size:clamp(24px,4vw,32px);line-
   <div class="hero"><img class="me" src="img/maria-profile.jpg" alt="Maria Paradise"><div><div class="kick">Client area · In-person PT</div><h1>Welcome back, <em>let's get to work.</em></h1><p class="lead">Book your sessions, check what you've got coming up and top up your package, all in one place.</p></div></div>
   <div class="note mpf-hol" style="margin-bottom:22px"><b>🎄 Holiday notice:</b> I'm away from <b>23 December to 11 January</b>, so there are no sessions during that time. Bookings are open up to 12 weeks ahead, so grab your slots before and after the break now.</div><script>if(new Date()>new Date("2027-01-12"))document.querySelectorAll(".mpf-hol").forEach(function(e){e.remove()});</script>
 
-  <div class="acts">
-    <a class="act main" href="#book"><span class="ic">📅</span><span><b>Book a session</b><span>See my live availability below</span></span></a>
-    <a class="act" id="myBookings" href="https://app.acuityscheduling.com/schedule.php?owner=38832646&amp;appointmentType=90953993" target="_blank" rel="noopener"><span class="ic">👤</span><span><b>My bookings &amp; packages</b><span>Tap Login (top right), then your name → Appointments</span></span></a>
-    <a class="act" href="https://app.acuityscheduling.com/catalog/a5bbccbc/?categories=Private%201%E2%80%931%20Training%20%252526%20Coaching%20" target="_blank" rel="noopener"><span class="ic">🎟️</span><span><b>Buy a package</b><span>Single sessions or session blocks</span></span></a>
+  <h2>Booking is <em>3 simple steps.</em></h2>
+  <div class="acts steps3">
+    <a class="act main" href="https://app.acuityscheduling.com/catalog/a5bbccbc/?categories=Private%201%E2%80%931%20Training%20%252526%20Coaching%20" target="_blank" rel="noopener"><span class="ic">1</span><span><b>Buy your package</b><span>Pick a session block. Your code arrives by email straight away</span></span></a>
+    <a class="act" href="#book"><span class="ic">2</span><span><b>Book your sessions</b><span>Choose your times on the calendar below and enter your code at checkout</span></span></a>
+    <a class="act" id="myBookings" href="https://app.acuityscheduling.com/schedule.php?owner=38832646&amp;appointmentType=90953993" target="_blank" rel="noopener"><span class="ic">3</span><span><b>Manage my bookings</b><span>Log in (top right) to see, reschedule or cancel sessions and check sessions left</span></span></a>
+  </div>
+  <div class="acts" style="grid-template-columns:1fr">
     <a class="act" href="https://chat.whatsapp.com/FTD83kWGqnf03YwR4prUZN" target="_blank" rel="noopener"><span class="ic">👥</span><span><b>Join the community</b><span>The MPF client group chat on WhatsApp</span></span></a>
   </div>
   <div class="note" style="margin:-16px 0 34px"><b>New to MPF?</b> Please complete my <a href="https://docs.google.com/forms/d/17iOSoL7I5BPri87xbNjgU8q6264sO7inrAX_y-1aF2M/viewform" target="_blank" rel="noopener">PAR-Q &amp; health questionnaire</a> before your first session. It takes about 5 minutes and helps me keep your training safe.</div>
 
   <section id="book">
     <h2>Book your <em>next session.</em></h2>
-    <div class="note"><b>Got a package?</b> Enter your package code at checkout and you won't be charged. Use the same email you bought your package with.</div>
+    <div class="note"><b>Already bought your package?</b> Pick your times below and enter your package code at checkout, so you won't be charged again. Use the same email you bought it with.<br><b>Not bought one yet?</b> <a href="https://app.acuityscheduling.com/catalog/a5bbccbc/?categories=Private%201%E2%80%931%20Training%20%252526%20Coaching%20" target="_blank" rel="noopener">Buy your package first</a>, then come back here to book.</div>
     <script>window.addEventListener("message",function(e){if(!/acuityscheduling\.com$/.test((new URL(e.origin)).hostname))return;var m=typeof e.data=="string"&&e.data.match(/^sizing:(\d+)/);if(m)document.getElementById("acuity").style.height=(+m[1]+40)+"px"});</script>
     <script src="https://embed.acuityscheduling.com/js/embed.js"></script>
     <div class="frame"><iframe src="https://app.acuityscheduling.com/schedule.php?owner=38832646&amp;appointmentType=90953993&amp;ref=embedded_csp" title="Book a PT session with Maria" scrolling="no" id="acuity"></iframe></div>
