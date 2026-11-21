@@ -12,6 +12,8 @@
 //     {"client@example.com":{"id":"sam","name":"Sam","tracker":"<sheet id>","folder":"<folder id>",
 //       "checkin":"Wednesday","start":"2026-09-21","phase":"Fat loss","active":true}}
 //     A client with two emails: give both entries the same "id".
+//   SHEETS_URL      web app URL of the MPF Portal Weights Google Apps Script
+//   SHEETS_KEY      (secret) the key that script expects
 // Binding:
 //   PHOTOS          private R2 bucket for check-in photos (never public)
 // Client details are never stored in the website code.
@@ -130,6 +132,24 @@ async function listPhotos(env, id) {
   return out;
 }
 
+async function weights(env, sheet) {
+  if (!env.SHEETS_URL || !env.SHEETS_KEY || !sheet) return null;
+  const cache = caches.default;
+  const ck = new Request(`https://cache.mpf/weights/${encodeURIComponent(sheet)}`);
+  const hit = await cache.match(ck);
+  if (hit) return hit.json();
+  const u = new URL(env.SHEETS_URL);
+  u.searchParams.set("sheet", sheet);
+  u.searchParams.set("key", env.SHEETS_KEY);
+  const r = await fetch(u.toString(), { redirect: "follow" });
+  if (!r.ok) return null;
+  const j = await r.json();
+  if (!Array.isArray(j.weights)) return null;
+  const data = { weights: j.weights.slice(-400) };
+  await cache.put(ck, new Response(JSON.stringify(data), { headers: { "cache-control": "max-age=900" } }));
+  return data;
+}
+
 async function handleApi(request, env, url) {
   const w = await who(request, env);
   if (w instanceof Response) return w;
@@ -200,6 +220,13 @@ async function handleApi(request, env, url) {
     return json({ ok: true });
   }
 
+  if (path === "/portal/api/weights") {
+    if (!client) return json({ error: "unknown" }, 403);
+    const d = await weights(env, client.tracker);
+    if (!d) return json({ enabled: !!env.SHEETS_URL, weights: [] });
+    return json({ enabled: true, weights: d.weights });
+  }
+
   // ---- coach ----
   if (path === "/portal/api/coach/clients") {
     if (!coach) return json({ error: "forbidden" }, 403);
@@ -228,6 +255,15 @@ async function handleApi(request, env, url) {
     if (!env.PHOTOS) return json({ enabled: false, photos: [] });
     const id = (url.searchParams.get("id") || "").toLowerCase().replace(/[^a-z0-9_-]/g, "");
     return json({ enabled: true, photos: await listPhotos(env, id) });
+  }
+
+  if (path === "/portal/api/coach/weights") {
+    if (!coach) return json({ error: "forbidden" }, 403);
+    const id = (url.searchParams.get("id") || "").toLowerCase();
+    const c = Object.values(r).find((x) => x.id === id);
+    if (!c) return json({ error: "unknown" }, 404);
+    const d = await weights(env, c.tracker);
+    return json({ enabled: !!d, weights: d ? d.weights : [] });
   }
 
   return json({ error: "not found" }, 404);

@@ -148,12 +148,26 @@ footer{text-align:center;color:#7d735c;font-size:12px;padding:20px}
   .top .tabs{display:none}
   .start{padding:20px 16px}
 }
+.wc{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:20px 18px;max-width:760px}
+.wc-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.wc-stats div{background:#0e0e0e;border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.wc-stats small{display:block;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:700}
+.wc-stats b{font-family:var(--serif);font-size:22px;color:#fff}
+.wc-range{display:flex;gap:6px;margin-bottom:8px}
+.wc-range button{background:#0e0e0e;border:1px solid var(--line);color:var(--soft);font:inherit;font-size:11.5px;font-weight:600;padding:6px 12px;border-radius:30px;cursor:pointer}
+.wc-range button.on{background:var(--grad);color:#111;border-color:transparent}
+.wc-key{font-size:12px;color:var(--mute);margin-top:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.wc-key span{display:inline-block;width:18px;height:3px;border-radius:2px}
+.wc-key .k1{background:var(--grad)}
+.wc-key .k2{width:7px;height:7px;border-radius:50%;background:#6b5f43;margin-left:10px}
+.wc-empty{color:var(--mute);font-size:14px;padding:20px 4px;text-align:center}
+@media(max-width:600px){.wc-stats b{font-size:17px}}
 </style>
 </head>
 <body>
 <div class="top"><div class="in">
   <a href="/"><img src="/img/logo.png" alt="MPF Coaching"></a>
-  <nav class="tabs"><a href="#start">Get started</a><a href="#photos">Photos</a><a href="#folder">My folder</a><a href="#week">My week</a><a href="#tracker">My tracker</a><a href="#guides">Guides</a><a href="#support">Support</a></nav>
+  <nav class="tabs"><a href="#start">Get started</a><a href="#progress">Progress</a><a href="#photos">Photos</a><a href="#folder">My folder</a><a href="#week">My week</a><a href="#tracker">My tracker</a><a href="#guides">Guides</a><a href="#support">Support</a></nav>
   <a class="out" href="/cdn-cgi/access/logout">Log out</a>
 </div></div>
 
@@ -185,6 +199,13 @@ footer{text-align:center;color:#7d735c;font-size:12px;padding:20px}
       <ol class="steps" id="steps"></ol>
       <div class="alldone"><div class="kick">All set</div><h2>You're ready to <em>go.</em></h2><p>Your setup is complete. Everything you need week to week is below.</p><button class="linkbtn" id="showSteps" type="button">Show my setup steps again</button></div>
     </div>
+  </section>
+
+  <!-- PROGRESS -->
+  <section id="progress">
+    <h2>My <em>progress.</em></h2>
+    <div class="sub">Your bodyweight from your Daily Tracker. Day to day it jumps around with water, salt and carbs. The gold line is your real trend.</div>
+    <div class="wc" id="wChart"><div class="wc-empty">Loading your graph…</div></div>
   </section>
 
   <!-- PHOTOS -->
@@ -280,6 +301,7 @@ footer{text-align:center;color:#7d735c;font-size:12px;padding:20px}
 <div class="msg" id="msgBox" hidden></div>
 <footer>© MPF Coaching · <a href="/privacy.html" style="color:#7d735c">Privacy</a></footer>
 
+<script src="/portal/chart.js"></script>
 <script>
 (function(){
   var $=function(id){return document.getElementById(id)};
@@ -400,6 +422,10 @@ footer{text-align:center;color:#7d735c;font-size:12px;padding:20px}
       $('phStatus').textContent='Let me know when your check-in is done.';
       $('doneBtn').href='https://wa.me/447592791137?text='+encodeURIComponent('Hi Maria, my check-in is done ✅');
     }
+
+    // weight chart
+    if(demo){MPFChart($('wChart'),MPFDemoWeights(78,10))}
+    else{fetch('/portal/api/weights',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){MPFChart($('wChart'),j.weights||[],{empty:j.enabled===false?'Your graph is being switched on. Keep logging your morning weigh-ins in your Daily Tracker.':null})}).catch(function(){MPFChart($('wChart'),[])})}
 
     // tracker guide
     var nav=$('gnav'),pane=$('gpane');
