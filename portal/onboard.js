@@ -8,16 +8,16 @@
       {k:'dob',l:'Date of birth',t:'date',req:1},
       {k:'phone',l:'Mobile number',t:'text',im:'tel'},
       {k:'emergency',l:'Emergency contact (name and number)',t:'text',req:1,type:'pt'},
-      {k:'job',l:'What do you do for work?',t:'text'},
-      {k:'jobactivity',l:'How active is your job?',t:'choice',o:['Sitting most of the day','On my feet some of the day','On my feet most of the day','Physical job']},
+      {k:'job',l:'What do you do for work?',t:'text',req:1},
+      {k:'jobactivity',l:'How active is your job?',t:'choice',o:['Sitting most of the day','On my feet some of the day','On my feet most of the day','Physical job'],req:1},
       {k:'height',l:'Height (cm)',t:'num',req:1},
       {k:'weight',l:'Current weight (kg)',t:'num',req:1}
     ]},
     {t:'Your goals',i:'🎯',q:[
       {k:'goal',l:'Main goal',t:'choice',o:['Fat loss','Build muscle','Body recomposition (lose fat and build muscle)','Get stronger / performance','Health and fitness'],req:1},
-      {k:'goalweight',l:'Goal weight (kg), if you have one',t:'num'},
-      {k:'goaldate',l:'Any date you are working towards (holiday, event)?',t:'text'},
-      {k:'why',l:'Why is this important to you right now?',t:'area'},
+      {k:'goalweight',l:'Goal weight (kg)',t:'num'},
+      {k:'goaldate',l:'Are you working towards a holiday or event? If so, what and when?',t:'text'},
+      {k:'why',l:'Why is this important to you right now?',t:'area',req:1},
       {k:'success',l:'What would success look like in 12 weeks?',t:'area'}
     ]},
     {t:'PAR-Q health questions',i:'🩺',note:'Please answer honestly. If you answer yes to any, it does not mean you cannot train, it just helps me keep you safe.',q:[
@@ -39,15 +39,14 @@
       {k:'ed',l:'Have you ever had an eating disorder or a difficult relationship with food?',t:'choice',o:['No','Yes','I would rather talk about it on the phone'],req:1},
       {k:'eddetail',l:'If yes, anything you are happy to share (only Maria sees this)',t:'area'},
       {k:'mental',l:'Anything about your mental health you would like me to know?',t:'area'},
-      {k:'allergies',l:'Any food allergies or intolerances?',t:'area'}
+      {k:'allergies',l:'Any allergies or food intolerances? (write None if not)',t:'area',req:1}
     ]},
     {t:'Training',i:'🏋️',q:[
       {k:'experience',l:'Training experience',t:'choice',o:['Beginner (less than 1 year)','Intermediate (1 to 3 years)','Advanced (3+ years)'],req:1},
       {k:'currenttraining',l:'What does your training look like right now?',t:'area'},
       {k:'days',l:'How many days a week can you train?',t:'choice',o:['2','3','4','5','6'],req:1},
       {k:'length',l:'How long can each session be?',t:'choice',o:['30 to 45 mins','45 to 60 mins','60 to 90 mins','90+ mins']},
-      {k:'gym',l:'Where do you train? (gym name, or home)',t:'text'},
-      {k:'equipment',l:'If at home, what equipment do you have?',t:'area'},
+      {k:'gym',l:'Which gym do you train at?',t:'text'},
       {k:'love',l:'Exercises you love',t:'area'},
       {k:'avoid',l:'Exercises you hate or cannot do',t:'area'},
       {k:'cardio',l:'What cardio do you enjoy?',t:'text'}
