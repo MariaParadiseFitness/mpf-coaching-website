@@ -78,8 +78,20 @@ async function verifyAccess(request, env) {
   return (payload.email || "").toLowerCase();
 }
 
-function roster(env) {
-  const raw = JSON.parse(env.PORTAL_CLIENTS || "{}");
+// Client list: the PORTAL_CLIENTS secret plus the list kept in R2 (_data/_roster.json), which has no size limit.
+let rosterCache = { at: 0, data: null };
+async function loadRoster(env, fresh) {
+  if (!fresh && rosterCache.data && Date.now() - rosterCache.at < 30000) return rosterCache.data;
+  let extra = {};
+  if (env.PHOTOS) {
+    const o = await env.PHOTOS.get("_data/_roster.json");
+    if (o) { try { extra = await o.json(); } catch (e) { extra = {}; } }
+  }
+  rosterCache = { at: Date.now(), data: { ...JSON.parse(env.PORTAL_CLIENTS || "{}"), ...extra } };
+  return rosterCache.data;
+}
+function roster(env, raw) {
+  raw = raw || JSON.parse(env.PORTAL_CLIENTS || "{}");
   const byEmail = {};
   for (const [email, c] of Object.entries(raw)) {
     const id = String(c.id || email).toLowerCase().replace(/[^a-z0-9_-]/g, "");
@@ -108,7 +120,7 @@ async function who(request, env) {
   if (!email) return json({ configured: true, signedIn: false }, 401);
   let r;
   try {
-    r = roster(env);
+    r = roster(env, await loadRoster(env));
   } catch (e) {
     return json({ configured: true, error: "clients" }, 500);
   }
@@ -578,6 +590,34 @@ async function handleApi(request, env, url) {
     }
     await putJSON(env, sk, sm);
     return json({ ok: true, days: Object.values(byMonth).reduce((n, m) => n + Object.keys(m).length, 0), checkins: nci });
+  }
+
+  // ---- coach: client list kept in R2 ----
+  if (path === "/portal/api/coach/roster") {
+    if (!coach) return json({ error: "forbidden" }, 403);
+    if (request.method === "POST") {
+      const body = await request.json().catch(() => null);
+      if (!body || typeof body !== "object" || Array.isArray(body)) return json({ error: "bad" }, 400);
+      const clean = {};
+      for (const [email, c] of Object.entries(body)) {
+        const e = String(email).trim().toLowerCase();
+        if (!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/.test(e) || !c || !c.id || !c.name) continue;
+        clean[e] = {
+          id: String(c.id).toLowerCase().replace(/[^a-z0-9_-]/g, "").slice(0, 40), name: String(c.name).slice(0, 60),
+          checkin: DAYS.includes(c.checkin) ? c.checkin : (c.type === "pt" ? "Sunday" : "Wednesday"),
+          start: isDate(c.start) ? c.start : londonToday(), phase: String(c.phase || "").slice(0, 40),
+          active: c.active !== false, type: c.type === "pt" ? "pt" : "online", sex: c.sex === "m" ? "m" : "f",
+          onboarded: c.onboarded === true, phone: String(c.phone || "").replace(/[^0-9]/g, "").slice(0, 15),
+          folder: String(c.folder || "").replace(/[^A-Za-z0-9_-]/g, "").slice(0, 80),
+        };
+      }
+      const old = await getJSON(env, "_data/_roster.json", null);
+      if (old) await putJSON(env, `_data/_roster-backup/${Date.now()}.json`, old);
+      await putJSON(env, "_data/_roster.json", clean);
+      await loadRoster(env, true);
+      return json({ ok: true, count: Object.keys(clean).length });
+    }
+    return json({ roster: await getJSON(env, "_data/_roster.json", {}), secret: Object.keys(JSON.parse(env.PORTAL_CLIENTS || "{}")) });
   }
   if (path === "/portal/api/coach/templates") {
     if (!coach) return json({ error: "forbidden" }, 403);
