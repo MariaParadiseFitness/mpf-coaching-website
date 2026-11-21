@@ -1,7 +1,7 @@
 /* MPF training programme: read-only view (client) and editor (coach). Stored on the website, not in Google Sheets. */
 (function(){
   var esc=function(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
-  var COLS=[{k:'name',l:'Exercise',w:'w-name'},{k:'sets',l:'Sets',w:'w-s'},{k:'reps',l:'Reps',w:'w-s'},{k:'load',l:'Weight',w:'w-s'},{k:'tempo',l:'Tempo',w:'w-s'},{k:'rir',l:'RIR',w:'w-s'},{k:'rest',l:'Rest',w:'w-s'},{k:'notes',l:'Notes',w:'w-notes'}];
+  var COLS=[{k:'name',l:'Exercise',w:'w-name'},{k:'sets',l:'Sets',w:'w-s'},{k:'reps',l:'Reps',w:'w-s'},{k:'tempo',l:'Tempo',w:'w-s'},{k:'rir',l:'RIR',w:'w-s'},{k:'rest',l:'Rest',w:'w-s'},{k:'notes',l:'Notes',w:'w-notes'}];
   function upd(p){return p&&p.updated?new Date(p.updated).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}):''}
 
   /* ---------- client: read-only ---------- */

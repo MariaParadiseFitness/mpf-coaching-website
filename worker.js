@@ -259,7 +259,7 @@ function checkinStatus(c, s, today) {
 }
 
 // ---- training programmes: _data/<id>/programmes.json  {current:"<pid>", programmes:[{id,title,notes,workouts,created,updated}]} ----
-const EX_KEYS = ["name", "sets", "reps", "load", "tempo", "rir", "rest", "notes"];
+const EX_KEYS = ["name", "sets", "reps", "tempo", "rir", "rest", "notes"];
 function cleanProgrammes(doc) {
   const str = (v, n) => String(v == null ? "" : v).trim().slice(0, n);
   const now = new Date().toISOString();
