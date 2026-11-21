@@ -18,7 +18,7 @@
       var last=all[all.length-1].t,from=range==='all'?all[0].t:last-(+range*7-1)*864e5;
       var pts=all.filter(function(p){return p.t>=from});if(pts.length<2)pts=all.slice(-2);
       var tr=avg7(all).filter(function(p){return p.t>=pts[0].t});
-      var W=640,H=260,L=44,R=12,T=14,B=30;
+      var W=640,H=260,L=44,R=30,T=14,B=30;
       var ys=pts.map(function(p){return p.kg}).concat(tr.map(function(p){return p.v}));
       var lo=Math.min.apply(0,ys),hi=Math.max.apply(0,ys),pad=Math.max(.4,(hi-lo)*.12);lo-=pad;hi+=pad;
       var t0=pts[0].t,t1=Math.max(last,t0+864e5);
