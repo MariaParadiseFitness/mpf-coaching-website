@@ -7,5 +7,11 @@
     "directory": ".",
     "binding": "ASSETS",
     "run_worker_first": ["/portal/api/*"]
+  },
+  // Not secret. The client list (PORTAL_CLIENTS) is a secret set in the Cloudflare dashboard.
+  "vars": {
+    "ACCESS_TEAM": "little-dawn-569b.cloudflareaccess.com",
+    "ACCESS_AUD": "da9077af6f753dbc69054c9ca28906bdf1275f8a5a8b2f37b6d471a29579f993",
+    "COACH_EMAILS": "info@mpfcoaching.co.uk"
   }
 }
