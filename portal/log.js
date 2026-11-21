@@ -1,0 +1,173 @@
+/* MPF daily log + weekly check-in (client portal), plus read-only tables for the coach view. */
+(function(){
+  var DAY=864e5,DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  var esc=function(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
+  var toT=function(s){return Date.parse(s+'T00:00:00Z')},fromT=function(t){return new Date(t).toISOString().slice(0,10)};
+  function nice(d,o){return new Date(toT(d)).toLocaleDateString('en-GB',Object.assign({weekday:'short',day:'numeric',month:'short',timeZone:'UTC'},o||{}))}
+  function londonToday(){try{return new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/London',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date())}catch(e){return new Date().toISOString().slice(0,10)}}
+
+  var GROUPS=[
+    {g:'Morning',i:'⚖️',f:[{k:'weight',l:'Bodyweight',u:'kg',t:'num',ph:'e.g. 72.4',h:'Fasted, after the toilet'},{k:'weighTime',l:'Weigh-in time',t:'time'},{k:'water',l:'Water',u:'litres',t:'num',ph:'e.g. 2.5'}]},
+    {g:'Sleep',i:'😴',f:[{k:'sleep',l:'Sleep duration',u:'hrs:mins',t:'text',ph:'e.g. 7:45',h:'Aim for 8 hours'},{k:'sleepScore',l:'Sleep quality',u:'score',t:'num',ph:'From your watch'},{k:'bed',l:'Sleep time',t:'time'},{k:'wake',l:'Wake time',t:'time'}]},
+    {g:'Food',i:'🍽️',f:[{k:'carbs',l:'Carbs',u:'g',t:'num'},{k:'protein',l:'Protein',u:'g',t:'num'},{k:'fat',l:'Fat',u:'g',t:'num'},{k:'cals',l:'Calories',u:'kcal',t:'num',ph:'Auto from macros'},{k:'offPlan',l:'Off-plan meal?',t:'yn'},{k:'bowel',l:'Bowel movements',t:'num',ph:'How many'}]},
+    {g:'Activity',i:'👟',f:[{k:'steps',l:'Steps',t:'num',ph:'From your wrist tracker'},{k:'cardio',l:'Cardio',u:'mins',t:'num'},{k:'trained',l:'Did you train today?',t:'yn'},
+      {k:'trainTime',l:'Time of training',t:'time',if:'trained'},{k:'desire',l:'Desire to train',t:'scale',if:'trained'},{k:'energyGym',l:'Energy in the gym',t:'scale',if:'trained'},{k:'moodGym',l:'Mood in the gym',t:'scale',if:'trained'}]},
+    {g:'How you feel',i:'💛',f:[{k:'energy',l:'Energy outside the gym',t:'scale'},{k:'mood',l:'Mood outside the gym',t:'scale'},{k:'stress',l:'Stress',t:'scale'},{k:'hunger',l:'Hunger',t:'scale'},{k:'adherence',l:'Sticking to the plan',t:'scale'},{k:'rhr',l:'Resting heart rate',u:'bpm',t:'num',ph:'From your watch'},{k:'period',l:'On your period today?',t:'yn',sex:'f'}]},
+    {g:'Notes',i:'📝',f:[{k:'notes',l:'Anything else for Maria?',t:'area',ph:'Optional'}]}
+  ];
+  var LABEL={};GROUPS.forEach(function(g){g.f.forEach(function(f){LABEL[f.k]=f})});
+
+  var num=function(v){var n=parseFloat(String(v==null?'':v).replace(/,/g,''));return isNaN(n)?null:n};
+  function hours(v){var s=String(v||'').trim(),m=s.match(/^(\d{1,2}):(\d{2})$/);return m?+m[1]+(+m[2])/60:num(s)}
+  function kcal(d){var c=num(d.cals);if(c!==null)return c;if(d.carbs||d.protein||d.fat)return 4*(num(d.carbs)||0)+4*(num(d.protein)||0)+9*(num(d.fat)||0);return null}
+  function weekStats(days,end){
+    var o={daysLogged:0},S={weight:[],steps:[],cals:[],sleep:[],protein:[]};
+    for(var i=0;i<7;i++){var d=days[fromT(toT(end)-i*DAY)];if(!d)continue;o.daysLogged++;
+      var w=num(d.weight);if(w)S.weight.push(w);var st=num(d.steps);if(st!==null)S.steps.push(st);
+      var c=kcal(d);if(c)S.cals.push(c);var sl=hours(d.sleep);if(sl)S.sleep.push(sl);var p=num(d.protein);if(p)S.protein.push(p)}
+    function avg(a,dp){return a.length?+(a.reduce(function(x,y){return x+y},0)/a.length).toFixed(dp):null}
+    o.weight=avg(S.weight,1);o.steps=avg(S.steps,0);o.cals=avg(S.cals,0);o.sleep=avg(S.sleep,1);o.protein=avg(S.protein,0);return o;
+  }
+  // day of cycle: days since the first 'Yes' of the most recent period, counting that day as 1
+  function cycleDay(days,date,todayVal){
+    var isP=function(d){return d===date?todayVal==='Yes':!!(days[d]&&days[d].period==='Yes')};
+    for(var i=0;i<60;i++){var d=fromT(toT(date)-i*DAY);if(isP(d)&&!isP(fromT(toT(d)-DAY)))return i+1}
+    return null;
+  }
+  function fmtN(n){return n==null?'–':Math.round(n).toLocaleString('en-GB')}
+  function fmtSleep(h){if(h==null)return '–';var m=Math.round(h*60);return Math.floor(m/60)+':'+String(m%60).padStart(2,'0')}
+  function statsHTML(s){
+    return '<div class="lg-stats">'+
+      '<div><small>Avg weight</small><b>'+(s.weight!=null?s.weight+' kg':'–')+'</b>'+(s.change!=null?'<span>'+(s.change>0?'+':'')+s.change+' kg vs last week</span>':'')+'</div>'+
+      '<div><small>Avg steps</small><b>'+fmtN(s.steps)+'</b></div>'+
+      '<div><small>Avg calories</small><b>'+fmtN(s.cals)+'</b></div>'+
+      '<div><small>Avg protein</small><b>'+(s.protein!=null?fmtN(s.protein)+' g':'–')+'</b></div>'+
+      '<div><small>Avg sleep</small><b>'+fmtSleep(s.sleep)+'</b></div>'+
+      '<div><small>Days logged</small><b>'+s.daysLogged+' / 7</b></div></div>';
+  }
+  function api(path,opt){return fetch(path,Object.assign({credentials:'same-origin',cache:'no-store'},opt||{})).then(function(r){return r.json().then(function(j){if(!r.ok)throw new Error(j.error||'error');return j})})}
+
+  /* ---------------- daily log (client) ---------------- */
+  function Today(el,o){
+    o=o||{};var demo=!!o.demo,today=o.today||londonToday(),cur=today,days={},dirty=false;
+    el.innerHTML='<div class="lg-nav"><button type="button" class="lg-arr" data-d="-1" aria-label="Previous day">‹</button><div class="lg-date"><b></b><small></small></div><button type="button" class="lg-arr" data-d="1" aria-label="Next day">›</button></div>'+
+      '<div class="lg-strip"></div><form class="lg-form" autocomplete="off"></form>'+
+      '<div class="lg-save"><span class="lg-msg"></span><button class="btn" type="button">Save</button></div>';
+    var form=el.querySelector('form'),msg=el.querySelector('.lg-msg'),saveBtn=el.querySelector('.lg-save .btn');
+    function field(f){
+      var id='lg-'+f.k,lab='<label for="'+id+'">'+esc(f.l)+(f.u?' <i>'+esc(f.u)+'</i>':'')+'</label>';
+      if(f.t==='scale'){var b='';for(var i=1;i<=10;i++)b+='<button type="button" data-v="'+i+'">'+i+'</button>';return '<div class="lg-f lg-wide" data-k="'+f.k+'"'+(f.if?' data-if="'+f.if+'"':'')+'>'+lab.replace('<label for="'+id+'"','<label')+'<div class="lg-scale" data-k="'+f.k+'">'+b+'</div></div>'}
+      if(f.t==='yn')return '<div class="lg-f" data-k="'+f.k+'">'+lab.replace('<label for="'+id+'"','<label')+'<div class="lg-yn" data-k="'+f.k+'"><button type="button" data-v="Yes">Yes</button><button type="button" data-v="No">No</button></div></div>';
+      if(f.t==='area')return '<div class="lg-f lg-wide">'+lab+'<textarea id="'+id+'" name="'+f.k+'" rows="3" placeholder="'+esc(f.ph||'')+'"></textarea></div>';
+      var type=f.t==='time'?'time':'text',im=f.t==='num'?' inputmode="decimal"':'';
+      return '<div class="lg-f"'+(f.if?' data-if="'+f.if+'"':'')+'>'+lab+'<input id="'+id+'" name="'+f.k+'" type="'+type+'"'+im+' placeholder="'+esc(f.ph||'')+'">'+(f.h?'<small>'+esc(f.h)+'</small>':'')+'</div>';
+    }
+    var keep=function(f){return !f.sex||f.sex===o.sex};
+    form.innerHTML=GROUPS.map(function(g){return '<fieldset><legend>'+g.i+' '+esc(g.g)+'</legend><div class="lg-grid">'+g.f.filter(keep).map(field).join('')+'</div></fieldset>'}).join('');
+    var vals={};
+    function setPick(k,v){vals[k]=v;[].forEach.call(form.querySelectorAll('[data-k="'+k+'"] button'),function(b){b.classList.toggle('on',b.getAttribute('data-v')===String(v))});showIf()}
+    function cycleNote(){var n=form.querySelector('[data-k="period"]');if(!n)return;var c=cycleDay(days,cur,vals.period);var sm=n.querySelector('small')||n.appendChild(document.createElement('small'));sm.textContent=c?'Cycle day '+c:'Tap Yes on day 1 of your period and your cycle day counts automatically.'}
+    function showIf(){cycleNote();[].forEach.call(form.querySelectorAll('[data-if]'),function(n){n.hidden=vals[n.getAttribute('data-if')]!=='Yes'})}
+    [].forEach.call(form.querySelectorAll('.lg-scale button,.lg-yn button'),function(b){b.onclick=function(){var k=b.parentNode.getAttribute('data-k'),v=b.getAttribute('data-v');setPick(k,vals[k]===v?'':v);touch()}});
+    form.addEventListener('input',function(e){if(e.target.name){vals[e.target.name]=e.target.value;touch();if(/^(carbs|protein|fat)$/.test(e.target.name))calHint()}});
+    function calHint(){var c=form.querySelector('[name=cals]');if(c&&!c.value){var k=kcal({carbs:vals.carbs,protein:vals.protein,fat:vals.fat});c.placeholder=k?Math.round(k)+' from macros':'Auto from macros'}}
+    function touch(){dirty=true;msg.textContent='Not saved yet';msg.className='lg-msg warn'}
+    function fill(){
+      var d=days[cur]||{};vals={};
+      GROUPS.forEach(function(g){g.f.filter(keep).forEach(function(f){var v=d[f.k]||'';if(f.t==='scale'||f.t==='yn')setPick(f.k,v);else{var inp=form.querySelector('[name="'+f.k+'"]');inp.value=v;vals[f.k]=v}})});
+      showIf();calHint();dirty=false;
+      msg.className='lg-msg';msg.textContent=d._at?'Saved ✓':'';
+      el.querySelector('.lg-date b').textContent=cur===today?'Today':(cur===fromT(toT(today)-DAY)?'Yesterday':nice(cur,{weekday:'long'}));
+      el.querySelector('.lg-date small').textContent=nice(cur,{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+      el.querySelector('[data-d="1"]').disabled=cur>=today;
+      saveBtn.textContent='Save '+(cur===today?'today':nice(cur,{weekday:'short',month:undefined,day:'numeric'}));
+      strip();
+    }
+    function strip(){
+      var h='';for(var i=6;i>=0;i--){var d=fromT(toT(today)-i*DAY),on=!!days[d];h+='<button type="button" data-day="'+d+'" class="'+(on?'done ':'')+(d===cur?'cur':'')+'"><small>'+nice(d,{weekday:'short',day:undefined,month:undefined})+'</small><b>'+(on?'✓':new Date(toT(d)).getUTCDate())+'</b></button>'}
+      var s=el.querySelector('.lg-strip');s.innerHTML=h;
+      [].forEach.call(s.querySelectorAll('button'),function(b){b.onclick=function(){go(b.getAttribute('data-day'))}});
+    }
+    function go(d){if(dirty&&!confirm('You have changes that are not saved. Leave without saving?'))return;cur=d;fill()}
+    [].forEach.call(el.querySelectorAll('.lg-arr'),function(b){b.onclick=function(){var n=fromT(toT(cur)+(+b.getAttribute('data-d'))*DAY);if(n>today||toT(today)-toT(n)>60*DAY)return;go(n)}});
+    saveBtn.onclick=function(){
+      var data={};Object.keys(vals).forEach(function(k){if(vals[k]!==''&&vals[k]!=null)data[k]=vals[k]});
+      saveBtn.disabled=true;msg.textContent='Saving…';msg.className='lg-msg';
+      var done=function(day){days[cur]=day;if(!day)delete days[cur];dirty=false;saveBtn.disabled=false;msg.textContent='Saved ✓';msg.className='lg-msg ok';strip();if(o.onSaved)o.onSaved(days)};
+      if(demo){setTimeout(function(){done(Object.keys(data).length?Object.assign({_at:new Date().toISOString()},data):null)},300);return}
+      api('/portal/api/log',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({date:cur,data:data})}).then(function(j){done(j.day)}).catch(function(){saveBtn.disabled=false;msg.textContent='Not saved. Check your signal and try again.';msg.className='lg-msg warn'});
+    };
+    window.addEventListener('beforeunload',function(e){if(dirty){e.preventDefault();e.returnValue=''}});
+    function load(d){days=d||{};fill();if(o.onSaved)o.onSaved(days)}
+    if(demo)load(o.demoDays||{});
+    else api('/portal/api/log?from='+fromT(toT(today)-60*DAY)+'&to='+today).then(function(j){if(j.today&&j.today!==today){today=j.today;cur=today}load(j.days)}).catch(function(){load({})});
+    return {days:function(){return days}};
+  }
+
+  /* ---------------- weekly check-in (client) ---------------- */
+  function CheckIn(el,o){
+    o=o||{};var demo=!!o.demo,today=o.today||londonToday(),day=o.day||'Sunday',Q=[],all={},due,editing=false;
+    function pickDue(lastDue){
+      var late=!all[lastDue]&&(toT(today)-toT(lastDue))/DAY<=3;
+      if(lastDue===today||late)return lastDue;return fromT(toT(lastDue)+7*DAY);
+    }
+    function draw(){
+      var c=all[due],days=o.getDays?o.getDays():{},diff=Math.round((toT(due)-toT(today))/DAY);
+      var when=diff===0?'Due today':diff<0?'Was due '+nice(due,{weekday:'long',month:undefined})+'. Please send it now.':'Due '+nice(due,{weekday:'long',day:'numeric',month:'long'})+' (in '+diff+(diff===1?' day':' days')+')';
+      var s=c&&!editing?c.stats:weekStats(days,due);
+      if(!c||editing){var prev=weekStats(days,fromT(toT(due)-7*DAY));s.change=s.weight&&prev.weight?+(s.weight-prev.weight).toFixed(1):null}
+      var photos=o.photoCount?o.photoCount():null;
+      var h='<div class="ci-head"><div><div class="kick">'+esc(day)+' check-in</div><h3>Week ending '+nice(due,{weekday:undefined,day:'numeric',month:'long'})+'</h3></div><span class="pill '+(c?'ok':diff<0?'none':diff===0?'part':'off')+'">'+(c?'✓ Sent '+nice(c.at.slice(0,10),{weekday:'short',month:undefined}):when)+'</span></div>';
+      h+='<p class="ci-note">'+(c&&!editing?'Here is what you sent. Maria will review it and get back to you.':'Your week\'s numbers come straight from your daily log. Then answer the questions and send.')+'</p>';
+      h+=statsHTML(s);
+      if(photos!==null)h+='<a class="ci-photos'+(photos===3?' ok':'')+'" href="#photos">📸 '+(photos===3?'All 3 photos uploaded ✓':'Check-in photos: '+photos+' of 3 uploaded. Tap to add them.')+'</a>';
+      if(c&&!editing){
+        h+='<div class="ci-ans">'+(c.questions||Q).map(function(q,i){return c.answers[i]?'<div><b>'+(i+1)+'. '+esc(q)+'</b><p>'+esc(c.answers[i])+'</p></div>':''}).join('')+'</div>';
+        h+='<div class="ci-btns"><button class="btn g" type="button" data-a="edit">Edit my answers</button><a class="btn" target="_blank" rel="noopener" href="https://wa.me/447592791137?text='+encodeURIComponent('Hi Maria, my check-in for '+nice(due,{weekday:'long',month:'short'})+' is done ✅')+'">Tell Maria on WhatsApp</a></div>';
+      }else{
+        h+='<form class="ci-form">'+Q.map(function(q,i){var v=c?c.answers[i]||'':(draft()[i]||'');var short=i>=4&&i<=6;return '<label><b>'+(i+1)+'. '+esc(q)+'</b>'+(short?'<input name="q'+i+'" type="text" inputmode="numeric" value="'+esc(v)+'">':'<textarea name="q'+i+'" rows="2">'+esc(v)+'</textarea>')+'</label>'}).join('')+
+          '<div class="ci-btns"><span class="lg-msg"></span><button class="btn" type="submit">Send my check-in</button></div></form>';
+      }
+      el.innerHTML=h;
+      var f=el.querySelector('form');
+      if(f){
+        f.addEventListener('input',function(){saveDraft(f)});
+        f.onsubmit=function(e){e.preventDefault();
+          var answers=Q.map(function(_,i){return f.elements['q'+i].value.trim()});
+          if(!answers.some(Boolean)){f.querySelector('.lg-msg').textContent='Answer at least one question first.';return}
+          var btn=f.querySelector('button[type=submit]');btn.disabled=true;btn.textContent='Sending…';
+          var ok=function(ci){all[due]=ci;editing=false;clearDraft();draw();el.scrollIntoView({behavior:'smooth',block:'start'})};
+          if(demo){var st=weekStats(o.getDays?o.getDays():{},due);setTimeout(function(){ok({answers:answers,questions:Q,stats:st,at:new Date().toISOString()})},300);return}
+          api('/portal/api/checkin',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({due:due,answers:answers})}).then(function(j){ok(j.checkin)}).catch(function(){btn.disabled=false;btn.textContent='Send my check-in';f.querySelector('.lg-msg').textContent='Not sent. Check your signal and try again.'});
+        };
+      }
+      var e=el.querySelector('[data-a=edit]');if(e)e.onclick=function(){editing=true;draw()};
+    }
+    var DK='mpfCiDraft:'+(o.email||'')+':';
+    function draft(){try{return JSON.parse(localStorage.getItem(DK+due)||'[]')}catch(e){return []}}
+    function saveDraft(f){try{localStorage.setItem(DK+due,JSON.stringify(Q.map(function(_,i){return f.elements['q'+i].value})))}catch(e){}}
+    function clearDraft(){try{localStorage.removeItem(DK+due)}catch(e){}}
+    function start(j){Q=j.questions;all=j.checkins||{};day=j.day||day;if(j.today)today=j.today;due=pickDue(j.lastDue);draw()}
+    if(demo){var t=toT(today),want=DAYS.indexOf(day),wd=new Date(t).getUTCDay();start({questions:o.demoQuestions||[],checkins:{},day:day,lastDue:fromT(t-((wd-want+7)%7)*DAY)})}
+    else api('/portal/api/checkins').then(start).catch(function(){el.innerHTML='<p class="ci-note">Your check-in could not load. Please refresh the page.</p>'});
+    return {refresh:function(){if(Q.length&&!el.querySelector('form'))draw();else if(Q.length){var f=el.querySelector('form');if(f)saveDraft(f);draw()}}};
+  }
+
+  /* ---------------- coach: tables ---------------- */
+  var COLS=['weight','steps','cals','protein','sleep','cardio','trained','energy','mood','stress','hunger','adherence'];
+  function logTable(days,from,to){
+    var rows='',cols=COLS.slice();if(Object.keys(days).some(function(d){return days[d].period}))cols.push('cycle');
+    var COLS_=cols;
+    for(var t=toT(to);t>=toT(from);t-=DAY){var d=fromT(t),x=days[d];
+      rows+='<tr'+(x?'':' class="miss"')+'><td>'+nice(d,{month:undefined})+'</td>'+COLS_.map(function(k){var v=x?(k==='cals'?(kcal(x)!=null?Math.round(kcal(x)):''):k==='cycle'?(cycleDay(days,d,x.period)||''):x[k]):'';return '<td>'+esc(v||'')+'</td>'}).join('')+'<td class="nt">'+esc(x&&x.notes||'')+'</td></tr>'}
+    return '<div class="lt-wrap"><table class="lt"><thead><tr><th>Day</th>'+COLS_.map(function(k){var f=LABEL[k]||{l:'Cycle day'};return '<th>'+esc({cycle:'Cycle',weight:'Weight',steps:'Steps',cals:'Kcal',protein:'Protein',sleep:'Sleep',cardio:'Cardio',trained:'Trained',energy:'Energy',mood:'Mood',stress:'Stress',hunger:'Hunger',adherence:'Plan'}[k]||f.l)+'</th>'}).join('')+'<th>Notes</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+  }
+  function checkinList(all){
+    var ds=Object.keys(all||{}).sort().reverse();
+    if(!ds.length)return '<p class="ci-note">No check-ins sent yet.</p>';
+    return ds.map(function(d,n){var c=all[d];return '<details class="ci-card"'+(n===0?' open':'')+'><summary><b>Week ending '+nice(d,{weekday:'short'})+'</b><span>Sent '+new Date(c.at).toLocaleString('en-GB',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})+'</span></summary>'+statsHTML(c.stats||{daysLogged:0})+'<div class="ci-ans">'+(c.questions||[]).map(function(q,i){return '<div><b>'+(i+1)+'. '+esc(q)+'</b><p>'+(esc(c.answers[i])||'<i>No answer</i>')+'</p></div>'}).join('')+'</div></details>'}).join('');
+  }
+
+  window.MPFLog={Today:Today,CheckIn:CheckIn,logTable:logTable,checkinList:checkinList,weekStats:weekStats,londonToday:londonToday,fromT:fromT,toT:toT,nice:nice,
+    demoDays:function(today,n){var o={},b=74.2;for(var i=n;i>=1;i--){if(i%5===3)continue;var d=fromT(toT(today)-i*DAY);b-=0.04;o[d]={weight:(b+Math.sin(i)*0.4).toFixed(1),steps:String(8000+Math.round(Math.cos(i)*2500)),protein:String(140+i%20),carbs:'180',fat:'55',sleep:'7:'+(10+i%40),trained:i%2?'Yes':'No',energy:String(6+i%4),mood:'8',stress:String(3+i%3),hunger:'5',adherence:'9',_at:'x'}}return o}};
+})();

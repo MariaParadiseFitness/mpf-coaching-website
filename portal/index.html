@@ -13,6 +13,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <link rel="manifest" href="/portal/manifest.webmanifest">
+<link rel="stylesheet" href="/portal/log.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
@@ -171,7 +172,7 @@ footer{text-align:center;color:#7d735c;font-size:12px;padding:20px}
 <body>
 <div class="top"><div class="in">
   <a href="/"><img src="/img/logo.png" alt="MPF Coaching"></a>
-  <nav class="tabs"><a href="#start">Get started</a><a href="#progress">Progress</a><a href="#photos">Photos</a><a href="#folder">My folder</a><a href="#week">My week</a><a href="#tracker">My tracker</a><a href="#guides">Guides</a><a href="#support">Support</a></nav>
+  <nav class="tabs"><a href="#log">Daily log</a><a href="#checkin">Check-in</a><a href="#progress">Progress</a><a href="#photos">Photos</a><a href="#start">Get started</a><a href="#folder">My training</a><a href="#guides">Guides</a><a href="#support">Support</a></nav>
   <a class="out" href="/cdn-cgi/access/logout">Log out</a>
 </div></div>
 
@@ -183,7 +184,7 @@ footer{text-align:center;color:#7d735c;font-size:12px;padding:20px}
     <div>
       <div class="kick">MPF Coaching · Client portal</div>
       <h1>Welcome back, <em id="nm">friend.</em></h1>
-      <p class="lead">Everything for your coaching in one place: your tracker, your check-ins, your uploads and all of my guides.</p>
+      <p class="lead">Everything for your coaching in one place: your daily log, your check-ins, your photos and all of my guides.</p>
     </div>
   </div>
 
@@ -192,6 +193,20 @@ footer{text-align:center;color:#7d735c;font-size:12px;padding:20px}
     <div class="stat"><small>Current phase</small><b id="stPhase">Fat loss</b><span>We'll adjust as you progress</span></div>
     <div class="stat"><small>Check-in day</small><b id="stDay">Wednesday</b><span id="stNext">Next one soon</span></div>
   </div>
+
+  <!-- DAILY LOG -->
+  <section id="log">
+    <h2>My daily <em>log.</em></h2>
+    <div class="sub">Fill this in every day. Your weight first thing, then the rest by bedtime. Tap a day in the row to go back and fill it in.</div>
+    <div class="lg" id="logBox"><div class="wc-empty">Loading…</div></div>
+  </section>
+
+  <!-- CHECK-IN -->
+  <section id="checkin">
+    <h2>Weekly <em>check-in.</em></h2>
+    <div class="sub" id="ciSub">Every week on your check-in day: answer the questions, upload your photos and send.</div>
+    <div class="ci" id="ciBox"><div class="wc-empty">Loading…</div></div>
+  </section>
 
   <!-- LET'S GET STARTED -->
   <section id="start">
@@ -208,7 +223,7 @@ footer{text-align:center;color:#7d735c;font-size:12px;padding:20px}
   <!-- PROGRESS -->
   <section id="progress">
     <h2>My <em>progress.</em></h2>
-    <div class="sub">Your bodyweight from your Daily Tracker. Day to day it jumps around with water, salt and carbs. The gold line is your real trend.</div>
+    <div class="sub">Your bodyweight from your daily log. Day to day it jumps around with water, salt and carbs. The gold line is your real trend.</div>
     <div class="wc" id="wChart"><div class="wc-empty">Loading your graph…</div></div>
   </section>
 
@@ -217,18 +232,17 @@ footer{text-align:center;color:#7d735c;font-size:12px;padding:20px}
     <h2>My check-in <em>photos.</em></h2>
     <div class="sub" id="phSub">Week 1 · front, side and back. Tap a box to take or choose a photo.</div>
     <div class="ph-week" id="phWeek"></div>
-    <div class="ph-bar"><p id="phStatus">Upload all 3, then let me know your check-in is done.</p><a class="btn" id="doneBtn" target="_blank" rel="noopener">Done, tell Maria ✅</a></div>
+    <div class="ph-bar"><p id="phStatus">Upload all 3, then send your weekly check-in.</p><a class="btn" id="doneBtn" href="#checkin">Go to my check-in</a></div>
     <div class="ph-note">🔒 Private: only you and Maria can see your photos. Same time, same spot, same lighting each week, ideally first thing in the morning.</div>
     <div class="ph-hist" id="phHist" hidden><h3>Your progress so far</h3><div id="phRows"></div></div>
   </section>
 
   <!-- MY FOLDER -->
   <section id="folder">
-    <h2>My <em>folder.</em></h2>
-    <div class="sub">Your tracker and your uploads. Only you and Maria can see these.</div>
+    <h2>My <em>training.</em></h2>
+    <div class="sub">Your programme and anything else I share with you.</div>
     <div class="acts">
-      <a class="act main" id="lTracker" target="_blank" rel="noopener"><span class="ic">📊</span><span><b>Open my tracker</b><span>Daily tracker, check-in, training and logbook</span></span></a>
-      <a class="act" href="#photos"><span class="ic">📸</span><span><b>Upload check-in photos</b><span>Front, side and back, every week</span></span></a>
+      <a class="act main" id="lTracker" target="_blank" rel="noopener"><span class="ic">🏋️</span><span><b>My training programme</b><span>Your programme and logbook (Google Sheet)</span></span></a>
       <a class="act" href="https://wa.me/447592791137?text=Hi%20Maria%2C%20here%27s%20my%20training%20video%20%F0%9F%8E%A5" target="_blank" rel="noopener"><span class="ic">🎥</span><span><b>Send me a training video</b><span>On WhatsApp, so I can reply fast</span></span></a>
       <a class="act" id="lFolder" target="_blank" rel="noopener"><span class="ic">📁</span><span><b>My whole folder</b><span>Everything in one place</span></span></a>
     </div>
@@ -242,10 +256,10 @@ footer{text-align:center;color:#7d735c;font-size:12px;padding:20px}
       <div class="card">
         <h3>Every week</h3>
         <ul class="list">
-          <li><b>Every day:</b> fill in your Daily Tracker: weight, steps, cardio, calories, sleep and how you feel.</li>
+          <li><b>Every day:</b> fill in your <a href="#log">daily log</a>: weight, steps, cardio, food, sleep and how you feel.</li>
           <li><b>Every session:</b> log your weights and reps in your Logbook.</li>
           <li><b>Track your food</b> in MyFitnessPal using what you learned in your nutrition lesson.</li>
-          <li><b>On <span class="dayname">Wednesday</span>:</b> complete your Weekly Check-In, upload your photos here, then tap <b>Done, tell Maria</b>.</li>
+          <li><b>On <span class="dayname">Wednesday</span>:</b> upload your photos and send your <a href="#checkin">weekly check-in</a> here in the portal.</li>
           <li><b>Any time:</b> send me videos of your lifts on WhatsApp for quick form feedback, and tell me how you're feeling so I can adjust.</li>
         </ul>
       </div>
@@ -255,16 +269,6 @@ footer{text-align:center;color:#7d735c;font-size:12px;padding:20px}
         <p style="color:var(--mute);font-size:13.5px;margin:14px 0 16px">Photos: same time, same spot, same lighting. Front, side and back, uploaded right here in your portal.</p>
         <a class="btn" href="#photos">Upload photos</a>
       </div>
-    </div>
-  </section>
-
-  <!-- TRACKER GUIDE -->
-  <section id="tracker">
-    <h2>How to use <em>your tracker.</em></h2>
-    <div class="sub">Your Google Sheet, tab by tab. Pick a tab to see what it's for and when to use it.</div>
-    <div class="guide">
-      <div class="gnav" id="gnav"></div>
-      <div class="gpane" id="gpane"></div>
     </div>
   </section>
 
@@ -306,6 +310,7 @@ footer{text-align:center;color:#7d735c;font-size:12px;padding:20px}
 <footer>© MPF Coaching · <a href="/privacy.html" style="color:#7d735c">Privacy</a></footer>
 
 <script src="/portal/chart.js"></script>
+<script src="/portal/log.js"></script>
 <script>
 (function(){
   var $=function(id){return document.getElementById(id)};
@@ -315,25 +320,13 @@ footer{text-align:center;color:#7d735c;font-size:12px;padding:20px}
 
   var STEPS=[
     {t:'Fill in your PAR-Q',d:'A short health questionnaire so I know about any injuries or health needs before I build your plan.',l:'https://forms.gle/74SR76bEd5uwhhUH8',lt:'Open PAR-Q'},
-    {t:'Download your apps',d:'Google Drive and Google Sheets (for your tracker and uploads) and MyFitnessPal (for tracking food). Sign in to Drive and Sheets with the email you gave me.'},
+    {t:'Download MyFitnessPal',d:'For tracking your food. You\'ll add your daily totals to your log here in the portal.'},
     {t:'Get your kit together',d:'Kitchen scales, bodyweight scales, a tape measure and a step counter you wear on your wrist, like a Fitbit or smartwatch. Your phone isn\'t accurate enough as it\'s not always on you.'},
-    {t:'Open your tracker and fill in your Client Page',d:'Add your start date, your main goal and your goal date, plus your short and long term goals. Use the walkthrough below if you get stuck.',k:'tracker',lt:'Open my tracker'},
+    {t:'Log your first day',d:'Weigh yourself first thing tomorrow morning and fill in your daily log. It takes a couple of minutes a day.',l:'#log',lt:'Open my daily log'},
     {t:'Book your nutrition lesson',d:'Your 1-hour phone call where I teach you how to track properly and build your own meals. Pick a time that suits you and I\'ll call you.',l:'https://calendly.com/mpfcoaching-info/nutrition-lesson',lt:'Book my lesson'},
     {t:'Take your starting photos',d:'Front, side and back, first thing in the morning. Upload them in the Photos section of this portal.',l:'#photos',lt:'Upload photos'},
     {t:'Join the client community',d:'Optional, but a great place for support, motivation and wins.',l:'https://chat.whatsapp.com/FTD83kWGqnf03YwR4prUZN',lt:'Join the group'},
     {t:'Save this portal to your home screen',d:'So everything is one tap away. Instructions are at the bottom of this page.',l:'#support',lt:'Show me how'}
-  ];
-
-  var TABS=[
-    {i:'🏠',n:'Client Page',w:'Week 1',d:'Your starting point. Your name, start date, main goal and goal date live here, along with your short and long term goals for training and life.',p:['Enter your start date so your week counter works.','Add your goal date to see a countdown.','Write goals that matter to you. Tick them off as you hit them.']},
-    {i:'✅',n:'Routine Check List',w:'Check weekly',d:'Your weekly plan at a glance: which days you train, what session it is, your step target and any cardio.',p:['Look at it at the start of each week.','Plan your week around your training days.']},
-    {i:'📅',n:'Daily Tracker',w:'Every day',d:'The most important tab. Each day you log your morning weight, steps, cardio, calories and macros, sleep and how you feel.',p:['Weigh in first thing, after the toilet, before food or drink.','Tap “CLICK HERE” to jump to the current week.','Enter your week 1 start date once and the rest fill in automatically.','Fill in every field, every day. Missing days make it harder for me to adjust your plan.']},
-    {i:'📝',n:'Weekly Check-In',w:'Every check-in day',d:'Answer the questions for the week: your wins, stress, gym performance, recovery and anything you struggled with.',p:['Be honest, especially after a hard week. That is when I can help most.','Fill it in on your check-in day, upload your photos, then message me.']},
-    {i:'🗓️',n:'Scheduling',w:'When planning',d:'A weekly planner to fit training, meals, work and life together so nothing gets missed.',p:['Block in your sessions first, then everything else around them.']},
-    {i:'🏋️',n:'Training',w:'Before each session',d:'Your programme: exercises, sets, reps, tempo, rest and RIR (reps in reserve, how many more reps you could have done).',p:['Read the notes each time. They change as you progress.','RIR 2 means stop with about 2 good reps left in the tank.']},
-    {i:'📒',n:'Logbook',w:'Every session',d:'Where you record the weight and reps for every working set. The exercises fill in automatically from your programme.',p:['Log as you go, between sets.','Aim to beat last week: one more rep or a little more weight. That is progressive overload.']},
-    {i:'💊',n:'Supplements',w:'When needed',d:'Any supplements I recommend for you, with dose and timing.',p:['Not mandatory. Food first, supplements second.']},
-    {i:'📈',n:'BW Tracker',w:'Automatic',d:'Your bodyweight trend, built automatically from your Daily Tracker. You don\'t need to fill anything in here.',p:['Look at the weekly average, not single days. Daily weight jumps around with water, salt and carbs.']}
   ];
 
   function linkOr(el,url){if(!el)return;if(url){el.href=url;el.classList.remove('off')}else{el.removeAttribute('href');el.classList.add('off')}}
@@ -344,8 +337,8 @@ footer{text-align:center;color:#7d735c;font-size:12px;padding:20px}
     $('nm').textContent=(c.name||'friend')+'.';
     document.title='Welcome, '+(c.name||'')+' | MPF Coaching';
     var urls={tracker:c.tracker?SHEET+c.tracker+'/edit':'',photos:c.photos?DRIVE+c.photos:'',videos:c.videos?DRIVE+c.videos:'',folder:c.folder?DRIVE+c.folder:''};
-    linkOr($('lTracker'),urls.tracker);linkOr($('lFolder'),urls.folder);
-    var day=c.checkin||'Wednesday';
+    linkOr($('lTracker'),urls.tracker);linkOr($('lFolder'),urls.folder);$('lTracker').hidden=!urls.tracker;$('lFolder').hidden=!urls.folder;
+    var day=c.checkin||(c.type==='pt'?'Sunday':'Wednesday');
     $('stDay').textContent=day;document.querySelectorAll('.dayname').forEach(function(e){e.textContent=day});
     $('stPhase').textContent=c.phase||'Fat loss';
     if(c.start){var s=new Date(c.start+'T00:00:00');if(!isNaN(s)){var wk=Math.max(1,Math.floor((Date.now()-s)/6048e5)+1);$('stWeek').textContent=wk;$('stStart').textContent='Started '+s.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}}
@@ -387,8 +380,8 @@ footer{text-align:center;color:#7d735c;font-size:12px;padding:20px}
         l.querySelector('input').onchange=function(e){var f=e.target.files[0];if(f)upload(f,a,l)};
         box.appendChild(l);
       });
-      $('phStatus').textContent=n===3?'All 3 uploaded 🙌 Now tap Done so I know to review your check-in.':(n?n+' of 3 uploaded. Keep going!':'Upload all 3, then let me know your check-in is done.');
-      $('doneBtn').href='https://wa.me/447592791137?text='+encodeURIComponent('Hi Maria, my week '+curWeek+' check-in is done ✅ '+(n===3?'Photos uploaded to the portal.':'('+n+' of 3 photos uploaded)'));
+      window.__phN=n;if(window.__ci)window.__ci.refresh();
+      $('phStatus').textContent=n===3?'All 3 uploaded 🙌 Now send your weekly check-in.':(n?n+' of 3 uploaded. Keep going!':'Upload all 3, then let me know your check-in is done.');
       drawHist();
     }
     function drawHist(){
@@ -424,26 +417,29 @@ footer{text-align:center;color:#7d735c;font-size:12px;padding:20px}
     }else{
       $('phWeek').innerHTML='<div style="grid-column:1/-1;background:var(--card);border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:12px;padding:14px 16px;font-size:14px;color:var(--soft)">Photo uploads are being switched on. For now, keep sending your photos the usual way.</div>';
       $('phStatus').textContent='Let me know when your check-in is done.';
-      $('doneBtn').href='https://wa.me/447592791137?text='+encodeURIComponent('Hi Maria, my check-in is done ✅');
     }
 
-    // weight chart
-    if(demo){MPFChart($('wChart'),MPFDemoWeights(78,10))}
-    else{fetch('/portal/api/weights',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){MPFChart($('wChart'),j.weights||[],{empty:j.enabled===false?'Your graph is being switched on. Keep logging your morning weigh-ins in your Daily Tracker.':null})}).catch(function(){MPFChart($('wChart'),[])})}
-
-    // tracker guide
-    var nav=$('gnav'),pane=$('gpane');
-    TABS.forEach(function(t,i){
-      var b=document.createElement('button');b.type='button';b.innerHTML='<i>'+t.i+'</i>'+esc(t.n);
-      b.onclick=function(){[].forEach.call(nav.children,function(x){x.classList.remove('on')});b.classList.add('on');
-        pane.innerHTML='<span class="when">'+esc(t.w)+'</span><h3>'+t.i+' '+esc(t.n)+'</h3><p class="d">'+esc(t.d)+'</p><ul class="list">'+t.p.map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ul>'+(i===0?'<div class="tip"><b>Tip:</b> anywhere you need a date, double-click the cell to pick from a calendar.</div>':'')+(urls.tracker?'<p style="margin-top:18px"><a class="btn" href="'+esc(urls.tracker)+'" target="_blank" rel="noopener">Open my tracker</a></p>':'');};
-      nav.appendChild(b);if(i===0)b.click();
-    });
+    // daily log, weekly check-in and weight chart
+    var weightsAll=[];
+    function redrawChart(){MPFChart($('wChart'),weightsAll,{empty:'Your graph appears once you have logged a few morning weigh-ins in your daily log.'})}
+    function mergeDays(days){
+      var m={};weightsAll.forEach(function(w){m[w.date]=w.kg});
+      Object.keys(days).forEach(function(d){var k=parseFloat(days[d].weight);if(k>20&&k<400)m[d]=k;else delete m[d]});
+      weightsAll=Object.keys(m).sort().map(function(d){return {date:d,kg:m[d]}});redrawChart();
+    }
+    var today=meta.today||MPFLog.londonToday(),demoDays=demo?MPFLog.demoDays(today,70):null,ci;
+    var log=MPFLog.Today($('logBox'),{demo:demo,demoDays:demoDays,today:today,sex:c.sex,onSaved:function(days){mergeDays(days);if(ci)ci.refresh()}});
+    ci=MPFLog.CheckIn($('ciBox'),{demo:demo,today:today,day:day,email:email,getDays:log.days,photoCount:function(){return window.__phN==null?null:window.__phN},
+      demoQuestions:["What were this week's biggest wins/achievements?","Any comments on stress levels and management techniques?","How was gym performance this week?","How was recovery in general this week?","Number of weeks on current training set-up.","Number of weeks since deload.","Number of weeks in current phase (cut/bulk/maintenance).","Is there anything you struggled with this week?","Are there any areas you want to improve next week?","Is there anything you would like me to run through for you?"]});
+    window.__ci=ci;
+    $('ciSub').textContent='Every '+day+': upload your photos, check your week\'s numbers, answer the questions and send.';
+    if(demo){weightsAll=[];mergeDays(demoDays)}
+    else{fetch('/portal/api/weights',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){var keep=weightsAll;weightsAll=j.weights||[];if(keep.length){var m={};weightsAll.concat(keep).forEach(function(w){m[w.date]=w.kg});weightsAll=Object.keys(m).sort().map(function(d){return {date:d,kg:m[d]}})}redrawChart()}).catch(redrawChart)}
   }
 
   function message(h,p,btn){var m=$('msgBox');m.hidden=false;m.innerHTML='<img src="/img/logo.png" alt="MPF Coaching" style="height:46px;margin-bottom:20px"><h2>'+h+'</h2><p>'+p+'</p>'+(btn||'')}
 
-  if(preview){$('previewBar').hidden=false;render({name:'Sam',checkin:'Wednesday',phase:'Fat loss',start:new Date(Date.now()-9*864e5*7).toISOString().slice(0,10)},'',{week:10,photos:true,demo:true});return}
+  if(preview){$('previewBar').hidden=false;render({name:'Sam',checkin:'Sunday',type:'pt',sex:'f',phase:'Fat loss',start:new Date(Date.now()-9*864e5*7).toISOString().slice(0,10)},'',{week:10,photos:true,demo:true});return}
 
   fetch('/portal/api/me',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json().then(function(j){return {s:r.status,j:j}})}).then(function(x){
     var j=x.j;
@@ -451,7 +447,7 @@ footer{text-align:center;color:#7d735c;font-size:12px;padding:20px}
     if(x.s===401||!j.signedIn){message('Please <em>log in.</em>','Your session has ended. Log in again with your email to open your portal.','<a class="btn" href="/cdn-cgi/access/logout">Log in again</a>');return}
     if(!j.known&&j.coach){location.replace('/portal/coach/');return}
     if(!j.known){message('Nearly <em>there.</em>','You\'re signed in as <b style="color:#fff">'+esc(j.email)+'</b>, but your portal isn\'t linked to this email yet. Message me and I\'ll get you set up.','<a class="btn" href="https://wa.me/447592791137">Message Maria</a><p style="margin-top:16px"><a href="/cdn-cgi/access/logout">Log out</a></p>');return}
-    render(j.client,j.email,{week:j.week,photos:j.photos});
+    render(j.client,j.email,{week:j.week,photos:j.photos,today:j.today});
   }).catch(function(){message('Something went <em>wrong.</em>','Please refresh the page. If it keeps happening, message me.','<a class="btn" href="https://wa.me/447592791137">Message Maria</a>')});
 })();
 </script>

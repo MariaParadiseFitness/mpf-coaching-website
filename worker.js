@@ -10,12 +10,11 @@
 //   COACH_EMAILS    comma-separated emails that can see the coach view (e.g. "info@mpfcoaching.co.uk")
 //   PORTAL_CLIENTS  (secret) JSON of clients keyed by email, e.g.
 //     {"client@example.com":{"id":"sam","name":"Sam","tracker":"<sheet id>","folder":"<folder id>",
-//       "checkin":"Wednesday","start":"2026-09-21","phase":"Fat loss","active":true}}
+//       "checkin":"Wednesday","start":"2026-09-21","phase":"Fat loss","active":true,"type":"online"}}
+//     type "pt" = face to face (check-in defaults to Sunday).
 //     A client with two emails: give both entries the same "id".
-//   SHEETS_URL      web app URL of the MPF Portal Weights Google Apps Script
-//   SHEETS_KEY      (secret) the key that script expects
 // Binding:
-//   PHOTOS          private R2 bucket for check-in photos (never public)
+//   PHOTOS          private R2 bucket: check-in photos, plus daily logs and check-ins under _data/ (never public)
 // Client details are never stored in the website code.
 
 const MAX_BYTES = 15 * 1024 * 1024;
@@ -132,22 +131,131 @@ async function listPhotos(env, id) {
   return out;
 }
 
-async function weights(env, sheet) {
-  if (!env.SHEETS_URL || !env.SHEETS_KEY || !sheet) return null;
-  const cache = caches.default;
-  const ck = new Request(`https://cache.mpf/weights/${encodeURIComponent(sheet)}`);
-  const hit = await cache.match(ck);
-  if (hit) return hit.json();
-  const u = new URL(env.SHEETS_URL);
-  u.searchParams.set("sheet", sheet);
-  u.searchParams.set("key", env.SHEETS_KEY);
-  const r = await fetch(u.toString(), { redirect: "follow" });
-  if (!r.ok) return null;
-  const j = await r.json();
-  if (!Array.isArray(j.weights)) return null;
-  const data = { weights: j.weights.slice(-400) };
-  await cache.put(ck, new Response(JSON.stringify(data), { headers: { "cache-control": "max-age=900" } }));
-  return data;
+// ---- daily log + weekly check-ins (stored privately in the same R2 bucket, under _data/) ----
+// _data/<id>/log/<YYYY-MM>.json   {"2026-11-21": {weight:"80.2", steps:"9000", ...}}
+// _data/<id>/checkins.json        {"2026-11-23": {answers:[...], stats:{...}, at:"..."}}
+// _data/<id>/summary.json         {weights:{date:kg}, logged:[dates], checkins:{due:at}}
+const QUESTIONS = [
+  "What were this week's biggest wins/achievements?",
+  "Any comments on stress levels and management techniques?",
+  "How was gym performance this week?",
+  "How was recovery in general this week?",
+  "Number of weeks on current training set-up.",
+  "Number of weeks since deload.",
+  "Number of weeks in current phase (cut/bulk/maintenance).",
+  "Is there anything you struggled with this week?",
+  "Are there any areas you want to improve next week?",
+  "Is there anything you would like me to run through for you?",
+];
+const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const DAY_MS = 864e5;
+const dkey = (id) => `_data/${id}`;
+const isDate = (s) => typeof s === "string" && /^\d{4}-\d{2}-\d{2}$/.test(s) && !isNaN(Date.parse(s + "T00:00:00Z"));
+const toT = (s) => Date.parse(s + "T00:00:00Z");
+const fromT = (t) => new Date(t).toISOString().slice(0, 10);
+function londonToday() {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/London", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
+}
+function checkinDay(c) {
+  const d = c.checkin || (c.type === "pt" ? "Sunday" : "Wednesday");
+  return DAYS.includes(d) ? d : "Sunday";
+}
+// most recent check-in date on or before `today`
+function lastDue(c, today) {
+  const t = toT(today), want = DAYS.indexOf(checkinDay(c)), wd = new Date(t).getUTCDay();
+  return fromT(t - ((wd - want + 7) % 7) * DAY_MS);
+}
+async function getJSON(env, key, dflt) {
+  const o = await env.PHOTOS.get(key);
+  if (!o) return dflt;
+  try { return await o.json(); } catch (e) { return dflt; }
+}
+const putJSON = (env, key, v) => env.PHOTOS.put(key, JSON.stringify(v), { httpMetadata: { contentType: "application/json" } });
+function cleanDay(data) {
+  const out = {};
+  let n = 0;
+  for (const [k, v] of Object.entries(data || {})) {
+    if (!/^[a-zA-Z0-9]{1,24}$/.test(k) || n >= 40 || v === null || v === undefined) continue;
+    const s = String(v).trim().slice(0, k === "notes" ? 2000 : 120);
+    if (s === "") continue;
+    out[k] = s;
+    n++;
+  }
+  return out;
+}
+async function readLog(env, id, from, to) {
+  const days = {};
+  let t = toT(from.slice(0, 7) + "-01");
+  const end = toT(to);
+  for (let i = 0; i < 7 && t <= end; i++) {
+    const m = fromT(t).slice(0, 7);
+    const doc = await getJSON(env, `${dkey(id)}/log/${m}.json`, {});
+    for (const [d, v] of Object.entries(doc)) if (d >= from && d <= to) days[d] = v;
+    const dt = new Date(t);
+    t = Date.UTC(dt.getUTCFullYear(), dt.getUTCMonth() + 1, 1);
+  }
+  return days;
+}
+const num = (v) => {
+  const n = parseFloat(String(v || "").replace(/,/g, ""));
+  return isNaN(n) ? null : n;
+};
+function hours(v) { // "7:45" or "7.75" -> 7.75
+  const s = String(v || "").trim();
+  const m = s.match(/^(\d{1,2})[:.h ](\d{2})$/);
+  if (m && s.includes(":")) return +m[1] + +m[2] / 60;
+  return num(s);
+}
+function weekStats(days, end) {
+  const out = { daysLogged: 0 };
+  const sums = { weight: [], steps: [], cals: [], sleep: [], protein: [] };
+  for (let i = 0; i < 7; i++) {
+    const d = days[fromT(toT(end) - i * DAY_MS)];
+    if (!d) continue;
+    out.daysLogged++;
+    const w = num(d.weight); if (w) sums.weight.push(w);
+    const st = num(d.steps); if (st !== null) sums.steps.push(st);
+    let cal = num(d.cals);
+    if (cal === null && (d.carbs || d.protein || d.fat)) cal = 4 * (num(d.carbs) || 0) + 4 * (num(d.protein) || 0) + 9 * (num(d.fat) || 0);
+    if (cal) sums.cals.push(cal);
+    const sl = hours(d.sleep); if (sl) sums.sleep.push(sl);
+    const p = num(d.protein); if (p) sums.protein.push(p);
+  }
+  const avg = (a, dp) => (a.length ? +(a.reduce((x, y) => x + y, 0) / a.length).toFixed(dp) : null);
+  out.weight = avg(sums.weight, 1); out.steps = avg(sums.steps, 0); out.cals = avg(sums.cals, 0);
+  out.sleep = avg(sums.sleep, 1); out.protein = avg(sums.protein, 0);
+  return out;
+}
+async function saveDay(env, c, date, data) {
+  const key = `${dkey(c.id)}/log/${date.slice(0, 7)}.json`;
+  const doc = await getJSON(env, key, {});
+  const clean = cleanDay(data);
+  if (Object.keys(clean).length) doc[date] = { ...clean, _at: new Date().toISOString() };
+  else delete doc[date];
+  await putJSON(env, key, doc);
+  const sk = `${dkey(c.id)}/summary.json`;
+  const s = await getJSON(env, sk, {});
+  s.weights = s.weights || {};
+  s.logged = s.logged || [];
+  const w = num(clean.weight);
+  if (w && w > 20 && w < 400) s.weights[date] = w; else delete s.weights[date];
+  const set = new Set(s.logged);
+  if (doc[date]) set.add(date); else set.delete(date);
+  s.logged = [...set].sort().slice(-120);
+  const wd = Object.keys(s.weights).sort();
+  if (wd.length > 500) for (const d of wd.slice(0, wd.length - 500)) delete s.weights[d];
+  await putJSON(env, sk, s);
+  return doc[date] || null;
+}
+const summaryWeights = (s) => Object.keys((s && s.weights) || {}).sort().map((d) => ({ date: d, kg: s.weights[d] }));
+function checkinStatus(c, s, today) {
+  const ci = s.checkins || {};
+  const due = lastDue(c, today), next = fromT(toT(due) + 7 * DAY_MS), day = checkinDay(c);
+  if (ci[next]) return { due: next, done: true, day };
+  if (ci[due]) return { due, done: true, day };
+  if (due === today) return { due, done: false, dueToday: true, day };
+  if ((toT(today) - toT(due)) / DAY_MS <= 3) return { due, done: false, late: true, day };
+  return { due: next, done: false, upcoming: true, missed: due, day };
 }
 
 async function handleApi(request, env, url) {
@@ -161,7 +269,7 @@ async function handleApi(request, env, url) {
     const { id, ...pub } = client;
     return json({
       configured: true, signedIn: true, known: true, coach, email,
-      client: pub, week: weekOf(client.start), photos: !!env.PHOTOS,
+      client: { ...pub, checkin: checkinDay(client), type: client.type === "pt" ? "pt" : "online" }, week: weekOf(client.start), photos: !!env.PHOTOS, today: londonToday(),
     });
   }
 
@@ -222,9 +330,62 @@ async function handleApi(request, env, url) {
 
   if (path === "/portal/api/weights") {
     if (!client) return json({ error: "unknown" }, 403);
-    const d = await weights(env, client.tracker);
-    if (!d) return json({ enabled: !!env.SHEETS_URL, weights: [] });
-    return json({ enabled: true, weights: d.weights });
+    if (!env.PHOTOS) return json({ enabled: false, weights: [] });
+    const sm = await getJSON(env, `${dkey(client.id)}/summary.json`, {});
+    return json({ enabled: true, weights: summaryWeights(sm) });
+  }
+
+
+  // ---- daily log ----
+  if (path === "/portal/api/log" && request.method === "GET") {
+    if (!client) return json({ error: "unknown" }, 403);
+    const today = londonToday();
+    const to = isDate(url.searchParams.get("to")) ? url.searchParams.get("to") : today;
+    let from = isDate(url.searchParams.get("from")) ? url.searchParams.get("from") : fromT(toT(to) - 20 * DAY_MS);
+    if (toT(to) - toT(from) > 120 * DAY_MS) from = fromT(toT(to) - 120 * DAY_MS);
+    return json({ today, from, to, days: await readLog(env, client.id, from, to) });
+  }
+  if (path === "/portal/api/log" && request.method === "POST") {
+    if (!client) return json({ error: "unknown" }, 403);
+    const body = await request.json().catch(() => ({}));
+    const today = londonToday();
+    if (!isDate(body.date)) return json({ error: "date" }, 400);
+    const age = (toT(today) - toT(body.date)) / DAY_MS;
+    if (age < -1 || age > 62) return json({ error: "date" }, 400);
+    const saved = await saveDay(env, client, body.date, body.data);
+    return json({ ok: true, date: body.date, day: saved });
+  }
+
+  // ---- weekly check-in ----
+  if (path === "/portal/api/checkins" && request.method === "GET") {
+    if (!client) return json({ error: "unknown" }, 403);
+    const today = londonToday();
+    const all = await getJSON(env, `${dkey(client.id)}/checkins.json`, {});
+    return json({ today, day: checkinDay(client), lastDue: lastDue(client, today), questions: QUESTIONS, checkins: all });
+  }
+  if (path === "/portal/api/checkin" && request.method === "POST") {
+    if (!client) return json({ error: "unknown" }, 403);
+    const body = await request.json().catch(() => ({}));
+    const today = londonToday();
+    const due = body.due;
+    if (!isDate(due) || DAYS[new Date(toT(due)).getUTCDay()] !== checkinDay(client)) return json({ error: "due" }, 400);
+    const diff = (toT(due) - toT(today)) / DAY_MS;
+    if (diff < -10 || diff > 7) return json({ error: "due" }, 400);
+    const answers = (Array.isArray(body.answers) ? body.answers : []).slice(0, QUESTIONS.length).map((a) => String(a || "").slice(0, 3000));
+    const days = await readLog(env, client.id, fromT(toT(due) - 13 * DAY_MS), due);
+    const stats = weekStats(days, due);
+    const prev = weekStats(days, fromT(toT(due) - 7 * DAY_MS));
+    stats.change = stats.weight && prev.weight ? +(stats.weight - prev.weight).toFixed(1) : null;
+    const key = `${dkey(client.id)}/checkins.json`;
+    const all = await getJSON(env, key, {});
+    all[due] = { answers, questions: QUESTIONS, stats, at: new Date().toISOString() };
+    await putJSON(env, key, all);
+    const sk = `${dkey(client.id)}/summary.json`;
+    const sm = await getJSON(env, sk, {});
+    sm.checkins = sm.checkins || {};
+    sm.checkins[due] = all[due].at;
+    await putJSON(env, sk, sm);
+    return json({ ok: true, due, checkin: all[due] });
   }
 
   // ---- coach ----
@@ -238,9 +399,17 @@ async function handleApi(request, env, url) {
       let photos = [];
       if (env.PHOTOS) photos = await listPhotos(env, c.id);
       const week = weekOf(c.start);
+      const today = londonToday();
+      const sm = await getJSON(env, `${dkey(c.id)}/summary.json`, {});
+      const logged = sm.logged || [];
+      const weekAgo = fromT(toT(today) - 6 * DAY_MS);
+      const wts = summaryWeights(sm);
       const thisWeek = photos.filter((p) => p.week === week).map((p) => p.angle);
       list.push({
-        id: c.id, name: c.name, phase: c.phase || "", checkin: c.checkin || "Wednesday", start: c.start || "",
+        id: c.id, name: c.name, phase: c.phase || "", checkin: checkinDay(c), start: c.start || "",
+        type: c.type === "pt" ? "pt" : "online", phone: String(c.phone || "").replace(/[^0-9]/g, ""),
+        lastLog: logged[logged.length - 1] || "", loggedWeek: logged.filter((d) => d >= weekAgo && d <= today).length,
+        lastWeight: wts.length ? wts[wts.length - 1] : null, check: checkinStatus(c, sm, today),
         active: c.active !== false, week, tracker: c.tracker || "", folder: c.folder || "",
         photosThisWeek: [...new Set(thisWeek)], lastUpload: photos.reduce((m, p) => (p.uploaded > m ? p.uploaded : m), ""),
         photoCount: photos.length,
@@ -262,8 +431,29 @@ async function handleApi(request, env, url) {
     const id = (url.searchParams.get("id") || "").toLowerCase();
     const c = Object.values(r).find((x) => x.id === id);
     if (!c) return json({ error: "unknown" }, 404);
-    const d = await weights(env, c.tracker);
-    return json({ enabled: !!d, weights: d ? d.weights : [] });
+    const sm = await getJSON(env, `${dkey(c.id)}/summary.json`, {});
+    return json({ enabled: true, weights: summaryWeights(sm) });
+  }
+
+
+  if (path === "/portal/api/coach/log") {
+    if (!coach) return json({ error: "forbidden" }, 403);
+    const id = (url.searchParams.get("id") || "").toLowerCase();
+    const c = Object.values(r).find((x) => x.id === id);
+    if (!c) return json({ error: "unknown" }, 404);
+    const today = londonToday();
+    const to = isDate(url.searchParams.get("to")) ? url.searchParams.get("to") : today;
+    let from = isDate(url.searchParams.get("from")) ? url.searchParams.get("from") : fromT(toT(to) - 27 * DAY_MS);
+    if (toT(to) - toT(from) > 180 * DAY_MS) from = fromT(toT(to) - 180 * DAY_MS);
+    return json({ today, from, to, days: await readLog(env, c.id, from, to) });
+  }
+
+  if (path === "/portal/api/coach/checkins") {
+    if (!coach) return json({ error: "forbidden" }, 403);
+    const id = (url.searchParams.get("id") || "").toLowerCase();
+    const c = Object.values(r).find((x) => x.id === id);
+    if (!c) return json({ error: "unknown" }, 404);
+    return json({ day: checkinDay(c), checkins: await getJSON(env, `${dkey(c.id)}/checkins.json`, {}) });
   }
 
   return json({ error: "not found" }, 404);
