@@ -293,7 +293,7 @@ footer{text-align:center;color:#7d735c;font-size:12px;padding:20px}
     <div class="acts" style="margin-bottom:16px">
       <a class="act main" href="https://wa.me/447592791137" target="_blank" rel="noopener"><span class="ic">💬</span><span><b>WhatsApp me</b><span>Questions, wins and anything in between</span></span></a>
       <a class="act" href="https://chat.whatsapp.com/FTD83kWGqnf03YwR4prUZN" target="_blank" rel="noopener"><span class="ic">👥</span><span><b>Client community</b><span>The MPF group chat</span></span></a>
-      <a class="act" href="https://calendly.com/mpfcoaching-info/nutrition-lesson" target="_blank" rel="noopener"><span class="ic">🥗</span><span><b>Book my nutrition lesson</b><span>1-hour phone call with Maria</span></span></a>
+      <a class="act" id="lNutri" href="https://calendly.com/mpfcoaching-info/nutrition-lesson" target="_blank" rel="noopener"><span class="ic">🥗</span><span><b>Book my nutrition lesson</b><span>1-hour phone call with Maria</span></span></a>
       <a class="act" href="https://forms.gle/74SR76bEd5uwhhUH8" target="_blank" rel="noopener"><span class="ic">🩺</span><span><b>PAR-Q health form</b><span>Update me if anything changes</span></span></a>
       <a class="act" href="mailto:info@mpfcoaching.co.uk"><span class="ic">✉️</span><span><b>Email me</b><span>info@mpfcoaching.co.uk</span></span></a>
     </div>
@@ -323,7 +323,7 @@ footer{text-align:center;color:#7d735c;font-size:12px;padding:20px}
     {t:'Download MyFitnessPal',d:'For tracking your food. You\'ll add your daily totals to your log here in the portal.'},
     {t:'Get your kit together',d:'Kitchen scales, bodyweight scales, a tape measure and a step counter you wear on your wrist, like a Fitbit or smartwatch. Your phone isn\'t accurate enough as it\'s not always on you.'},
     {t:'Log your first day',d:'Weigh yourself first thing tomorrow morning and fill in your daily log. It takes a couple of minutes a day.',l:'#log',lt:'Open my daily log'},
-    {t:'Book your nutrition lesson',d:'Your 1-hour phone call where I teach you how to track properly and build your own meals. Pick a time that suits you and I\'ll call you.',l:'https://calendly.com/mpfcoaching-info/nutrition-lesson',lt:'Book my lesson'},
+    {online:true,t:'Book your nutrition lesson',d:'Your 1-hour phone call where I teach you how to track properly and build your own meals. Pick a time that suits you and I\'ll call you.',l:'https://calendly.com/mpfcoaching-info/nutrition-lesson',lt:'Book my lesson'},
     {t:'Take your starting photos',d:'Front, side and back, first thing in the morning. Upload them in the Photos section of this portal.',l:'#photos',lt:'Upload photos'},
     {t:'Join the client community',d:'Optional, but a great place for support, motivation and wins.',l:'https://chat.whatsapp.com/FTD83kWGqnf03YwR4prUZN',lt:'Join the group'},
     {t:'Save this portal to your home screen',d:'So everything is one tap away. Instructions are at the bottom of this page.',l:'#support',lt:'Show me how'}
@@ -347,6 +347,7 @@ footer{text-align:center;color:#7d735c;font-size:12px;padding:20px}
     $('stNext').textContent=diff===0?'Check-in is today':'Next in '+diff+(diff===1?' day':' days');
 
     // steps
+    var pt=c.type==='pt';if(pt){STEPS=STEPS.filter(function(x){return !x.online});$('lNutri').hidden=true}
     var KEY='mpfStart:'+(email||'preview'),done={};
     try{done=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){}
     var ol=$('steps');
