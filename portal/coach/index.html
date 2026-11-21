@@ -188,8 +188,8 @@ td b{color:#fff;font-size:15px}
       fetch('/portal/api/coach/checkins?id='+encodeURIComponent(id),{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){$('pCi').innerHTML=MPFLog.checkinList(j.checkins)});
       fetch('/portal/api/coach/log?id='+encodeURIComponent(id)+'&from='+from+'&to='+todayStr,{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){$('pLog').innerHTML=MPFLog.logTable(j.days||{},from,todayStr)});
     }
-    if(preview){MPFChart($('wChart'),MPFDemoWeights(70+cur.week%9*3,cur.week),{empty:'No weigh-ins logged yet.'});curPhotos=demoPhotos(cur);drawPhotos();$('panel').scrollIntoView({behavior:'smooth'});return}
-    $('wChart').innerHTML='<div class="wc-empty">Loading weight trend…</div>';fetch('/portal/api/coach/weights?id='+encodeURIComponent(id),{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){MPFChart($('wChart'),j.weights||[],{empty:'No weigh-ins logged yet.'})});
+    if(preview){MPFChart($('wChart'),MPFDemoWeights(70+cur.week%9*3,cur.week),{empty:'The weight graph appears once they have logged 2 morning weigh-ins.'});curPhotos=demoPhotos(cur);drawPhotos();$('panel').scrollIntoView({behavior:'smooth'});return}
+    $('wChart').innerHTML='<div class="wc-empty">Loading weight trend…</div>';fetch('/portal/api/coach/weights?id='+encodeURIComponent(id),{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){MPFChart($('wChart'),j.weights||[],{empty:'The weight graph appears once they have logged 2 morning weigh-ins.'})});
     fetch('/portal/api/coach/photos?id='+encodeURIComponent(id),{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){curPhotos=j.photos||[];drawPhotos();$('panel').scrollIntoView({behavior:'smooth'})});
   }
   $('closeBtn').onclick=function(){$('panel').hidden=true};

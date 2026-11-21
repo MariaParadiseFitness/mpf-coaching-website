@@ -105,3 +105,7 @@ table.pe td.act{white-space:nowrap}
 .pg-list small{display:block;font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:700}
 .pg-list .pg-tabs{margin-top:6px}
 .pg-top .pill{vertical-align:middle;margin-left:6px;font-family:var(--sans)}
+table.lt th:first-child,table.lt td:first-child{position:sticky;left:0;z-index:1;background:#151410}
+table.lt th:first-child{background:#1d1b15;z-index:2}
+table.lt tr.miss td{font-style:italic;font-size:12px;padding-top:5px;padding-bottom:5px}
+table.lt tr.miss td:first-child{font-style:normal}

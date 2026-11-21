@@ -536,7 +536,7 @@ body.gated #topTabs{visibility:hidden}
 
     // daily log, weekly check-in and weight chart
     var weightsAll=[];
-    function redrawChart(){MPFChart($('wChart'),weightsAll,{empty:'Your graph appears once you have logged a few morning weigh-ins in your daily log.'})}
+    function redrawChart(){MPFChart($('wChart'),weightsAll,{empty:'Your graph appears once you have logged 2 morning weigh-ins in your daily log.'})}
     function mergeDays(days){
       var m={};weightsAll.forEach(function(w){m[w.date]=w.kg});
       Object.keys(days).forEach(function(d){var k=parseFloat(days[d].weight);if(k>20&&k<400)m[d]=k;else delete m[d]});

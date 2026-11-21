@@ -155,13 +155,14 @@
   }
 
   /* ---------------- coach: tables ---------------- */
-  var COLS=['weight','steps','cals','protein','sleep','cardio','trained','energy','mood','stress','hunger','adherence'];
+  var COLS=['weight','steps','cals','protein','carbs','fat','water','sleep','cardio','trained','energy','mood','stress','hunger','adherence','offPlan'];
   function logTable(days,from,to){
     var rows='',cols=COLS.slice();if(Object.keys(days).some(function(d){return days[d].period}))cols.push('cycle');
     var COLS_=cols;
     for(var t=toT(to);t>=toT(from);t-=DAY){var d=fromT(t),x=days[d];
-      rows+='<tr'+(x?'':' class="miss"')+'><td>'+nice(d,{month:undefined})+'</td>'+COLS_.map(function(k){var v=x?(k==='cals'?(kcal(x)!=null?Math.round(kcal(x)):''):k==='cycle'?(cycleDay(days,d,x.period)||''):x[k]):'';return '<td>'+esc(v||'')+'</td>'}).join('')+'<td class="nt">'+esc(x&&x.notes||'')+'</td></tr>'}
-    return '<div class="lt-wrap"><table class="lt"><thead><tr><th>Day</th>'+COLS_.map(function(k){var f=LABEL[k]||{l:'Cycle day'};return '<th>'+esc({cycle:'Cycle',weight:'Weight',steps:'Steps',cals:'Kcal',protein:'Protein',sleep:'Sleep',cardio:'Cardio',trained:'Trained',energy:'Energy',mood:'Mood',stress:'Stress',hunger:'Hunger',adherence:'Plan'}[k]||f.l)+'</th>'}).join('')+'<th>Notes</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+      if(!x){rows+='<tr class="miss"><td>'+nice(d,{month:undefined})+'</td><td colspan="'+(COLS_.length+1)+'">Not logged</td></tr>';continue}
+      rows+='<tr><td>'+nice(d,{month:undefined})+'</td>'+COLS_.map(function(k){var v=x?(k==='cals'?(kcal(x)!=null?Math.round(kcal(x)):''):k==='cycle'?(cycleDay(days,d,x.period)||''):x[k]):'';return '<td>'+esc(v||'')+'</td>'}).join('')+'<td class="nt">'+esc(x&&x.notes||'')+'</td></tr>'}
+    return '<div class="lt-wrap"><table class="lt"><thead><tr><th>Day</th>'+COLS_.map(function(k){var f=LABEL[k]||{l:'Cycle day'};return '<th>'+esc({cycle:'Cycle',weight:'Weight',steps:'Steps',cals:'Kcal',protein:'Protein',carbs:'Carbs',fat:'Fat',water:'Water',offPlan:'Off-plan',sleep:'Sleep',cardio:'Cardio',trained:'Trained',energy:'Energy',mood:'Mood',stress:'Stress',hunger:'Hunger',adherence:'Plan'}[k]||f.l)+'</th>'}).join('')+'<th>Notes</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
   }
   function checkinList(all){
     var ds=Object.keys(all||{}).sort().reverse();
