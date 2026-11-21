@@ -8,7 +8,7 @@
   function order(doc){var cur=doc.current,ps=(doc.programmes||[]).slice();ps.sort(function(a,b){return (b.id===cur)-(a.id===cur)||(b.created>a.created?1:-1)});return ps}
   function View(el,doc){
     var ps=doc&&doc.programmes?order(doc):[];
-    if(!ps.length){el.innerHTML='<div class="pg-empty">Your programme will appear here once Maria has set it up.</div>';return}
+    if(!ps.length){el.innerHTML='<div class="pg-empty">Your coach will assign your training programme soon. It will appear here as soon as it is ready.</div>';return}
     var pi=0,cur=0;
     function draw(){
       var prog=ps[pi],isCur=prog.id===doc.current,w=prog.workouts[cur]||{exercises:[]};
