@@ -169,6 +169,10 @@ footer{text-align:center;color:#7d735c;font-size:12px;padding:20px}
 @media(max-width:600px){.wc-stats b{font-size:17px}}
 
 /* app layout */
+.bk-frame{border-radius:20px;overflow:hidden;border:1px solid rgba(214,184,100,.7);background:#fff;margin-top:12px}
+.bk-frame iframe{display:block;width:100%;height:1100px;border:0}
+.bnav.six{grid-template-columns:repeat(6,1fr)}.bnav.six a{font-size:9.5px}
+.ptonly[hidden]{display:none!important}
 .step .opt{font-size:10px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--gold-l);border:1px solid var(--line);border-radius:20px;padding:2px 8px;vertical-align:middle;margin-left:4px}
 .step p.tip{color:var(--gold-l);font-size:13px;margin-top:6px}
 #app:not(.ready) [data-view]{display:none}
@@ -213,7 +217,7 @@ body.gated #topTabs{visibility:hidden}
 <body>
 <div class="top"><div class="in">
   <a href="/"><img src="/img/logo.png" alt="MPF Coaching"></a>
-  <nav class="tabs" id="topTabs"><a data-v="today" href="#log">Today</a><a data-v="checkin" href="#checkin">Check-in</a><a data-v="progress" href="#progress">Progress</a><a data-v="training" href="#folder">Training</a><a data-v="more" href="#account">More</a></nav>
+  <nav class="tabs" id="topTabs"><a data-v="today" href="#log">Today</a><a data-v="checkin" href="#checkin">Check-in</a><a data-v="progress" href="#progress">Progress</a><a data-v="training" href="#folder">Training</a><a data-v="sessions" href="#sessions" class="ptonly" hidden>Sessions</a><a data-v="more" href="#account">More</a></nav>
   <a class="out" href="/cdn-cgi/access/logout">Log out</a>
 </div></div>
 
@@ -309,6 +313,19 @@ body.gated #topTabs{visibility:hidden}
     </div>
   </section>
 
+  <!-- SESSIONS (face to face only) -->
+  <section data-view="sessions" id="sessions" class="gone">
+    <h2>My <em>sessions.</em></h2>
+    <div class="sub">Book, move or cancel your PT sessions with Maria at PureGym Charlton.</div>
+    <div class="acts" style="margin-bottom:16px">
+      <a class="act main" href="#bookNow"><span class="ic">📅</span><span><b>Book a session</b><span>Pick your times below</span></span></a>
+      <a class="act" href="https://app.acuityscheduling.com/schedule.php?owner=38832646&amp;appointmentType=90953993" target="_blank" rel="noopener"><span class="ic">🗂️</span><span><b>My bookings</b><span>See, move or cancel sessions and check sessions left. Log in top right</span></span></a>
+      <a class="act" href="https://app.acuityscheduling.com/catalog/a5bbccbc/?categories=Private%201%E2%80%931%20Training%20%252526%20Coaching%20" target="_blank" rel="noopener"><span class="ic">🛒</span><span><b>Buy a package</b><span>Top up your sessions. Your code arrives by email</span></span></a>
+    </div>
+    <div class="pg-note" id="bookNow"><b>Booking with a package?</b> Enter your package code at checkout so you won't be charged again, and use the same email you bought it with.</div>
+    <div class="bk-frame"><iframe id="acuity" data-src="https://app.acuityscheduling.com/schedule.php?owner=38832646&amp;appointmentType=90953993&amp;ref=embedded_csp" title="Book a PT session with Maria" scrolling="no"></iframe></div>
+  </section>
+
   <!-- MORE -->
   <section data-view="more" id="account">
     <h2>My <em>account.</em></h2>
@@ -353,7 +370,7 @@ body.gated #topTabs{visibility:hidden}
 </main>
 
 <div class="msg" id="msgBox" hidden></div>
-<nav class="bnav" id="bnav" hidden><a data-v="today" href="#log"><i>📝</i>Today</a><a data-v="checkin" href="#checkin"><i>✅</i>Check-in<em class="dot" id="ciDot" hidden></em></a><a data-v="progress" href="#progress"><i>📈</i>Progress</a><a data-v="training" href="#folder"><i>🏋️</i>Training</a><a data-v="more" href="#account"><i>☰</i>More</a></nav>
+<nav class="bnav" id="bnav" hidden><a data-v="today" href="#log"><i>📝</i>Today</a><a data-v="checkin" href="#checkin"><i>✅</i>Check-in<em class="dot" id="ciDot" hidden></em></a><a data-v="progress" href="#progress"><i>📈</i>Progress</a><a data-v="training" href="#folder"><i>🏋️</i>Training</a><a data-v="sessions" href="#sessions" class="ptonly" hidden><i>📅</i>Sessions</a><a data-v="more" href="#account"><i>☰</i>More</a></nav>
 <footer>© MPF Coaching · <a href="/privacy.html" style="color:#7d735c">Privacy</a></footer>
 
 <script src="/portal/chart.js"></script>
@@ -382,11 +399,13 @@ body.gated #topTabs{visibility:hidden}
   function firstOf(v){return document.querySelector('[data-view="'+v+'"]:not(.gone):not([hidden])')}
   function go(id,noScroll){
     if(window.__gated&&['start','photos','support'].indexOf(id)<0)id='start';
+    if(id==='sessions'&&$('sessions').classList.contains('gone'))id='log';
     $('app').classList.add('ready');
     var t=document.getElementById(id)||document.getElementById('log'),host=t.closest('[data-view]'),v=host?host.getAttribute('data-view'):'today';
     [].forEach.call(document.querySelectorAll('[data-view]'),function(e){e.classList.toggle('vh',e.getAttribute('data-view')!==v)});
     [].forEach.call(document.querySelectorAll('#topTabs a,#bnav a'),function(a){a.classList.toggle('on',a.getAttribute('data-v')===v)});
     $('backSetup').hidden=!(window.__gated&&v!=='setup');
+    if(v==='sessions'){var f=$('acuity');if(f&&!f.src)f.src=f.getAttribute('data-src')}
     if(noScroll)return;
     if(['log','checkin','progress','folder','account','start'].indexOf(id)>=0||(t===host&&host===firstOf(v)))window.scrollTo(0,0);else t.scrollIntoView({block:'start'});
   }
@@ -394,6 +413,7 @@ body.gated #topTabs{visibility:hidden}
   window.addEventListener('hashchange',route);
   document.addEventListener('click',function(e){var a=e.target.closest('a[href^="#"]');if(!a)return;var id=a.getAttribute('href').slice(1);if(!id)return;e.preventDefault();if(location.hash!=='#'+id)history.pushState(null,'','#'+id);go(id)});
   window.addEventListener('popstate',route);
+  window.addEventListener('message',function(e){try{if(!/acuityscheduling\.com$/.test(new URL(e.origin).hostname))return}catch(x){return}var m=typeof e.data=='string'&&e.data.match(/^sizing:(\d+)/);if(m)$('acuity').style.height=(+m[1]+40)+'px'});
 
   function linkOr(el,url){if(!el)return;if(url){el.href=url;el.classList.remove('off')}else{el.removeAttribute('href');el.classList.add('off')}}
 
@@ -417,7 +437,8 @@ body.gated #topTabs{visibility:hidden}
     $('accType').textContent=(c.type==='pt'?'Face to face':'Online coaching')+' · check-in every '+day;
 
     // first-login setup checklist (saved to their account)
-    var pt=c.type==='pt';if(pt){STEPS=STEPS.filter(function(x){return !x.online});$('lNutri').hidden=true}
+    var pt=c.type==='pt';if(pt){STEPS=STEPS.filter(function(x){return !x.online});$('lNutri').hidden=true;
+      $('sessions').classList.remove('gone');[].forEach.call(document.querySelectorAll('.ptonly'),function(a){a.hidden=false});$('bnav').classList.add('six')}
     STEPS.forEach(function(x){x.opt=pt&&!!x.ptOpt});
     var done={},ol=$('steps');
     STEPS.forEach(function(s,i){
