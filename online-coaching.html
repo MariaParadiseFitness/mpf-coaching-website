@@ -558,6 +558,12 @@ section[id],header[id]{scroll-margin-top:84px}
 .quiz-band small{font-size:11px;letter-spacing:.26em;text-transform:uppercase;color:#C9A64B;font-weight:700}
 .quiz-band b{font-family:'Playfair Display',serif;font-size:22px;color:#fff}.quiz-band .qb-tx span{font-size:14px;color:#cfc4aa}
 .subpage-top{padding-top:120px}
+.tb-login{display:inline-flex;align-items:center;gap:7px;margin-left:18px;color:var(--gold-l,#E4CF8A);text-decoration:none;font-weight:700;font-size:11px;letter-spacing:.16em;text-transform:uppercase;padding:9px 15px;border-radius:30px;border:1.5px solid var(--gold,#C9A64B);background:rgba(201,166,75,.08);white-space:nowrap}
+.tb-login:hover{background:rgba(201,166,75,.2);color:#fff}
+.tb-login svg{width:13px;height:13px}
+.tb-login + .tb-cta{margin-left:10px}
+@media(max-width:860px){.tb-login{margin-left:auto;padding:8px 12px;position:relative;z-index:2}.tb-login + .tb-cta{margin-left:8px}}
+@media(max-width:420px){.tb-login .tl-full{display:none}.tb-cta{padding:9px 12px;font-size:10px}}
 </style>
 </head>
 <body>
@@ -574,6 +580,7 @@ section[id],header[id]{scroll-margin-top:84px}
     </div></div><a href="recipes.html">Recipes</a><a href="index.html#faq">FAQ</a><a href="clients.html">Client login</a><a href="https://thebuffbabesclub.com" target="_blank" rel="noopener" class="tb-merch">Gym Girl Gifts ↗</a>
     <a class="tb-mob-cta" href="book.html">Book your free call</a>
   </div>
+  <a class="tb-login" href="clients.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><span class="tl-full">Client </span>Login</a>
   <a class="tb-cta" href="book.html">Book a call</a>
   <button class="tb-burger" id="tbBurger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
 </nav>
