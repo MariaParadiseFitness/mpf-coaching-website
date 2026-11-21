@@ -12,7 +12,7 @@
   window.MPFChart=function(el,weights,opts){
     opts=opts||{};
     var all=(weights||[]).map(function(w){return {t:day(w.date),kg:+w.kg}}).filter(function(p){return !isNaN(p.t)&&p.kg>0}).sort(function(a,b){return a.t-b.t});
-    var range=opts.range||'12';
+    var range=opts.range||'all';
     function draw(){
       if(all.length<2){el.innerHTML='<div class="wc-empty">'+(opts.empty||'Your graph appears once you have logged a few morning weigh-ins in your Daily Tracker.')+'</div>';return}
       var last=all[all.length-1].t,from=range==='all'?all[0].t:last-(+range*7-1)*864e5;
