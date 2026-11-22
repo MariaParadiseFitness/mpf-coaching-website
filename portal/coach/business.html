@@ -142,6 +142,14 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 .seg{display:inline-flex;border:1px solid rgba(201,166,75,.35);border-radius:30px;overflow:hidden;margin-top:6px}.seg button{background:none;border:0;color:#e6cf8b;font:inherit;font-size:12px;padding:8px 14px;cursor:pointer}.seg button.on{background:var(--gold);color:#111;font-weight:700}
 .dl{float:right;background:none;border:1px solid rgba(201,166,75,.5);color:#e6cf8b;border-radius:30px;padding:7px 14px;font:inherit;font-size:12px;cursor:pointer;margin-top:4px}
 .fl{display:block;font-size:12px;color:#e6cf8b}.fl input{display:block;width:100%;margin-top:6px;background:#0e0e0e;border:1px solid rgba(201,166,75,.35);border-radius:10px;color:#fff;font:inherit;font-size:16px;padding:10px 12px}
+.hero{margin-top:18px;border-radius:22px;padding:24px 22px;background:radial-gradient(120% 90% at 0% 0%,rgba(232,215,154,.22),transparent 55%),linear-gradient(160deg,#1c1810,#0f0f0f 70%);border:1px solid rgba(201,166,75,.55);box-shadow:0 0 60px rgba(201,166,75,.12);position:relative;overflow:hidden}
+.hero .k{color:var(--gold);font-size:10px;letter-spacing:.22em;font-weight:700;text-transform:uppercase}
+.hero .big{font-family:var(--serif);font-size:56px;line-height:1.05;margin:6px 0 2px;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700}
+.hero .s{color:#efe6cf;font-size:14px}.hero .s b{color:#fff}
+.mile{margin-top:16px}.mile .gb{height:10px;background:rgba(0,0,0,.4);border-radius:8px;overflow:hidden;margin:6px 0 4px}.mile .gb i{display:block;height:100%;background:var(--grad);box-shadow:0 0 14px rgba(232,215,154,.6)}
+.badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}.badge{background:rgba(0,0,0,.35);border:1px solid rgba(201,166,75,.35);border-radius:14px;padding:9px 12px;font-size:12px;color:#efe6cf}.badge b{display:block;color:#fff;font-size:15px;font-family:var(--serif)}
+.quote{margin-top:16px;font-family:var(--serif);font-style:italic;color:#e6cf8b;font-size:15px}
+@media(max-width:480px){.hero .big{font-size:44px}}
 .goal{margin-top:16px}.goal .gb{height:14px;background:#0e0e0e;border:1px solid rgba(201,166,75,.3);border-radius:10px;overflow:hidden;margin:10px 0 6px}.goal .gb i{display:block;height:100%;background:var(--grad)}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px}.row>*{flex:1 1 120px}.row input,.row select{width:100%;background:#0e0e0e;border:1px solid rgba(201,166,75,.35);border-radius:10px;color:#fff;font:inherit;font-size:16px;padding:9px 10px}.row label{font-size:11px;color:#e6cf8b}
 .gbtn{background:var(--grad);color:#111;border:0;border-radius:30px;padding:11px 16px;font:inherit;font-weight:700;font-size:12px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;flex:0 0 auto}
@@ -157,6 +165,7 @@ select.st{background:#0e0e0e;border:1px solid rgba(201,166,75,.35);border-radius
 <div class="wrap">
   <h1>Your <em>business.</em></h1>
   <div class="sub" id="src">Loading…</div>
+  <div class="hero" id="hero"></div>
   <div class="card goal" id="goal"></div>
   <div class="tiles" id="tiles"></div>
   <h2>Money in, <em>by month</em></h2>
@@ -257,6 +266,18 @@ select.st{background:#0e0e0e;border:1px solid rgba(201,166,75,.35);border-radius
     var roll=0;keys.forEach(function(k){if(ms[k])roll+=ms[k].gross});
     $('txT').innerHTML=[['Profit so far',gbp(kept-exp),'takings after fees and refunds, minus expenses'],['Tax + NI so far',gbp(soFar.all),'income tax '+gbp(soFar.it)+' · NI '+gbp(soFar.ni),1],['Full year forecast',gbp(proj.all),'if you keep this pace: profit ≈ '+gbp(projProfit),1],['Put aside each month',gbp(Math.max(0,(proj.all-0)/12)),'≈ '+Math.round(proj.all/Math.max(1,projProfit+0)*100)+'% of profit'],['VAT watch',gbp(roll),'last 12 months takings · register at £90,000']].map(function(x){return '<div class="tile'+(x[3]?' hi':'')+'"><small>'+x[0]+'</small><b>'+x[1]+'</b><span>'+esc(x[2])+'</span></div>'}).join('');
     $('txN').innerHTML='Rough guide only, using 2026/27 rates for England, Wales and Northern Ireland: £12,570 tax free, 20% up to £50,270, 40% above that, plus Class 4 National Insurance at 6% (2% above £50,270). It doesn\'t include student loan, Scottish rates or any income outside Stripe. Your '+tyNow+' bill is due by <b style="color:#fff">31 January '+(+tyNow.slice(0,4)+2)+'</b>. If it\'s over £1,000, HMRC usually also asks for half of next year\'s bill upfront at the same time ("payments on account"), so put a little extra aside. I\'m not an accountant, so check the final figure with yours.';
+    // ---- hero ----
+    var yTot=sum(ms,y,'gross'),doy=Math.max(1,(Date.parse(t)-Date.UTC(+y,0,1))/864e5+1),pace=yTot/doy*(((+y%4===0)?366:365));
+    var mk=Object.keys(ms).filter(function(k){return ms[k].gross>0}),best=mk.sort(function(a,b){return ms[b].gross-ms[a].gross})[0];
+    var ptd=(pt.done||{}),ptY=Object.keys(ptd).filter(function(k){return k.indexOf(y)===0}).reduce(function(a,k){return a+ptd[k]},0),ptBest=Object.keys(ptd).sort(function(a,b){return ptd[b]-ptd[a]})[0];
+    var steps=[10000,25000,50000,75000,100000,150000,200000,250000,500000,1000000],next=steps.filter(function(x){return x>yTot})[0]||yTot*2,prev=steps.filter(function(x){return x<=yTot}).pop()||0;
+    var payN=Object.keys(ms).filter(function(k){return k.indexOf(y)===0}).reduce(function(a,k){return a+(ms[k].count||0)},0);
+    var Q=['Every rep counts. So does every client.','You built this from scratch. Keep stacking.','Consistency pays. Literally.','Your clients change lives because you showed up.','Big months are made of small daily wins.','Stay booked. Stay brilliant.'];
+    $('hero').innerHTML='<div class="k">MPF Coaching · '+y+' so far</div><div class="big" id="bigN">£0</div><div class="s">made through Stripe this year · on pace for <b>'+gbp(pace)+'</b></div>'+
+      '<div class="mile"><div class="s" style="font-size:12px;display:flex;justify-content:space-between"><span>Next milestone: <b>'+gbp(next)+'</b></span><span>'+gbp(next-yTot)+' to go</span></div><div class="gb"><i style="width:'+Math.min(100,(yTot-prev)/(next-prev)*100)+'%"></i></div></div>'+
+      '<div class="badges">'+(best?'<div class="badge">🏆 Best month<b>'+MN[+best.slice(5)-1]+' · '+gbp(ms[best].gross)+'</b></div>':'')+(ptY?'<div class="badge">🏋️ PT sessions coached<b>'+ptY.toLocaleString('en-GB')+'</b></div>':'')+(ptBest?'<div class="badge">🔥 Busiest PT month<b>'+MN[+ptBest.slice(5)-1]+' · '+ptd[ptBest]+'</b></div>':'')+'<div class="badge">💳 Payments<b>'+payN+'</b></div><div class="badge">👥 Active clients<b>'+(c.online+c.pt)+'</b></div>'+(best===m?'<div class="badge" style="border-color:#e6cf8b">⭐ This is your best month ever<b>Keep going</b></div>':'')+'</div>'+
+      '<div class="quote">"'+Q[new Date().getDate()%Q.length]+'"</div>';
+    (function(){var el=$('bigN'),t0=null,dur=1200;if(el.dataset.done==String(yTot)){el.textContent=gbp(yTot);return}el.dataset.done=String(yTot);function f(ts){if(!t0)t0=ts;var p=Math.min(1,(ts-t0)/dur),e=1-Math.pow(1-p,3);el.textContent=gbp(yTot*e);if(p<1)requestAnimationFrame(f)}requestAnimationFrame(f)})();
     // ---- goal ----
     var goal=(j.settings&&j.settings.goal)||0,tmv=sum(ms,m,'gross');
     $('goal').innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><div><small style="color:var(--gold);font-size:10px;letter-spacing:.16em;font-weight:700">'+MN[+m.slice(5)-1].toUpperCase()+' GOAL</small><div style="color:#fff;font-family:var(--serif);font-size:22px">'+gbp(tmv)+(goal?' <span style="color:#9b927f;font-size:15px">of '+gbp(goal)+'</span>':'')+'</div></div><button class="dl" id="gSet" type="button">'+(goal?'Change goal':'Set a monthly goal')+'</button></div>'+(goal?'<div class="gb"><i style="width:'+Math.min(100,tmv/goal*100)+'%"></i></div><div class="mini">'+(tmv>=goal?'🎉 Goal hit! '+gbp(tmv-goal)+' over.':gbp(goal-tmv)+' to go · '+Math.round(tmv/goal*100)+'%')+'</div>':'');
