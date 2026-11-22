@@ -278,6 +278,7 @@ html,body{overflow-x:hidden}
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px"><button class="btn" id="cmpBtn" type="button">Compare 2 weeks</button><button class="btn g" id="dlBtn" type="button">Download all</button></div>
     <div class="sub" id="cmpHelp" hidden style="margin-top:-6px">Tick two weeks below, then press Compare.</div>
     <div class="cmp" id="cmp" hidden></div>
+    <details class="pmeta" style="margin:10px 0"><summary class="mini" style="cursor:pointer">⬆ Add photos for this client</summary><div class="mini" style="margin:8px 0">Name each file with its week and angle, like <b>w13-front.jpg</b> or <b>w0-side.jpg</b> (week 0 = start photos). JPEG or PNG.</div><input type="file" id="cUp" multiple accept="image/jpeg,image/png,image/webp"><div class="mini" id="cUpMsg" style="margin-top:6px"></div></details>
     <div class="hdr"><span></span><span>Front</span><span>Side</span><span>Back</span></div>
     <div id="pRows"></div>
     </div>
@@ -351,13 +352,19 @@ html,body{overflow-x:hidden}
   function drawFvl(){var box=$('fvl');if(!box)return;var ws=weeks();if(!ws.length){box.innerHTML='<div class="fvl-e">📸 Their first and latest photos will show here once they upload.</div>';return}
     var has=function(w){return latest(w,fvlAng)},wsA=ws.filter(has),first=wsA[wsA.length-1],last=wsA[0];
     var tabs='<div class="fvl-t">'+ANG.map(function(a){return '<button type="button" data-a="'+a+'" class="'+(a===fvlAng?'on':'')+'">'+a[0].toUpperCase()+a.slice(1)+'</button>'}).join('')+'</div>';
-    var im=function(w,l){var p=w!=null&&latest(w,fvlAng);return '<figure>'+(p?'<a href="'+esc(src(p))+'" target="_blank" rel="noopener"><img src="'+esc(src(p))+'" alt=""></a>':'<div class="fvl-n">No '+fvlAng+' photo</div>')+'<figcaption>'+l+(w!=null?' · wk '+w:'')+'</figcaption></figure>'};
+    var im=function(w,l){var p=w!=null&&latest(w,fvlAng);return '<figure>'+(p?'<a href="'+esc(src(p))+'" target="_blank" rel="noopener"><img src="'+esc(src(p))+'" alt=""></a>':'<div class="fvl-n">No '+fvlAng+' photo</div>')+'<figcaption>'+l+(w!=null?' · '+wkLbl(w).toLowerCase():'')+'</figcaption></figure>'};
     box.innerHTML=tabs+'<div class="fvl-p">'+im(first,'First')+im(first===last?null:last,'Latest')+'</div>';
     [].forEach.call(box.querySelectorAll('.fvl-t button'),function(b){b.onclick=function(){fvlAng=b.getAttribute('data-a');drawFvl()}})}
+  function wkLbl(w){return w===0?'Start':'Wk '+w}
+  document.addEventListener('change',function(e){if(e.target.id!=='cUp'||!cur)return;var fs=[].slice.call(e.target.files),id=cur.id,ok=0,bad=[],m=$('cUpMsg');m.textContent='Uploading '+fs.length+'…';
+    var next=function(i){if(i>=fs.length){m.textContent='✓ '+ok+' uploaded'+(bad.length?' · skipped: '+bad.join(', '):'');fetch('/portal/api/coach/photos?id='+encodeURIComponent(id),{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){curPhotos=j.photos||curPhotos;drawPhotos()}).catch(function(){});e.target.value='';return}
+      var f=fs[i],mm=f.name.toLowerCase().match(/w(\d{1,3})[-_ ]*(front|side|back)/);if(!mm){bad.push(f.name);next(i+1);return}
+      var fd=new FormData();fd.append('photo',f);fd.append('week',String(+mm[1]));fd.append('angle',mm[2]);
+      fetch('/portal/api/coach/photos?id='+encodeURIComponent(id),{method:'POST',credentials:'same-origin',body:fd}).then(function(r){if(r.ok)ok++;else bad.push(f.name)}).catch(function(){bad.push(f.name)}).then(function(){m.textContent='Uploading '+(i+1)+' of '+fs.length+'…';next(i+1)})};next(0)});
   function drawPhotos(){
     drawFvl();
     var ws=weeks();
-    $('pRows').innerHTML=ws.length?ws.map(function(w){return '<div class="ph-row"><div class="wk"><label><input type="checkbox" class="pick" value="'+w+'">Wk '+w+'</label></div>'+ANG.map(function(a){var p=latest(w,a);return p?'<a href="'+esc(src(p))+'" target="_blank" rel="noopener"><img loading="lazy" alt="" src="'+esc(src(p))+'"></a>':'<span class="e">-</span>'}).join('')+'</div>'}).join(''):'<p style="color:var(--mute)">No photos uploaded yet.</p>';
+    $('pRows').innerHTML=ws.length?ws.map(function(w){return '<div class="ph-row"><div class="wk"><label><input type="checkbox" class="pick" value="'+w+'">'+wkLbl(w)+'</label></div>'+ANG.map(function(a){var p=latest(w,a);return p?'<a href="'+esc(src(p))+'" target="_blank" rel="noopener"><img loading="lazy" alt="" src="'+esc(src(p))+'"></a>':'<span class="e">-</span>'}).join('')+'</div>'}).join(''):'<p style="color:var(--mute)">No photos uploaded yet.</p>';
     $('cmp').hidden=true;
   }
   var TAGS=['Fat loss','Body recomp','Maintenance','Surplus','Comp prep','VIP','Needs a push'],tagF='',view='cards',TD={items:[],dismissed:{}};
@@ -673,7 +680,7 @@ html,body{overflow-x:hidden}
     var picked=[].map.call(document.querySelectorAll('.pick:checked'),function(i){return +i.value}).sort(function(a,b){return a-b});
     if(picked.length!==2){$('cmpHelp').hidden=false;return}
     $('cmpHelp').hidden=true;
-    $('cmp').innerHTML=picked.map(function(w){return '<div><h3>Week '+w+'</h3><div class="three">'+ANG.map(function(a){var p=latest(w,a);return p?'<img alt="" src="'+esc(src(p))+'">':'<span></span>'}).join('')+'</div></div>'}).join('');
+    $('cmp').innerHTML=picked.map(function(w){return '<div><h3>'+(w===0?'Start':'Week '+w)+'</h3><div class="three">'+ANG.map(function(a){var p=latest(w,a);return p?'<img alt="" src="'+esc(src(p))+'">':'<span></span>'}).join('')+'</div></div>'}).join('');
     $('cmp').hidden=false;$('cmp').scrollIntoView({behavior:'smooth',block:'center'});
   };
   $('dlBtn').onclick=function(){

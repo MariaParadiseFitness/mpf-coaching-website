@@ -709,6 +709,38 @@ async function handleApi(request, env, url) {
     }
     await putJSON(env, "_data/_leads.json", db); return json({ ok: true });
   }
+  if (path === "/portal/api/coach/photos" && request.method === "POST") {
+    if (!coach) return json({ error: "forbidden" }, 403);
+    const id = (url.searchParams.get("id") || "").toLowerCase().replace(/[^a-z0-9_-]/g, "");
+    if (!Object.values(r).some((x) => x.id === id)) return json({ error: "unknown" }, 404);
+    const form = await request.formData(); const file = form.get("photo");
+    const angle = String(form.get("angle") || "").toLowerCase(), week = parseInt(form.get("week"), 10);
+    if (!ANGLES.includes(angle) || isNaN(week) || week < 0 || week > 520) return json({ error: "angle or week" }, 400);
+    if (!file || typeof file === "string" || !/^image\/(jpeg|png|webp)$/.test(file.type) || file.size > MAX_BYTES) return json({ error: "file" }, 400);
+    const ext = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" }[file.type];
+    const key = `${id}/w${String(week).padStart(3, "0")}-${angle}-${Date.now()}.${ext}`;
+    await env.PHOTOS.put(key, file.stream(), { httpMetadata: { contentType: file.type }, customMetadata: { week: String(week), angle, by: "coach-import" } });
+    return json({ ok: true, key, week, angle });
+  }
+  if (path === "/portal/api/coach/import-workouts" && request.method === "POST") {
+    if (!coach) return json({ error: "forbidden" }, 403);
+    const id = (url.searchParams.get("id") || "").toLowerCase().replace(/[^a-z0-9_-]/g, "");
+    if (!Object.values(r).some((x) => x.id === id)) return json({ error: "unknown" }, 404);
+    const b = await request.json().catch(() => ({})), str = (v, n) => String(v == null ? "" : v).trim().slice(0, n);
+    const byMonth = {}; let n = 0;
+    for (const w of (Array.isArray(b.sessions) ? b.sessions : []).slice(0, 400)) {
+      if (!isDate(w.date)) continue;
+      const sess = { id: "imp" + w.date.replace(/-/g, "") + str(w.part || "", 2), date: w.date, programme: str(w.programme, 80), workout: str(w.workout, 80), notes: str(w.notes || "Imported from tracker", 1500), at: w.date + "T12:00:00.000Z", imported: true,
+        exercises: (Array.isArray(w.exercises) ? w.exercises : []).slice(0, 40).map((e) => ({ name: str(e.name, 80), ss: "", notes: str(e.notes, 600), sets: (Array.isArray(e.sets) ? e.sets : []).slice(0, 12).map((x) => ({ kg: str(x.kg, 10), reps: str(x.reps, 10), done: true })) })) };
+      (byMonth[w.date.slice(0, 7)] = byMonth[w.date.slice(0, 7)] || []).push(sess); n++;
+    }
+    for (const [m, list] of Object.entries(byMonth)) {
+      const key = `${dkey(id)}/workouts/${m}.json`, doc = await getJSON(env, key, {});
+      for (const sess of list) { doc[sess.date] = [...(doc[sess.date] || []).filter((x) => x.id !== sess.id), sess]; }
+      await putJSON(env, key, doc);
+    }
+    return json({ ok: true, sessions: n });
+  }
   if (path === "/portal/api/coach/package") {
     if (!coach) return json({ error: "forbidden" }, 403);
     const id = (url.searchParams.get("id") || "").toLowerCase().replace(/[^a-z0-9_-]/g, "");
@@ -972,11 +1004,14 @@ async function handleApi(request, env, url) {
       const ck = `${dkey(c.id)}/checkins.json`;
       const cis = await getJSON(env, ck, {});
       sm.checkins = sm.checkins || {};
-      for (const [due, answers] of Object.entries(body.checkins)) {
+      for (let [due, answers] of Object.entries(body.checkins)) {
+        const custom = answers && !Array.isArray(answers) && Array.isArray(answers.answers) ? answers : null;
+        if (custom) answers = custom.answers;
         if (!isDate(due) || !Array.isArray(answers) || cis[due]) continue;
         const stats = weekStats(all, due), prev = weekStats(all, fromT(toT(due) - 7 * DAY_MS));
         stats.change = stats.weight && prev.weight ? +(stats.weight - prev.weight).toFixed(1) : null;
-        cis[due] = { answers: answers.slice(0, QUESTIONS.length).map((a) => String(a || "").slice(0, 3000)), questions: QUESTIONS, stats, at: due + "T12:00:00.000Z", imported: true };
+        const qs = custom && Array.isArray(custom.questions) ? custom.questions.slice(0, 30).map((q) => String(q).slice(0, 300)) : QUESTIONS;
+        cis[due] = { answers: answers.slice(0, qs.length).map((a) => String(a || "").slice(0, 3000)), questions: qs, stats, at: due + "T12:00:00.000Z", imported: true };
         sm.checkins[due] = cis[due].at;
         nci++;
       }

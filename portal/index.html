@@ -139,6 +139,8 @@ details.app b{color:#fff}
 .btn.g{background:transparent;color:var(--gold-l,#e6cf8b);border:1px solid var(--gold,#c9a64b);box-shadow:none}
 .ph-hist{margin-top:22px;max-width:620px}
 .ph-hist h3{font-family:var(--serif);font-size:20px;color:#fff;margin-bottom:10px}
+.cmp-t{display:flex;gap:6px;margin:8px 0}.cmp-t button{flex:1;background:none;border:1px solid var(--line);color:var(--gold-l);border-radius:20px;padding:7px;font:inherit;font-size:13px;cursor:pointer}.cmp-t button.on{background:var(--gold);color:#111;font-weight:700}
+.cmp-p{display:grid;grid-template-columns:1fr 1fr;gap:10px}.cmp-p figure{margin:0}.cmp-p img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:12px;border:1px solid var(--line);display:block}.cmp-p span.e{display:grid;place-content:center;aspect-ratio:3/4;border:1px dashed var(--line);border-radius:12px;color:#6d6452;font-size:12px}.cmp-p figcaption{text-align:center;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-top:6px;font-weight:700}
 .ph-row{display:grid;grid-template-columns:90px repeat(3,1fr);gap:10px;align-items:center;margin-bottom:10px}
 .ph-row .wk{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:700}
 .ph-row a,.ph-row span.e{display:block;aspect-ratio:3/4;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#0e0e0e}
@@ -343,6 +345,7 @@ body.gated #topTabs{visibility:hidden}
       <p>They are never posted, shared or used anywhere without your permission, and they aren't saved on your phone when you view them. They load fresh each time, behind your login.</p>
       <p>Want a photo removed? Just ask Maria and it will be permanently deleted.</p>
     </details>
+    <div class="ph-hist" id="phCmp" hidden><h3>First vs <em style="color:var(--gold-l)">latest</em></h3><div class="cmp-t" id="cmpTabs"></div><div class="cmp-p" id="cmpPics"></div></div>
     <div class="ph-hist" id="phHist" hidden><h3>Your progress so far</h3><div id="phRows"></div></div>
   </section>
 
@@ -601,11 +604,19 @@ body.gated #topTabs{visibility:hidden}
       $('phStatus').textContent=n===3?'All 3 uploaded 🙌 Now send your weekly check-in.':(n?n+' of 3 uploaded. Keep going!':'Upload all 3, then let me know your check-in is done.');
       drawHist();
     }
+    var cmpAng='front';
+    function drawCmp(){var box=document.getElementById('phCmp');if(!box)return;var has=photos.filter(function(p){return p.angle===cmpAng}).map(function(p){return p.week}).sort(function(a,b){return a-b});
+      var all=photos.map(function(p){return p.week});box.hidden=new Set(all).size<2;if(box.hidden)return;
+      $('cmpTabs').innerHTML=ANG.map(function(a){return '<button type="button" data-a="'+a+'" class="'+(a===cmpAng?'on':'')+'">'+a[0].toUpperCase()+a.slice(1)+'</button>'}).join('');
+      var lb=function(w){return w===0?'Start':'Week '+w},im=function(w){var p=w!=null&&latest(w,cmpAng);return '<figure>'+(p?'<a href="'+esc(src(p))+'" target="_blank" rel="noopener"><img alt="" src="'+esc(src(p))+'"></a>':'<span class="e">No '+cmpAng+' photo</span>')+'<figcaption>'+(w!=null?lb(w):'')+'</figcaption></figure>'};
+      var f=has[0],l=has[has.length-1];$('cmpPics').innerHTML=has.length?im(f)+im(f===l?null:l):'<p class="ci-note">No '+cmpAng+' photos yet.</p>';
+      [].forEach.call($('cmpTabs').querySelectorAll('button'),function(b){b.onclick=function(){cmpAng=b.getAttribute('data-a');drawCmp()}})}
     function drawHist(){
+      drawCmp();
       var weeks={};photos.forEach(function(p){if(p.week!==curWeek)weeks[p.week]=1});
       var ws=Object.keys(weeks).map(Number).sort(function(a,b){return b-a});
       $('phHist').hidden=!ws.length;
-      $('phRows').innerHTML=ws.map(function(w){return '<div class="ph-row"><div class="wk">Week '+w+'</div>'+ANG.map(function(a){var p=latest(w,a);return p?'<a href="'+esc(src(p))+'" target="_blank" rel="noopener"><img loading="lazy" alt="Week '+w+' '+a+'" src="'+esc(src(p))+'"></a>':'<span class="e">-</span>'}).join('')+'</div>'}).join('');
+      $('phRows').innerHTML=ws.map(function(w){return '<div class="ph-row"><div class="wk">'+(w===0?'Start':'Week '+w)+'</div>'+ANG.map(function(a){var p=latest(w,a);return p?'<a href="'+esc(src(p))+'" target="_blank" rel="noopener"><img loading="lazy" alt="Week '+w+' '+a+'" src="'+esc(src(p))+'"></a>':'<span class="e">-</span>'}).join('')+'</div>'}).join('');
     }
     function shrink(file){
       return new Promise(function(res){
