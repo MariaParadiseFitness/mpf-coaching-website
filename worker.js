@@ -571,6 +571,21 @@ async function handleApi(request, env, url) {
     const { history, ...pub } = cur;
     return json(pub);
   }
+  if (path === "/portal/api/billing") {
+    if (!client) return json({ error: "unknown" }, 403);
+    const pay = (await getJSON(env, "_data/_payments.json", { byEmail: {} })).byEmail || {};
+    const emails = Object.entries(r).filter(([, x]) => x.id === client.id).map(([e]) => e.toLowerCase());
+    const rec = emails.map((e) => pay[e]).filter(Boolean).sort((a, b) => String(b.updated).localeCompare(String(a.updated)))[0] || null;
+    const ck = `${dkey(client.id)}/cancel.json`;
+    if (request.method === "POST") {
+      const b = await request.json().catch(() => ({}));
+      const doc = { at: new Date().toISOString(), reason: String(b.reason || "").slice(0, 1000) };
+      await putJSON(env, ck, doc);
+      await notifyCancel(env, client, doc).catch(() => {});
+      return json({ ok: true, cancel: doc });
+    }
+    return json({ billing: rec ? { status: rec.status || "", started: rec.started || "", lastPaid: rec.lastPaid || "", lastAmount: rec.lastAmount, next: rec.status === "cancelled" ? "" : rec.next || "", endsOn: rec.endsOn || "", plan: rec.plan || "" } : null, cancel: await getJSON(env, ck, null) });
+  }
   if (path === "/portal/api/plan") {
     if (!client) return json({ error: "unknown" }, 403);
     return json(await getJSON(env, `${dkey(client.id)}/plan.json`, { ready: client.onboarded === true }));
@@ -650,7 +665,8 @@ async function handleApi(request, env, url) {
         photosThisWeek: [...new Set(thisWeek)], lastUpload: photos.reduce((m, p) => (p.uploaded > m ? p.uploaded : m), ""),
         photoCount: photos.length,
         lastCheckin: Object.keys(sm.checkins || {}).sort().pop() || "",
-        payment: (() => { const recs = emailsOf(c.id).map((e) => pay[e]).filter(Boolean); if (!recs.length) return null; const r0 = recs.sort((a, b) => String(b.updated).localeCompare(String(a.updated)))[0]; return { status: r0.status || "", lastPaid: r0.lastPaid || "", last: (r0.history || [])[0] || null }; })(),
+        cancelReq: (await getJSON(env, `${dkey(c.id)}/cancel.json`, null)),
+        payment: (() => { const recs = emailsOf(c.id).map((e) => pay[e]).filter(Boolean); if (!recs.length) return null; const r0 = recs.sort((a, b) => String(b.updated).localeCompare(String(a.updated)))[0]; return { status: r0.status || "", lastPaid: r0.lastPaid || "", next: r0.next || "", endsOn: r0.endsOn || "", last: (r0.history || [])[0] || null }; })(),
         pt: acu && acu.byId ? (acu.byId[c.id] || { last: "", next: "" }) : acu ? emailsOf(c.id).reduce((m, e) => { const b = acu[e]; if (!b) return m; return { last: b.last > m.last ? b.last : m.last, next: !m.next || (b.next && b.next < m.next) ? b.next || m.next : m.next }; }, { last: "", next: "" }) : null,
         consent: await (async () => { const k = await getJSON(env, `${dkey(c.id)}/consent.json`, {}); return { health: !!k.health, terms: !!k.terms, photos: k.photos || "" }; })(),
       });
@@ -1005,11 +1021,21 @@ async function stripeWebhook(request, env) {
   const amt = (n) => (typeof n === "number" ? Math.round(n) / 100 : null);
   const add = (h) => { rec.history = [h, ...rec.history.filter((x) => x.id !== h.id)].slice(0, 30); };
   if (rec) {
+    const toDay = (sec) => (sec ? new Date(sec * 1000).toISOString().slice(0, 10) : "");
     if (ev.type === "checkout.session.completed" && o.payment_status !== "unpaid") {
-      add({ id: o.id, date: day, amount: amt(o.amount_total), kind: o.mode === "subscription" ? "subscription start" : "one-off" });
-      rec.status = o.mode === "subscription" ? "active" : "paid"; rec.lastPaid = day;
+      add({ id: o.id, date: day, amount: amt(o.amount_total), kind: o.mode === "subscription" ? "first payment" : "one-off" });
+      rec.status = o.mode === "subscription" ? "active" : "paid"; rec.lastPaid = day; rec.lastAmount = amt(o.amount_total); rec.started = rec.started || day;
     } else if (ev.type === "invoice.paid" && o.amount_paid > 0) {
-      add({ id: o.id, date: day, amount: amt(o.amount_paid), kind: "monthly payment" }); rec.status = "active"; rec.lastPaid = day;
+      const line = (o.lines && o.lines.data || []).find((l) => l.period && l.period.end && (l.recurring || (l.price && l.price.recurring) || l.type === "subscription")) || (o.lines && o.lines.data || [])[0];
+      if (!rec.history.some((x) => x.date === day && x.amount === amt(o.amount_paid))) add({ id: o.id, date: day, amount: amt(o.amount_paid), kind: "payment" });
+      rec.status = "active"; rec.lastPaid = day; rec.lastAmount = amt(o.amount_paid); rec.started = rec.started || day;
+      if (line && line.period && line.period.end) rec.next = toDay(line.period.end);
+      if (line && line.description) rec.plan = String(line.description).replace(/^\d+\s*×\s*/, "").slice(0, 120);
+    } else if (ev.type === "customer.subscription.updated" || ev.type === "customer.subscription.created") {
+      const end = o.current_period_end || (o.items && o.items.data && o.items.data[0] && o.items.data[0].current_period_end);
+      if (end) rec.next = toDay(end);
+      rec.endsOn = o.cancel_at_period_end ? toDay(o.cancel_at || end) : (o.cancel_at ? toDay(o.cancel_at) : "");
+      if (o.status === "past_due" || o.status === "unpaid") rec.status = "failed"; else if (o.status === "active") rec.status = "active";
     } else if (ev.type === "invoice.payment_failed") {
       add({ id: o.id, date: day, amount: amt(o.amount_due), kind: "FAILED payment" }); rec.status = "failed";
     } else if (ev.type === "customer.subscription.deleted") {
@@ -1021,6 +1047,13 @@ async function stripeWebhook(request, env) {
   return new Response("ok");
 }
 
+async function notifyCancel(env, client, doc) {
+  if (!env.RESEND_API_KEY) return;
+  await fetch("https://api.resend.com/emails", { method: "POST", signal: AbortSignal.timeout(10000),
+    headers: { authorization: "Bearer " + env.RESEND_API_KEY, "content-type": "application/json" },
+    body: JSON.stringify({ from: env.NOTIFY_FROM || "MPF Client Portal <portal@mpfcoaching.co.uk>", to: [env.NOTIFY_TO || "info@mpfcoaching.co.uk"],
+      subject: `Cancellation request: ${client.name}`, text: `${client.name} has asked to cancel their online coaching.\n\nReason: ${doc.reason || "(none given)"}\n\nCancel their subscription in Stripe (Customers > ${client.name} > Cancel subscription, at the end of the period), then message them to confirm.` }) });
+}
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);

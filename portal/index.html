@@ -378,6 +378,11 @@ body.gated #topTabs{visibility:hidden}
     </div>
   </section>
 
+  <section data-view="more" id="billing" hidden>
+    <h2>My <em>plan.</em></h2>
+    <div id="billBox"><p class="ci-note">Loading…</p></div>
+  </section>
+
   <section data-view="more" id="perms">
     <h2>Privacy and <em>permissions.</em></h2>
     <div class="cn-ph"><b>Social media: can Maria share your progress photos?</b>
@@ -490,6 +495,22 @@ body.gated #topTabs{visibility:hidden}
     $('stNext').textContent=diff===0?'today':'in '+diff+(diff===1?' day':' days');
     $('accType').textContent=(c.type==='pt'?'Face to face':'Online coaching')+' · check-in every '+day;
 
+    // online clients: their plan and payments from Stripe, plus a cancellation request
+    if(!pt){(function(){
+      var box=$('billBox'),sec=$('billing');sec.hidden=false;
+      var fd=function(d){return d?new Date(d+'T12:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'–'};
+      var money=function(n){return n==null?'':'£'+Number(n).toFixed(2).replace(/\.00$/,'')};
+      var draw=function(j){var b=j&&j.billing,c=j&&j.cancel,h='';
+        if(!b)h='<p class="ci-note">Your payment details will show here once your first payment has gone through. Paid already and nothing showing? Message me.</p>';
+        else{var st={active:'✅ Active',paid:'✅ Paid',failed:'⚠️ Payment failed: please update your card',cancelled:'Cancelled'}[b.status]||b.status;
+          h='<div class="lg-stats tgt"><div><small>Status</small><b style="font-size:16px">'+esc(st)+'</b></div><div><small>Started</small><b style="font-size:16px">'+fd(b.started)+'</b></div><div><small>Last payment</small><b style="font-size:16px">'+fd(b.lastPaid)+'</b>'+(b.lastAmount!=null?'<span>'+money(b.lastAmount)+'</span>':'')+'</div><div><small>'+(b.endsOn?'Coaching ends':'Next payment')+'</small><b style="font-size:16px">'+fd(b.endsOn||b.next)+'</b></div></div>'+(b.plan?'<p class="ci-note" style="margin-top:8px">Plan: '+esc(b.plan)+'</p>':'')}
+        if(c)h+='<div class="pg-note" style="margin-top:12px">🛑 You asked to cancel on '+fd(String(c.at).slice(0,10))+'. Maria will confirm by message. Your coaching carries on until the end of the period you\'ve paid for.</div>';
+        else if(b&&b.status!=='cancelled')h+='<details class="ci-card" style="margin-top:12px"><summary><b>Request to cancel</b></summary><div style="padding:10px 0"><p class="ci-note">Please give at least 7 days\' notice before your next payment. Your coaching carries on until the end of the period you\'ve paid for. See the <a href="/terms.html" target="_blank">terms</a>.</p><label class="pe-full">Anything you\'d like to tell me? (optional)<textarea id="cnlWhy" rows="2"></textarea></label><button class="btn g" type="button" id="cnlBtn">Send cancellation request</button> <span class="lg-msg" id="cnlMsg"></span></div></details>';
+        box.innerHTML=h;var bt=$('cnlBtn');if(bt)bt.onclick=function(){if(!confirm('Send a request to cancel your online coaching?'))return;$('cnlMsg').textContent='Sending…';
+          fetch('/portal/api/billing',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({reason:$('cnlWhy').value})}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(x){draw({billing:b,cancel:x.cancel})}).catch(function(){$('cnlMsg').textContent='Not sent. Try again or message me.'})}};
+      if(demo){draw({billing:{status:'active',started:'2026-09-02',lastPaid:'2026-11-02',lastAmount:175,next:'2026-12-02',plan:'Online coaching: monthly'}});return}
+      fetch('/portal/api/billing',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(draw).catch(function(){box.innerHTML='<p class="ci-note">Could not load your plan right now.</p>'});
+    })()}
     // consents (health data, terms, social media photo permission)
     (function(){
       var paint=function(j){j=j||{};$('consentBox').hidden=!!(j.health&&j.terms)||!!demo;
