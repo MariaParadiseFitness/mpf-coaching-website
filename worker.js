@@ -614,10 +614,8 @@ async function handleApi(request, env, url) {
     const acu = await acuityBookings(env).catch(() => null);
     const emailsOf = (id) => Object.entries(r).filter(([, x]) => x.id === id).map(([e]) => e.toLowerCase());
     const seen = new Set();
-    const list = [];
-    for (const c of Object.values(r)) {
-      if (seen.has(c.id)) continue;
-      seen.add(c.id);
+    const uniq = Object.values(r).filter((c) => (seen.has(c.id) ? false : (seen.add(c.id), true)));
+    const one = async (c) => {
       let photos = [];
       if (env.PHOTOS) photos = await listPhotos(env, c.id);
       const week = weekOf(c.start);
@@ -628,7 +626,7 @@ async function handleApi(request, env, url) {
       const wts = summaryWeights(sm);
       const setup = c.onboarded === true ? { skip: true } : await getJSON(env, `${dkey(c.id)}/setup.json`, { done: {}, completed: null });
       const thisWeek = photos.filter((p) => p.week === week).map((p) => p.angle);
-      list.push({
+      return ({
         id: c.id, name: c.name, phase: c.phase || "", checkin: checkinDay(c), start: c.start || "",
         type: c.type === "pt" ? "pt" : "online", phone: String(c.phone || "").replace(/[^0-9]/g, ""),
         lastLog: logged[logged.length - 1] || "", loggedWeek: logged.filter((d) => d >= weekAgo && d <= today).length,
@@ -641,10 +639,11 @@ async function handleApi(request, env, url) {
         photoCount: photos.length,
         lastCheckin: Object.keys(sm.checkins || {}).sort().pop() || "",
         pt: acu ? emailsOf(c.id).reduce((m, e) => { const b = acu[e]; if (!b) return m; return { last: b.last > m.last ? b.last : m.last, next: !m.next || (b.next && b.next < m.next) ? b.next || m.next : m.next }; }, { last: "", next: "" }) : null,
-        lastTrained: await (async () => { const from = fromT(toT(today) - 41 * DAY_MS); const d = await readLog(env, c.id, from, today); return Object.keys(d).filter((k) => d[k] && (d[k].trained === "Yes" || d[k].trainTime)).sort().pop() || ""; })(),
         consent: await (async () => { const k = await getJSON(env, `${dkey(c.id)}/consent.json`, {}); return { health: !!k.health, terms: !!k.terms, photos: k.photos || "" }; })(),
       });
-    }
+    };
+    const list = [];
+    for (let i = 0; i < uniq.length; i += 12) list.push(...(await Promise.all(uniq.slice(i, i + 12).map(one))));
     list.sort((a, b) => (b.active - a.active) || a.name.localeCompare(b.name));
     return json({ enabled: !!env.PHOTOS, clients: list });
   }
@@ -902,6 +901,7 @@ async function acuityBookings(env) {
   const qs = new URLSearchParams({ minDate: fromT(toT(today) - 90 * DAY_MS), maxDate: fromT(toT(today) + 90 * DAY_MS), max: "2500" });
   const res = await fetch("https://acuityscheduling.com/api/v1/appointments?" + qs, {
     headers: { authorization: "Basic " + btoa(env.ACUITY_USER_ID + ":" + env.ACUITY_API_KEY) },
+    signal: AbortSignal.timeout(8000),
   });
   if (!res.ok) return null;
   const appts = await res.json();
