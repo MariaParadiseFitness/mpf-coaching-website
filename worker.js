@@ -924,7 +924,7 @@ const SITE = "https://mpfcoaching.co.uk";
 function escH(t) { return String(t == null ? "" : t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
 function brandHTML({ heading, intro, lines, button, foot }) {
   const body = (lines || []).map((l) => l === "" ? '<div style="height:10px"></div>' : `<p style="margin:0 0 8px;color:#e9e1cc;font-size:15px;line-height:1.6">${escH(l)}</p>`).join("");
-  return `<!DOCTYPE html><html><body style="margin:0;background:#0b0b0b;font-family:Helvetica,Arial,sans-serif">
+  return `<!DOCTYPE html><html><head><meta name="color-scheme" content="dark light"><meta name="supported-color-schemes" content="dark light"></head><body style="margin:0;background:#0b0b0b;font-family:Helvetica,Arial,sans-serif">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#0b0b0b"><tr><td align="center" style="padding:28px 14px">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#141414;border:1px solid #3a3122;border-radius:18px">
 <tr><td style="padding:26px 28px 6px" align="left"><img src="${SITE}/img/logo.png" alt="MPF Coaching" height="44" style="display:block;height:44px"></td></tr>
@@ -944,7 +944,7 @@ async function sendMail(env, { to, subject, heading, intro, lines, button, foot,
   const text = [intro, ...(lines || []), button ? button.text + ": " + button.url : ""].filter((x) => x != null).join("\n");
   const res = await fetch("https://api.resend.com/emails", { method: "POST", signal: AbortSignal.timeout(10000),
     headers: { authorization: "Bearer " + env.RESEND_API_KEY, "content-type": "application/json" },
-    body: JSON.stringify({ from: `${fromName || "MPF Client Portal"} <portal@mpfcoaching.co.uk>`, to: [to || env.NOTIFY_TO || "info@mpfcoaching.co.uk"],
+    body: JSON.stringify({ from: `${fromName || "MPF Client Portal"} <${env.MAIL_FROM_ADDR || "info@mpfcoaching.co.uk"}>`, to: [to || env.NOTIFY_TO || "info@mpfcoaching.co.uk"],
       reply_to: replyTo || "info@mpfcoaching.co.uk", subject, text, html: brandHTML({ heading: heading || escH(subject), intro, lines, button, foot }) }) });
   if (!res.ok) throw new Error("resend " + res.status);
   return true;
