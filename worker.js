@@ -754,6 +754,23 @@ async function handleApi(request, env, url) {
     await putJSON(env, k, next);
     return json({ ok: true, health: !!next.health, terms: !!next.terms, photos: next.photos || "" });
   }
+  if (path === "/portal/api/recs") {
+    // "Recommended by Maria": books, podcasts, apps and anything else. Everyone can read; only the coach can change it.
+    const key = "_data/_recs.json";
+    if (request.method === "POST") {
+      if (!coach) return json({ error: "forbidden" }, 403);
+      const b = await request.json().catch(() => ({}));
+      const T = ["book", "podcast", "app", "video", "other"];
+      const items = (Array.isArray(b.items) ? b.items : []).slice(0, 100).map((x) => ({
+        id: String(x.id || Math.random().toString(36).slice(2, 10)).replace(/[^a-z0-9]/gi, "").slice(0, 16),
+        type: T.includes(x.type) ? x.type : "other", title: String(x.title || "").slice(0, 120), by: String(x.by || "").slice(0, 80),
+        why: String(x.why || "").slice(0, 600), link: /^https:\/\//.test(String(x.link || "")) ? String(x.link).slice(0, 400) : "",
+      })).filter((x) => x.title);
+      await putJSON(env, key, { items, updated: new Date().toISOString() });
+      return json({ ok: true, items });
+    }
+    return json(await getJSON(env, key, { items: [] }));
+  }
   if (path === "/portal/api/coach/photo-align" && request.method === "POST") {
     if (!coach) return json({ error: "forbidden" }, 403);
     const id = (url.searchParams.get("id") || "").toLowerCase().replace(/[^a-z0-9_-]/g, "");

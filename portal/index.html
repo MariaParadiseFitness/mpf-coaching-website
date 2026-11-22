@@ -221,6 +221,7 @@ body.gated #topTabs{visibility:hidden}
 .bnav a.on i{filter:none;opacity:1}
 .bnav .dot{position:absolute;top:2px;right:calc(50% - 18px);width:9px;height:9px;border-radius:50%;background:#e0533f;box-shadow:0 0 0 2px #0e0e0e}
 @media(max-width:820px){.bnav{display:grid}.bnav[hidden]{display:none}body{padding-bottom:78px}.lg-save{bottom:86px}.wrap{padding-top:22px}}
+.recs{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}.rec{display:flex;gap:12px;background:#101010;border:1px solid rgba(201,166,75,.3);border-radius:16px;padding:14px;color:#fff;text-decoration:none}.rec .ri{flex:none;width:46px;height:46px;border-radius:12px;background:linear-gradient(135deg,#a8873e,#e6cf8b);display:grid;place-items:center;font-size:22px}.rec b{display:block;font-size:15px}.rec small{display:block;color:var(--gold-l,#e6cf8b);font-size:12px;margin:2px 0 6px;text-transform:capitalize}.rec p{margin:0;color:var(--soft,#cfc6b0);font-size:13px;line-height:1.5}.rec i{display:block;font-style:normal;color:var(--gold,#c9a64b);font-size:12.5px;font-weight:700;margin-top:6px}
 </style>
 </head>
 <body>
@@ -425,6 +426,11 @@ body.gated #topTabs{visibility:hidden}
     </details>
   </section>
 
+  <section data-view="more" id="recs" hidden>
+    <h2>Recommended <em>by Maria.</em></h2>
+    <div class="sub">Books, podcasts and tools I genuinely rate. These have helped me and my clients.</div>
+    <div class="recs" id="recList"></div>
+  </section>
   <section data-view="more" id="guides">
     <h2>Your <em>guides.</em></h2>
     <div class="sub">Everything I teach, ready whenever you need it.</div>
@@ -510,6 +516,8 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
     [].forEach.call(document.querySelectorAll('#trSeg button'),function(b){b.onclick=function(){trSeg(b.getAttribute('data-t'))}});
     window.__lbStart=function(i){trSeg('lb');if(LB)LB.start(i);window.scrollTo(0,$('folder').offsetTop-70)};
     var mountTr=function(j){MPFProgramme.View($('pgBox'),j,meta.demo?{demo:true}:{});LB=MPFLogbook.Mount($('lbBox'),{doc:j||{programmes:[]},demo:!!meta.demo,onView:function(v){[].forEach.call(document.querySelectorAll('#trSeg button'),function(b){var t=b.getAttribute('data-t');b.classList.toggle('on',v==='history'?t==='hist':t==='lb')})}})};
+    (function(){var ic={book:'📖',podcast:'🎧',app:'📱',video:'🎬',other:'⭐'};var draw=function(items){if(!items||!items.length)return;$('recs').hidden=false;$('recList').innerHTML=items.map(function(x){var inner='<span class="ri">'+(ic[x.type]||'⭐')+'</span><span><b>'+esc(x.title)+'</b><small>'+esc(x.type)+(x.by?' · '+esc(x.by):'')+'</small>'+(x.why?'<p>'+esc(x.why)+'</p>':'')+(x.link?'<i>Have a look →</i>':'')+'</span>';return x.link?'<a class="rec" href="'+esc(x.link)+'" target="_blank" rel="noopener">'+inner+'</a>':'<div class="rec">'+inner+'</div>'}).join('')};
+      if(meta.demo)draw([{type:'book',title:'Atomic Habits',by:'James Clear',why:'Small habits, done daily, change everything.'}]);else fetch('/portal/api/recs',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){draw(j.items)}).catch(function(){})})();
     if(meta.demo)mountTr(MPFProgramme.demo);else fetch('/portal/api/programme',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(mountTr).catch(function(){mountTr(null)});
     var day=c.checkin||(c.type==='pt'?'Sunday':'Wednesday');
     $('stDay').textContent=day;document.querySelectorAll('.dayname').forEach(function(e){e.textContent=day});
