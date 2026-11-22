@@ -712,6 +712,29 @@ async function handleApi(request, env, url) {
     }
     return json(db);
   }
+  if (path === "/portal/api/coach/marketing") {
+    if (!coach) return json({ error: "forbidden" }, 403);
+    const key = "_data/_marketing.json", db = await getJSON(env, key, { weeks: {}, stats: [], bank: [] });
+    db.weeks = db.weeks || {}; db.stats = db.stats || []; db.bank = db.bank || [];
+    if (request.method === "POST") {
+      const b = await request.json().catch(() => ({})), str = (v, n) => String(v == null ? "" : v).slice(0, n);
+      if (b.day && isDate(b.week) && /^[0-6]$/.test(String(b.day.i))) {
+        const w = (db.weeks[b.week] = db.weeks[b.week] || {});
+        w[b.day.i] = { text: str(b.day.text, 300), pillar: str(b.day.pillar, 20), platforms: (Array.isArray(b.day.platforms) ? b.day.platforms : []).map((x) => str(x, 20)).slice(0, 6), status: ["idea", "filmed", "posted"].includes(b.day.status) ? b.day.status : "idea" };
+        const keys = Object.keys(db.weeks).sort(); while (keys.length > 60) delete db.weeks[keys.shift()];
+      }
+      if (b.stat && isDate(b.stat.week)) {
+        const st = { week: b.stat.week }; for (const k of ["ig", "igr", "tt", "fb", "enq", "views"]) if (b.stat[k] !== "" && b.stat[k] != null && !isNaN(Number(b.stat[k]))) st[k] = Math.round(Number(b.stat[k]));
+        db.stats = [...db.stats.filter((x) => x.week !== st.week), st].sort((a, b2) => a.week.localeCompare(b2.week)).slice(-120);
+      }
+      if (b.bankAdd) db.bank.unshift({ id: Date.now().toString(36), text: str(b.bankAdd.text, 200), pillar: str(b.bankAdd.pillar, 20) });
+      if (b.bankRemove) db.bank = db.bank.filter((x) => x.id !== b.bankRemove);
+      db.bank = db.bank.slice(0, 300);
+      if (b.checks && typeof b.checks === "object") db.checks = Object.fromEntries(Object.entries(b.checks).slice(0, 200).map(([k, v]) => [str(k, 80), str(v, 12)]));
+      await putJSON(env, key, db);
+    }
+    return json(db);
+  }
   if (path === "/portal/api/coach/notes") {
     if (!coach) return json({ error: "forbidden" }, 403);
     const id = (url.searchParams.get("id") || "").toLowerCase().replace(/[^a-z0-9_-]/g, "");
