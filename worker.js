@@ -365,7 +365,7 @@ async function handleApi(request, env, url) {
     const { id, ...pub } = client;
     return json({
       configured: true, signedIn: true, known: true, coach, email,
-      client: { ...pub, checkin: checkinDay(client), type: client.type === "pt" ? "pt" : "online" }, paid: !!((await getJSON(env, "_data/_payments.json", { byEmail: {} })).byEmail || {})[email], week: weekOf(client.start), photos: !!env.PHOTOS, today: londonToday(),
+      client: { ...pub, checkin: checkinDay(client), type: client.type === "pt" ? "pt" : "online" }, paid: client.payOk === true || !!((await getJSON(env, "_data/_payments.json", { byEmail: {} })).byEmail || {})[email], week: weekOf(client.start), photos: !!env.PHOTOS, today: londonToday(),
     });
   }
 
@@ -661,7 +661,7 @@ async function handleApi(request, env, url) {
         setup: setup.skip ? { done: true } : { done: !!setup.completed, n: Object.keys(setup.done || {}).length },
         form: c.onboarded === true ? null : !!(await getJSON(env, `${dkey(c.id)}/onboarding.json`, {})).submitted,
         planReady: c.onboarded === true ? true : !!(await getJSON(env, `${dkey(c.id)}/plan.json`, {})).ready,
-        active: c.active !== false, week, tracker: c.tracker || "", folder: c.folder || "",
+        active: c.active !== false, week, tracker: c.tracker || "", folder: c.folder || "", payOk: c.payOk === true,
         photosThisWeek: [...new Set(thisWeek)], lastUpload: photos.reduce((m, p) => (p.uploaded > m ? p.uploaded : m), ""),
         photoCount: photos.length,
         lastCheckin: Object.keys(sm.checkins || {}).sort().pop() || "",
@@ -784,6 +784,7 @@ async function handleApi(request, env, url) {
           active: c.active !== false, type: c.type === "pt" ? "pt" : "online", sex: c.sex === "m" ? "m" : "f",
           onboarded: c.onboarded === true, phone: String(c.phone || "").replace(/[^0-9]/g, "").slice(0, 15),
           folder: String(c.folder || "").replace(/[^A-Za-z0-9_-]/g, "").slice(0, 80),
+          payOk: c.payOk === true,
         };
       }
       const old = await getJSON(env, "_data/_roster.json", null);
