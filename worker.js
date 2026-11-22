@@ -637,6 +637,8 @@ async function handleApi(request, env, url) {
         active: c.active !== false, week, tracker: c.tracker || "", folder: c.folder || "",
         photosThisWeek: [...new Set(thisWeek)], lastUpload: photos.reduce((m, p) => (p.uploaded > m ? p.uploaded : m), ""),
         photoCount: photos.length,
+        lastCheckin: Object.keys(sm.checkins || {}).sort().pop() || "",
+        lastTrained: await (async () => { const from = fromT(toT(today) - 41 * DAY_MS); const d = await readLog(env, c.id, from, today); return Object.keys(d).filter((k) => d[k] && (d[k].trained === "Yes" || d[k].trainTime)).sort().pop() || ""; })(),
         consent: await (async () => { const k = await getJSON(env, `${dkey(c.id)}/consent.json`, {}); return { health: !!k.health, terms: !!k.terms, photos: k.photos || "" }; })(),
       });
     }
@@ -759,7 +761,7 @@ async function handleApi(request, env, url) {
       await loadRoster(env, true);
       return json({ ok: true, count: Object.keys(clean).length });
     }
-    return json({ roster: await getJSON(env, "_data/_roster.json", {}), secret: Object.keys(JSON.parse(env.PORTAL_CLIENTS || "{}")) });
+    return json({ roster: await getJSON(env, "_data/_roster.json", {}), secret: Object.keys(JSON.parse(env.PORTAL_CLIENTS || "{}")), secretClients: JSON.parse(env.PORTAL_CLIENTS || "{}") });
   }
 
   if (path === "/portal/api/coach/targets") {

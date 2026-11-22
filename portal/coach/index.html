@@ -141,7 +141,7 @@ html,body{overflow-x:hidden}
   <div class="panel" id="panel" hidden>
     <div class="ph-head">
       <div><div class="kick" id="pKick">Client</div><h2 id="pName">Client</h2></div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end"><button class="btn" id="readyBtn" type="button" hidden>Plan ready</button><button class="btn g" id="closeBtn" type="button">Close</button></div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end"><button class="btn g" id="swBtn" type="button">Switch to online</button><button class="btn" id="readyBtn" type="button" hidden>Plan ready</button><button class="btn g" id="closeBtn" type="button">Close</button></div>
     </div>
     <div class="wc" id="wChart" style="margin-bottom:18px"></div>
     <div class="filters" id="pTabs"><button data-p="ob">Onboarding</button><button class="on" data-p="ci">Check-ins</button><button data-p="log">Daily log</button><button data-p="tg">Targets</button><button data-p="mp">Meal plan</button><button data-p="pg">Programmes</button><button data-p="wk">Workouts</button><button data-p="ph">Photos</button></div>
@@ -191,6 +191,7 @@ html,body{overflow-x:hidden}
     var txt='Hi '+c.name.split(' ')[0]+'! Just a reminder that your weekly check-in is due'+(k.dueToday?' today':'')+' 😊 Upload your front, side and back photos and send your check-in in the portal: https://mpfcoaching.co.uk/portal/';
     return '<a class="btn g" style="padding:8px 12px" target="_blank" rel="noopener" href="https://wa.me/'+esc(c.phone||'')+'?text='+encodeURIComponent(txt)+'">Remind</a>';
   }
+  function quiet(c){if(!c.active||c.form===false)return false;var lim=MPFLog.fromT(MPFLog.toT(todayStr)-21*864e5),last=[c.lastTrained,c.lastCheckin,c.lastLog].filter(Boolean).sort().pop()||'';if(c.start&&c.start>lim)return false;return !last||last<lim}
   function draw(){
     var qv=(document.getElementById('cSearch')||{}).value||'';qv=qv.trim().toLowerCase();var pool=clients.filter(function(c){return (tfilter==='all'||c.type===tfilter)&&(!qv||(c.name||'').toLowerCase().indexOf(qv)>-1)}),act=pool.filter(function(c){return c.active});
     $('sActive').textContent=act.length;
@@ -200,7 +201,7 @@ html,body{overflow-x:hidden}
     var list=pool.filter(function(c){return filter==='all'||(filter==='active'?c.active:!c.active)});
     $('rows').innerHTML=list.map(function(c){
       var n=c.photosThisWeek.length;
-      return '<tr class="row" data-id="'+esc(c.id)+'"><td>'+(preview?'':'<img class="cav" alt="" src="/portal/api/coach/avatar?id='+encodeURIComponent(c.id)+'" onerror="this.remove()">')+'<b>'+esc(c.name)+'</b>'+(c.form===false?' <span class="pill off">New · no form yet</span>':c.form===true&&!c.planReady?' <span class="pill part">Form in · build plan</span>':'')+(c.setup&&!c.setup.done&&c.form!==false?' <span class="pill part">Setting up '+(c.setup.n||0)+'</span>':'')+'<br><span style="font-size:12px;color:var(--mute)">'+(c.type==='pt'?'Face to face':'Online')+' · '+esc(c.checkin)+'s</span></td><td>'+ciPill(c)+(remind(c)?'<div style="margin-top:6px">'+remind(c)+'</div>':'')+'</td><td>'+logPill(c)+'</td><td class="hide-m">'+(n===3?'<span class="pill ok">✓ 3</span>':'<span class="pill '+(n?'part':'off')+'">'+n+' of 3</span>')+'</td><td class="hide-m">'+(c.lastWeight?'<b>'+esc(c.lastWeight.kg)+'</b> kg':'–')+'</td></tr>';
+      return '<tr class="row" data-id="'+esc(c.id)+'"><td>'+(preview?'':'<img class="cav" alt="" src="/portal/api/coach/avatar?id='+encodeURIComponent(c.id)+'" onerror="this.remove()">')+'<b>'+esc(c.name)+'</b>'+(c.form===false?' <span class="pill off">New · no form yet</span>':c.form===true&&!c.planReady?' <span class="pill part">Form in · build plan</span>':'')+(c.setup&&!c.setup.done&&c.form!==false?' <span class="pill part">Setting up '+(c.setup.n||0)+'</span>':'')+(quiet(c)?' <span class="pill off" title="No training logged and no check-in for 3+ weeks">💤 Quiet 3+ weeks</span>':'')+'<br><span style="font-size:12px;color:var(--mute)">'+(c.type==='pt'?'Face to face':'Online')+' · '+esc(c.checkin)+'s</span></td><td>'+ciPill(c)+(remind(c)?'<div style="margin-top:6px">'+remind(c)+'</div>':'')+'</td><td>'+logPill(c)+'</td><td class="hide-m">'+(n===3?'<span class="pill ok">✓ 3</span>':'<span class="pill '+(n?'part':'off')+'">'+n+' of 3</span>')+'</td><td class="hide-m">'+(c.lastWeight?'<b>'+esc(c.lastWeight.kg)+'</b> kg':'–')+'</td></tr>';
     }).join('')||'<tr><td colspan="5" style="text-align:center">No clients here yet.</td></tr>';
     [].forEach.call(document.querySelectorAll('tr.row'),function(tr){tr.onclick=function(e){if(e.target.closest('a'))return;open(tr.getAttribute('data-id'))}});
   }
@@ -223,6 +224,11 @@ html,body{overflow-x:hidden}
     var showTab=function(p){[].forEach.call(document.querySelectorAll('#pTabs button'),function(x){x.classList.toggle('on',x.getAttribute('data-p')===p)});['ci','log','tg','pg','wk','ob','mp','ph'].forEach(function(k){var el=$({ci:'pCi',log:'pLog',tg:'pTg',pg:'pPg',wk:'pWk',ob:'pOb',mp:'pMp',ph:'pPh'}[k]);if(el)el.hidden=k!==p})};
     var isNew=cur.form!==null&&cur.form!==undefined;
     document.querySelector('#pTabs [data-p=ob]').hidden=!isNew;showTab(isNew&&!cur.planReady?'ob':'ci');
+    var sw=$('swBtn');sw.textContent=cur.type==='pt'?'Switch to online':'Switch to face to face';
+    sw.onclick=function(){var to=cur.type==='pt'?'online':'pt',lbl=to==='online'?'online coaching (weekly check-in on Wednesday)':'face to face (weekly check-in on Sunday)';
+      if(!confirm('Switch '+cur.name+' to '+lbl+'? All their history, programmes and photos stay.'))return;if(preview){cur.type=to;open(id);return}
+      fetch('/portal/api/coach/roster',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){var ro=j.roster||{},sc=j.secretClients||{},n=0;Object.keys(sc).forEach(function(e){if(sc[e].id===id&&!ro[e])ro[e]=Object.assign({},sc[e])});Object.keys(ro).forEach(function(e){if(ro[e].id===id){ro[e].type=to;ro[e].checkin=to==='online'?'Wednesday':'Sunday';n++}});if(!n)throw 0;
+        return fetch('/portal/api/coach/roster',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify(ro)})}).then(function(r){if(!r.ok)throw 0;cur.type=to;cur.checkin=to==='online'?'Wednesday':'Sunday';alert(cur.name+' is now '+(to==='online'?'an online client':'a face to face client')+'. They will see the change next time they open their portal.');draw();open(id)}).catch(function(){alert('Not switched. Try again.')})};
     var rb=$('readyBtn');rb.hidden=!isNew;
     var paintReady=function(){rb.textContent=cur.planReady?'✓ Plan ready':'Mark plan ready';rb.className=cur.planReady?'btn g':'btn'};paintReady();
     rb.onclick=function(){var v=!cur.planReady;if(v&&!confirm('Mark '+cur.name+'\'s plan as ready? They will see a "Your plan is ready" banner in their portal.'))return;
