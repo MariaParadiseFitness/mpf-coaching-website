@@ -694,6 +694,51 @@ async function handleApi(request, env, url) {
     }
     await putJSON(env, "_data/_leads.json", db); return json({ ok: true });
   }
+  if (path === "/portal/api/coach/todos") {
+    if (!coach) return json({ error: "forbidden" }, 403);
+    const key = "_data/_todos.json", db = await getJSON(env, key, { items: [], dismissed: {} });
+    if (request.method === "POST") {
+      const b = await request.json().catch(() => ({}));
+      if (b.add) db.items.unshift({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 5), text: String(b.add).slice(0, 200), done: false, at: londonToday(), client: String(b.client || "").slice(0, 40) });
+      if (b.toggle) db.items.forEach((x) => { if (x.id === b.toggle) { x.done = !x.done; x.doneAt = x.done ? londonToday() : ""; } });
+      if (b.remove) db.items = db.items.filter((x) => x.id !== b.remove);
+      if (b.dismiss) db.dismissed[String(b.dismiss).slice(0, 120)] = londonToday();
+      if (b.undismiss) delete db.dismissed[String(b.undismiss).slice(0, 120)];
+      const cut = fromT(toT(londonToday()) - 14 * DAY_MS);
+      db.items = db.items.filter((x) => !x.done || (x.doneAt || "") >= cut).slice(0, 300);
+      for (const [k, d] of Object.entries(db.dismissed)) if (!k.startsWith("ms:") && d < cut) delete db.dismissed[k];
+      await putJSON(env, key, db);
+    }
+    return json(db);
+  }
+  if (path === "/portal/api/coach/notes") {
+    if (!coach) return json({ error: "forbidden" }, 403);
+    const id = (url.searchParams.get("id") || "").toLowerCase().replace(/[^a-z0-9_-]/g, "");
+    if (!Object.values(r).some((x) => x.id === id)) return json({ error: "unknown" }, 404);
+    const key = `${dkey(id)}/notes.json`;
+    if (request.method === "POST") { const b = await request.json().catch(() => ({})); const d = { text: String(b.text || "").slice(0, 20000), updated: new Date().toISOString() }; await putJSON(env, key, d); return json(d); }
+    return json(await getJSON(env, key, { text: "", updated: "" }));
+  }
+  if (path === "/portal/api/coach/checkin-reply" && request.method === "POST") {
+    if (!coach) return json({ error: "forbidden" }, 403);
+    const b = await request.json().catch(() => ({}));
+    const id = String(b.id || "").toLowerCase(), c = Object.values(r).find((x) => x.id === id);
+    if (!c || !isDate(b.due)) return json({ error: "bad" }, 400);
+    const key = `${dkey(c.id)}/checkins.json`, all = await getJSON(env, key, {});
+    if (!all[b.due]) return json({ error: "no check-in" }, 404);
+    const text = String(b.text || "").trim().slice(0, 5000), at = new Date().toISOString(), isNew = !(all[b.due].reply && all[b.due].reply.text);
+    if (text) all[b.due].reply = { text, at }; else delete all[b.due].reply;
+    await putJSON(env, key, all);
+    const sk = `${dkey(c.id)}/summary.json`, sm = await getJSON(env, sk, {}); sm.replied = sm.replied || {};
+    if (text) sm.replied[b.due] = at; else delete sm.replied[b.due];
+    await putJSON(env, sk, sm);
+    if (text && isNew && b.email !== false) {
+      const to = Object.entries(r).filter(([, x]) => x.id === c.id).map(([e]) => e.toLowerCase())[0];
+      const first = String(c.name || "").split(" ")[0];
+      if (to) await sendMail(env, { to, fromName: "Maria Paradise", subject: `${first}, I've replied to your check-in`, heading: `Your check-in <em style="color:#e6cf8b">feedback.</em>`, intro: `Hi ${first}, I've gone through your check-in and left you some feedback in your portal.`, lines: ["Have a read and message me if you have any questions.", "", "Maria x"], button: { text: "Read my feedback", url: SITE + "/portal/#checkin" } }).catch(() => {});
+    }
+    return json({ ok: true, reply: all[b.due].reply || null });
+  }
   if (path === "/portal/api/coach/business") {
     if (!coach) return json({ error: "forbidden" }, 403);
     return json(await businessStats(env, r, url.searchParams.get("fresh") === "1"));
@@ -730,7 +775,8 @@ async function handleApi(request, env, url) {
         setup: setup.skip ? { done: true } : { done: !!setup.completed, n: Object.keys(setup.done || {}).length },
         form: c.onboarded === true ? null : !!(await getJSON(env, `${dkey(c.id)}/onboarding.json`, {})).submitted,
         planReady: c.onboarded === true ? true : !!(await getJSON(env, `${dkey(c.id)}/plan.json`, {})).ready,
-        active: c.active !== false, week, tracker: c.tracker || "", folder: c.folder || "", payOk: c.payOk === true,
+        active: c.active !== false, week, tracker: c.tracker || "", folder: c.folder || "", payOk: c.payOk === true, tags: c.tags || [],
+        startWeight: wts.length ? wts[0] : null, needsReply: (() => { const ks = Object.keys(sm.checkins || {}).sort(); const k = ks[ks.length - 1]; return !!k && !((sm.replied || {})[k]); })(),
         photosThisWeek: [...new Set(thisWeek)], lastUpload: photos.reduce((m, p) => (p.uploaded > m ? p.uploaded : m), ""),
         photoCount: photos.length,
         lastCheckin: Object.keys(sm.checkins || {}).sort().pop() || "",
@@ -855,6 +901,7 @@ async function handleApi(request, env, url) {
           folder: String(c.folder || "").replace(/[^A-Za-z0-9_-]/g, "").slice(0, 80),
           payOk: c.payOk === true,
           source: String(c.source || "").slice(0, 40),
+          tags: (Array.isArray(c.tags) ? c.tags : []).map((x) => String(x).trim().slice(0, 24)).filter(Boolean).slice(0, 8),
         };
       }
       const old = await getJSON(env, "_data/_roster.json", null);

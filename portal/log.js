@@ -129,12 +129,14 @@
       h+=statsHTML(s);
       if(photos!==null)h+='<a class="ci-photos'+(photos===3?' ok':'')+'" href="#photos">📸 '+(photos===3?'All 3 photos uploaded ✓':'Check-in photos: '+photos+' of 3 uploaded. Tap to add them.')+'</a>';
       if(c&&!editing){
+        if(c.reply)h+='<div class="ci-fb"><b>💬 Maria\'s feedback</b><p>'+esc(c.reply.text).replace(/\n/g,'<br>')+'</p></div>';
         h+='<div class="ci-ans">'+(c.questions||Q).map(function(q,i){return c.answers[i]?'<div><b>'+(i+1)+'. '+esc(q)+'</b><p>'+esc(c.answers[i])+'</p></div>':''}).join('')+'</div>';
         h+='<div class="ci-btns"><button class="btn g" type="button" data-a="edit">Edit my answers</button><a class="btn" target="_blank" rel="noopener" href="https://wa.me/447592791137?text='+encodeURIComponent('Hi Maria, my check-in for '+nice(due,{weekday:'long',month:'short'})+' is done ✅')+'">Tell Maria on WhatsApp</a></div>';
       }else{
         h+='<form class="ci-form">'+Q.map(function(q,i){var v=c?c.answers[i]||'':(draft()[i]||'');var short=i>=4&&i<=6;return '<label><b>'+(i+1)+'. '+esc(q)+'</b>'+(short?'<input name="q'+i+'" type="text" inputmode="numeric" value="'+esc(v)+'">':'<textarea name="q'+i+'" rows="2">'+esc(v)+'</textarea>')+'</label>'}).join('')+
           '<div class="ci-btns"><span class="lg-msg"></span><button class="btn" type="submit">Send my check-in</button></div></form>';
       }
+      var older={};Object.keys(all).forEach(function(k){if(k!==due)older[k]=all[k]});if(Object.keys(older).length)h+='<details class="ci-past" style="margin-top:18px"><summary style="cursor:pointer;color:var(--gold-l);font-weight:600">Past check-ins and feedback ('+Object.keys(older).length+')</summary><div style="margin-top:10px">'+checkinList(older)+'</div></details>';
       el.innerHTML=h;
       if(o.onState)o.onState({due:due,done:!!c,diff:diff});
       var f=el.querySelector('form');
@@ -176,10 +178,10 @@
     flush();
     return '<div class="lt-wrap"><table class="lt"><thead><tr><th>Day</th>'+COLS_.map(function(k){var f=LABEL[k]||{l:'Cycle day'};return '<th>'+esc({cycle:'Cycle day',weight:'Weight kg',steps:'Steps',cals:'Kcal',protein:'Protein g',carbs:'Carbs g',fat:'Fat g',water:'Water L',offPlan:'Off-plan',sleep:'Sleep',cardio:'Cardio min',trained:'Trained',energy:'Energy',mood:'Mood',stress:'Stress',hunger:'Hunger',adherence:'Plan'}[k]||f.l)+'</th>'}).join('')+'<th>Notes</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
   }
-  function checkinList(all){
-    var ds=Object.keys(all||{}).sort().reverse();
+  function checkinList(all,opt){
+    opt=opt||{};var ds=Object.keys(all||{}).sort().reverse();
     if(!ds.length)return '<p class="ci-note">No check-ins sent yet.</p>';
-    return ds.map(function(d,n){var c=all[d];return '<details class="ci-card"'+(n===0?' open':'')+'><summary><b>Week ending '+nice(d,{weekday:'short'})+'</b><span>Sent '+new Date(c.at).toLocaleString('en-GB',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})+'</span></summary>'+statsHTML(c.stats||{daysLogged:0})+'<div class="ci-ans">'+(c.questions||[]).map(function(q,i){return '<div><b>'+(i+1)+'. '+esc(q)+'</b><p>'+(esc(c.answers[i])||'<i>No answer</i>')+'</p></div>'}).join('')+'</div></details>'}).join('');
+    return ds.map(function(d,n){var c=all[d];return '<details class="ci-card"'+(n===0?' open':'')+'><summary><b>Week ending '+nice(d,{weekday:'short'})+'</b><span>Sent '+new Date(c.at).toLocaleString('en-GB',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})+'</span></summary>'+statsHTML(c.stats||{daysLogged:0})+'<div class="ci-ans">'+(c.questions||[]).map(function(q,i){return '<div><b>'+(i+1)+'. '+esc(q)+'</b><p>'+(esc(c.answers[i])||'<i>No answer</i>')+'</p></div>'}).join('')+'</div>'+(opt.coach?'<div class="ci-rep" data-due="'+d+'"><b>💬 Your reply'+(c.reply?' <span style="font-weight:400;color:var(--mute);font-size:12px">sent '+new Date(c.reply.at).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})+'</span>':'')+'</b><textarea rows="4" placeholder="Feedback for this week: wins, what to focus on, any changes">'+esc(c.reply?c.reply.text:'')+'</textarea><div class="ci-btns"><span class="lg-msg"></span><button class="btn" type="button" data-rep>'+(c.reply?'Update reply':'Send reply')+'</button></div></div>':(c.reply?'<div class="ci-fb"><b>💬 Maria\'s feedback</b><p>'+esc(c.reply.text).replace(/\n/g,'<br>')+'</p></div>':''))+'</details>'}).join('');
   }
 
     function targetsHTML(t){
