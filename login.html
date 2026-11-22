@@ -68,19 +68,22 @@ h2{font-family:var(--serif);font-weight:900;font-size:clamp(24px,4vw,32px);line-
 .small{font-size:13px;color:#b5a988;margin-top:18px;max-width:640px}
 .how{max-width:640px;margin-top:20px;background:#151410;border:1px solid rgba(201,166,75,.3);border-left:3px solid var(--gold);border-radius:14px;padding:16px 18px;font-size:14px;color:#cfc4aa}
 .how b{color:#fff}.how ol{margin:8px 0 8px 18px}.how li{margin-bottom:6px}.how p{font-size:13px;color:#b5a988}
+.paid-note{border:1px solid #c9a64b;background:rgba(201,166,75,.1);border-radius:16px;padding:16px 18px;margin:0 0 18px;color:#efe6cf}.paid-note b{color:#fff}.paid-note p{margin:6px 0 0}
 </style>
 </head>
 <body>
 <div class="top"><div class="in"><a href="index.html">← MPF Coaching</a><a href="mailto:info@mpfcoaching.co.uk">Need help?</a></div></div>
 <main class="wrap">
   <div class="hero"><img class="me" src="img/maria-profile.jpg" alt="Maria Paradise"><div><div class="kick">Client login</div><h1>Welcome back, <em>where to?</em></h1><p class="lead">Pick where you want to go.</p></div></div>
+  <div class="paid-note" id="paidNote" hidden><b>✅ Payment received. Welcome to online coaching!</b><p>Your portal opens with the <b>same email you used to pay on Stripe</b>. Tap <b>Online coaching client portal</b> below and type that email in.</p></div>
+  <script>if(/[?&]paid/.test(location.search))document.getElementById('paidNote').hidden=false</script>
   <div class="pick">
     <a class="act main" href="/portal/"><span class="ic">🏋️</span><span><b>Face to face client portal</b><span>Your daily log, Sunday check-in, progress photos and weight graph</span></span><span class="go">→</span></a>
     <a class="act main" href="/portal/"><span class="ic">💻</span><span><b>Online coaching client portal</b><span>Your daily log, weekly check-in, progress photos, training and guides</span></span><span class="go">→</span></a>
     <a class="act" href="clients.html"><span class="ic">📅</span><span><b>Bookings</b><span>Book, move or cancel your PT sessions and buy packages. No login needed</span></span><span class="go">→</span></a>
   </div>
   <div class="how"><b>How to log in to your portal</b>
-    <ol><li>Tap your portal above and type in your email (the one you gave Maria).</li>
+    <ol><li>Tap your portal above and type in your email (the one you gave Maria, or the one you paid with on Stripe).</li>
     <li>You'll get an email from <b>Cloudflare</b> with a <b>6-digit code</b>. Cloudflare is the secure login service we use, so this is from us.</li>
     <li>Type the code in and you're in. You stay logged in for a month.</li></ol>
     <p><b>🔒 Your information is private.</b> Only you and Maria can see your portal, your logs and your progress photos. Photos are kept in private, secure storage with no public link, and are never shared or posted without your permission.</p>
