@@ -198,7 +198,8 @@ html,body{overflow-x:hidden}
 <body>
 <div class="top"><div class="in"><a href="/portal/coach/"><img src="/img/logo.png" alt="MPF Coaching"></a><a class="o" href="/cdn-cgi/access/logout">Log out</a></div></div>
 <main class="wrap" id="app" hidden>
-  <nav class="vnav" id="vnav"><a data-v="today" href="#v=today">✅ Today</a><a data-v="clients" href="#v=clients">👥 Clients</a><a data-v="checkins" href="#v=checkins">💬 Check-ins</a><a data-v="prog" href="#v=prog">📋 Programmes</a><a data-v="meal" href="#v=meal">🥗 Meal plans</a><a data-v="mkt" href="#v=mkt">📣 Marketing</a><a href="/portal/coach/business.html">💷 Business</a><a data-v="settings" href="#v=settings">⚙️ Settings</a></nav>
+  <nav class="vnav" id="vnav"><a data-v="today" href="#v=today">✅ Today</a><a data-v="clients" href="#v=clients">👥 Clients</a><a data-v="checkins" href="#v=checkins">💬 Check-ins</a><a data-v="prog" href="#v=prog">📋 Programmes</a><a data-v="meal" href="#v=meal">🥗 Meal plans</a><a data-v="mkt" href="#v=mkt">📣 Marketing</a><a href="/portal/coach/business.html">💷 Business</a><a href="#" id="cvNav">👁 Client view</a><a data-v="settings" href="#v=settings">⚙️ Settings</a></nav>
+  <div id="cvPick" style="position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.7);display:none;place-items:center;padding:16px"><div style="background:#141414;border:1px solid rgba(201,166,75,.4);border-radius:18px;padding:18px;max-width:380px;width:100%"><b style="color:#fff;font-size:17px">See a client's portal</b><div class="mini" style="margin:6px 0 12px">Opens their portal exactly as they see it. Read only, nothing you tap saves.</div><select id="cvSel" style="width:100%;background:#0e0e0e;color:#fff;border:1px solid rgba(201,166,75,.35);border-radius:10px;padding:10px;font:inherit"></select><div style="display:flex;gap:8px;margin-top:12px"><button class="btn" type="button" id="cvGo">Open their portal</button><button class="btn g" type="button" id="cvX">Cancel</button></div></div></div>
   <div class="preview" id="pv" hidden>👀 Preview with made-up clients. Real clients appear once the login is switched on.</div>
   <div class="mhero" id="mhero" data-view="today">
     <div class="kick" id="today"></div>
@@ -270,7 +271,7 @@ html,body{overflow-x:hidden}
   <div class="panel" id="panel" hidden>
     <div class="ph-head">
       <div><div class="kick" id="pKick">Client</div><h2 id="pName">Client</h2></div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end"><a class="btn" id="asBtn" href="#" target="_blank" rel="noopener">👁 See their portal</a><button class="btn g" id="swBtn" type="button">Switch to online</button><button class="btn g" id="payBtn" type="button" hidden>Paid another way</button><button class="btn" id="readyBtn" type="button" hidden>Plan ready</button><button class="btn g" id="closeBtn" type="button">← All clients</button></div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end"><a class="btn" id="asBtn" href="#">👁 See their portal</a><button class="btn g" id="swBtn" type="button">Switch to online</button><button class="btn g" id="payBtn" type="button" hidden>Paid another way</button><button class="btn" id="readyBtn" type="button" hidden>Plan ready</button><button class="btn g" id="closeBtn" type="button">← All clients</button></div>
     </div>
     <div class="gp"><div class="wc" id="wChart"></div><div class="fvl" id="fvl"></div></div>
     <div class="pmeta" id="pMeta"></div><div id="pExtra"></div>
@@ -402,6 +403,10 @@ html,body{overflow-x:hidden}
     document.addEventListener('pointermove',function(e){if(!st)return;var r=st.getBoundingClientRect(),s=+$('luS').value;$('luX').value=(ox+(e.clientX-sx)/r.width*100).toFixed(1);$('luY').value=(oy+(e.clientY-sy)/r.height*100).toFixed(1);luApply()});
     document.addEventListener('pointerup',function(){st=null});
     document.addEventListener('wheel',function(e){if(!(e.target.closest&&e.target.closest('#luSt')))return;e.preventDefault();var s=$('luS');s.value=Math.max(.5,Math.min(2,+s.value-e.deltaY*0.001));luApply()},{passive:false})})();
+  document.addEventListener('click',function(e){var id=e.target&&e.target.id;
+    if(id==='cvNav'){e.preventDefault();var list=(clients||[]).filter(function(c){return c.active!==false}).slice().sort(function(a,b){return a.name.localeCompare(b.name)});$('cvSel').innerHTML=list.map(function(c){return '<option value="'+esc(c.id)+'">'+esc(c.name)+' · '+(c.type==='pt'?'face to face':'online')+'</option>'}).join('');$('cvPick').style.display='grid'}
+    if(id==='cvX'||id==='cvPick')$('cvPick').style.display='none';
+    if(id==='cvGo'&&$('cvSel').value)location.href='/portal/?as='+encodeURIComponent($('cvSel').value)});
   function drawPhotos(){
     drawFvl();
     var ws=weeks();
