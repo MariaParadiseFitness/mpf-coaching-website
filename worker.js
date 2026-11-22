@@ -709,6 +709,17 @@ async function handleApi(request, env, url) {
     }
     await putJSON(env, "_data/_leads.json", db); return json({ ok: true });
   }
+  if (path === "/portal/api/coach/acuity-peek") {
+    if (!coach || !env.ACUITY_ICAL) return json({ error: "no" }, 403);
+    const res = await fetch(String(env.ACUITY_ICAL).replace(/^webcal:/i, "https:"), { signal: AbortSignal.timeout(20000) });
+    const txt = (await res.text()).replace(/\r?\n[ \t]/g, "");
+    const evs = txt.split("BEGIN:VEVENT").slice(1);
+    const lines = {}; let pk = 0;
+    for (const ev of evs) { const d = (ev.match(/^DESCRIPTION[^:\n]*:(.*)$/m) || [])[1] || ""; const sm = (ev.match(/^SUMMARY[^:\n]*:(.*)$/m) || [])[1] || ""; if (/package|certificate|code|sessions? (left|remaining)/i.test(d + sm)) pk++;
+      for (const part of (d.replace(/\\n/g, "\n").split("\n"))) { const label = part.split(":")[0].replace(/[0-9a-z._%+-]+@[0-9a-z.-]+/gi, "[email]").replace(/\+?\d[\d ]{7,}/g, "[phone]").trim().slice(0, 50); if (label) lines[label] = (lines[label] || 0) + 1; } }
+    const samplePk = evs.map((ev) => ((ev.match(/^DESCRIPTION[^:\n]*:(.*)$/m) || [])[1] || "")).filter((d) => /package|certificate/i.test(d)).slice(0, 3).map((d) => d.replace(/\\n/g, " | ").replace(/[0-9a-z._%+-]+@[0-9a-z.-]+/gi, "[email]").replace(/\+?\d[\d ]{7,}/g, "[phone]").slice(0, 300));
+    return json({ events: evs.length, withPackageWords: pk, descLineLabels: Object.entries(lines).sort((a, b) => b[1] - a[1]).slice(0, 25), samplePk });
+  }
   if (path === "/portal/api/coach/package") {
     if (!coach) return json({ error: "forbidden" }, 403);
     const id = (url.searchParams.get("id") || "").toLowerCase().replace(/[^a-z0-9_-]/g, "");
