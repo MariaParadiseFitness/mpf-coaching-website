@@ -611,6 +611,8 @@ async function handleApi(request, env, url) {
   // ---- coach ----
   if (path === "/portal/api/coach/clients") {
     if (!coach) return json({ error: "forbidden" }, 403);
+    const acu = await acuityBookings(env).catch(() => null);
+    const emailsOf = (id) => Object.entries(r).filter(([, x]) => x.id === id).map(([e]) => e.toLowerCase());
     const seen = new Set();
     const list = [];
     for (const c of Object.values(r)) {
@@ -638,6 +640,7 @@ async function handleApi(request, env, url) {
         photosThisWeek: [...new Set(thisWeek)], lastUpload: photos.reduce((m, p) => (p.uploaded > m ? p.uploaded : m), ""),
         photoCount: photos.length,
         lastCheckin: Object.keys(sm.checkins || {}).sort().pop() || "",
+        pt: acu ? emailsOf(c.id).reduce((m, e) => { const b = acu[e]; if (!b) return m; return { last: b.last > m.last ? b.last : m.last, next: !m.next || (b.next && b.next < m.next) ? b.next || m.next : m.next }; }, { last: "", next: "" }) : null,
         lastTrained: await (async () => { const from = fromT(toT(today) - 41 * DAY_MS); const d = await readLog(env, c.id, from, today); return Object.keys(d).filter((k) => d[k] && (d[k].trained === "Yes" || d[k].trainTime)).sort().pop() || ""; })(),
         consent: await (async () => { const k = await getJSON(env, `${dkey(c.id)}/consent.json`, {}); return { health: !!k.health, terms: !!k.terms, photos: k.photos || "" }; })(),
       });
@@ -888,6 +891,30 @@ async function notifyForm(env, client, a) {
     "MIME-Version: 1.0", "Content-Type: text/plain; charset=utf-8", "Content-Transfer-Encoding: 8bit", "", lines.join("\r\n"),
   ].join("\r\n");
   await env.MAILER.send(new EmailMessage(env.NOTIFY_FROM, env.NOTIFY_TO, raw));
+}
+
+// ---- PT bookings from Acuity (optional: needs ACUITY_USER_ID + ACUITY_API_KEY secrets) ----
+let acuityCache = null;
+async function acuityBookings(env) {
+  if (!env.ACUITY_USER_ID || !env.ACUITY_API_KEY) return null;
+  if (acuityCache && Date.now() - acuityCache.at < 10 * 60 * 1000) return acuityCache.data;
+  const today = londonToday();
+  const qs = new URLSearchParams({ minDate: fromT(toT(today) - 90 * DAY_MS), maxDate: fromT(toT(today) + 90 * DAY_MS), max: "2500" });
+  const res = await fetch("https://acuityscheduling.com/api/v1/appointments?" + qs, {
+    headers: { authorization: "Basic " + btoa(env.ACUITY_USER_ID + ":" + env.ACUITY_API_KEY) },
+  });
+  if (!res.ok) return null;
+  const appts = await res.json();
+  const by = {};
+  for (const a of Array.isArray(appts) ? appts : []) {
+    if (a.canceled) continue;
+    const e = String(a.email || "").trim().toLowerCase(), d = String(a.datetime || "").slice(0, 10);
+    if (!e || !d) continue;
+    const b = (by[e] = by[e] || { last: "", next: "" });
+    if (d <= today) { if (d > b.last) b.last = d; } else if (!b.next || d < b.next) b.next = d;
+  }
+  acuityCache = { at: Date.now(), data: by };
+  return by;
 }
 
 export default {
