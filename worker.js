@@ -754,6 +754,36 @@ async function handleApi(request, env, url) {
     await putJSON(env, k, next);
     return json({ ok: true, health: !!next.health, terms: !!next.terms, photos: next.photos || "" });
   }
+  if (path === "/portal/api/schedule") {
+    // client's own week planner (training, cardio, meal prep...). Coach can read it.
+    let id = client && client.id;
+    if (coach && url.searchParams.get("id")) id = String(url.searchParams.get("id")).toLowerCase().replace(/[^a-z0-9_-]/g, "");
+    if (!id) return json({ error: "unknown" }, 403);
+    const key = `${dkey(id)}/schedule.json`, doc = await getJSON(env, key, { items: [] });
+    if (request.method === "POST") {
+      if (coach && !client) return json({ error: "read only" }, 403);
+      const b = await request.json().catch(() => ({}));
+      const TY = ["training", "cardio", "mealprep", "walk", "stretch", "sleep", "checkin", "other"];
+      const tm = (v) => (/^\d{2}:\d{2}$/.test(String(v || "")) ? v : "");
+      doc.items = (Array.isArray(b.items) ? b.items : []).slice(0, 200).map((x) => ({
+        id: String(x.id || Math.random().toString(36).slice(2, 10)).replace(/[^a-z0-9]/gi, "").slice(0, 16),
+        type: TY.includes(x.type) ? x.type : "other", title: String(x.title || "").slice(0, 80), notes: String(x.notes || "").slice(0, 300),
+        date: isDate(x.date) ? x.date : londonToday(), time: tm(x.time) || "07:00", dur: Math.max(5, Math.min(600, parseInt(x.dur, 10) || 60)),
+        days: (Array.isArray(x.days) ? x.days : []).map(Number).filter((d) => d >= 0 && d <= 6).slice(0, 7),
+        until: isDate(x.until) ? x.until : "",
+      })).filter((x) => x.title);
+      if (b.feed === "reset" || (b.feed === "on" && !doc.token)) {
+        const tk = await getJSON(env, "_data/_caltokens.json", {});
+        if (doc.token) delete tk[doc.token];
+        doc.token = [...crypto.getRandomValues(new Uint8Array(18))].map((n) => n.toString(16).padStart(2, "0")).join("");
+        tk[doc.token] = id; await putJSON(env, "_data/_caltokens.json", tk);
+      }
+      if (b.feed === "off" && doc.token) { const tk = await getJSON(env, "_data/_caltokens.json", {}); delete tk[doc.token]; await putJSON(env, "_data/_caltokens.json", tk); delete doc.token; }
+      doc.updated = new Date().toISOString();
+      await putJSON(env, key, doc);
+    }
+    return json({ items: doc.items || [], feed: doc.token ? `${url.origin}/cal/${doc.token}.ics` : "" });
+  }
   if (path === "/portal/api/recs") {
     // "Recommended by Maria": books, podcasts, apps and anything else. Everyone can read; only the coach can change it.
     const key = "_data/_recs.json";
@@ -1428,6 +1458,30 @@ async function lockState(env, client, r) {
   }
   return { locked: false };
 }
+// Private calendar feed for one client's planner, so Google Calendar can subscribe to it ("From URL").
+// The long random token in the link is the only key; it shows just their own plan (titles and times) and can be reset or turned off from their portal.
+async function calFeed(env, url) {
+  const token = url.pathname.slice(5, -4).replace(/[^a-f0-9]/g, "");
+  const tk = await getJSON(env, "_data/_caltokens.json", {}), id = token.length >= 32 ? tk[token] : null;
+  if (!id) return new Response("Not found", { status: 404 });
+  const doc = await getJSON(env, `${dkey(id)}/schedule.json`, { items: [] });
+  if (doc.token !== token) return new Response("Not found", { status: 404 });
+  const esc = (t) => String(t || "").replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/([,;])/g, "\\$1");
+  const em = { training: "🏋️", cardio: "🏃", mealprep: "🥗", walk: "🚶", stretch: "🧘", sleep: "😴", checkin: "✅", other: "⭐" };
+  const BY = ["MO", "TU", "WE", "TH", "FR", "SA", "SU"], stamp = new Date().toISOString().replace(/[-:]/g, "").slice(0, 15) + "Z";
+  const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//MPF Coaching//Planner//EN", "CALSCALE:GREGORIAN", "METHOD:PUBLISH", "X-WR-CALNAME:MPF Coaching plan", "X-WR-TIMEZONE:Europe/London", "REFRESH-INTERVAL;VALUE=DURATION:PT6H", "X-PUBLISHED-TTL:PT6H"];
+  for (const x of doc.items || []) {
+    const [h, m] = (x.time || "07:00").split(":").map(Number), st = new Date(Date.UTC(2000, 0, 1, h, m)), en = new Date(st.getTime() + (x.dur || 60) * 60000);
+    const d = x.date.replace(/-/g, ""), t = (z) => String(z.getUTCHours()).padStart(2, "0") + String(z.getUTCMinutes()).padStart(2, "0") + "00";
+    const dayAdd = en.getUTCDate() !== st.getUTCDate() ? 1 : 0, ed = dayAdd ? fromT(toT(x.date) + DAY_MS).replace(/-/g, "") : d;
+    lines.push("BEGIN:VEVENT", `UID:${x.id}-${id}@mpfcoaching.co.uk`, `DTSTAMP:${stamp}`, `DTSTART;TZID=Europe/London:${d}T${t(st)}`, `DTEND;TZID=Europe/London:${ed}T${t(en)}`, `SUMMARY:${esc((em[x.type] || "") + " " + x.title)}`);
+    if (x.notes) lines.push(`DESCRIPTION:${esc(x.notes)}`);
+    if (x.days && x.days.length) lines.push(`RRULE:FREQ=WEEKLY;BYDAY=${x.days.map((n) => BY[n]).join(",")}${x.until ? ";UNTIL=" + x.until.replace(/-/g, "") + "T235959Z" : ""}`);
+    lines.push("END:VEVENT");
+  }
+  lines.push("END:VCALENDAR");
+  return new Response(lines.join("\r\n") + "\r\n", { headers: { "content-type": "text/calendar; charset=utf-8", "cache-control": "no-cache" } });
+}
 // add one email to the Cloudflare Access login policy (no emails are sent)
 async function accessAllow(env, email) {
   if (!(env.CF_API_TOKEN && env.ACCESS_POLICY_ID && env.CF_ACCOUNT_ID)) return "not set up";
@@ -1491,6 +1545,8 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     if (url.pathname === "/stripe/webhook" && request.method === "POST") return stripeWebhook(request, env).catch(() => new Response("error", { status: 500 }));
+    if (url.pathname === "/api/recs" && request.method === "GET") return json(await getJSON(env, "_data/_recs.json", { items: [] }));
+    if (url.pathname.startsWith("/cal/") && url.pathname.endsWith(".ics")) return calFeed(env, url).catch(() => new Response("error", { status: 500 }));
     if (url.pathname.startsWith("/portal/api/")) {
       try {
         return await handleApi(request, env, url);

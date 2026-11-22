@@ -180,7 +180,7 @@ footer{text-align:center;color:#7d735c;font-size:12px;padding:20px}
 .due.plan{background:linear-gradient(120deg,#1d1b15,#2a2315);color:var(--gold-l);border:1px solid var(--gold-l);box-shadow:none}
 .bk-frame{border-radius:20px;overflow:hidden;border:1px solid rgba(214,184,100,.7);background:#fff;margin-top:12px}
 .bk-frame iframe{display:block;width:100%;height:1100px;border:0}
-.bnav.six{grid-template-columns:repeat(6,1fr)}.bnav.six a{font-size:9.5px}
+.bnav a{font-size:9.5px}
 .ptonly[hidden]{display:none!important}
 .step .opt{font-size:10px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--gold-l);border:1px solid var(--line);border-radius:20px;padding:2px 8px;vertical-align:middle;margin-left:4px}
 .step p.tip{color:var(--gold-l);font-size:13px;margin-top:6px}
@@ -227,7 +227,7 @@ body.gated #topTabs{visibility:hidden}
 <body>
 <div class="top"><div class="in">
   <a href="/"><img src="/img/logo.png" alt="MPF Coaching"></a>
-  <nav class="tabs" id="topTabs"><a data-v="today" href="#log">Today</a><a data-v="nutrition" href="#targets">Nutrition</a><a data-v="checkin" href="#checkin">Check-in</a><a data-v="progress" href="#progress">Progress</a><a data-v="training" href="#folder">Training</a><a data-v="sessions" href="#sessions" class="ptonly" hidden>Sessions</a><a data-v="more" href="#account">More</a></nav>
+  <nav class="tabs" id="topTabs"><a data-v="today" href="#log">Today</a><a data-v="nutrition" href="#targets">Nutrition</a><a data-v="checkin" href="#checkin">Check-in</a><a data-v="progress" href="#progress">Progress</a><a data-v="training" href="#folder">Training</a><a data-v="plan" href="#plan">Plan</a><a data-v="more" href="#account">More</a></nav>
   <a class="out" href="/cdn-cgi/access/logout">Log out</a>
 </div></div>
 
@@ -364,8 +364,16 @@ body.gated #topTabs{visibility:hidden}
     </div>
   </section>
 
-  <!-- SESSIONS -->
-  <section data-view="sessions" id="sessions" class="gone">
+  <!-- PLAN -->
+  <section data-view="plan" id="plan">
+    <h2>My <em>plan.</em></h2>
+    <div class="sub">Plan your week: training, cardio, meal prep, walks, anything. Turn on calendar sync and it all shows in your Google Calendar.</div>
+    <div class="ptonly" hidden style="margin:0 0 14px"><a class="act" href="#sessions"><span class="ic">📅</span><span><b>Book a PT session with Maria</b><span>See times and book below</span></span></a></div>
+    <div class="pl-box" id="plBox"><div class="pg-empty">Loading…</div></div>
+  </section>
+
+  <!-- SESSIONS (PT clients, shown on the Plan page) -->
+  <section data-view="plan" id="sessions" class="gone">
     <h2>My <em>sessions.</em></h2>
     <div class="sub" id="sessSub">Book, move or cancel your PT sessions with Maria at PureGym Charlton.</div>
     <div class="acts" style="margin-bottom:16px">
@@ -448,7 +456,7 @@ body.gated #topTabs{visibility:hidden}
 </main>
 
 <div class="msg" id="msgBox" hidden></div>
-<nav class="bnav" id="bnav" hidden><a data-v="today" href="#log"><i>📝</i>Today</a><a data-v="nutrition" href="#targets"><i>🥗</i>Food</a><a data-v="checkin" href="#checkin"><i>✅</i>Check-in<em class="dot" id="ciDot" hidden></em></a><a data-v="progress" href="#progress"><i>📈</i>Progress</a><a data-v="training" href="#folder"><i>🏋️</i>Training</a><a data-v="sessions" href="#sessions" class="ptonly" hidden><i>📅</i>Sessions</a><a data-v="more" href="#account"><i>☰</i>More</a></nav>
+<nav class="bnav" id="bnav" hidden><a data-v="today" href="#log"><i>📝</i>Today</a><a data-v="nutrition" href="#targets"><i>🥗</i>Food</a><a data-v="checkin" href="#checkin"><i>✅</i>Check-in<em class="dot" id="ciDot" hidden></em></a><a data-v="progress" href="#progress"><i>📈</i>Progress</a><a data-v="training" href="#folder"><i>🏋️</i>Training</a><a data-v="plan" href="#plan"><i>📅</i>Plan</a><a data-v="more" href="#account"><i>☰</i>More</a></nav>
 <footer>© MPF Coaching · <a href="/privacy.html" style="color:#7d735c">Privacy</a></footer>
 
 <script>/* coach preview: /portal/?as=<client id> shows that client's portal, read only */
@@ -459,6 +467,7 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
 <script src="/portal/log.js"></script>
 <script src="/portal/programme.js"></script>
 <script src="/portal/logbook.js"></script>
+<script src="/portal/planner.js"></script>
 <script src="/portal/onboard.js"></script>
 <script src="/portal/mealplan.js"></script>
 <script>
@@ -485,13 +494,13 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
   function firstOf(v){return document.querySelector('[data-view="'+v+'"]:not(.gone):not([hidden])')}
   function go(id,noScroll){
     if(window.__gated&&['start','photos','support','onboard'].indexOf(id)<0)id='start';
-    if(id==='sessions'&&$('sessions').classList.contains('gone'))id='log';
+    if(id==='sessions'&&$('sessions').classList.contains('gone'))id='plan';
     $('app').classList.add('ready');
     var t=document.getElementById(id)||document.getElementById('log'),host=t.closest('[data-view]'),v=host?host.getAttribute('data-view'):'today';
     [].forEach.call(document.querySelectorAll('[data-view]'),function(e){e.classList.toggle('vh',e.getAttribute('data-view')!==v)});
     [].forEach.call(document.querySelectorAll('#topTabs a,#bnav a'),function(a){a.classList.toggle('on',a.getAttribute('data-v')===v)});
     $('backSetup').hidden=!(window.__gated&&v!=='setup');
-    if(v==='sessions'){var f=$('acuity');if(f&&!f.src)f.src=f.getAttribute('data-src')}
+    if(v==='plan'&&!$('sessions').classList.contains('gone')){var f=$('acuity');if(f&&!f.src)f.src=f.getAttribute('data-src')}
     if(noScroll)return;
     if(['log','targets','checkin','progress','folder','account','start'].indexOf(id)>=0||(t===host&&host===firstOf(v)))window.scrollTo(0,0);else t.scrollIntoView({block:'start'});
   }
@@ -515,9 +524,10 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
     var LB=null,trSeg=function(t){[].forEach.call(document.querySelectorAll('#trSeg button'),function(b){b.classList.toggle('on',b.getAttribute('data-t')===t)});$('lbBox').hidden=t==='pg';$('pgWrap').hidden=t!=='pg';if(LB&&t!=='pg')LB.show(t==='hist'?'history':'home')};
     [].forEach.call(document.querySelectorAll('#trSeg button'),function(b){b.onclick=function(){trSeg(b.getAttribute('data-t'))}});
     window.__lbStart=function(i){trSeg('lb');if(LB)LB.start(i);window.scrollTo(0,$('folder').offsetTop-70)};
-    var mountTr=function(j){MPFProgramme.View($('pgBox'),j,meta.demo?{demo:true}:{});LB=MPFLogbook.Mount($('lbBox'),{doc:j||{programmes:[]},demo:!!meta.demo,onView:function(v){[].forEach.call(document.querySelectorAll('#trSeg button'),function(b){var t=b.getAttribute('data-t');b.classList.toggle('on',v==='history'?t==='hist':t==='lb')})}})};
+    var mountTr=function(j){try{var cp=((j&&j.programmes)||[]).filter(function(x){return x.id===(j&&j.current)})[0]||((j&&j.programmes)||[])[0];PL&&PL.setWorkouts(((cp&&cp.workouts)||[]).map(function(w){return w.name||w.title}).filter(Boolean))}catch(e){}MPFProgramme.View($('pgBox'),j,meta.demo?{demo:true}:{});LB=MPFLogbook.Mount($('lbBox'),{doc:j||{programmes:[]},demo:!!meta.demo,onView:function(v){[].forEach.call(document.querySelectorAll('#trSeg button'),function(b){var t=b.getAttribute('data-t');b.classList.toggle('on',v==='history'?t==='hist':t==='lb')})}})};
     (function(){var ic={book:'📖',podcast:'🎧',app:'📱',video:'🎬',other:'⭐'};var draw=function(items){if(!items||!items.length)return;$('recs').hidden=false;$('recList').innerHTML=items.map(function(x){var inner='<span class="ri">'+(ic[x.type]||'⭐')+'</span><span><b>'+esc(x.title)+'</b><small>'+esc(x.type)+(x.by?' · '+esc(x.by):'')+'</small>'+(x.why?'<p>'+esc(x.why)+'</p>':'')+(x.link?'<i>Have a look →</i>':'')+'</span>';return x.link?'<a class="rec" href="'+esc(x.link)+'" target="_blank" rel="noopener">'+inner+'</a>':'<div class="rec">'+inner+'</div>'}).join('')};
       if(meta.demo)draw([{type:'book',title:'Atomic Habits',by:'James Clear',why:'Small habits, done daily, change everything.'}]);else fetch('/portal/api/recs',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){draw(j.items)}).catch(function(){})})();
+    var PL=MPFPlanner.Mount($('plBox'),{demo:!!meta.demo});
     if(meta.demo)mountTr(MPFProgramme.demo);else fetch('/portal/api/programme',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(mountTr).catch(function(){mountTr(null)});
     var day=c.checkin||(c.type==='pt'?'Sunday':'Wednesday');
     $('stDay').textContent=day;document.querySelectorAll('.dayname').forEach(function(e){e.textContent=day});
@@ -559,7 +569,7 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
     // first-login setup checklist (saved to their account)
     var pt=c.type==='pt';if(pt){STEPS=STEPS.filter(function(x){return !x.online});$('lNutri').hidden=true}
     if(pt&&c.onboarded!==true)$('ptFirst').hidden=false;
-    $('sessions').classList.remove('gone');[].forEach.call(document.querySelectorAll('.ptonly'),function(a){a.hidden=false});$('bnav').classList.add('six');
+    $('sessions').classList.remove('gone');[].forEach.call(document.querySelectorAll('.ptonly'),function(a){a.hidden=false});
     if(pt){var so=document.createElement('div');so.className='due';so.setAttribute('data-view','sessions');so.innerHTML='<b>💻 Prefer to train on your own?</b><p style="margin:6px 0 8px">Can\'t get to the gym with me as often? Keep your progress going with online coaching: your programme, check-ins and support, all in this portal.</p><div class="pay-opts"><a class="go" target="_blank" rel="noopener" href="https://buy.stripe.com/14AcN48jBebn27H5DY1ZS07">Monthly: £75 set-up + £175 a month →</a><a class="go" target="_blank" rel="noopener" href="https://buy.stripe.com/3cIeVc9nF3wJdQp3vQ1ZS0a">3 months: £75 set-up + £495 every 3 months →</a><a class="go" target="_blank" rel="noopener" href="https://buy.stripe.com/9B6eVcbvN5ER9A98Qa1ZS0b">6 months: £75 set-up + £900 every 6 months →</a><small>Once you\'ve paid, message me and I\'ll switch your portal over. All your history stays.</small></div>';var ss=$('sessions');if(ss)ss.appendChild(so)}
     if(!pt)$('sessSub').textContent='Want to train with Maria in person? Book a face to face session at PureGym Charlton.';
     if(meta.paid)STEPS=STEPS.filter(function(x){return x.key!=='pay'});
