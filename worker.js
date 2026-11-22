@@ -1172,19 +1172,20 @@ async function stripeGet(env, path) {
 }
 async function stripeMoney(env) {
   const now = new Date(), y0 = Date.UTC(now.getUTCFullYear() - 1, 0, 1) / 1000;
-  const months = {}; let after = "", n = 0;
+  const months = {}, taxYears = {}; let after = "", n = 0;
   const m = (ts) => new Date(ts * 1000).toISOString().slice(0, 7);
+  const ty = (ts) => { const d = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/London", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(ts * 1000)); const y = +d.slice(0, 4), md = d.slice(5); const start = md >= "04-06" ? y : y - 1; return start + "/" + String(start + 1).slice(2); };
   while (n < 40) {
     const j = await stripeGet(env, `balance_transactions?limit=100&created[gte]=${y0}${after ? "&starting_after=" + after : ""}`);
     for (const t of j.data) {
       if (!["charge", "payment", "refund", "payment_refund", "adjustment", "payment_failure_refund"].includes(t.type)) continue;
       const k = m(t.created), o = (months[k] = months[k] || { gross: 0, refunds: 0, fees: 0, net: 0, count: 0 });
-      if (t.amount >= 0) { o.gross += t.amount; o.count++; } else o.refunds += -t.amount;
-      o.fees += t.fee; o.net += t.net;
+      const tk = ty(t.created), q = (taxYears[tk] = taxYears[tk] || { gross: 0, refunds: 0, fees: 0, net: 0, count: 0 });
+      for (const x of [o, q]) { if (t.amount >= 0) { x.gross += t.amount; x.count++; } else x.refunds += -t.amount; x.fees += t.fee; x.net += t.net; }
     }
     n++; if (!j.has_more || !j.data.length) break; after = j.data[j.data.length - 1].id;
   }
-  for (const o of Object.values(months)) for (const k of ["gross", "refunds", "fees", "net"]) o[k] = Math.round(o[k]) / 100;
+  for (const o of [...Object.values(months), ...Object.values(taxYears)]) for (const k of ["gross", "refunds", "fees", "net"]) o[k] = Math.round(o[k]) / 100;
   let mrr = 0, subs = 0, pastDue = 0, cancelling = 0; const plans = {};
   let sa = "";
   for (let i = 0; i < 10; i++) {
@@ -1204,7 +1205,7 @@ async function stripeMoney(env) {
   }
   const bal = await stripeGet(env, "balance").catch(() => null);
   const gbp = (arr) => ((arr || []).filter((x) => x.currency === "gbp").reduce((t, x) => t + x.amount, 0)) / 100;
-  return { months, mrr: Math.round(mrr * 100) / 100, subs, pastDue, cancelling, plans, balance: bal ? { available: gbp(bal.available), pending: gbp(bal.pending) } : null };
+  return { months, taxYears, mrr: Math.round(mrr * 100) / 100, subs, pastDue, cancelling, plans, balance: bal ? { available: gbp(bal.available), pending: gbp(bal.pending) } : null };
 }
 async function businessStats(env, r, fresh) {
   const today = londonToday(), mon = today.slice(0, 7);
@@ -1216,13 +1217,14 @@ async function businessStats(env, r, fresh) {
   }
   const pay = (await getJSON(env, "_data/_payments.json", { byEmail: {} })).byEmail || {};
   if (!money) {
-    const months = {};
+    const months = {}, taxYears = {};
     for (const rec of Object.values(pay)) for (const h of rec.history || []) {
-      if (h.amount == null || !h.date) continue; const k = h.date.slice(0, 7), o = (months[k] = months[k] || { gross: 0, refunds: 0, fees: null, net: null, count: 0 });
-      if (/FAILED/.test(h.kind || "")) continue; o.gross += h.amount; o.count++;
+      if (h.amount == null || !h.date || /FAILED/.test(h.kind || "")) continue;
+      const k = h.date.slice(0, 7), y = +h.date.slice(0, 4), st = h.date.slice(5) >= "04-06" ? y : y - 1, tk = st + "/" + String(st + 1).slice(2);
+      for (const o of [(months[k] = months[k] || { gross: 0, refunds: 0, fees: null, net: null, count: 0 }), (taxYears[tk] = taxYears[tk] || { gross: 0, refunds: 0, fees: null, net: null, count: 0 })]) { o.gross += h.amount; o.count++; }
     }
     const act = Object.values(pay).filter((x) => x.status === "active");
-    money = { months, mrr: null, subs: act.length, pastDue: Object.values(pay).filter((x) => x.status === "failed").length, cancelling: Object.values(pay).filter((x) => x.endsOn).length, plans: {}, balance: null };
+    money = { months, taxYears, mrr: null, subs: act.length, pastDue: Object.values(pay).filter((x) => x.status === "failed").length, cancelling: Object.values(pay).filter((x) => x.endsOn).length, plans: {}, balance: null };
   }
   const seen = new Set(), list = Object.entries(r).filter(([, c]) => (seen.has(c.id) ? false : (seen.add(c.id), true)));
   const nameOf = {}; for (const [e, c] of Object.entries(r)) nameOf[e.toLowerCase()] = c.name;

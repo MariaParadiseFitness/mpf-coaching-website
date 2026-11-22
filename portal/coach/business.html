@@ -140,6 +140,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:760px){.two{grid-template-columns:1fr}}
 .note{font-size:12px;color:#9b927f;margin-top:10px;line-height:1.5}
 .seg{display:inline-flex;border:1px solid rgba(201,166,75,.35);border-radius:30px;overflow:hidden;margin-top:6px}.seg button{background:none;border:0;color:#e6cf8b;font:inherit;font-size:12px;padding:8px 14px;cursor:pointer}.seg button.on{background:var(--gold);color:#111;font-weight:700}
+.dl{float:right;background:none;border:1px solid rgba(201,166,75,.5);color:#e6cf8b;border-radius:30px;padding:7px 14px;font:inherit;font-size:12px;cursor:pointer;margin-top:4px}
 .back{color:var(--gold-l);font-size:13px;text-decoration:none}
 </style>
 </head>
@@ -155,7 +156,9 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
     <div><h2>Coming <em>up</em></h2><div class="card"><div class="lst" id="renew"></div></div></div>
     <div><h2>Needs <em>you</em></h2><div class="card"><div class="lst" id="needs"></div></div></div>
   </div>
-  <h2>Monthly <em>breakdown</em></h2>
+  <h2>Tax <em>years</em></h2>
+  <div class="card" style="overflow-x:auto"><table id="tty"></table><div class="note">UK tax years run 6 April to 5 April. Self Assessment for a tax year is due online by 31 January after it ends.</div></div>
+  <h2>Monthly <em>breakdown</em> <button class="dl" id="csv" type="button">⬇ Download for your accountant</button></h2>
   <div class="card" style="overflow-x:auto"><table id="tbl"></table></div>
   <div class="note" id="foot"></div>
 </div>
@@ -173,10 +176,13 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
     var lyToDate=Object.keys(ms).filter(function(k){return k.indexOf(ly)===0&&k.slice(5)<=t.slice(5,7)}).reduce(function(a,k){return a+(ms[k][key]||0)},0);
     $('src').innerHTML=(j.source==='stripe'?'Live from Stripe':'From payments the portal has seen. Add a Stripe read key for your full history')+' · '+new Date().toLocaleString('en-GB',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})+' · <a href="#" id="rf">Refresh</a>'+(j.err?'<br><span style="color:#e88">Stripe: '+esc(j.err)+'</span>':'');
     $('rf').onclick=function(e){e.preventDefault();$('src').textContent='Refreshing…';load(true)};
+    var tys=j.money.taxYears||{},tyNow=(function(){var yy=+t.slice(0,4),st=t.slice(5)>='04-06'?yy:yy-1;return st+'/'+String(st+1).slice(2)})(),tyLast=(function(){var st=+tyNow.slice(0,4)-1;return st+'/'+String(st+1).slice(2)})();
     var c=j.clients,pt=j.pt||{months:{}};
     var tiles=[
       ['This month',gbp(sum(ms,m,key)),MN[+m.slice(5)-1]+' so far',1],
       ['This year',gbp(sum(ms,y,key)),y+' so far',1],
+      ['Tax year '+tyNow,gbp(tys[tyNow]&&tys[tyNow][key]),'6 Apr '+tyNow.slice(0,4)+' to now',1],
+      ['Tax year '+tyLast,gbp(tys[tyLast]&&tys[tyLast][key]),'6 Apr '+tyLast.slice(0,4)+' to 5 Apr '+tyNow.slice(0,4)],
       ['Last month',gbp(sum(ms,lm,key)),MN[+lm.slice(5)-1]],
       ['Last year',gbp(sum(ms,ly,key)),ly+' · same point: '+gbp(lyToDate)],
       ['Monthly recurring',j.money.mrr!=null?gbp(j.money.mrr):'–',j.money.mrr!=null?'≈ '+gbp(j.money.mrr*12)+' a year':'needs Stripe key'],
@@ -201,7 +207,11 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
     $('needs').innerHTML=needs.join('')||'<div><span>All good 👌</span></div>';
     var rows=Object.keys(ms).sort().reverse();
     $('tbl').innerHTML='<tr><th>Month</th><th class="n">Payments</th><th class="n">Takings</th><th class="n">Refunds</th><th class="n">Stripe fees</th><th class="n">You keep</th><th class="n">PT sessions</th></tr>'+rows.map(function(k){var o=ms[k];return '<tr><td>'+MN[+k.slice(5)-1]+' '+k.slice(0,4)+'</td><td class="n">'+o.count+'</td><td class="n">'+gbp(o.gross)+'</td><td class="n">'+(o.refunds?gbp(o.refunds):'–')+'</td><td class="n">'+(o.fees!=null?gbp(o.fees):'–')+'</td><td class="n"><b style="color:#fff">'+(o.net!=null?gbp(o.net):'–')+'</b></td><td class="n">'+(pt.months[k]||'–')+'</td></tr>'}).join('')+'<tr><td><b>'+y+' total</b></td><td></td><td class="n"><b>'+gbp(sum(ms,y,'gross'))+'</b></td><td class="n">'+gbp(sum(ms,y,'refunds'))+'</td><td class="n">'+gbp(sum(ms,y,'fees'))+'</td><td class="n"><b style="color:#e6cf8b">'+gbp(sum(ms,y,'net'))+'</b></td><td></td></tr>';
-    $('foot').textContent='Takings = money paid to you through Stripe. "You keep" = after Stripe fees and refunds, before tax. Payments taken outside Stripe (cash, bank transfer, Squarespace if it uses a different account) are not included.';
+    var tk=Object.keys(tys).sort().reverse();
+    $('tty').innerHTML='<tr><th>Tax year</th><th class="n">Payments</th><th class="n">Takings</th><th class="n">Refunds</th><th class="n">Stripe fees</th><th class="n">You keep</th></tr>'+(tk.length?tk.map(function(k){var o=tys[k];return '<tr><td>'+k+(k===tyNow?' <span style="color:#9b927f">(so far)</span>':'')+'</td><td class="n">'+o.count+'</td><td class="n">'+gbp(o.gross)+'</td><td class="n">'+(o.refunds?gbp(o.refunds):'–')+'</td><td class="n">'+(o.fees!=null?gbp(o.fees):'–')+'</td><td class="n"><b style="color:#e6cf8b">'+(o.net!=null?gbp(o.net):'–')+'</b></td></tr>'}).join(''):'<tr><td colspan="6">No payments yet</td></tr>');
+    $('csv').onclick=function(){var L=[['Period','Type','Payments','Takings','Refunds','Stripe fees','You keep']];tk.forEach(function(k){var o=tys[k];L.push(['Tax year '+k,'tax year',o.count,o.gross,o.refunds,o.fees,o.net])});Object.keys(ms).sort().forEach(function(k){var o=ms[k];L.push([MN[+k.slice(5)-1]+' '+k.slice(0,4),'month',o.count,o.gross,o.refunds,o.fees,o.net])});
+      var csv=L.map(function(r){return r.map(function(v){v=v==null?'':String(v);return /[",]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}).join(',')}).join('\n');var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='MPF-Coaching-Stripe-income-'+t+'.csv';document.body.appendChild(a);a.click();a.remove()};
+    $('foot').textContent='Takings = money paid to you through Stripe. "You keep" = after Stripe fees and refunds, before tax. Payments taken outside Stripe (cash, bank transfer) are not included. Tax years cover what Stripe has from 1 January last year onwards.';
   }
   load(false);
 })();
