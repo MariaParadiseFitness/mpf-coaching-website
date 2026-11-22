@@ -365,7 +365,7 @@ html,body{overflow-x:hidden}
   [].forEach.call(document.querySelectorAll('#pTabs button'),function(b){b.onclick=function(){[].forEach.call(document.querySelectorAll('#pTabs button'),function(x){x.classList.remove('on')});b.classList.add('on');var p=b.getAttribute('data-p');$('pCi').hidden=p!=='ci';$('pLog').hidden=p!=='log';$('pPg').hidden=p!=='pg';$('pTg').hidden=p!=='tg';$('pOb').hidden=p!=='ob';$('pMp').hidden=p!=='mp';$('pPh').hidden=p!=='ph'}});
   [].forEach.call(document.querySelectorAll('.filters button[data-f]'),function(b){b.onclick=function(){[].forEach.call(document.querySelectorAll('.filters button[data-f]'),function(x){x.classList.remove('on')});b.classList.add('on');filter=b.getAttribute('data-f');draw()}});
   function src(p){return p.local||('/portal/api/photo?key='+encodeURIComponent(p.key))}
-  function al(p){var a=p&&p.align;return a?' style="transform:translate('+a.x+'%,'+a.y+'%) scale('+a.s+')"':''}
+  function al(p){var a=p&&p.align;return a?' style="object-fit:contain;transform:translate('+a.x+'%,'+a.y+'%) scale('+a.s+')"':''}
   function latest(w,a){return curPhotos.filter(function(p){return p.week===w&&p.angle===a})[0]}
   function weeks(){var o={};curPhotos.forEach(function(p){o[p.week]=1});return Object.keys(o).map(Number).sort(function(a,b){return b-a})}
   var fvlAng='front';
@@ -388,8 +388,8 @@ html,body{overflow-x:hidden}
     box.innerHTML=ws.map(function(w){var p=latest(w,LU.ang);return '<button type="button" data-w="'+w+'" class="'+(w===LU.w?'on ':'')+(p.align?'done':'')+'">'+wkLbl(w)+'</button>'}).join('');
     [].forEach.call(box.querySelectorAll('button'),function(b){b.onclick=function(){LU.w=+b.getAttribute('data-w');luDraw()}});
     var base=latest(ws[0],LU.ang),top=latest(LU.w,LU.ang),a=top.align||{s:1,x:0,y:0};
-    var bi=$('luBase');bi.src=src(base);var ba=base.align||{s:1,x:0,y:0};bi.style.transform='translate('+ba.x+'%,'+ba.y+'%) scale('+ba.s+')';bi.style.opacity=LU.w===ws[0]?0:1;
-    $('luTop').src=src(top);$('luS').value=a.s;$('luX').value=a.x;$('luY').value=a.y;luApply()}
+    var bi=$('luBase');bi.src=src(base);var ba=base.align||{s:1,x:0,y:0};bi.style.objectFit=base.align?'contain':'cover';bi.style.transform='translate('+ba.x+'%,'+ba.y+'%) scale('+ba.s+')';bi.style.opacity=LU.w===ws[0]?0:1;
+    $('luTop').src=src(top);$('luTop').style.objectFit=LU.w===ws[0]&&!top.align?'cover':'contain';$('luS').value=a.s;$('luX').value=a.x;$('luY').value=a.y;luApply()}
   function luApply(){var s=+$('luS').value,x=+$('luX').value,y=+$('luY').value,t=$('luTop');t.style.transform='translate('+x+'%,'+y+'%) scale('+s+')';t.style.opacity=$('luBase').style.opacity==='0'?1:$('luO').value;$('luSv').textContent=Math.round(s*100)+'%'}
   document.addEventListener('input',function(e){if(['luS','luX','luY','luO'].indexOf(e.target.id)>-1)luApply()});
   document.addEventListener('click',function(e){var id=e.target&&e.target.id;if(!id||id.indexOf('lu')!==0||!cur)return;
@@ -412,8 +412,8 @@ html,body{overflow-x:hidden}
   function poseModel(){if(POSE)return POSE;var V='https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14';
     POSE=import(V+'/vision_bundle.mjs').then(function(m){return m.FilesetResolver.forVisionTasks(V+'/wasm').then(function(fs){return m.PoseLandmarker.createFromOptions(fs,{baseOptions:{modelAssetPath:'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/1/pose_landmarker_full.task'},runningMode:'IMAGE',numPoses:1})})});POSE.catch(function(){POSE=null});return POSE}
   function loadImg(u){return new Promise(function(ok,no){var i=new Image();i.onload=function(){ok(i)};i.onerror=no;i.src=u})}
-  function bodyBox(det,img){var r=det.detect(img),L=r&&r.landmarks&&r.landmarks[0];if(!L)return null;
-    var W=img.naturalWidth,H=img.naturalHeight,c=Math.max(3/W,4/H),ox=(W*c-3)/2,oy=(H*c-4)/2,P=function(i){return {x:(L[i].x*W*c-ox)/3,y:(L[i].y*H*c-oy)/4,v:L[i].visibility==null?1:L[i].visibility}};
+  function bodyBox(det,img,cover){var r=det.detect(img),L=r&&r.landmarks&&r.landmarks[0];if(!L)return null;
+    var W=img.naturalWidth,H=img.naturalHeight,c=cover?Math.max(3/W,4/H):Math.min(3/W,4/H),ox=(W*c-3)/2,oy=(H*c-4)/2,P=function(i){return {x:(L[i].x*W*c-ox)/3,y:(L[i].y*H*c-oy)/4,v:L[i].visibility==null?1:L[i].visibility}};
     var nose=P(0),sh=[P(11),P(12)],hp=[P(23),P(24)],an=[P(27),P(28)],mid=function(a){return {x:(a[0].x+a[1].x)/2,y:(a[0].y+a[1].y)/2}};
     var S=mid(sh),Hp=mid(hp),A=mid(an),feet=an[0].v>.5&&an[1].v>.5&&A.y<1.02,top=nose.y-(S.y-nose.y)*0.85;
     return {top:top,bot:feet?A.y:null,sh:S.y,hip:Hp.y,cx:Hp.x,feet:feet}}
@@ -425,7 +425,7 @@ html,body{overflow-x:hidden}
       var all=[];jobs.forEach(function(j){j.ws.forEach(function(w){all.push({a:j.a,w:w,ref:w===j.ws[0]})})});var refs={},n=0;
       var step=function(i){if(i>=all.length){m.textContent='✓ Lined up '+done+' photos'+(miss?' · '+miss+' need a quick check by hand (body not found)':'')+'. Use Fine-tune if any look off.';drawPhotos();return}
         var t=all[i],p=latest(t.w,t.a);m.textContent='Lining up '+(i+1)+' of '+all.length+'…';
-        loadImg(src(p)).then(function(img){var b=bodyBox(det,img);if(!b){miss++;return}
+        loadImg(src(p)).then(function(img){var b=bodyBox(det,img,t.ref);if(!b){miss++;return}
           if(t.ref){refs[t.a]=b;return postJ('/portal/api/coach/photo-align?id='+encodeURIComponent(id),{key:p.key,reset:true}).then(function(){p.align=undefined})}
           var ref=refs[t.a];if(!ref){miss++;return}var a=solve(ref,b);if(!a){miss++;return}
           return postJ('/portal/api/coach/photo-align?id='+encodeURIComponent(id),{key:p.key,s:a.s,x:a.x,y:a.y}).then(function(j){p.align=j.align;done++})}).catch(function(){miss++}).then(function(){step(i+1)})};step(0)})

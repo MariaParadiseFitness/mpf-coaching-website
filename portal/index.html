@@ -214,8 +214,8 @@ body.gated #topTabs{visibility:hidden}
 .acc-btns{display:flex;gap:14px;flex-wrap:wrap;margin-top:6px}
 .acc-btns .linkbtn{margin-top:0}
 #topTabs a.on{background:var(--grad);color:#111}
-.bnav{position:fixed;left:0;right:0;bottom:0;z-index:30;display:none;grid-template-columns:repeat(5,1fr);background:rgba(14,14,14,.96);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid rgba(201,166,75,.25);padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
-.bnav a{position:relative;display:flex;flex-direction:column;align-items:center;gap:1px;text-decoration:none;color:var(--mute);font-size:10.5px;font-weight:600;padding:4px 0;border-radius:12px}
+.bnav{position:fixed;left:0;right:0;bottom:0;z-index:30;display:none;grid-auto-flow:column;grid-auto-columns:1fr;background:rgba(14,14,14,.96);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid rgba(201,166,75,.25);padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
+.bnav a{position:relative;display:flex;flex-direction:column;align-items:center;gap:1px;text-decoration:none;color:var(--mute);font-size:10px;font-weight:600;padding:4px 0;border-radius:12px}
 .bnav a i{font-style:normal;font-size:20px;line-height:1.2;filter:grayscale(1);opacity:.75}
 .bnav a.on{color:var(--gold-l)}
 .bnav a.on i{filter:none;opacity:1}
@@ -226,7 +226,7 @@ body.gated #topTabs{visibility:hidden}
 <body>
 <div class="top"><div class="in">
   <a href="/"><img src="/img/logo.png" alt="MPF Coaching"></a>
-  <nav class="tabs" id="topTabs"><a data-v="today" href="#log">Today</a><a data-v="checkin" href="#checkin">Check-in</a><a data-v="progress" href="#progress">Progress</a><a data-v="training" href="#folder">Training</a><a data-v="sessions" href="#sessions" class="ptonly" hidden>Sessions</a><a data-v="more" href="#account">More</a></nav>
+  <nav class="tabs" id="topTabs"><a data-v="today" href="#log">Today</a><a data-v="nutrition" href="#targets">Nutrition</a><a data-v="checkin" href="#checkin">Check-in</a><a data-v="progress" href="#progress">Progress</a><a data-v="training" href="#folder">Training</a><a data-v="sessions" href="#sessions" class="ptonly" hidden>Sessions</a><a data-v="more" href="#account">More</a></nav>
   <a class="out" href="/cdn-cgi/access/logout">Log out</a>
 </div></div>
 
@@ -277,16 +277,17 @@ body.gated #topTabs{visibility:hidden}
     </div>
   </section>
 
-  <section data-view="today" id="targets">
+  <section data-view="nutrition" id="targets">
     <h2>My daily <em>targets.</em></h2>
     <div class="sub">What to aim for each day. Your coach sets these and updates them as you progress.</div>
     <div class="pg-box" id="tgBox"><div class="pg-empty">Loading…</div></div>
   </section>
 
-  <section data-view="today" id="meals">
+  <section data-view="nutrition" id="meals">
     <h2>My meal <em>plan.</em></h2>
     <div class="sub">Built by your coach to hit your targets. Tap a day if you have more than one.</div>
     <div class="pg-box" id="mpBox"><div class="pg-empty">Loading…</div></div>
+    <div class="acts" style="margin-top:14px"><a class="act" href="/myfitnesspal.html" target="_blank" rel="noopener"><span class="ic">📱</span><span><b>How to use MyFitnessPal</b><span>Set it up, hit your targets, log properly</span></span></a><a class="act" href="#log"><span class="ic">📝</span><span><b>Add today's food to my log</b><span>Your daily totals go in your daily log</span></span></a></div>
   </section>
 
   <!-- DAILY LOG -->
@@ -352,8 +353,10 @@ body.gated #topTabs{visibility:hidden}
   <!-- TRAINING -->
   <section data-view="training" id="folder">
     <h2>My <em>training.</em></h2>
-    <div class="sub">Your programmes from Maria. Tap a workout to see your exercises, or open an old programme to look back. Scroll the table sideways on your phone.</div>
-    <div class="pg-box" id="pgBox"><div class="pg-empty">Loading…</div></div>
+    <div class="seg" id="trSeg"><button type="button" data-t="lb" class="on">🏋️ Log workout</button><button type="button" data-t="hist">📖 Logbook</button><button type="button" data-t="pg">📋 Programme</button></div>
+    <div class="pg-box lb-box" id="lbBox"><div class="pg-empty">Loading…</div></div>
+    <div id="pgWrap" hidden><div class="sub">Your programmes from Maria. Tap a workout to see your exercises, or open an old programme to look back. Scroll the table sideways on your phone.</div>
+    <div class="pg-box" id="pgBox"><div class="pg-empty">Loading…</div></div></div>
     <div class="acts">
       <a class="act" href="https://wa.me/447592791137?text=Hi%20Maria%2C%20here%27s%20my%20training%20video%20%F0%9F%8E%A5" target="_blank" rel="noopener"><span class="ic">🎥</span><span><b>Send me a training video</b><span>On WhatsApp, so I can reply fast</span></span></a>
       <a class="act" id="lFolder" target="_blank" rel="noopener"><span class="ic">📁</span><span><b>My files</b><span>Anything else I've shared with you</span></span></a>
@@ -439,7 +442,7 @@ body.gated #topTabs{visibility:hidden}
 </main>
 
 <div class="msg" id="msgBox" hidden></div>
-<nav class="bnav" id="bnav" hidden><a data-v="today" href="#log"><i>📝</i>Today</a><a data-v="checkin" href="#checkin"><i>✅</i>Check-in<em class="dot" id="ciDot" hidden></em></a><a data-v="progress" href="#progress"><i>📈</i>Progress</a><a data-v="training" href="#folder"><i>🏋️</i>Training</a><a data-v="sessions" href="#sessions" class="ptonly" hidden><i>📅</i>Sessions</a><a data-v="more" href="#account"><i>☰</i>More</a></nav>
+<nav class="bnav" id="bnav" hidden><a data-v="today" href="#log"><i>📝</i>Today</a><a data-v="nutrition" href="#targets"><i>🥗</i>Food</a><a data-v="checkin" href="#checkin"><i>✅</i>Check-in<em class="dot" id="ciDot" hidden></em></a><a data-v="progress" href="#progress"><i>📈</i>Progress</a><a data-v="training" href="#folder"><i>🏋️</i>Training</a><a data-v="sessions" href="#sessions" class="ptonly" hidden><i>📅</i>Sessions</a><a data-v="more" href="#account"><i>☰</i>More</a></nav>
 <footer>© MPF Coaching · <a href="/privacy.html" style="color:#7d735c">Privacy</a></footer>
 
 <script>/* coach preview: /portal/?as=<client id> shows that client's portal, read only */
@@ -449,6 +452,7 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
 <script src="/portal/chart.js"></script>
 <script src="/portal/log.js"></script>
 <script src="/portal/programme.js"></script>
+<script src="/portal/logbook.js"></script>
 <script src="/portal/onboard.js"></script>
 <script src="/portal/mealplan.js"></script>
 <script>
@@ -483,7 +487,7 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
     $('backSetup').hidden=!(window.__gated&&v!=='setup');
     if(v==='sessions'){var f=$('acuity');if(f&&!f.src)f.src=f.getAttribute('data-src')}
     if(noScroll)return;
-    if(['log','checkin','progress','folder','account','start'].indexOf(id)>=0||(t===host&&host===firstOf(v)))window.scrollTo(0,0);else t.scrollIntoView({block:'start'});
+    if(['log','targets','checkin','progress','folder','account','start'].indexOf(id)>=0||(t===host&&host===firstOf(v)))window.scrollTo(0,0);else t.scrollIntoView({block:'start'});
   }
   function route(){go((location.hash||'#log').slice(1))}
   window.addEventListener('hashchange',route);
@@ -502,7 +506,11 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
     document.title='Welcome, '+(c.name||'')+' | MPF Coaching';
     var urls={tracker:c.tracker?SHEET+c.tracker+'/edit':'',photos:c.photos?DRIVE+c.photos:'',videos:c.videos?DRIVE+c.videos:'',folder:c.folder?DRIVE+c.folder:''};
     linkOr($('lFolder'),urls.folder);$('lFolder').hidden=!urls.folder;
-    if(meta.demo)MPFProgramme.View($('pgBox'),MPFProgramme.demo,{demo:true});else fetch('/portal/api/programme',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){MPFProgramme.View($('pgBox'),j)}).catch(function(){MPFProgramme.View($('pgBox'),null)});
+    var LB=null,trSeg=function(t){[].forEach.call(document.querySelectorAll('#trSeg button'),function(b){b.classList.toggle('on',b.getAttribute('data-t')===t)});$('lbBox').hidden=t==='pg';$('pgWrap').hidden=t!=='pg';if(LB&&t!=='pg')LB.show(t==='hist'?'history':'home')};
+    [].forEach.call(document.querySelectorAll('#trSeg button'),function(b){b.onclick=function(){trSeg(b.getAttribute('data-t'))}});
+    window.__lbStart=function(i){trSeg('lb');if(LB)LB.start(i);window.scrollTo(0,$('folder').offsetTop-70)};
+    var mountTr=function(j){MPFProgramme.View($('pgBox'),j,meta.demo?{demo:true}:{});LB=MPFLogbook.Mount($('lbBox'),{doc:j||{programmes:[]},demo:!!meta.demo,onView:function(v){[].forEach.call(document.querySelectorAll('#trSeg button'),function(b){var t=b.getAttribute('data-t');b.classList.toggle('on',v==='history'?t==='hist':t==='lb')})}})};
+    if(meta.demo)mountTr(MPFProgramme.demo);else fetch('/portal/api/programme',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(mountTr).catch(function(){mountTr(null)});
     var day=c.checkin||(c.type==='pt'?'Sunday':'Wednesday');
     $('stDay').textContent=day;document.querySelectorAll('.dayname').forEach(function(e){e.textContent=day});
     $('stPhase').textContent=c.phase||'Fat loss';
@@ -593,7 +601,7 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
     var curWeek=meta.week||parseInt($('stWeek').textContent,10)||1,photos=[],enabled=!!meta.photos,demo=!!meta.demo;
     $('phSub').textContent='Week '+curWeek+' · front, side and back. Tap a box to take or choose a photo.';
     function src(p){return p.local||('/portal/api/photo?key='+encodeURIComponent(p.key))}
-    function al(p){var a=p&&p.align;return a?' style="transform:translate('+a.x+'%,'+a.y+'%) scale('+a.s+')"':''}
+    function al(p){var a=p&&p.align;return a?' style="object-fit:contain;transform:translate('+a.x+'%,'+a.y+'%) scale('+a.s+')"':''}
     function latest(week,angle){return photos.filter(function(p){return p.week===week&&p.angle===angle})[0]}
     function drawWeek(){
       var box=$('phWeek');box.innerHTML='';var n=0;

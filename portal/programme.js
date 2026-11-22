@@ -32,7 +32,7 @@
     function bind(){
       [].forEach.call(el.querySelectorAll('[data-p]'),function(b){b.onclick=function(){pi=+b.getAttribute('data-p');cur=0;draw()}});
       [].forEach.call(el.querySelectorAll('[data-i]'),function(b){b.onclick=function(){cur=+b.getAttribute('data-i');draw()}});
-      var lb=el.querySelector('#logW');if(lb)lb.onclick=function(){lb.hidden=true;Logger(el.querySelector('#logBox'),ps[pi],ps[pi].workouts[cur],opts)};
+      var lb=el.querySelector('#logW');if(lb)lb.onclick=function(){if(window.__lbStart){window.__lbStart(cur);return}lb.hidden=true;Logger(el.querySelector('#logBox'),ps[pi],ps[pi].workouts[cur],opts)};
     }
     draw();
   }
