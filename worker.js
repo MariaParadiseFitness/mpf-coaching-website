@@ -609,6 +609,11 @@ async function handleApi(request, env, url) {
   }
 
   // ---- coach ----
+  if (path === "/portal/api/coach/test-email" && request.method === "POST") {
+    if (!coach) return json({ error: "forbidden" }, 403);
+    try { await notifyForm(env, { name: "Test client", type: "online" }, { goal: "Fat loss", weight: "70", height: "165", job: "Test" }); return json({ ok: true, configured: !!(env.RESEND_API_KEY || env.MAILER) }); }
+    catch (e) { return json({ ok: false, err: String(e).slice(0, 200) }); }
+  }
   if (path === "/portal/api/coach/acuity-status") {
     if (!coach) return json({ error: "forbidden" }, 403);
     const t0 = Date.now(); acuityCache = null;
@@ -875,8 +880,9 @@ async function handleApi(request, env, url) {
 
 // ---- email Maria when a new client sends their onboarding form (Cloudflare Email Routing send_email binding) ----
 async function notifyForm(env, client, a) {
-  if (!env.MAILER || !env.NOTIFY_TO || !env.NOTIFY_FROM) return;
-  const { EmailMessage } = await import("cloudflare:email");
+  const to = env.NOTIFY_TO || "info@mpfcoaching.co.uk";
+  const from = env.NOTIFY_FROM || "MPF Client Portal <portal@mpfcoaching.co.uk>";
+  if (!env.RESEND_API_KEY && !env.MAILER) return;
   const flags = [];
   for (let i = 1; i <= 7; i++) if (a["pq" + i] === "Yes") flags.push("PAR-Q question " + i + " answered YES");
   if (a.ed && a.ed !== "No") flags.push("Eating disorder question: " + a.ed);
@@ -890,12 +896,22 @@ async function notifyForm(env, client, a) {
     "Open your coach view to see everything and build their plan:", "https://mpfcoaching.co.uk/portal/coach/",
   ];
   const subj = `New onboarding form: ${client.name} (${kind})`;
+  if (env.RESEND_API_KEY) {
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST", signal: AbortSignal.timeout(10000),
+      headers: { authorization: "Bearer " + env.RESEND_API_KEY, "content-type": "application/json" },
+      body: JSON.stringify({ from, to: [to], subject: subj, text: lines.join("\n") }),
+    });
+    if (!res.ok) throw new Error("resend " + res.status);
+    return;
+  }
+  const { EmailMessage } = await import("cloudflare:email");
   const raw = [
-    `From: MPF Client Portal <${env.NOTIFY_FROM}>`, `To: ${env.NOTIFY_TO}`, `Subject: ${subj.replace(/[\r\n]/g, " ")}`,
-    `Message-ID: <${crypto.randomUUID()}@${env.NOTIFY_FROM.split("@")[1]}>`, `Date: ${new Date().toUTCString()}`,
+    `From: ${from}`, `To: ${to}`, `Subject: ${subj.replace(/[\r\n]/g, " ")}`,
+    `Message-ID: <${crypto.randomUUID()}@mpfcoaching.co.uk>`, `Date: ${new Date().toUTCString()}`,
     "MIME-Version: 1.0", "Content-Type: text/plain; charset=utf-8", "Content-Transfer-Encoding: 8bit", "", lines.join("\r\n"),
   ].join("\r\n");
-  await env.MAILER.send(new EmailMessage(env.NOTIFY_FROM, env.NOTIFY_TO, raw));
+  await env.MAILER.send(new EmailMessage(from.replace(/.*</, "").replace(">", ""), to, raw));
 }
 
 // ---- PT bookings from Acuity (optional: needs ACUITY_USER_ID + ACUITY_API_KEY secrets) ----
