@@ -349,7 +349,7 @@ function cleanForm(body) {
 async function readWorkouts(env, id, daysBack) {
   const out = [], today = londonToday();
   let t = toT(fromT(toT(today) - daysBack * DAY_MS).slice(0, 7) + "-01");
-  for (let i = 0; i < 6 && t <= toT(today); i++) {
+  for (let i = 0; i < 15 && t <= toT(today); i++) {
     const doc = await getJSON(env, `${dkey(id)}/workouts/${fromT(t).slice(0, 7)}.json`, {});
     for (const [d, list] of Object.entries(doc)) for (const sss of list) out.push(sss);
     const dt = new Date(t);
@@ -624,13 +624,13 @@ async function handleApi(request, env, url) {
   // ---- workout log (weights and reps per set): _data/<id>/workouts/<YYYY-MM>.json {date:[session,...]} ----
   if (path === "/portal/api/workouts" && request.method === "GET") {
     if (!client) return json({ error: "unknown" }, 403);
-    return json({ sessions: await readWorkouts(env, client.id, 120) });
+    return json({ sessions: await readWorkouts(env, client.id, 400) });
   }
   if (path === "/portal/api/workout" && request.method === "POST") {
     if (!client) return json({ error: "unknown" }, 403);
     const b = await request.json().catch(() => ({}));
     const today = londonToday();
-    if (!isDate(b.date) || (toT(today) - toT(b.date)) / DAY_MS > 30 || toT(b.date) > toT(today) + DAY_MS) return json({ error: "date" }, 400);
+    if (!isDate(b.date) || (toT(today) - toT(b.date)) / DAY_MS > 400 || toT(b.date) > toT(today) + DAY_MS) return json({ error: "date" }, 400);
     const str = (v, n) => String(v == null ? "" : v).trim().slice(0, n);
     const sess = {
       id: str(b.id, 20).replace(/[^a-z0-9]/gi, "") || Math.random().toString(36).slice(2, 10),
@@ -661,6 +661,13 @@ async function handleApi(request, env, url) {
       return json({ ok: true, configured: !!(env.RESEND_API_KEY || env.MAILER) });
     }
     catch (e) { return json({ ok: false, err: String(e).slice(0, 200) }); }
+  }
+  if (path === "/portal/api/coach/grant-access" && request.method === "POST") {
+    if (!coach) return json({ error: "forbidden" }, 403);
+    const b = await request.json().catch(() => ({}));
+    const hit = Object.entries(r).find(([, x]) => x.id === String(b.id || "").toLowerCase());
+    if (!hit) return json({ error: "unknown" }, 404);
+    return json({ ok: true, email: hit[0], access: await accessAllow(env, hit[0]) });
   }
   if (path === "/portal/api/coach/test-enrol" && request.method === "POST") {
     if (!coach) return json({ error: "forbidden" }, 403);
@@ -1151,7 +1158,7 @@ async function handleApi(request, env, url) {
     const id = (url.searchParams.get("id") || "").toLowerCase();
     const c = Object.values(r).find((x) => x.id === id);
     if (!c) return json({ error: "unknown" }, 404);
-    return json({ sessions: await readWorkouts(env, c.id, 120) });
+    return json({ sessions: await readWorkouts(env, c.id, 400) });
   }
   if (path === "/portal/api/coach/templates") {
     if (!coach) return json({ error: "forbidden" }, 403);
@@ -1381,6 +1388,20 @@ async function stripeWebhook(request, env) {
 }
 
 // New paying online client: create their portal straight away (and let them log in, if an Access API token is set).
+// add one email to the Cloudflare Access login policy (no emails are sent)
+async function accessAllow(env, email) {
+  if (!(env.CF_API_TOKEN && env.ACCESS_POLICY_ID && env.CF_ACCOUNT_ID)) return "not set up";
+  try {
+    const u = `https://api.cloudflare.com/client/v4/accounts/${env.CF_ACCOUNT_ID}/access/policies/${env.ACCESS_POLICY_ID}`;
+    const h = { authorization: "Bearer " + env.CF_API_TOKEN, "content-type": "application/json" };
+    const pol = (await (await fetch(u, { headers: h })).json()).result;
+    if ((pol.include || []).some((x) => x.email && String(x.email.email).toLowerCase() === email)) return "already allowed";
+    const body = { name: pol.name, decision: pol.decision, include: [...(pol.include || []), { email: { email } }], exclude: pol.exclude || [], require: pol.require || [] };
+    if (pol.session_duration) body.session_duration = pol.session_duration;
+    const res = await fetch(u, { method: "PUT", headers: h, body: JSON.stringify(body) });
+    return res.ok ? "added" : "failed (" + res.status + ")";
+  } catch (e) { return "failed"; }
+}
 async function autoEnrol(env, email, fullName) {
   const all = roster(env, await loadRoster(env, true));
   if (all[email]) return "already a client";
