@@ -81,7 +81,7 @@ async function verifyAccess(request, env) {
 // Client list: the PORTAL_CLIENTS secret plus the list kept in R2 (_data/_roster.json), which has no size limit.
 let rosterCache = { at: 0, data: null };
 async function loadRoster(env, fresh) {
-  if (!fresh && rosterCache.data && Date.now() - rosterCache.at < 30000) return rosterCache.data;
+  if (!fresh && rosterCache && rosterCache.data && Date.now() - rosterCache.at < 30000) return rosterCache.data;
   let extra = {};
   if (env.PHOTOS) {
     const o = await env.PHOTOS.get("_data/_roster.json");
@@ -94,6 +94,7 @@ function roster(env, raw) {
   raw = raw || JSON.parse(env.PORTAL_CLIENTS || "{}");
   const byEmail = {};
   for (const [email, c] of Object.entries(raw)) {
+    if (c && c.deleted) continue;
     const id = String(c.id || email).toLowerCase().replace(/[^a-z0-9_-]/g, "");
     byEmail[email.toLowerCase()] = { ...c, id };
   }
@@ -571,6 +572,20 @@ async function handleApi(request, env, url) {
     const { history, ...pub } = cur;
     return json(pub);
   }
+  if (path === "/portal/api/prefs") {
+    if (!client) return json({ error: "unknown" }, 403);
+    const key = `${dkey(client.id)}/prefs.json`, cur = await getJSON(env, key, { reminders: true });
+    if (request.method === "POST") { const b = await request.json().catch(() => ({})); if ("reminders" in b) cur.reminders = !!b.reminders; await putJSON(env, key, cur); }
+    return json(cur);
+  }
+  if (path === "/portal/api/delete-request" && request.method === "POST") {
+    if (!client) return json({ error: "unknown" }, 403);
+    const b = await request.json().catch(() => ({}));
+    const doc = { at: new Date().toISOString(), reason: String(b.reason || "").slice(0, 600) };
+    await putJSON(env, `${dkey(client.id)}/delete-request.json`, doc);
+    await sendMail(env, { subject: `Data deletion request: ${client.name}`, heading: `Deletion request: <em style="color:#e6cf8b">${escH(client.name)}</em>`, lines: [`${client.name} has asked for their portal account and all their data to be deleted.`, "", `Reason: ${doc.reason || "(none given)"}`, "", "Open their profile in the coach view and use Delete client at the bottom. Under UK GDPR you should normally do this within one month."], button: { text: "Open coach view", url: SITE + "/portal/coach/#v=clients" } }).catch(() => {});
+    return json({ ok: true });
+  }
   if (path === "/portal/api/billing") {
     if (!client) return json({ error: "unknown" }, 403);
     const pay = (await getJSON(env, "_data/_payments.json", { byEmail: {} })).byEmail || {};
@@ -694,6 +709,64 @@ async function handleApi(request, env, url) {
     }
     await putJSON(env, "_data/_leads.json", db); return json({ ok: true });
   }
+  if (path === "/portal/api/coach/package") {
+    if (!coach) return json({ error: "forbidden" }, 403);
+    const id = (url.searchParams.get("id") || "").toLowerCase().replace(/[^a-z0-9_-]/g, "");
+    if (!Object.values(r).some((x) => x.id === id)) return json({ error: "unknown" }, 404);
+    const key = `${dkey(id)}/package.json`;
+    if (request.method === "POST") { const b = await request.json().catch(() => ({})); const size = Math.max(0, Math.min(200, Math.round(Number(b.size) || 0))); if (!size) { await env.PHOTOS.delete(key); return json({ ok: true, pkg: null }); } const d = { size, start: isDate(b.start) ? b.start : londonToday(), set: new Date().toISOString() }; await putJSON(env, key, d); return json({ ok: true, pkg: d }); }
+    return json(await getJSON(env, key, null));
+  }
+  if (path === "/portal/api/coach/automation") {
+    if (!coach) return json({ error: "forbidden" }, 403);
+    const key = "_data/_automation.json", db = await getJSON(env, key, { enabled: {}, templates: null, time: 8 });
+    if (request.method === "POST") {
+      const b = await request.json().catch(() => ({}));
+      if (b.enabled && typeof b.enabled === "object") for (const k of AUTO_RULES) if (k in b.enabled) db.enabled[k] = !!b.enabled[k];
+      if (Array.isArray(b.templates)) db.templates = b.templates.slice(0, 40).map((t) => ({ name: String(t.name || "").slice(0, 60), text: String(t.text || "").slice(0, 1200) })).filter((t) => t.name && t.text);
+      if (b.test) { const res = await runAutomations(env, { testTo: env.NOTIFY_TO || "info@mpfcoaching.co.uk", rule: String(b.test) }); return json({ ok: true, res }); }
+      if (b.runNow) { const res = await runAutomations(env, {}); return json({ ok: true, res, ...db }); }
+      await putJSON(env, key, db);
+    }
+    const log = (await getJSON(env, "_data/_automation-log.json", { items: [] })).items.slice(0, 80);
+    return json({ ...db, rules: AUTO_RULES, log, gcal: !!env.GCAL_ICAL, cron: true });
+  }
+  if (path === "/portal/api/coach/checkin-queue") {
+    if (!coach) return json({ error: "forbidden" }, 403);
+    const today = londonToday(), seen = new Set(), out = [];
+    const list = Object.values(r).filter((c) => (seen.has(c.id) ? false : (seen.add(c.id), true)) && c.active !== false);
+    await Promise.all(list.map(async (c) => {
+      const all = await getJSON(env, `${dkey(c.id)}/checkins.json`, {});
+      const sm = await getJSON(env, `${dkey(c.id)}/summary.json`, {});
+      const ks = Object.keys(all).sort(), k = ks[ks.length - 1], pk = ks[ks.length - 2];
+      out.push({ id: c.id, name: c.name, type: c.type === "pt" ? "pt" : "online", check: checkinStatus(c, sm, today), lastLog: (sm.logged || []).slice(-1)[0] || "",
+        latest: k ? { due: k, ...all[k] } : null, prev: pk ? { due: pk, stats: all[pk].stats || {}, answers: all[pk].answers || [] } : null, targets: await getJSON(env, `${dkey(c.id)}/targets.json`, null) });
+    }));
+    return json({ today, questions: QUESTIONS, clients: out });
+  }
+  if (path === "/portal/api/coach/backup") {
+    if (!coach) return json({ error: "forbidden" }, 403);
+    const files = {}; let cursor, n = 0, bytes = 0;
+    do { const page = await env.PHOTOS.list({ prefix: "_data/", cursor }); for (const o of page.objects) { if (!/\.json$/.test(o.key) || /backup/.test(o.key) || o.size > 2e6) continue; const ob = await env.PHOTOS.get(o.key); if (!ob) continue; const t = await ob.text(); try { files[o.key] = JSON.parse(t); n++; bytes += t.length; } catch (e) {} if (bytes > 80e6) break; } cursor = page.truncated ? page.cursor : null; } while (cursor && bytes <= 80e6);
+    return new Response(JSON.stringify({ exported: new Date().toISOString(), note: "MPF Coaching portal data backup (photos not included). Keep this file private.", count: n, files }), { headers: { "content-type": "application/json", "content-disposition": `attachment; filename="mpf-portal-backup-${londonToday()}.json"`, "cache-control": "no-store" } });
+  }
+  if (path === "/portal/api/coach/delete-client" && request.method === "POST") {
+    if (!coach) return json({ error: "forbidden" }, 403);
+    const b = await request.json().catch(() => ({}));
+    const id = String(b.id || "").toLowerCase().replace(/[^a-z0-9_-]/g, "");
+    const c = Object.values(r).find((x) => x.id === id);
+    if (!c) return json({ error: "unknown" }, 404);
+    if (String(b.confirm || "").trim().toLowerCase() !== String(c.name || "").trim().toLowerCase()) return json({ error: "confirm" }, 400);
+    const emails = Object.entries(r).filter(([, x]) => x.id === id).map(([e]) => e.toLowerCase());
+    let removed = 0;
+    for (const prefix of [`${dkey(id)}/`, `${id}/`]) { let cursor; do { const page = await env.PHOTOS.list({ prefix, cursor }); const keys = page.objects.map((o) => o.key); if (keys.length) { await env.PHOTOS.delete(keys); removed += keys.length; } cursor = page.truncated ? page.cursor : null; } while (cursor); }
+    const ro = (await getJSON(env, "_data/_roster.json", null)) || {}; for (const e of emails) ro[e] = { deleted: true, id, name: "Deleted", at: new Date().toISOString() }; await putJSON(env, "_data/_roster.json", ro); rosterCache = null;
+    const pay = await getJSON(env, "_data/_payments.json", null); if (pay && pay.byEmail) { for (const e of emails) delete pay.byEmail[e]; for (const [cus, e] of Object.entries(pay.customers || {})) if (emails.includes(e)) delete pay.customers[cus]; await putJSON(env, "_data/_payments.json", pay); }
+    let access = "not set up";
+    if (env.CF_API_TOKEN && env.ACCESS_POLICY_ID && env.CF_ACCOUNT_ID) { try { const u = `https://api.cloudflare.com/client/v4/accounts/${env.CF_ACCOUNT_ID}/access/policies/${env.ACCESS_POLICY_ID}`, h = { authorization: "Bearer " + env.CF_API_TOKEN, "content-type": "application/json" }; const pol = (await (await fetch(u, { headers: h })).json()).result; const inc = (pol.include || []).filter((x) => !(x.email && emails.includes(String(x.email.email).toLowerCase()))); const body = { name: pol.name, decision: pol.decision, include: inc, exclude: pol.exclude || [], require: pol.require || [] }; if (pol.session_duration) body.session_duration = pol.session_duration; access = (await fetch(u, { method: "PUT", headers: h, body: JSON.stringify(body) })).ok ? "removed" : "failed"; } catch (e) { access = "failed"; } }
+    const lg = await getJSON(env, "_data/_deletions.json", { items: [] }); lg.items.unshift({ id, at: new Date().toISOString(), files: removed, access, requested: !!b.requested }); await putJSON(env, "_data/_deletions.json", lg);
+    return json({ ok: true, files: removed, access, note: "Stripe keeps its own payment records for tax purposes." });
+  }
   if (path === "/portal/api/coach/todos") {
     if (!coach) return json({ error: "forbidden" }, 403);
     const key = "_data/_todos.json", db = await getJSON(env, key, { items: [], dismissed: {} });
@@ -800,11 +873,14 @@ async function handleApi(request, env, url) {
         form: c.onboarded === true ? null : !!(await getJSON(env, `${dkey(c.id)}/onboarding.json`, {})).submitted,
         planReady: c.onboarded === true ? true : !!(await getJSON(env, `${dkey(c.id)}/plan.json`, {})).ready,
         active: c.active !== false, week, tracker: c.tracker || "", folder: c.folder || "", payOk: c.payOk === true, tags: c.tags || [],
+        dob: c.onboarded === true ? ((await getJSON(env, `${dkey(c.id)}/onboarding.json`, {})).answers || {}).dob || "" : ((await getJSON(env, `${dkey(c.id)}/onboarding.json`, {})).answers || {}).dob || "",
+        pkg: await (async () => { const pk = await getJSON(env, `${dkey(c.id)}/package.json`, null); if (!pk || !pk.size) return null; const ds = (acu && acu.byId && acu.byId[c.id] && acu.byId[c.id].dates) || []; return { size: pk.size, start: pk.start, used: ds.filter((d) => d >= pk.start && d <= today).length, booked: ds.filter((d) => d > today).length }; })(),
         startWeight: wts.length ? wts[0] : null, needsReply: (() => { const ks = Object.keys(sm.checkins || {}).sort(); const k = ks[ks.length - 1]; return !!k && !((sm.replied || {})[k]); })(),
         photosThisWeek: [...new Set(thisWeek)], lastUpload: photos.reduce((m, p) => (p.uploaded > m ? p.uploaded : m), ""),
         photoCount: photos.length,
         lastCheckin: Object.keys(sm.checkins || {}).sort().pop() || "",
         cancelReq: (await getJSON(env, `${dkey(c.id)}/cancel.json`, null)),
+        deleteReq: (await getJSON(env, `${dkey(c.id)}/delete-request.json`, null)),
         payment: (() => { const recs = emailsOf(c.id).map((e) => pay[e]).filter(Boolean); if (!recs.length) return null; const r0 = recs.sort((a, b) => String(b.updated).localeCompare(String(a.updated)))[0]; return { status: r0.status || "", lastPaid: r0.lastPaid || "", next: r0.next || "", endsOn: r0.endsOn || "", last: (r0.history || [])[0] || null }; })(),
         pt: acu && acu.byId ? (acu.byId[c.id] || { last: "", next: "" }) : acu ? emailsOf(c.id).reduce((m, e) => { const b = acu[e]; if (!b) return m; return { last: b.last > m.last ? b.last : m.last, next: !m.next || (b.next && b.next < m.next) ? b.next || m.next : m.next }; }, { last: "", next: "" }) : null,
         consent: await (async () => { const k = await getJSON(env, `${dkey(c.id)}/consent.json`, {}); return { health: !!k.health, terms: !!k.terms, photos: k.photos || "" }; })(),
@@ -915,6 +991,7 @@ async function handleApi(request, env, url) {
       const clean = {};
       for (const [email, c] of Object.entries(body)) {
         const e = String(email).trim().toLowerCase();
+        if (/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/.test(e) && c && c.deleted === true) { clean[e] = { deleted: true, id: String(c.id || "").slice(0, 40), name: "Deleted", at: String(c.at || "").slice(0, 30) }; continue; }
         if (!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/.test(e) || !c || !c.id || !c.name) continue;
         clean[e] = {
           id: String(c.id).toLowerCase().replace(/[^a-z0-9_-]/g, "").slice(0, 40), name: String(c.name).slice(0, 60),
@@ -1132,7 +1209,8 @@ async function acuityFromIcal(env, r) {
     if (!id) { const first = (get("SUMMARY").split(/[:(\-]/)[0] || "").trim().toLowerCase().split(/\s+/)[0]; const set = byName[first]; if (set && set.size === 1) id = [...set][0]; }
     if (!id) continue;
     matched++;
-    const b = (out[id] = out[id] || { last: "", next: "" });
+    const b = (out[id] = out[id] || { last: "", next: "", dates: [] });
+    if (b.dates.length < 400) b.dates.push(d);
     if (d <= today) { if (d > b.last) b.last = d; } else if (!b.next || d < b.next) b.next = d;
   }
   acuityLast.events = events; acuityLast.matched = matched;
@@ -1286,6 +1364,9 @@ export default {
     }
     return env.ASSETS.fetch(request);
   },
+  async scheduled(event, env, ctx) {
+    ctx.waitUntil(runAutomations(env, {}).catch(() => {}));
+  },
 };
 
 // ---- business dashboard ----
@@ -1374,5 +1455,67 @@ async function businessStats(env, r, fresh) {
   const settings = await getJSON(env, "_data/_biz-settings.json", {});
   const expenses = (await getJSON(env, "_data/_expenses.json", { items: [] })).items || [];
   const leads = (await getJSON(env, "_data/_leads.json", { items: [] })).items || [];
-  return { today, source, err, money, clients, renewals, failed, ending, cancelReqs, pt: acu && acu.months ? { months: acu.months, done: acu.done || {}, weeks: acu.weeks || {}, next7: acu.next7 } : null, sources, roster: roster2, settings, expenses, leads };
+  const gcal = await gcalBlocked(env).catch(() => null);
+  return { today, source, err, money, clients, renewals, failed, ending, cancelReqs, pt: acu && acu.months ? { months: acu.months, done: acu.done || {}, weeks: acu.weeks || {}, next7: acu.next7 } : null, sources, roster: roster2, settings, expenses, leads, gcal };
+}
+
+// ---- automations (daily job) ----
+const AUTO_RULES = ["checkinDue", "checkinLate", "notLogged", "paymentFailed"];
+async function runAutomations(env, opt) {
+  opt = opt || {};
+  const cfg = await getJSON(env, "_data/_automation.json", { enabled: {} });
+  const today = londonToday(), r = roster(env, await loadRoster(env, true));
+  const sentKey = "_data/_automation-sent.json", sent = await getJSON(env, sentKey, {});
+  const logKey = "_data/_automation-log.json", log = await getJSON(env, logKey, { items: [] });
+  const pay = ((await getJSON(env, "_data/_payments.json", { byEmail: {} })).byEmail) || {};
+  const first = (c) => String(c.name || "").split(" ")[0] || "there";
+  const T = {
+    checkinDue: (c) => ({ subject: `${first(c)}, your check-in is due today`, heading: `Check-in <em style="color:#e6cf8b">day.</em>`, intro: `Hi ${first(c)}, it's your weekly check-in day.`, lines: ["Upload your front, side and back photos and answer your check-in questions in the portal. It only takes a few minutes, and it's how I adjust your plan.", "", "Maria x"], button: { text: "Do my check-in", url: SITE + "/portal/#checkin" } }),
+    checkinLate: (c) => ({ subject: `${first(c)}, I haven't had your check-in yet`, heading: `Quick <em style="color:#e6cf8b">reminder.</em>`, intro: `Hi ${first(c)}, your check-in was due yesterday and I haven't seen it come through.`, lines: ["Send it when you can so I can give you your feedback. If you've had a tough week, that's exactly when I want to hear from you.", "", "Maria x"], button: { text: "Send my check-in", url: SITE + "/portal/#checkin" } }),
+    notLogged: (c) => ({ subject: `${first(c)}, don't forget your daily log`, heading: `How's it <em style="color:#e6cf8b">going?</em>`, intro: `Hi ${first(c)}, I've noticed your daily log hasn't been filled in for a couple of days.`, lines: ["Pop in your weight, food and steps when you get a minute. Missed days can be filled in by tapping the day in the row.", "", "Maria x"], button: { text: "Open my log", url: SITE + "/portal/" } }),
+    paymentFailed: (c) => ({ subject: `${first(c)}, your coaching payment didn't go through`, heading: `Payment <em style="color:#e6cf8b">issue.</em>`, intro: `Hi ${first(c)}, your latest coaching payment didn't go through.`, lines: ["This is usually an expired or replaced card. Stripe will have emailed you a link to update it, or reply to this email and I'll send you a new one.", "", "Maria x"], button: { text: "Open my portal", url: SITE + "/portal/" } }),
+  };
+  const res = { sent: 0, skipped: 0, errors: 0, items: [] };
+  if (opt.testTo) { const t = T[opt.rule] || T.checkinDue; try { await sendMail(env, { to: opt.testTo, fromName: "Maria Paradise", ...t({ name: "Jade" }) }); res.sent = 1; } catch (e) { res.errors = 1; } return res; }
+  const seen = new Set();
+  for (const [email, c] of Object.entries(r)) {
+    if (seen.has(c.id) || c.active === false || /\+test@|\+paytest@/.test(email)) continue; seen.add(c.id);
+    const prefs = await getJSON(env, `${dkey(c.id)}/prefs.json`, { reminders: true }); if (prefs.reminders === false) continue;
+    const sm = await getJSON(env, `${dkey(c.id)}/summary.json`, {}), st = checkinStatus(c, sm, today), last = (sm.logged || []).slice(-1)[0] || "";
+    const due = [];
+    if (cfg.enabled.checkinDue && st.dueToday) due.push(["checkinDue", today]);
+    if (cfg.enabled.checkinLate && st.late && (toT(today) - toT(st.due)) / DAY_MS === 1) due.push(["checkinLate", st.due]);
+    if (cfg.enabled.notLogged && c.onboarded === true && last && (toT(today) - toT(last)) / DAY_MS >= 2 && (toT(today) - toT(last)) / DAY_MS <= 14) due.push(["notLogged", fromT(toT(today) - ((toT(today) / DAY_MS) % 3) * DAY_MS)]);
+    const p = pay[email.toLowerCase()];
+    if (cfg.enabled.paymentFailed && p && p.status === "failed") due.push(["paymentFailed", (p.updated || "").slice(0, 10)]);
+    for (const [rule, mark] of due) {
+      const k = `${rule}:${c.id}:${mark}`; if (sent[k]) { res.skipped++; continue; }
+      try { await sendMail(env, { to: email, fromName: "Maria Paradise", ...T[rule](c) }); sent[k] = today; res.sent++; res.items.push({ rule, id: c.id, name: c.name, ok: true }); }
+      catch (e) { try { await sendMail(env, { to: email, fromName: "Maria Paradise", ...T[rule](c) }); sent[k] = today; res.sent++; res.items.push({ rule, id: c.id, name: c.name, ok: true, retried: true }); } catch (e2) { res.errors++; res.items.push({ rule, id: c.id, name: c.name, ok: false, err: String(e2).slice(0, 80) }); } }
+    }
+  }
+  const cut = fromT(toT(today) - 60 * DAY_MS); for (const [k, d] of Object.entries(sent)) if (d < cut) delete sent[k];
+  await putJSON(env, sentKey, sent);
+  log.items = [...res.items.map((x) => ({ ...x, at: new Date().toISOString() })), { at: new Date().toISOString(), summary: true, sent: res.sent, skipped: res.skipped, errors: res.errors }, ...log.items].slice(0, 300);
+  await putJSON(env, logKey, log);
+  if (res.errors) await sendMail(env, { subject: "Portal reminders: some emails failed", heading: "Some reminders <em style=\"color:#e6cf8b\">failed.</em>", lines: [`${res.errors} reminder email(s) could not be sent today, even after a retry. Check Settings → Reminder log in your coach view.`] }).catch(() => {});
+  return res;
+}
+// ---- Google Calendar (secret iCal address): blocked days for PT capacity ----
+async function gcalBlocked(env) {
+  if (!env.GCAL_ICAL) return null;
+  const cached = await getJSON(env, "_data/_gcal-cache.json", null);
+  if (cached && Date.now() - cached.at < 60 * 60 * 1000) return cached.data;
+  const res = await fetch(String(env.GCAL_ICAL).replace(/^webcal:/i, "https:"), { signal: AbortSignal.timeout(20000) }).catch(() => null);
+  if (!res || !res.ok) return cached ? cached.data : { error: "fetch" };
+  const txt = (await res.text()).replace(/\r?\n[ \t]/g, ""), today = londonToday(), hi = fromT(toT(today) + 70 * DAY_MS), lo = fromT(toT(today) - 7 * DAY_MS);
+  const days = {};
+  for (const ev of txt.split("BEGIN:VEVENT").slice(1)) {
+    const g = (k) => { const m = ev.match(new RegExp("^" + k + "([^:\\n]*):(.*)$", "m")); return m ? { p: m[1], v: m[2].trim() } : null; };
+    const ds = g("DTSTART"), de = g("DTEND"), sum = (g("SUMMARY") || { v: "" }).v.replace(/\\,/g, ",").slice(0, 80);
+    if (!ds) continue; const allDay = /VALUE=DATE/.test(ds.p) || /^\d{8}$/.test(ds.v); if (!allDay && !/holiday|off|away|annual leave|unavailable|day off/i.test(sum)) continue;
+    const a = ds.v.slice(0, 8), b = de ? de.v.slice(0, 8) : a; const s0 = `${a.slice(0, 4)}-${a.slice(4, 6)}-${a.slice(6, 8)}`; let e0 = `${b.slice(0, 4)}-${b.slice(4, 6)}-${b.slice(6, 8)}`; if (allDay && e0 > s0) e0 = fromT(toT(e0) - DAY_MS);
+    for (let t = toT(s0); t <= toT(e0) && t <= toT(hi); t += DAY_MS) { const d = fromT(t); if (d >= lo) (days[d] = days[d] || []).push(sum || "Busy"); }
+  }
+  const data = { days, at: new Date().toISOString() }; await putJSON(env, "_data/_gcal-cache.json", { at: Date.now(), data }); return data;
 }

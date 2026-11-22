@@ -173,12 +173,24 @@ html,body{overflow-x:hidden}
 .two2{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}@media(max-width:760px){.two2{grid-template-columns:1fr}}
 .gtab{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}.gtab th,.gtab td{border:1px solid rgba(201,166,75,.2);padding:6px;text-align:center}.gtab th{color:var(--gold);font-size:10px;letter-spacing:.1em;text-transform:uppercase}.gtab input{width:100%;box-sizing:border-box;background:#0e0e0e;border:1px solid rgba(201,166,75,.3);border-radius:8px;color:#fff;font:inherit;font-size:14px;padding:6px;text-align:center}
 .gup{color:#8fd9a6;font-size:11px;display:block}.gdn{color:#f4a59e;font-size:11px;display:block}
+
+.cqc{background:#141414;border:1px solid rgba(201,166,75,.22);border-radius:16px;padding:14px;margin-bottom:10px}.cqc.need{border-color:var(--gold)}
+.cqh{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}.cqh b{color:#fff;font-size:16px}.cqh a{font-size:12px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}.chip{background:#0e0e0e;border:1px solid rgba(201,166,75,.2);border-radius:12px;padding:6px 10px;font-size:12px;color:var(--mute)}.chip b{display:block;color:#fff;font-size:14px}.chip .up{color:#8fd9a6}.chip .dn{color:#f4a59e}
+.cqa{font-size:13px;color:#efe6cf}.cqa div{margin:6px 0}.cqa i{color:var(--gold-l);font-style:normal;display:block;font-size:11.5px}
+.cqr textarea{width:100%;box-sizing:border-box;background:#0e0e0e;border:1px solid rgba(201,166,75,.35);border-radius:12px;color:#fff;font:inherit;font-size:15px;padding:10px;margin-top:8px}
+.arule{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;background:#0f0f0f;border:1px solid rgba(201,166,75,.15);border-radius:12px;margin-bottom:6px}.arule b{color:#fff}.arule small{display:block;color:var(--mute);font-size:12px}
+.sw{position:relative;width:46px;height:26px;flex:0 0 auto}.sw input{opacity:0;width:0;height:0}.sw span{position:absolute;inset:0;background:#333;border-radius:20px;cursor:pointer;transition:.2s}.sw span:before{content:"";position:absolute;width:20px;height:20px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}.sw input:checked+span{background:var(--gold)}.sw input:checked+span:before{transform:translateX(20px)}
+.tplr{display:grid;grid-template-columns:180px 1fr auto;gap:6px;margin-bottom:6px}@media(max-width:600px){.tplr{grid-template-columns:1fr}}.tplr input,.tplr textarea{background:#0e0e0e;border:1px solid rgba(201,166,75,.3);border-radius:10px;color:#fff;font:inherit;font-size:14px;padding:8px}
+.pbar{height:8px;background:#0e0e0e;border-radius:6px;overflow:hidden;margin:6px 0}.pbar i{display:block;height:100%;background:var(--grad)}
+.prog{height:8px;background:#0e0e0e;border-radius:6px;overflow:hidden;margin:4px 0 10px;border:1px solid rgba(201,166,75,.2)}.prog i{display:block;height:100%;background:var(--grad);transition:width .4s}
+.danger{margin-top:24px;border:1px solid rgba(239,111,101,.4);border-radius:16px;padding:14px}.danger b{color:#f4a59e}.btn.red{background:#5a1d18;color:#fff;border:1px solid #ef6f65}
 </style>
 </head>
 <body>
 <div class="top"><div class="in"><a href="/portal/coach/"><img src="/img/logo.png" alt="MPF Coaching"></a><a class="o" href="/cdn-cgi/access/logout">Log out</a></div></div>
 <main class="wrap" id="app" hidden>
-  <nav class="vnav" id="vnav"><a data-v="today" href="#v=today">✅ Today</a><a data-v="clients" href="#v=clients">👥 Clients</a><a data-v="prog" href="#v=prog">📋 Programmes</a><a data-v="meal" href="#v=meal">🥗 Meal plans</a><a data-v="mkt" href="#v=mkt">📣 Marketing</a><a href="/portal/coach/business.html">💷 Business</a></nav>
+  <nav class="vnav" id="vnav"><a data-v="today" href="#v=today">✅ Today</a><a data-v="clients" href="#v=clients">👥 Clients</a><a data-v="checkins" href="#v=checkins">💬 Check-ins</a><a data-v="prog" href="#v=prog">📋 Programmes</a><a data-v="meal" href="#v=meal">🥗 Meal plans</a><a data-v="mkt" href="#v=mkt">📣 Marketing</a><a href="/portal/coach/business.html">💷 Business</a><a data-v="settings" href="#v=settings">⚙️ Settings</a></nav>
   <div class="preview" id="pv" hidden>👀 Preview with made-up clients. Real clients appear once the login is switched on.</div>
   <div class="mhero" id="mhero" data-view="today">
     <div class="kick" id="today"></div>
@@ -208,6 +220,20 @@ html,body{overflow-x:hidden}
   <div class="panel" id="tplPanel" data-view="tpl" hidden><div class="ph-head"><div><div class="kick">Your library</div><h2>Programme <em>templates.</em></h2><div class="sub" style="margin:4px 0 0">Build programmes once here, then copy them into any client from their Programmes tab with <b>+ From a template</b>.</div></div><button class="btn g" id="tplClose" type="button">Close</button></div><div id="tplEd"></div></div>
 
 
+  <div data-view="checkins" id="cq">
+    <div class="t2h" style="margin-bottom:10px"><h2 class="sec">Check-in <em>queue.</em></h2><span class="mini" id="cqN"></span></div>
+    <div class="filters" id="cqTabs"></div><div id="cqBody"><p class="mini">Loading…</p></div>
+  </div>
+  <div data-view="settings" id="st">
+    <h2 class="sec">Settings</h2>
+    <div class="card2"><div class="t2h"><h2>Automatic <em>reminders.</em></h2><span class="mini">emails sent at 7am UK time (8am in summer)</span></div>
+      <div class="mini" style="margin-bottom:10px">Everything is off until you switch it on. Each email is branded and comes from you. Clients can turn reminders off in their portal. Nobody gets the same reminder twice.</div>
+      <div id="arules"></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="btn g" type="button" id="aRun">Run today's reminders now</button></div><div class="mini" id="aMsg" style="margin-top:6px"></div></div>
+    <div class="card2"><div class="t2h"><h2>Reminder <em>log.</em></h2><span class="mini">last 80</span></div><div id="alog"></div></div>
+    <div class="card2"><h2>Message <em>templates.</em></h2><div class="mini" style="margin-bottom:8px">Use {name} for the client's first name. These show on every client's page under 💬 Message, ready to open in WhatsApp.</div><div id="tplList"></div><button class="btn g" type="button" id="tplAdd">+ Add template</button> <button class="btn" type="button" id="tplSave">Save templates</button><span class="mini" id="tplMsg" style="margin-left:8px"></span></div>
+    <div class="card2"><h2>Google <em>Calendar.</em></h2><div id="gcalSt"></div></div>
+    <div class="card2"><h2>Backup <em>your data.</em></h2><div class="mini" style="margin-bottom:10px">Downloads every client record, check-in, log, programme, meal plan and setting as one file (photos not included). Keep it somewhere private, like a folder on your laptop. Do this once a month.</div><a class="btn" href="/portal/api/coach/backup">⬇ Download backup</a></div>
+  </div>
   <div data-view="mkt" id="mkt">
     <div class="mhero" style="padding:22px"><div class="kick">Grow MPF Coaching</div><h1>Your <em>marketing.</em></h1><div class="mq">"Post like your next client is watching. Because they are."</div></div>
     <div class="mlinks" id="mLinks"></div>
@@ -239,7 +265,7 @@ html,body{overflow-x:hidden}
       <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end"><button class="btn g" id="swBtn" type="button">Switch to online</button><button class="btn g" id="payBtn" type="button" hidden>Paid another way</button><button class="btn" id="readyBtn" type="button" hidden>Plan ready</button><button class="btn g" id="closeBtn" type="button">← All clients</button></div>
     </div>
     <div class="gp"><div class="wc" id="wChart"></div><div class="fvl" id="fvl"></div></div>
-    <div class="pmeta" id="pMeta"></div>
+    <div class="pmeta" id="pMeta"></div><div id="pExtra"></div>
     <div class="filters" id="pTabs"><button data-p="ob">Onboarding</button><button class="on" data-p="ci">Check-ins</button><button data-p="log">Daily log</button><button data-p="tg">Targets</button><button data-p="mp">Meal plan</button><button data-p="pg">Programmes</button><button data-p="wk">Workouts</button><button data-p="ph">Photos</button></div>
     <div id="pCi"></div>
     <div id="pLog" hidden></div>
@@ -255,6 +281,7 @@ html,body{overflow-x:hidden}
     <div class="hdr"><span></span><span>Front</span><span>Side</span><span>Back</span></div>
     <div id="pRows"></div>
     </div>
+    <div id="pDanger"></div>
   </div>
 </main>
 <div class="msg" id="msg" hidden></div>
@@ -348,6 +375,11 @@ html,body{overflow-x:hidden}
   function days(d){return d?Math.round((MPFLog.toT(todayStr)-MPFLog.toT(d))/864e5):9999}
   function autoTasks(){var T=[],add=function(g,key,c,txt,sub){T.push({g:g,key:key+':'+todayStr,c:c,txt:txt,sub:sub||''})},A=clients.filter(function(c){return c.active});
     var LP=A.filter(lapsed);if(LP.length)add('👀 Check on','lapsed:'+LP.length,LP[0],LP.length+' lapsed clients to win back','No session, log or check-in for 2+ months: '+LP.slice(0,5).map(function(c){return c.name.split(' ')[0]}).join(', ')+(LP.length>5?' +'+(LP.length-5):''));
+    A.forEach(function(c){var f=c.name.split(' ')[0];
+      if(c.deleteReq)add('💳 Money','del:'+c.id,c,f+' asked for their data to be deleted','Delete them from their profile (bottom of the page) within a month');
+      if(c.dob&&/^\d{4}-\d{2}-\d{2}$/.test(c.dob)){var md=c.dob.slice(5),tm=MPFLog.fromT(MPFLog.toT(todayStr)+864e5).slice(5);if(md===todayStr.slice(5))add('🎂 Birthdays','bday:'+c.id,c,'🎂 It\'s '+f+'\'s birthday today','Send a birthday message');else if(md===tm)add('🎂 Birthdays','bday1:'+c.id,c,f+'\'s birthday is tomorrow','Plan a message or a little treat')}
+      if(c.pkg){var left=c.pkg.size-c.pkg.used;if(left<=2)add('📦 Packages','pkg:'+c.id+':'+c.pkg.start,c,(left<=0?f+'\'s PT package is used up':f+' has '+left+' PT session'+(left===1?'':'s')+' left'),c.pkg.used+' of '+c.pkg.size+' used'+(c.pkg.booked?', '+c.pkg.booked+' booked ahead':'')+'. Time for the renewal chat')}
+    });
     A.forEach(function(c){var f=c.name.split(' ')[0],p=c.payment||{};if(lapsed(c))return;
       if(c.needsReply)add('💬 Reply to check-ins','rep:'+c.id+':'+(c.lastCheckin||''),c,'Reply to '+f+'\'s check-in','Sent '+MPFLog.nice(c.lastCheckin,{weekday:'short'}));
       if(c.form===true&&!c.planReady)add('📝 Build plans','plan:'+c.id,c,'Build '+f+'\'s plan','Onboarding form is in');
@@ -365,11 +397,16 @@ html,body{overflow-x:hidden}
       [4,8,12,16,20,26,39,52,78,104].forEach(function(n){if(c.week===n&&c.start)T.push({g:'🎉 Milestones',key:'ms:'+c.id+':wk'+n,c:c,txt:f+' hits '+(n%52===0?(n/52)+' year'+(n>52?'s':''):n+' weeks')+' with you','sub':'Send a little shout-out'})});
     });
     return T.filter(function(t){return !TD.dismissed[t.key]})}
-  function drawTodo(){var T=autoTasks(),own=(TD.items||[]).filter(function(x){return !x.list}),gs={},order=['💬 Reply to check-ins','🏋️ PT today','💳 Money','📝 Build plans','🔁 Renewals','👀 Check on','🎉 Milestones'];T.forEach(function(t){(gs[t.g]=gs[t.g]||[]).push(t)});
+  var PRI={'💳 Money':'🔴 Critical','💬 Reply to check-ins':'🟠 Do today','🏋️ PT today':'🟠 Do today','🎂 Birthdays':'🟠 Do today','📝 Build plans':'🏋️ Coaching','👀 Check on':'🏋️ Coaching','🎉 Milestones':'🏋️ Coaching','🔁 Renewals':'💷 Money in','📦 Packages':'💷 Money in'};
+  function drawTodo(){var T=autoTasks(),own=(TD.items||[]).filter(function(x){return !x.list}),gs={},order=['🔴 Critical','🟠 Do today','🏋️ Coaching','💷 Money in'];T.forEach(function(t){var g=PRI[t.g]||'🏋️ Coaching';(gs[g]=gs[g]||[]).push(t)});
+    var doneAuto=Object.keys(TD.dismissed||{}).filter(function(k){return TD.dismissed[k]===todayStr&&k.slice(-10)===todayStr}).length,doneOwn=own.filter(function(x){return x.done&&x.doneAt===todayStr}).length,left=T.length+own.filter(function(x){return !x.done}).length,dn=doneAuto+doneOwn,pc=dn+left?Math.round(dn/(dn+left)*100):100;
     var openOwn=own.filter(function(x){return !x.done}).length;$('todoN').textContent=(T.length+openOwn)?(T.length+openOwn)+' to do':'';
     var h=order.filter(function(g){return gs[g]}).map(function(g){return '<div class="tg-grp"><b>'+g+'</b>'+gs[g].map(function(t){return '<div class="td"><button class="ck" type="button" data-dis="'+esc(t.key)+'" title="Done"></button><div class="tx" data-open="'+esc(t.c.id)+'"><b>'+esc(t.txt)+'</b>'+(t.sub?'<small>'+esc(t.sub)+'</small>':'')+'</div></div>'}).join('')+'</div>'}).join('');
-    if(own.length)h+='<div class="tg-grp"><b>✍️ Your tasks</b>'+own.map(function(x){return '<div class="td'+(x.done?' dn':'')+'"><button class="ck" type="button" data-tog="'+x.id+'">'+(x.done?'✓':'')+'</button><div class="tx">'+esc(x.text)+'</div><button class="x" type="button" data-rm="'+x.id+'">✕</button></div>'}).join('')+'</div>';
-    $('todoBody').innerHTML=h||'<div class="allclear">✨ All clear. You\'re on top of everything. Go get a client. ✨</div>';
+    if(own.length)h+='<div class="tg-grp"><b>🗂️ Admin and your tasks</b>'+own.map(function(x){return '<div class="td'+(x.done?' dn':'')+'"><button class="ck" type="button" data-tog="'+x.id+'">'+(x.done?'✓':'')+'</button><div class="tx">'+esc(x.text)+'</div><button class="x" type="button" data-rm="'+x.id+'">✕</button></div>'}).join('')+'</div>';
+    var mk=(TD.items||[]).filter(function(x){return x.list&&!x.done}).length;if(mk)h+='<div class="tg-grp"><b>📣 Marketing</b><div class="td"><div class="tx" data-go="mkt"><b>'+mk+' marketing task'+(mk>1?'s':'')+' waiting</b><small>Tap to open Marketing</small></div></div></div>';
+    var hr=new Date().getHours(),eod=hr>=18?'<div class="mini" style="margin-bottom:8px">🌙 Today: '+dn+' done'+(left?', '+left+' to carry over to tomorrow':'. Everything cleared, amazing.')+'</div>':'';
+    $('todoBody').innerHTML='<div class="prog"><i style="width:'+pc+'%"></i></div><div class="mini" style="margin:-6px 0 8px">'+pc+'% done today · '+dn+' done, '+left+' left</div>'+eod+(h||'<div class="allclear">✨ All clear. You\'re on top of everything. Go get a client. ✨</div>');
+    [].forEach.call($('todoBody').querySelectorAll('[data-go]'),function(b){b.onclick=function(){go(b.getAttribute('data-go'))}});
     [].forEach.call($('todoBody').querySelectorAll('[data-dis]'),function(b){b.onclick=function(){var k=b.getAttribute('data-dis');TD.dismissed[k]=todayStr;b.closest('.td').classList.add('dn');setTimeout(drawTodo,350);if(!preview)postJ('/portal/api/coach/todos',{dismiss:k}).catch(function(){})}});
     [].forEach.call($('todoBody').querySelectorAll('[data-open]'),function(b){b.onclick=function(){open(b.getAttribute('data-open'))}});
     [].forEach.call($('todoBody').querySelectorAll('[data-tog]'),function(b){b.onclick=function(){postJ('/portal/api/coach/todos',{toggle:b.getAttribute('data-tog')}).then(function(j){TD=j;drawTodo()})}});
@@ -446,6 +483,61 @@ html,body{overflow-x:hidden}
   var _drawMkt0=null;
   $('calPrev').onclick=function(){calOff--;drawCal()};$('calNext').onclick=function(){calOff++;drawCal()};
   $('bankAdd').onclick=function(){var v=$('bankIn').value.trim();if(!v)return;mkSave({bankAdd:{text:v,pillar:$('bankP').value}}).then(function(){$('bankIn').value='';bankTab='All';drawBank()})};
+  // ---------- check-in queue ----------
+  var CQ=null,cqTab='review';
+  function loadQueue(){if(preview){CQ={clients:[],questions:[]};drawQueue();return}$('cqBody').innerHTML='<p class="mini">Loading check-ins…</p>';fetch('/portal/api/coach/checkin-queue',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){CQ=j;drawQueue()}).catch(function(){$('cqBody').innerHTML='<p class="mini">Could not load. Refresh to try again.</p>'})}
+  function cqState(c){var k=c.check||{},L=c.latest;if(L&&(k.done||(L.due>=MPFLog.fromT(MPFLog.toT(todayStr)-10*864e5)))){return L.reply?'replied':'review'}if(k.dueToday)return 'today';if(k.late)return 'late';return 'upcoming'}
+  function num(v){var x=parseFloat(v);return isNaN(x)?null:x}
+  function chip(lbl,cur,prev,unit,good){var d=cur!=null&&prev!=null?cur-prev:null,cls=d==null||Math.abs(d)<1e-9?'':((good==='down'?d<0:d>0)?'up':'dn');return '<div class="chip">'+lbl+'<b>'+(cur!=null?(Math.round(cur*10)/10)+(unit||''):'–')+'</b>'+(d!=null?'<span class="'+cls+'">'+(d>0?'+':'')+(Math.round(d*10)/10)+(unit||'')+' vs last week</span>':'')+'</div>'}
+  function drawQueue(){var C=(CQ.clients||[]).slice(),by={review:[],today:[],late:[],replied:[],upcoming:[]};C.forEach(function(c){by[cqState(c)].push(c)});
+    var tabs=[['review','💬 To reply'],['late','⏰ Late'],['today','📅 Due today'],['replied','✅ Replied'],['upcoming','Upcoming']];
+    $('cqN').textContent=by.review.length+' to reply · '+by.late.length+' late · '+by.replied.length+' replied';
+    $('cqTabs').innerHTML=tabs.map(function(t){return '<button type="button" class="'+(cqTab===t[0]?'on':'')+'" data-t="'+t[0]+'">'+t[1]+' · '+by[t[0]].length+'</button>'}).join('');
+    [].forEach.call($('cqTabs').querySelectorAll('button'),function(b){b.onclick=function(){cqTab=b.getAttribute('data-t');drawQueue()}});
+    var list=by[cqTab].sort(function(a,b){return String((a.latest||{}).at||'').localeCompare(String((b.latest||{}).at||''))});
+    $('cqBody').innerHTML=list.map(function(c){var L=c.latest,P=c.prev,f=c.name.split(' ')[0];
+      if(!L||cqTab==='today'||cqTab==='late'||cqTab==='upcoming')return '<div class="cqc"><div class="cqh"><b>'+esc(c.name)+'</b><span class="mini">'+(c.check&&c.check.due?'due '+MPFLog.nice(c.check.due,{weekday:'short'}):'')+' · logged '+ago(c.lastLog).toLowerCase()+'</span></div><div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap"><button class="btn g" type="button" data-open="'+esc(c.id)+'">Open profile</button></div></div>';
+      var S=L.stats||{},PS=(P&&P.stats)||{},tg=c.targets||{},Q=L.questions||CQ.questions||[];
+      var flags=[];if(S.daysLogged!=null&&S.daysLogged<4)flags.push('Only '+S.daysLogged+' of 7 days logged');var wc=num(S.change);if(wc!=null&&wc>0.6&&(c.type!=='pt'))flags.push('Weight up '+wc+' kg on the week');if(num(S.cals)&&num(tg.cals)&&num(S.cals)>num(tg.cals)*1.1)flags.push('Calories about '+Math.round(num(S.cals)-num(tg.cals))+' over target on average');
+      var ans=(L.answers||[]).map(function(a,i){return a?'<div><i>'+esc(Q[i]||('Question '+(i+1)))+'</i>'+esc(a)+'</div>':''}).join('');
+      return '<div class="cqc'+(cqTab==='review'?' need':'')+'"><div class="cqh"><b>'+esc(c.name)+' <span class="mini">'+(c.type==='pt'?'🏋️':'💻')+'</span></b><span class="mini">week ending '+MPFLog.nice(L.due,{weekday:'short'})+' · sent '+new Date(L.at).toLocaleString('en-GB',{weekday:'short',hour:'2-digit',minute:'2-digit'})+' · <a href="#" data-open="'+esc(c.id)+'">open profile</a></span></div>'+
+        '<div class="chips">'+chip('Avg weight',num(S.weight),num(PS.weight),' kg','down')+chip('Days logged',num(S.daysLogged),num(PS.daysLogged),'','up')+chip('Avg kcal',num(S.cals),num(PS.cals),'',null)+chip('Avg protein',num(S.protein),num(PS.protein),' g','up')+chip('Avg steps',num(S.steps),num(PS.steps),'','up')+chip('Avg sleep',num(S.sleep),num(PS.sleep),' h','up')+'</div>'+
+        (flags.length?'<div class="mini" style="color:#f4a59e;margin-bottom:8px">⚠️ '+esc(flags.join(' · '))+'</div>':'')+
+        '<details><summary class="mini" style="cursor:pointer">Their answers</summary><div class="cqa">'+(ans||'<div>No written answers.</div>')+'</div></details>'+
+        '<div class="cqr"><textarea rows="4" placeholder="Your feedback for '+esc(f)+'">'+esc(L.reply?L.reply.text:'')+'</textarea><div style="display:flex;gap:8px;align-items:center;margin-top:6px"><button class="btn" type="button" data-rep="'+esc(c.id)+'" data-due="'+L.due+'">'+(L.reply?'Update reply':'Send reply')+'</button><span class="mini lg-msg"></span></div></div></div>'}).join('')||'<div class="allclear" style="font-size:16px">'+(cqTab==='review'?'✨ No check-ins waiting for a reply.':'Nobody here.')+'</div>';
+    [].forEach.call($('cqBody').querySelectorAll('[data-open]'),function(b){b.onclick=function(e){e.preventDefault();open(b.getAttribute('data-open'))}});
+    [].forEach.call($('cqBody').querySelectorAll('[data-rep]'),function(b){b.onclick=function(){var box=b.closest('.cqr'),ta=box.querySelector('textarea'),m=box.querySelector('.lg-msg');if(!ta.value.trim()){m.textContent='Write your feedback first.';return}b.disabled=true;m.textContent='Sending…';
+      postJ('/portal/api/coach/checkin-reply',{id:b.getAttribute('data-rep'),due:b.getAttribute('data-due'),text:ta.value}).then(function(){m.textContent='✓ Sent and emailed';var c=CQ.clients.filter(function(x){return x.id===b.getAttribute('data-rep')})[0];if(c&&c.latest)c.latest.reply={text:ta.value,at:new Date().toISOString()};var cl=clients.filter(function(x){return x.id===b.getAttribute('data-rep')})[0];if(cl)cl.needsReply=false;setTimeout(function(){drawQueue();drawTodo()},900)}).catch(function(){b.disabled=false;m.textContent='Not sent. Try again.'})}});
+  }
+  // ---------- settings ----------
+  var AUTO=null,RL={checkinDue:['📅 Check-in day','Morning email on their check-in day, if it isn\'t in yet'],checkinLate:['⏰ Late check-in','The day after it was due, if it still isn\'t in'],notLogged:['📝 Not logging','After 2 days with no daily log (at most every 3 days, stops after 2 weeks)'],paymentFailed:['💳 Payment failed','When a Stripe payment fails, asking them to update their card']};
+  var DEFT=[{name:'Enquiry reply',text:'Hi {name}! Thanks so much for getting in touch 😊 I\'d love to hear more about your goals. Are you looking for face to face PT at PureGym Charlton or online coaching?'},{name:'Consult follow-up',text:'Hi {name}, it was lovely chatting with you! Just checking in to see if you had any questions about getting started. I have a couple of spaces this month.'},{name:'Welcome',text:'Welcome to MPF Coaching {name}! 🎉 Your portal is ready at mpfcoaching.co.uk/portal. Start with your onboarding form and I\'ll build your plan from there.'},{name:'Check-in nudge',text:'Hi {name}! Just a reminder your check-in is due today 😊 Photos and answers in the portal when you can.'},{name:'Book next session',text:'Hi {name}! I noticed you haven\'t got a session booked in. Want me to grab you a slot this week? 💪'},{name:'Package renewal',text:'Hi {name}, you\'ve only got a couple of sessions left on your package! Want to keep the momentum going? I can set up your next one.'},{name:'Win back',text:'Hi {name}, I\'ve been thinking about you! How are you getting on? If you fancy getting back into it, I\'d love to have you back, face to face or online.'},{name:'Review request',text:'Hi {name}, I\'m so proud of your progress! Would you mind leaving me a quick Google review? It really helps other people find me 💛'},{name:'Birthday',text:'Happy birthday {name}! 🎂 Hope you have the best day. Enjoy every bite, you\'ve earned it! 💛'}];
+  function tpls(){return (AUTO&&AUTO.templates&&AUTO.templates.length)?AUTO.templates:DEFT}
+  function loadSettings(){if(preview){AUTO={enabled:{},log:[]};drawSettings();return}fetch('/portal/api/coach/automation',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){AUTO=j;drawSettings()})}
+  function drawSettings(){var E=AUTO.enabled||{};
+    $('arules').innerHTML=Object.keys(RL).map(function(k){return '<div class="arule"><div><b>'+RL[k][0]+'</b><small>'+RL[k][1]+'</small><button type="button" class="mini" data-test="'+k+'" style="background:none;border:0;color:var(--gold-l);cursor:pointer;padding:4px 0">Send me a test</button></div><label class="sw"><input type="checkbox" data-k="'+k+'"'+(E[k]?' checked':'')+'><span></span></label></div>'}).join('');
+    [].forEach.call($('arules').querySelectorAll('input[data-k]'),function(i){i.onchange=function(){var o={};o[i.getAttribute('data-k')]=i.checked;postJ('/portal/api/coach/automation',{enabled:o}).then(function(j){AUTO=Object.assign(AUTO,j);$('aMsg').textContent=i.checked?'✓ On. It runs every morning.':'Switched off.'})}});
+    [].forEach.call($('arules').querySelectorAll('[data-test]'),function(b){b.onclick=function(){b.textContent='Sending…';postJ('/portal/api/coach/automation',{test:b.getAttribute('data-test')}).then(function(){b.textContent='✓ Sent to info@'})}});
+    var L=AUTO.log||[];$('alog').innerHTML=L.length?L.map(function(x){var d=new Date(x.at).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});return x.summary?'<div class="mini" style="margin:8px 0 4px;color:var(--gold-l)">'+d+' · run: '+x.sent+' sent, '+x.skipped+' already sent before, '+x.errors+' failed</div>':'<div class="mini">'+(x.ok?'✓':'⚠️')+' '+esc((RL[x.rule]||[x.rule])[0])+' → '+esc(x.name)+(x.err?' ('+esc(x.err)+')':'')+'</div>'}).join(''):'<div class="mini">Nothing sent yet.</div>';
+    $('aRun').onclick=function(){if(!confirm('Run today\'s switched-on reminders now? Anyone who already got today\'s reminder won\'t get it again.'))return;$('aMsg').textContent='Running…';postJ('/portal/api/coach/automation',{runNow:true}).then(function(j){$('aMsg').textContent='Done: '+j.res.sent+' sent, '+j.res.skipped+' skipped, '+j.res.errors+' failed';loadSettings()})};
+    var T=tpls();$('tplList').innerHTML=T.map(function(t){return '<div class="tplr"><input value="'+esc(t.name)+'" data-n><textarea rows="2" data-t>'+esc(t.text)+'</textarea><button type="button" class="x" data-rm title="Remove">✕</button></div>'}).join('');
+    [].forEach.call($('tplList').querySelectorAll('[data-rm]'),function(b){b.onclick=function(){b.closest('.tplr').remove()}});
+    $('tplAdd').onclick=function(){$('tplList').insertAdjacentHTML('beforeend','<div class="tplr"><input placeholder="Name" data-n><textarea rows="2" placeholder="Hi {name}…" data-t></textarea><button type="button" class="x" data-rm>✕</button></div>');var rm=$('tplList').lastElementChild.querySelector('[data-rm]');rm.onclick=function(){rm.closest('.tplr').remove()}};
+    $('tplSave').onclick=function(){var arr=[].map.call($('tplList').querySelectorAll('.tplr'),function(r){return {name:r.querySelector('[data-n]').value.trim(),text:r.querySelector('[data-t]').value.trim()}}).filter(function(t){return t.name&&t.text});postJ('/portal/api/coach/automation',{templates:arr}).then(function(j){AUTO=Object.assign(AUTO,j);$('tplMsg').textContent='✓ Saved'})};
+    $('gcalSt').innerHTML=AUTO.gcal?'<div class="mini">✅ Connected. Holidays and all-day events block PT capacity on your Business page.</div>':'<div class="mini" style="line-height:1.7">Not connected yet. To connect:<br>1. On a computer, open Google Calendar → ⚙️ Settings → click your calendar under <b>Settings for my calendars</b>.<br>2. Scroll to <b>Integrate calendar</b> and copy <b>Secret address in iCal format</b>.<br>3. In Cloudflare → Workers &amp; Pages → mpf-coaching-website → Settings → + Add variable: name <b>GCAL_ICAL</b>, paste it, tick <b>Secret</b>, Deploy.</div>';
+  }
+  // ---------- client panel extras: package, message templates, deletion ----------
+  function drawExtras(id){var box=$('pExtra');if(!box)return;var c=cur,f=c.name.split(' ')[0],ph=(c.phone||'').replace(/^0/,'44');
+    var pk=c.pkg,pkH=c.type==='pt'?'<div class="pmeta" style="margin-top:0"><b style="color:var(--gold-l);font-size:12px;letter-spacing:.12em;text-transform:uppercase">📦 PT package</b>'+(pk?'<div style="color:#fff;margin-top:6px"><b>'+Math.max(0,pk.size-pk.used)+' of '+pk.size+'</b> sessions left <span class="mini">· '+pk.used+' used since '+MPFLog.nice(pk.start,{weekday:undefined})+(pk.booked?' · '+pk.booked+' booked ahead':'')+'</span></div><div class="pbar"><i style="width:'+Math.min(100,pk.used/pk.size*100)+'%"></i></div>':'<div class="mini" style="margin:6px 0">No package set. Sessions used are counted from your Acuity calendar from the start date.</div>')+
+      '<div class="row2" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:6px"><select id="pkS" class="msel">'+[0,1,4,5,6,8,10,12,15,20,24,30].map(function(n){return '<option value="'+n+'"'+(pk&&pk.size===n?' selected':'')+'>'+(n?n+' sessions':'No package')+'</option>'}).join('')+'</select><input id="pkD" type="date" class="msel" value="'+(pk?pk.start:todayStr)+'"><button class="btn g" type="button" id="pkSave">Save package</button><span class="mini" id="pkMsg"></span></div></div>':'';
+    var T=tpls();var msgH='<div class="pmeta"><b style="color:var(--gold-l);font-size:12px;letter-spacing:.12em;text-transform:uppercase">💬 Message '+esc(f)+'</b><div class="tagpick" style="margin-top:8px">'+T.map(function(t,i){return '<button type="button" data-ti="'+i+'">'+esc(t.name)+'</button>'}).join('')+'</div><div class="mini">'+(ph?'Opens WhatsApp with the message ready. You press send.':'No phone number saved for '+esc(f)+', so the message is copied instead.')+'</div></div>';
+    box.innerHTML=pkH+msgH;
+    if($('pkSave'))$('pkSave').onclick=function(){var n=+$('pkS').value;postJ('/portal/api/coach/package?id='+encodeURIComponent(id),{size:n,start:$('pkD').value}).then(function(j){cur.pkg=j.pkg?{size:j.pkg.size,start:j.pkg.start,used:0,booked:0}:null;$('pkMsg').textContent='✓ Saved. Sessions used update on next refresh.'})};
+    [].forEach.call(box.querySelectorAll('[data-ti]'),function(b){b.onclick=function(){var t=T[+b.getAttribute('data-ti')].text.replace(/\{name\}/g,f);if(ph)window.open('https://wa.me/'+ph+'?text='+encodeURIComponent(t),'_blank');else{try{navigator.clipboard.writeText(t)}catch(e){}b.textContent='✓ Copied'}}});
+    var dz=$('pDanger');if(dz){dz.innerHTML='<div class="danger"><b>Delete '+esc(c.name)+' and all their data</b>'+(c.deleteReq?'<div class="mini" style="color:#f4a59e;margin-top:4px">⚠️ '+esc(f)+' asked for this on '+MPFLog.nice(String(c.deleteReq.at).slice(0,10),{weekday:undefined})+(c.deleteReq.reason?': "'+esc(c.deleteReq.reason)+'"':'')+'</div>':'')+'<div class="mini" style="margin:6px 0 10px">Removes their portal, logins, check-ins, logs, photos, programmes, meal plans and notes for good. It can\'t be undone. Stripe keeps its own payment records, which you need for tax. Download a backup in Settings first if you might need anything.</div><button class="btn red" type="button" id="delBtn">Delete client</button></div>';
+      $('delBtn').onclick=function(){var t=prompt('This permanently deletes '+c.name+' and all their data. It cannot be undone.\n\nType their name exactly to confirm: '+c.name);if(t===null)return;if(t.trim().toLowerCase()!==String(c.name).trim().toLowerCase()){alert('The name did not match, so nothing was deleted.');return}
+        this.disabled=true;this.textContent='Deleting…';postJ('/portal/api/coach/delete-client',{id:id,confirm:t,requested:!!c.deleteReq}).then(function(j){alert(c.name+' has been deleted ('+j.files+' files removed, login '+j.access+').');clients=clients.filter(function(x){return x.id!==id});closeP();draw()}).catch(function(){alert('Not deleted. Try again.')})}}
+  }
   $('mktAdd').onclick=function(){var v=$('mktIn').value.trim();if(!v)return;postJ('/portal/api/coach/todos',{add:v,list:$('mktList').value}).then(function(j){TD=j;$('mktIn').value='';drawMkt()})};
   $('mktIn').onkeydown=function(e){if(e.key==='Enter')$('mktAdd').click()};
   $('habSave').onclick=function(){var H=$('habEdit').value.split('\n').map(function(x){return x.trim()}).filter(Boolean);postJ('/portal/api/coach/todos',{habits:H}).then(function(j){TD=j;drawMkt()})};
@@ -481,7 +573,7 @@ html,body{overflow-x:hidden}
   function open(id){
     cur=clients.filter(function(c){return c.id===id})[0];if(!cur)return;
     $('panel').hidden=false;$('panel').scrollTop=0;document.body.style.overflow='hidden';if(location.hash!=='#c='+id)history.pushState(null,'','#c='+id);$('pName').innerHTML=esc(cur.name)+' <em>· week '+cur.week+'</em>';var cn=cur.consent||{};$('pKick').textContent=(cur.type==='pt'?'Face to face':'Online')+' · checks in '+cur.checkin+'s · '+(cn.photos==='yes'?'📸 OK to post photos':cn.photos==='no'?'🚫 Do NOT post photos':'🚫 No photo permission yet')+(cn.health&&cn.terms?'':' · terms not agreed yet');$('pRows').innerHTML='<p style="color:var(--mute)">Loading…</p>';
-    drawMeta(id);
+    drawMeta(id);drawExtras(id);
     var from=MPFLog.fromT(MPFLog.toT(todayStr)-27*864e5);
     var showTab=function(p){[].forEach.call(document.querySelectorAll('#pTabs button'),function(x){x.classList.toggle('on',x.getAttribute('data-p')===p)});['ci','log','tg','pg','wk','ob','mp','ph'].forEach(function(k){var el=$({ci:'pCi',log:'pLog',tg:'pTg',pg:'pPg',wk:'pWk',ob:'pOb',mp:'pMp',ph:'pPh'}[k]);if(el)el.hidden=k!==p})};
     var isNew=cur.form!==null&&cur.form!==undefined;
@@ -520,7 +612,7 @@ html,body{overflow-x:hidden}
   $('closeBtn').onclick=function(){if(location.hash.indexOf('#c=')===0)history.back();else closeP()};
   window.addEventListener('popstate',function(){if(location.hash.indexOf('#c=')!==0)closeP()});
   var curView='';
-  function go(v,noPush){if(['today','clients','prog','meal','mkt'].indexOf(v)<0)v='today';if(v==='mkt')drawMkt();
+  function go(v,noPush){if(['today','clients','prog','meal','mkt','checkins','settings'].indexOf(v)<0)v='today';if(v==='mkt')drawMkt();if(v==='checkins')loadQueue();if(v==='settings')loadSettings();
     [].forEach.call(document.querySelectorAll('[data-view]'),function(el){var dv=el.getAttribute('data-view');el.hidden=dv==='tpl'?!(v==='prog'||v==='meal'):dv!==v});
     [].forEach.call(document.querySelectorAll('#vnav a[data-v]'),function(a){a.classList.toggle('on',a.getAttribute('data-v')===v)});
     if(v!==curView){if(v==='prog')$('tplBtn').click();if(v==='meal')$('mtplBtn').click();window.scrollTo(0,0)}curView=v;

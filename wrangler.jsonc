@@ -8,6 +8,7 @@
     "binding": "ASSETS",
     "run_worker_first": ["/portal/api/*", "/stripe/*"]
   },
+  "triggers": { "crons": ["0 7 * * *"] },
   "r2_buckets": [{ "binding": "PHOTOS", "bucket_name": "mpf-client-photos" }],
   // Not secret. The client list (PORTAL_CLIENTS) is a secret set in the Cloudflare dashboard.
   "vars": {
