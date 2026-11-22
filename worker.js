@@ -156,6 +156,7 @@ const QUESTIONS = [
   "😴 Sleep and energy: how is your sleep quality, your general energy and your recovery?",
   "😮‍💨 Stress: how have your stress levels been, and how are you managing them?",
   "🧠 Mindset: how are you feeling about the plan, your progress and your motivation?",
+  "📅 Anything that might affect your weight this week? For example your period, illness, a holiday or meals out.",
   "🏆 Win: tell me something that's gone well this week, gym or non-gym related.",
   "🚧 Struggle: what's been the biggest thing getting in your way?",
   "🎯 Focus: what do you think you need to improve over the next week?",
