@@ -148,16 +148,18 @@ async function listPhotos(env, id) {
 // _data/<id>/checkins.json        {"2026-11-23": {answers:[...], stats:{...}, at:"..."}}
 // _data/<id>/summary.json         {weights:{date:kg}, logged:[dates], checkins:{due:at}}
 const QUESTIONS = [
-  "What were this week's biggest wins/achievements?",
-  "Any comments on stress levels and management techniques?",
-  "How was gym performance this week?",
-  "How was recovery in general this week?",
-  "Number of weeks on current training set-up.",
-  "Number of weeks since deload.",
-  "Number of weeks in current phase (cut/bulk/maintenance).",
-  "Is there anything you struggled with this week?",
-  "Are there any areas you want to improve next week?",
-  "Is there anything you would like me to run through for you?",
+  "📸 Progress: any changes you've noticed physically, in your photos, measurements or how your clothes fit?",
+  "💪 Training: how many sessions did you get in? How is performance, strength and progression?",
+  "🏃 Cardio: are you completing what's currently programmed?",
+  "🥗 Nutrition: how closely are you sticking to your calories and macros? Any issues with hunger, cravings or adherence?",
+  "🥩 Protein: are you consistently hitting your protein target?",
+  "😴 Sleep and energy: how is your sleep quality, your general energy and your recovery?",
+  "😮‍💨 Stress: how have your stress levels been, and how are you managing them?",
+  "🧠 Mindset: how are you feeling about the plan, your progress and your motivation?",
+  "🏆 Win: tell me something that's gone well this week, gym or non-gym related.",
+  "🚧 Struggle: what's been the biggest thing getting in your way?",
+  "🎯 Focus: what do you think you need to improve over the next week?",
+  "🙋‍♀️ From me: is there anything you need help with, want me to look at, or think we need to adjust?",
 ];
 const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const DAY_MS = 864e5;
