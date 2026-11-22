@@ -664,7 +664,7 @@ async function handleApi(request, env, url) {
     if (!coach) return json({ error: "forbidden" }, 403);
     const b = await request.json().catch(() => ({}));
     const cur = await getJSON(env, "_data/_biz-settings.json", {});
-    for (const k of ["goal", "slots"]) if (b[k] != null) cur[k] = Math.max(0, Math.min(1e7, Number(b[k]) || 0));
+    for (const k of ["goal", "slots", "pkgSize"]) if (b[k] != null) cur[k] = Math.max(0, Math.min(1e7, Number(b[k]) || 0));
     await putJSON(env, "_data/_biz-settings.json", cur); return json({ ok: true, settings: cur });
   }
   if (path === "/portal/api/coach/expenses" && request.method === "POST") {
@@ -708,17 +708,6 @@ async function handleApi(request, env, url) {
       db.items = [it, ...db.items.filter((x) => x.id !== it.id)].slice(0, 3000);
     }
     await putJSON(env, "_data/_leads.json", db); return json({ ok: true });
-  }
-  if (path === "/portal/api/coach/acuity-peek") {
-    if (!coach || !env.ACUITY_ICAL) return json({ error: "no" }, 403);
-    const res = await fetch(String(env.ACUITY_ICAL).replace(/^webcal:/i, "https:"), { signal: AbortSignal.timeout(20000) });
-    const txt = (await res.text()).replace(/\r?\n[ \t]/g, "");
-    const evs = txt.split("BEGIN:VEVENT").slice(1);
-    const lines = {}; let pk = 0;
-    for (const ev of evs) { const d = (ev.match(/^DESCRIPTION[^:\n]*:(.*)$/m) || [])[1] || ""; const sm = (ev.match(/^SUMMARY[^:\n]*:(.*)$/m) || [])[1] || ""; if (/package|certificate|code|sessions? (left|remaining)/i.test(d + sm)) pk++;
-      for (const part of (d.replace(/\\n/g, "\n").split("\n"))) { const label = part.split(":")[0].replace(/[0-9a-z._%+-]+@[0-9a-z.-]+/gi, "[email]").replace(/\+?\d[\d ]{7,}/g, "[phone]").trim().slice(0, 50); if (label) lines[label] = (lines[label] || 0) + 1; } }
-    const samplePk = evs.map((ev) => ((ev.match(/^DESCRIPTION[^:\n]*:(.*)$/m) || [])[1] || "")).filter((d) => /package|certificate/i.test(d)).slice(0, 3).map((d) => d.replace(/\\n/g, " | ").replace(/[0-9a-z._%+-]+@[0-9a-z.-]+/gi, "[email]").replace(/\+?\d[\d ]{7,}/g, "[phone]").slice(0, 300));
-    return json({ events: evs.length, withPackageWords: pk, descLineLabels: Object.entries(lines).sort((a, b) => b[1] - a[1]).slice(0, 25), samplePk });
   }
   if (path === "/portal/api/coach/package") {
     if (!coach) return json({ error: "forbidden" }, 403);
@@ -860,6 +849,7 @@ async function handleApi(request, env, url) {
   if (path === "/portal/api/coach/clients") {
     if (!coach) return json({ error: "forbidden" }, 403);
     const acu = await acuityBookings(env, r).catch(() => null);
+    const bizSet = await getJSON(env, "_data/_biz-settings.json", {});
     const pay = (await getJSON(env, "_data/_payments.json", { byEmail: {} })).byEmail || {};
     const emailsOf = (id) => Object.entries(r).filter(([, x]) => x.id === id).map(([e]) => e.toLowerCase());
     const seen = new Set();
@@ -885,7 +875,10 @@ async function handleApi(request, env, url) {
         planReady: c.onboarded === true ? true : !!(await getJSON(env, `${dkey(c.id)}/plan.json`, {})).ready,
         active: c.active !== false, week, tracker: c.tracker || "", folder: c.folder || "", payOk: c.payOk === true, tags: c.tags || [],
         dob: c.onboarded === true ? ((await getJSON(env, `${dkey(c.id)}/onboarding.json`, {})).answers || {}).dob || "" : ((await getJSON(env, `${dkey(c.id)}/onboarding.json`, {})).answers || {}).dob || "",
-        pkg: await (async () => { const pk = await getJSON(env, `${dkey(c.id)}/package.json`, null); if (!pk || !pk.size) return null; const ds = (acu && acu.byId && acu.byId[c.id] && acu.byId[c.id].dates) || []; return { size: pk.size, start: pk.start, used: ds.filter((d) => d >= pk.start && d <= today).length, booked: ds.filter((d) => d > today).length }; })(),
+        pkg: await (async () => { const a = acu && acu.byId && acu.byId[c.id]; const codes = (a && a.codes) || {}; const ks = Object.keys(codes).sort((x, y) => (codes[y].last).localeCompare(codes[x].last) || (codes[y].first).localeCompare(codes[x].first)); const pk = await getJSON(env, `${dkey(c.id)}/package.json`, null);
+          const size = (pk && pk.size) || (bizSet && bizSet.pkgSize) || 0;
+          if (ks.length) { const k = ks[0], q = codes[k]; return { auto: true, code: k, size, used: q.used, booked: q.booked, start: q.first, packages: ks.length }; }
+          if (!pk || !pk.size) return null; const ds = (a && a.dates) || []; return { size: pk.size, start: pk.start, used: ds.filter((d) => d >= pk.start && d <= today).length, booked: ds.filter((d) => d > today).length }; })(),
         startWeight: wts.length ? wts[0] : null, needsReply: (() => { const ks = Object.keys(sm.checkins || {}).sort(); const k = ks[ks.length - 1]; return !!k && !((sm.replied || {})[k]); })(),
         photosThisWeek: [...new Set(thisWeek)], lastUpload: photos.reduce((m, p) => (p.uploaded > m ? p.uploaded : m), ""),
         photoCount: photos.length,
@@ -1220,8 +1213,10 @@ async function acuityFromIcal(env, r) {
     if (!id) { const first = (get("SUMMARY").split(/[:(\-]/)[0] || "").trim().toLowerCase().split(/\s+/)[0]; const set = byName[first]; if (set && set.size === 1) id = [...set][0]; }
     if (!id) continue;
     matched++;
-    const b = (out[id] = out[id] || { last: "", next: "", dates: [] });
+    const b = (out[id] = out[id] || { last: "", next: "", dates: [], codes: {} });
     if (b.dates.length < 400) b.dates.push(d);
+    const cc = (get("DESCRIPTION").match(/Certificate Code:\s*([A-Z0-9-]{4,20})/i) || [])[1];
+    if (cc) { const k = cc.toUpperCase(), q = (b.codes[k] = b.codes[k] || { used: 0, booked: 0, first: d, last: d }); if (d <= today) q.used++; else q.booked++; if (d < q.first) q.first = d; if (d > q.last) q.last = d; }
     if (d <= today) { if (d > b.last) b.last = d; } else if (!b.next || d < b.next) b.next = d;
   }
   acuityLast.events = events; acuityLast.matched = matched;
