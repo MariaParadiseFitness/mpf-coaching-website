@@ -508,6 +508,7 @@ body.gated #topTabs{visibility:hidden}
     $('sessions').classList.remove('gone');[].forEach.call(document.querySelectorAll('.ptonly'),function(a){a.hidden=false});$('bnav').classList.add('six');
     if(pt){var so=document.createElement('div');so.className='due';so.setAttribute('data-view','sessions');so.innerHTML='<b>💻 Prefer to train on your own?</b><p style="margin:6px 0 8px">Can\'t get to the gym with me as often? Keep your progress going with online coaching: your programme, check-ins and support, all in this portal.</p><div class="pay-opts"><a class="go" target="_blank" rel="noopener" href="https://buy.stripe.com/14AcN48jBebn27H5DY1ZS07">Monthly: £75 set-up + £175 a month →</a><a class="go" target="_blank" rel="noopener" href="https://buy.stripe.com/cNidR8eHZ5ERcMl7M61ZS08">3 months upfront: £525 →</a><a class="go" target="_blank" rel="noopener" href="https://buy.stripe.com/9B63cu0R96IV27H0jE1ZS09">6 months upfront: £900 →</a><small>Once you\'ve paid, message me and I\'ll switch your portal over. All your history stays.</small></div>';var ss=$('sessions');if(ss)ss.appendChild(so)}
     if(!pt)$('sessSub').textContent='Want to train with Maria in person? Book a face to face session at PureGym Charlton.';
+    if(meta.paid)STEPS=STEPS.filter(function(x){return x.key!=='pay'});
     STEPS.forEach(function(x){x.opt=pt&&!!x.ptOpt;if(pt&&x.ptD)x.d=x.ptD});
     var done={},ol=$('steps');
     STEPS.forEach(function(s,i){
@@ -662,7 +663,7 @@ body.gated #topTabs{visibility:hidden}
     if(x.s===401||!j.signedIn){message('Please <em>log in.</em>','Your session has ended. Log in again with your email to open your portal.','<a class="btn" href="/cdn-cgi/access/logout">Log in again</a>');return}
     if(!j.known&&j.coach){location.replace('/portal/coach/');return}
     if(!j.known){message('Nearly <em>there.</em>','You\'re signed in as <b style="color:#fff">'+esc(j.email)+'</b>, but your portal isn\'t linked to this email yet. Message me and I\'ll get you set up.','<a class="btn" href="https://wa.me/447592791137">Message Maria</a><p style="margin-top:16px"><a href="/cdn-cgi/access/logout">Log out</a></p>');return}
-    render(j.client,j.email,{week:j.week,photos:j.photos,today:j.today});
+    render(j.client,j.email,{week:j.week,photos:j.photos,today:j.today,paid:j.paid});
   }).catch(function(){message('Something went <em>wrong.</em>','Please refresh the page. If it keeps happening, message me.','<a class="btn" href="https://wa.me/447592791137">Message Maria</a>')});
 })();
 </script>

@@ -365,7 +365,7 @@ async function handleApi(request, env, url) {
     const { id, ...pub } = client;
     return json({
       configured: true, signedIn: true, known: true, coach, email,
-      client: { ...pub, checkin: checkinDay(client), type: client.type === "pt" ? "pt" : "online" }, week: weekOf(client.start), photos: !!env.PHOTOS, today: londonToday(),
+      client: { ...pub, checkin: checkinDay(client), type: client.type === "pt" ? "pt" : "online" }, paid: !!((await getJSON(env, "_data/_payments.json", { byEmail: {} })).byEmail || {})[email], week: weekOf(client.start), photos: !!env.PHOTOS, today: londonToday(),
     });
   }
 
@@ -623,6 +623,7 @@ async function handleApi(request, env, url) {
   if (path === "/portal/api/coach/clients") {
     if (!coach) return json({ error: "forbidden" }, 403);
     const acu = await acuityBookings(env, r).catch(() => null);
+    const pay = (await getJSON(env, "_data/_payments.json", { byEmail: {} })).byEmail || {};
     const emailsOf = (id) => Object.entries(r).filter(([, x]) => x.id === id).map(([e]) => e.toLowerCase());
     const seen = new Set();
     const uniq = Object.values(r).filter((c) => (seen.has(c.id) ? false : (seen.add(c.id), true)));
@@ -649,6 +650,7 @@ async function handleApi(request, env, url) {
         photosThisWeek: [...new Set(thisWeek)], lastUpload: photos.reduce((m, p) => (p.uploaded > m ? p.uploaded : m), ""),
         photoCount: photos.length,
         lastCheckin: Object.keys(sm.checkins || {}).sort().pop() || "",
+        payment: (() => { const recs = emailsOf(c.id).map((e) => pay[e]).filter(Boolean); if (!recs.length) return null; const r0 = recs.sort((a, b) => String(b.updated).localeCompare(String(a.updated)))[0]; return { status: r0.status || "", lastPaid: r0.lastPaid || "", last: (r0.history || [])[0] || null }; })(),
         pt: acu && acu.byId ? (acu.byId[c.id] || { last: "", next: "" }) : acu ? emailsOf(c.id).reduce((m, e) => { const b = acu[e]; if (!b) return m; return { last: b.last > m.last ? b.last : m.last, next: !m.next || (b.next && b.next < m.next) ? b.next || m.next : m.next }; }, { last: "", next: "" }) : null,
         consent: await (async () => { const k = await getJSON(env, `${dkey(c.id)}/consent.json`, {}); return { health: !!k.health, terms: !!k.terms, photos: k.photos || "" }; })(),
       });
@@ -977,9 +979,52 @@ async function acuityBookings(env, r) {
   return by;
 }
 
+// ---- Stripe payments (webhook at /stripe/webhook, outside the login; every event is checked with STRIPE_WEBHOOK_SECRET) ----
+async function verifyStripe(env, raw, header) {
+  if (!env.STRIPE_WEBHOOK_SECRET || !header) return false;
+  const parts = Object.fromEntries(header.split(",").map((x) => x.split("=")).filter((x) => x.length === 2 && x[0] !== "v1"));
+  const sigs = header.split(",").filter((x) => x.startsWith("v1=")).map((x) => x.slice(3));
+  const t = parts.t;
+  if (!t || Math.abs(Date.now() / 1000 - Number(t)) > 600 || !sigs.length) return false;
+  const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(env.STRIPE_WEBHOOK_SECRET), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const mac = new Uint8Array(await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(t + "." + raw)));
+  const hex = [...mac].map((b) => b.toString(16).padStart(2, "0")).join("");
+  return sigs.some((s) => s.length === hex.length && [...s].reduce((d, ch, i) => d | (ch.charCodeAt(0) ^ hex.charCodeAt(i)), 0) === 0);
+}
+async function stripeWebhook(request, env) {
+  const raw = await request.text();
+  if (!(await verifyStripe(env, raw, request.headers.get("stripe-signature")))) return new Response("bad signature", { status: 400 });
+  let ev; try { ev = JSON.parse(raw); } catch (e) { return new Response("bad", { status: 400 }); }
+  const o = (ev.data && ev.data.object) || {};
+  const key = "_data/_payments.json";
+  const db = await getJSON(env, key, { byEmail: {}, customers: {} });
+  const email = String((o.customer_details && o.customer_details.email) || o.customer_email || o.receipt_email || db.customers[o.customer] || "").trim().toLowerCase();
+  if (o.customer && email) db.customers[o.customer] = email;
+  const day = new Date(((o.created || ev.created || Date.now() / 1000)) * 1000).toISOString().slice(0, 10);
+  const rec = email ? (db.byEmail[email] = db.byEmail[email] || { history: [] }) : null;
+  const amt = (n) => (typeof n === "number" ? Math.round(n) / 100 : null);
+  const add = (h) => { rec.history = [h, ...rec.history.filter((x) => x.id !== h.id)].slice(0, 30); };
+  if (rec) {
+    if (ev.type === "checkout.session.completed" && o.payment_status !== "unpaid") {
+      add({ id: o.id, date: day, amount: amt(o.amount_total), kind: o.mode === "subscription" ? "subscription start" : "one-off" });
+      rec.status = o.mode === "subscription" ? "active" : "paid"; rec.lastPaid = day;
+    } else if (ev.type === "invoice.paid" && o.amount_paid > 0) {
+      add({ id: o.id, date: day, amount: amt(o.amount_paid), kind: "monthly payment" }); rec.status = "active"; rec.lastPaid = day;
+    } else if (ev.type === "invoice.payment_failed") {
+      add({ id: o.id, date: day, amount: amt(o.amount_due), kind: "FAILED payment" }); rec.status = "failed";
+    } else if (ev.type === "customer.subscription.deleted") {
+      rec.status = "cancelled"; rec.cancelled = day;
+    }
+    rec.updated = new Date().toISOString();
+  }
+  await putJSON(env, key, db);
+  return new Response("ok");
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    if (url.pathname === "/stripe/webhook" && request.method === "POST") return stripeWebhook(request, env).catch(() => new Response("error", { status: 500 }));
     if (url.pathname.startsWith("/portal/api/")) {
       try {
         return await handleApi(request, env, url);
