@@ -25,7 +25,7 @@
     function save(extra){var b=Object.assign({items:items},extra||{});return api(b).then(function(j){items=j.items||items;feed=j.feed||'';return j})}
     function draw(){
       var t=today(),h='<div class="pl-top"><button type="button" class="pl-nav" data-w="-7" aria-label="Previous week">‹</button><div><b>'+(wk===monday(t)?'This week':wk===add(monday(t),7)?'Next week':'Week of '+fmt(wk))+'</b><small>'+fmt(wk)+' to '+fmt(add(wk,6))+'</small></div><button type="button" class="pl-nav" data-w="7" aria-label="Next week">›</button></div>';
-      h+='<button type="button" class="pl-add" data-a="new">＋ Add to my plan</button><div id="plForm"></div>';
+      h+='<button type="button" class="pl-add" data-a="new">＋ Add to my plan</button><p class="ci-note" id="plOk" style="margin:-4px 0 10px;color:#e8c872"></p><div id="plForm"></div>';
       var any=false;
       for(var i=0;i<7;i++){var d=add(wk,i),list=items.filter(function(x){return occurs(x,d)}).sort(function(a,b){return a.time<b.time?-1:1});if(list.length)any=true;
         h+='<div class="pl-day'+(d===t?' today':'')+(d<t?' past':'')+'"><div class="pl-dh"><b>'+DN[i]+'</b><span>'+fmt(d)+(d===t?' · Today':'')+'</span></div>'+(list.length?list.map(function(x){var ty=TM[x.type];return '<button type="button" class="pl-it t-'+x.type+'" data-id="'+esc(x.id)+'"><i>'+ty[1]+'</i><span><b>'+esc(x.title)+'</b><small>'+x.time+' to '+endT(x.time,x.dur)+(x.days&&x.days.length?' · repeats':'')+'</small></span></button>'}).join(''):'<div class="pl-free">Nothing planned</div>')+'</div>'}
@@ -51,7 +51,7 @@
       f.innerHTML='<div class="pl-form"><div class="pl-types">'+TYPES.map(function(t){return '<button type="button" data-t="'+t[0]+'" class="'+(x.type===t[0]?'on':'')+'">'+t[1]+' '+t[2]+'</button>'}).join('')+'</div>'+
         (x.type==='training'?wo:'')+
         '<label>What<input id="plT" maxlength="80" placeholder="'+(x.type==='mealprep'?'e.g. Batch cook lunches':x.type==='cardio'?'e.g. 30 min incline walk':'e.g. Upper body')+'" value="'+esc(x.title)+'"></label>'+
-        '<div class="pl-row"><label>Date<input type="date" id="plD" value="'+esc(x.date)+'"></label><label>Time<input type="time" id="plTm" value="'+esc(x.time)+'"></label><label>Minutes<input id="plDu" inputmode="numeric" value="'+esc(x.dur)+'"></label></div>'+
+        '<div class="pl-row"><label>'+(x.days.length?'Starts':'Date')+'<input type="date" id="plD" value="'+esc(x.date)+'"></label><label>Time<input type="time" id="plTm" value="'+esc(x.time)+'"></label><label>Minutes<input id="plDu" inputmode="numeric" value="'+esc(x.dur)+'"></label></div>'+
         '<label>Repeat every week on</label><div class="pl-days">'+DN.map(function(n,i){return '<button type="button" data-d="'+i+'" class="'+(x.days.indexOf(i)>-1?'on':'')+'">'+n+'</button>'}).join('')+'</div>'+
         (x.days.length?'<label>Repeat until (optional)<input type="date" id="plU" value="'+esc(x.until)+'"></label>':'')+
         '<label>Notes (optional)<input id="plN" maxlength="300" value="'+esc(x.notes)+'"></label>'+
@@ -64,7 +64,7 @@
       var del=f.querySelector('[data-f=del]');if(del)del.onclick=function(){if(!confirm('Delete '+x.title+(x.days.length?' (every week)':'')+'?'))return;items=items.filter(function(i){return i.id!==x.id});save().then(function(){edit=null;draw()}).catch(function(){f.querySelector('#plFm').textContent='Not deleted. Try again.'})};
       f.querySelector('[data-f=save]').onclick=function(){keep();var m=f.querySelector('#plFm');if(!x.title.trim()){m.textContent='Add a name first.';f.querySelector('#plT').focus();return}
         if(!x.id)x.id=Math.random().toString(36).slice(2,10);items=items.filter(function(i){return i.id!==x.id}).concat([x]);m.textContent='Saving…';
-        save().then(function(){edit=null;if(x.date<wk||x.date>add(wk,6))wk=monday(x.date);draw()}).catch(function(){m.textContent='Not saved. Check your signal and try again.'})};
+        save().then(function(){edit=null;var f=x.date;if(x.days.length){for(var i=0;i<7;i++){if(occurs(x,add(x.date,i))){f=add(x.date,i);break}}}if(f<wk||f>add(wk,6))wk=monday(f);draw();var m=el.querySelector('#plOk');if(m)m.textContent='✓ Saved. First one: '+fmt(f,{weekday:'short',day:'numeric',month:'short'})+(x.time?' at '+x.time:'');setTimeout(function(){if(m)m.textContent=''},6000)}).catch(function(){m.textContent='Not saved. Check your signal and try again.'})};
     }
     load();
     return {setWorkouts:function(w){workouts=w||[];if(edit)form(edit)}};

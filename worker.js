@@ -795,6 +795,7 @@ async function handleApi(request, env, url) {
         id: String(x.id || Math.random().toString(36).slice(2, 10)).replace(/[^a-z0-9]/gi, "").slice(0, 16),
         type: T.includes(x.type) ? x.type : "other", title: String(x.title || "").slice(0, 120), by: String(x.by || "").slice(0, 80),
         why: String(x.why || "").slice(0, 600), link: /^https:\/\//.test(String(x.link || "")) ? String(x.link).slice(0, 400) : "",
+        img: /^https:\/\//.test(String(x.img || "")) ? String(x.img).slice(0, 400) : "",
       })).filter((x) => x.title);
       await putJSON(env, key, { items, updated: new Date().toISOString() });
       return json({ ok: true, items });

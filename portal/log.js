@@ -114,7 +114,7 @@
   function CheckIn(el,o){
     o=o||{};var demo=!!o.demo,today=o.today||londonToday(),day=o.day||'Sunday',Q=[],all={},due,editing=false;
     function pickDue(lastDue){
-      if(o.start&&lastDue<o.start)return fromT(toT(lastDue)+7*DAY);
+      if(o.start&&lastDue<=o.start)return fromT(toT(lastDue)+7*DAY);
       var late=!all[lastDue]&&(toT(today)-toT(lastDue))/DAY<=3;
       if(lastDue===today||late)return lastDue;return fromT(toT(lastDue)+7*DAY);
     }
