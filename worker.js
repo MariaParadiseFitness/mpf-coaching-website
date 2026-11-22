@@ -907,6 +907,38 @@ async function handleApi(request, env, url) {
 }
 
 // ---- email Maria when a new client sends their onboarding form (Cloudflare Email Routing send_email binding) ----
+
+// ---- branded emails (black and gold, logo and Maria's photo) ----
+const SITE = "https://mpfcoaching.co.uk";
+function escH(t) { return String(t == null ? "" : t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+function brandHTML({ heading, intro, lines, button, foot }) {
+  const body = (lines || []).map((l) => l === "" ? '<div style="height:10px"></div>' : `<p style="margin:0 0 8px;color:#e9e1cc;font-size:15px;line-height:1.6">${escH(l)}</p>`).join("");
+  return `<!DOCTYPE html><html><body style="margin:0;background:#0b0b0b;font-family:Helvetica,Arial,sans-serif">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#0b0b0b"><tr><td align="center" style="padding:28px 14px">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#141414;border:1px solid #3a3122;border-radius:18px">
+<tr><td style="padding:26px 28px 6px" align="left"><img src="${SITE}/img/logo.png" alt="MPF Coaching" height="44" style="display:block;height:44px"></td></tr>
+<tr><td style="padding:12px 28px 0"><div style="height:2px;background:linear-gradient(90deg,#8a6a2a,#e6cf8b,#8a6a2a);background-color:#c9a64b"></div></td></tr>
+<tr><td style="padding:22px 28px 4px"><h1 style="margin:0 0 12px;font-family:Georgia,'Times New Roman',serif;font-size:26px;line-height:1.25;color:#ffffff;font-weight:normal">${heading}</h1>
+${intro ? `<p style="margin:0 0 14px;color:#e9e1cc;font-size:15px;line-height:1.6">${escH(intro)}</p>` : ""}${body}</td></tr>
+${button ? `<tr><td style="padding:14px 28px 6px"><a href="${button.url}" style="display:inline-block;background:#c9a64b;background-image:linear-gradient(135deg,#a8873e,#e6cf8b);color:#111;text-decoration:none;font-weight:bold;font-size:13px;letter-spacing:2px;text-transform:uppercase;padding:14px 26px;border-radius:40px">${escH(button.text)}</a></td></tr>` : ""}
+<tr><td style="padding:22px 28px 26px"><table role="presentation" cellpadding="0" cellspacing="0"><tr>
+<td valign="middle"><img src="${SITE}/img/maria-profile.jpg" alt="Maria Paradise" width="52" height="52" style="display:block;width:52px;height:52px;border-radius:50%;border:2px solid #c9a64b;object-fit:cover"></td>
+<td valign="middle" style="padding-left:14px"><div style="color:#ffffff;font-family:Georgia,serif;font-size:17px">Maria Paradise</div><div style="color:#c9a64b;font-size:12px;letter-spacing:1px">MPF COACHING · FAT LOSS &amp; BODY RECOMP</div></td></tr></table></td></tr>
+</table>
+<p style="color:#7d7565;font-size:12px;line-height:1.6;margin:16px 0 0;max-width:560px">${foot ? escH(foot) + "<br>" : ""}<a href="${SITE}" style="color:#c9a64b;text-decoration:none">mpfcoaching.co.uk</a> · <a href="https://instagram.com/mariaparadisefitness" style="color:#c9a64b;text-decoration:none">@mariaparadisefitness</a></p>
+</td></tr></table></body></html>`;
+}
+async function sendMail(env, { to, subject, heading, intro, lines, button, foot, fromName, replyTo }) {
+  if (!env.RESEND_API_KEY) return false;
+  const text = [intro, ...(lines || []), button ? button.text + ": " + button.url : ""].filter((x) => x != null).join("\n");
+  const res = await fetch("https://api.resend.com/emails", { method: "POST", signal: AbortSignal.timeout(10000),
+    headers: { authorization: "Bearer " + env.RESEND_API_KEY, "content-type": "application/json" },
+    body: JSON.stringify({ from: `${fromName || "MPF Client Portal"} <portal@mpfcoaching.co.uk>`, to: [to || env.NOTIFY_TO || "info@mpfcoaching.co.uk"],
+      reply_to: replyTo || "info@mpfcoaching.co.uk", subject, text, html: brandHTML({ heading: heading || escH(subject), intro, lines, button, foot }) }) });
+  if (!res.ok) throw new Error("resend " + res.status);
+  return true;
+}
+
 async function notifyForm(env, client, a) {
   const to = env.NOTIFY_TO || "info@mpfcoaching.co.uk";
   const from = env.NOTIFY_FROM || "MPF Client Portal <portal@mpfcoaching.co.uk>";
@@ -925,12 +957,7 @@ async function notifyForm(env, client, a) {
   ];
   const subj = `New onboarding form: ${client.name} (${kind})`;
   if (env.RESEND_API_KEY) {
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST", signal: AbortSignal.timeout(10000),
-      headers: { authorization: "Bearer " + env.RESEND_API_KEY, "content-type": "application/json" },
-      body: JSON.stringify({ from, to: [to], subject: subj, text: lines.join("\n") }),
-    });
-    if (!res.ok) throw new Error("resend " + res.status);
+    await sendMail(env, { to, subject: subj, heading: `New form from <em style="color:#e6cf8b">${escH(client.name)}</em>`, lines: lines.slice(0, -2), button: { text: "Open coach view", url: SITE + "/portal/coach/" } });
     return;
   }
   const { EmailMessage } = await import("cloudflare:email");
@@ -1091,21 +1118,23 @@ async function autoEnrol(env, email, fullName) {
     } catch (e) { access = "failed"; }
   }
   const result = access;
-  if (env.RESEND_API_KEY) {
-    await fetch("https://api.resend.com/emails", { method: "POST", signal: AbortSignal.timeout(10000),
-      headers: { authorization: "Bearer " + env.RESEND_API_KEY, "content-type": "application/json" },
-      body: JSON.stringify({ from: env.NOTIFY_FROM || "MPF Client Portal <portal@mpfcoaching.co.uk>", to: [env.NOTIFY_TO || "info@mpfcoaching.co.uk"],
-        subject: `New online client paid: ${name}`, text: `${name} (${email}) has paid for online coaching. Their portal has been created automatically.\n\nLogin access: ${access}.${access === "added" || access === "already allowed" ? " They can log in now at https://mpfcoaching.co.uk/portal" : " Add their email to the Access policy so they can log in."}\n\nCheck their name and sex in the coach view, and message them a welcome.` }) }).catch(() => {});
-  }
+  const ok = access === "added" || access === "already allowed";
+  const first = name.split(" ")[0];
+  await sendMail(env, { subject: `New online client paid: ${name}`, heading: `New client: <em style="color:#e6cf8b">${escH(name)}</em>`,
+    lines: [`${name} (${email}) has paid for online coaching. Their portal has been created automatically.`, "", `Login access: ${access}.` + (ok ? " They can log in now." : " Add their email to the Access policy so they can log in."), "", "Check their name and sex in the coach view, and message them a welcome."],
+    button: { text: "Open coach view", url: SITE + "/portal/coach/" } }).catch(() => {});
+  if (ok) await sendMail(env, { to: email, fromName: "Maria Paradise", subject: `Welcome to MPF Coaching, ${first}! Your portal is ready`,
+    heading: `Welcome, <em style="color:#e6cf8b">${escH(first)}.</em>`,
+    intro: "Thank you for joining my online coaching. I'm so excited to get started with you. Your client portal is ready.",
+    lines: [`1. Tap the button below and log in with this email: ${email}`, "2. You'll get a 6-digit code from Cloudflare (the secure login I use). Type it in and you're in.", "3. Follow the steps in your portal, starting with your onboarding form. It takes about 10 minutes and it's what I build your plan from.", "", "Any questions, just reply to this email or message me on WhatsApp.", "", "Maria x"],
+    button: { text: "Open my portal", url: SITE + "/login.html?paid=1" }, foot: "You're getting this because you signed up for MPF online coaching." }).catch(() => {});
   return result;
 }
 
 async function notifyCancel(env, client, doc) {
-  if (!env.RESEND_API_KEY) return;
-  await fetch("https://api.resend.com/emails", { method: "POST", signal: AbortSignal.timeout(10000),
-    headers: { authorization: "Bearer " + env.RESEND_API_KEY, "content-type": "application/json" },
-    body: JSON.stringify({ from: env.NOTIFY_FROM || "MPF Client Portal <portal@mpfcoaching.co.uk>", to: [env.NOTIFY_TO || "info@mpfcoaching.co.uk"],
-      subject: `Cancellation request: ${client.name}`, text: `${client.name} has asked to cancel their online coaching.\n\nReason: ${doc.reason || "(none given)"}\n\nCancel their subscription in Stripe (Customers > ${client.name} > Cancel subscription, at the end of the period), then message them to confirm.` }) });
+  await sendMail(env, { subject: `Cancellation request: ${client.name}`, heading: `Cancellation request: <em style="color:#e6cf8b">${escH(client.name)}</em>`,
+    lines: [`${client.name} has asked to cancel their online coaching.`, "", `Reason: ${doc.reason || "(none given)"}`, "", `Cancel their subscription in Stripe (Customers > ${client.name} > Cancel subscription, at the end of the period), then message them to confirm.`],
+    button: { text: "Open Stripe", url: "https://dashboard.stripe.com/subscriptions" } });
 }
 export default {
   async fetch(request, env) {
