@@ -88,7 +88,7 @@
       var s=el.querySelector('.lg-strip');s.innerHTML=h;
       [].forEach.call(s.querySelectorAll('button'),function(b){b.onclick=function(){go(b.getAttribute('data-day'))}});
     }
-    function go(d){if(dirty&&!confirm('You have changes that are not saved. Leave without saving?'))return;cur=d;fill()}
+    function go(d){if(dirty&&!confirm('You have changes that are not saved. Leave without saving?'))return;cur=d;fill();if(lastT)setTargets(lastT)}
     [].forEach.call(el.querySelectorAll('.lg-arr'),function(b){b.onclick=function(){var n=fromT(toT(cur)+(+b.getAttribute('data-d'))*DAY);if(n>today||toT(today)-toT(n)>60*DAY)return;go(n)}});
     saveBtn.onclick=function(){
       var data={};Object.keys(vals).forEach(function(k){if(vals[k]!==''&&vals[k]!=null)data[k]=vals[k]});
@@ -101,9 +101,11 @@
     function load(d){days=d||{};fill();if(o.onSaved)o.onSaved(days)}
     if(demo)load(o.demoDays||{});
     else api('/portal/api/log?from='+fromT(toT(today)-60*DAY)+'&to='+today).then(function(j){if(j.today&&j.today!==today){today=j.today;cur=today}load(j.days)}).catch(function(){load({})});
-    function setTargets(t){
-      t=t||{};var U={cals:' kcal',protein:' g',carbs:' g',fat:' g',water:' L',cardio:' mins',sleep:' hrs'};
+    var lastT=null;
+    function setTargets(t0){
+      lastT=t0||{};var t=dayTargets(lastT,cur);var U={cals:' kcal',protein:' g',carbs:' g',fat:' g',water:' L',cardio:' mins',sleep:' hrs'};
       [].forEach.call(form.querySelectorAll('.tg'),function(n){var k=n.getAttribute('data-tk'),v=t[k];n.hidden=!v;if(v)n.textContent='🎯 Target: '+v+(/[a-z]/i.test(v)?'':(U[k]||''))});
+      var dt=el.querySelector('.lg-daytype');if(!dt){dt=document.createElement('div');dt.className='lg-daytype';var hd=el.querySelector('.lg-nav');if(hd)hd.parentNode.insertBefore(dt,hd.nextSibling)}dt.hidden=!t.dayType;if(t.dayType)dt.textContent=(t.dayType==='High day'?'🔼 ':'🔽 ')+t.dayType+': '+t.cals+' kcal · P '+t.protein+'g · C '+t.carbs+'g · F '+t.fat+'g';
     }
     return {days:function(){return days},setTargets:setTargets};
   }
@@ -161,6 +163,9 @@
 
   /* ---------------- coach: tables ---------------- */
   var COLS=['weight','steps','cals','protein','carbs','fat','water','sleep','cardio','trained','energy','mood','stress','hunger','adherence','offPlan'];
+  var WD=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  function dayTargets(t,date){t=t||{};if(t.hlOn!=='1')return t;var wd=WD[new Date(toT(date)).getUTCDay()],hi=String(t.hiDays||'').split(',').indexOf(wd)>-1,o={};for(var k in t)o[k]=t[k];
+    var p=hi?'hi':'lo';o.cals=t[p+'Cals']||t.cals;o.protein=t[p+'P']||t.protein;o.carbs=t[p+'C']||t.carbs;o.fat=t[p+'F']||t.fat;o.dayType=hi?'High day':'Low day';return o}
   function logTable(days,from,to){
     var rows='',cols=COLS.slice();if(Object.keys(days).some(function(d){return days[d].period}))cols.push('cycle');
     var COLS_=cols;
@@ -180,8 +185,11 @@
     function targetsHTML(t){
     if(!t||!Object.keys(t).some(function(k){return k!=='updated'}))return '<div class="pg-empty">Your coach will assign you your calories and macros. They will appear here as soon as they are set.</div>';
     var L=[['cals','Calories','kcal'],['protein','Protein','g'],['carbs','Carbs','g'],['fat','Fat','g'],['steps','Steps',''],['water','Water','L'],['cardio','Cardio','mins'],['sleep','Sleep','hrs']];
+    if(t.hlOn==='1'){var tt=dayTargets(t,londonToday()),hd=String(t.hiDays||'').split(',').filter(Boolean),row=function(lbl,p,on){return '<div class="hl-row'+(on?' on':'')+'"><b>'+lbl+(on?' <span class="pill ok">Today</span>':'')+'</b><span>'+esc(t[p+'Cals']||'–')+' kcal</span><span>P '+esc(t[p+'P']||'–')+'g</span><span>C '+esc(t[p+'C']||'–')+'g</span><span>F '+esc(t[p+'F']||'–')+'g</span></div>'};
+      var rest=L.slice(4).filter(function(x){return t[x[0]]});
+      return '<div class="hl-box">'+row('🔼 High day'+(hd.length?' ('+hd.join(', ')+')':''),'hi',tt.dayType==='High day')+row('🔽 Low day','lo',tt.dayType==='Low day')+'</div>'+(rest.length?'<div class="lg-stats tgt">'+rest.map(function(x){var v=t[x[0]];return '<div><small>'+x[1]+'</small><b>'+esc(v)+'</b>'+(x[2]&&!/[a-z]/i.test(v)?'<span>'+x[2]+'</span>':'')+'</div>'}).join('')+'</div>':'')+(t.notes?'<div class="pg-note" style="margin-top:10px">'+esc(t.notes)+'</div>':'')}
     return '<div class="lg-stats tgt">'+L.filter(function(x){return t[x[0]]}).map(function(x){var v=t[x[0]];return '<div><small>'+x[1]+'</small><b>'+esc(v)+'</b>'+(x[2]&&!/[a-z]/i.test(v)?'<span>'+x[2]+'</span>':'')+'</div>'}).join('')+'</div>'+(t.notes?'<div class="pg-note">'+esc(t.notes)+'</div>':'')+(t.updated?'<p class="pg-key">Set by Maria · updated '+new Date(t.updated).toLocaleDateString('en-GB',{day:'numeric',month:'long'})+'</p>':'');
   }
-  window.MPFLog={targetsHTML:targetsHTML,Today:Today,CheckIn:CheckIn,logTable:logTable,checkinList:checkinList,weekStats:weekStats,londonToday:londonToday,fromT:fromT,toT:toT,nice:nice,
+  window.MPFLog={dayTargets:dayTargets,targetsHTML:targetsHTML,Today:Today,CheckIn:CheckIn,logTable:logTable,checkinList:checkinList,weekStats:weekStats,londonToday:londonToday,fromT:fromT,toT:toT,nice:nice,
     demoDays:function(today,n){var o={},b=74.2;for(var i=n;i>=1;i--){if(i%5===3)continue;var d=fromT(toT(today)-i*DAY);b-=0.04;o[d]={weight:(b+Math.sin(i)*0.4).toFixed(1),steps:String(8000+Math.round(Math.cos(i)*2500)),protein:String(140+i%20),carbs:'180',fat:'55',sleep:'7:'+(10+i%40),trained:i%2?'Yes':'No',energy:String(6+i%4),mood:'8',stress:String(3+i%3),hunger:'5',adherence:'9',_at:'x'}}return o}};
 })();

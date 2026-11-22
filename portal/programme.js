@@ -142,7 +142,8 @@
   var DEMO2=JSON.parse(JSON.stringify(DEMO1));DEMO2.id='p2';DEMO2.created='2026-11-01';DEMO2.title='Phase 2: Upper / lower';DEMO2.workouts[0].name='Lower';DEMO2.workouts[1].name='Upper';
   /* ---------- client: log a workout (weight and reps per set) ---------- */
   var today=function(){try{return new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/London',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date())}catch(e){return new Date().toISOString().slice(0,10)}};
-  function lastFor(sessions,name){for(var i=0;i<(sessions||[]).length;i++){var e=(sessions[i].exercises||[]).filter(function(x){return x.name===name})[0];if(e&&e.sets.some(function(s){return s.kg||s.reps}))return {date:sessions[i].date,sets:e.sets}}return null}
+  var nk=function(n){return String(n||'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim()};
+  function lastFor(sessions,name){var k=nk(name);for(var i=0;i<(sessions||[]).length;i++){var e=(sessions[i].exercises||[]).filter(function(x){return nk(x.name)===k})[0];if(e&&e.sets.some(function(s){return s.kg||s.reps}))return {date:sessions[i].date,sets:e.sets}}return null}
   function setsTxt(sets){return sets.filter(function(s){return s.kg||s.reps}).map(function(s){return (s.kg?s.kg+'kg':'')+(s.kg&&s.reps?' × ':'')+(s.reps||'')}).join(', ')}
   function Logger(box,prog,w,opts){
     var sessions=null;

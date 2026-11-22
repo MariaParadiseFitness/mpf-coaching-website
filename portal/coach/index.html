@@ -276,19 +276,24 @@ html,body{overflow-x:hidden}
         r.days.map(function(d){return '<div class="calc-day"><b>'+d.name+'</b><span>'+R(d.kcal)+' kcal</span><span>P '+R(d.p)+'g</span><span>C '+R(d.c)+'g</span><span>F '+R(d.f)+'g</span></div>'}).join('')+
         '<button class="btn" type="button" id="calcUse" style="margin-top:10px">Use as targets</button>';
       out.querySelector('#calcUse').onclick=function(){var d=r.days[0],set=function(k,v){var e=box.querySelector('[data-t='+k+']');if(e)e.value=v};set('cals',R(d.kcal));set('protein',R(d.p));set('carbs',R(d.c));set('fat',R(d.f));
-        if(r.days[1]){var x=r.days[1],n=box.querySelector('[data-t=notes]');n.value=(n.value?n.value+'\n':'')+'Refeed: '+x.name+' at '+R(x.kcal)+' kcal (P '+R(x.p)+'g, C '+R(x.c)+'g, F '+R(x.f)+'g). The other days are your targets above.'}
+        if(r.days[1]){var x=r.days[1];set('loCals',R(d.kcal));set('loP',R(d.p));set('loC',R(d.c));set('loF',R(d.f));set('hiCals',R(x.kcal));set('hiP',R(x.p));set('hiC',R(x.c));set('hiF',R(x.f));$('hlOn').checked=true;$('hlBox').hidden=false}
         box.querySelector('.lg-msg').textContent='Filled in from the calculator. Check, then Save targets.';box.querySelector('.lg-msg').className='lg-msg warn';box.querySelector('[data-t=cals]').scrollIntoView({block:'center',behavior:'smooth'})};
     }
     function draw(t){t=t||{};if(window.__mp&&window.__mp.setTargets)window.__mp.setTargets(t);
       box.innerHTML=calcHTML()+'<div class="pg-box"><h3 class="calc-h">🎯 Their daily targets</h3><div class="lg-grid">'+F.map(function(f){return '<div class="lg-f"><label>'+f[1]+' <i>'+f[2]+'</i></label><input data-t="'+f[0]+'" inputmode="'+(f[0]==='cardio'?'text':'decimal')+'" value="'+esc(t[f[0]]||'')+'"></div>'}).join('')+
         '<div class="lg-f lg-wide"><label>Notes for '+esc(cur.name.split(' ')[0])+'</label><textarea data-t="notes" rows="3" placeholder="e.g. Hit protein first. Refeed day on Saturdays.">'+esc(t.notes||'')+'</textarea></div></div>'+
+        '<div class="hl-ed"><label class="ob-check"><input type="checkbox" id="hlOn"'+(t.hlOn==='1'?' checked':'')+'> Use high and low days</label><div id="hlBox"'+(t.hlOn==='1'?'':' hidden')+'><div class="hl-g"><span></span><small>Calories</small><small>Protein g</small><small>Carbs g</small><small>Fat g</small></div>'+
+          [['hi','🔼 High'],['lo','🔽 Low']].map(function(r){return '<div class="hl-g"><b>'+r[1]+'</b>'+['Cals','P','C','F'].map(function(k){return '<input data-t="'+r[0]+k+'" inputmode="decimal" value="'+esc(t[r[0]+k]||'')+'">'}).join('')+'</div>'}).join('')+
+          '<small style="display:block;margin-top:10px;color:var(--mute)">High days:</small><div class="hl-days">'+['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(function(d){return '<label><input type="checkbox" class="hlD" value="'+d+'"'+(String(t.hiDays||'').split(',').indexOf(d)>-1?' checked':'')+'>'+d+'</label>'}).join('')+'</div><small style="display:block;margin-top:6px;color:var(--mute)">Every other day is a low day. Tip: make training days high days.</small></div></div>'+
         '<div class="ci-btns"><span class="lg-msg">'+(t.updated?'Last changed '+new Date(t.updated).toLocaleDateString('en-GB',{day:'numeric',month:'short'}):'Not set yet')+'</span><button class="btn" type="button" id="tgSave">Save targets</button></div></div>';
       var macro=function(){var g=function(k){return parseFloat((box.querySelector('[data-t='+k+']').value||'').replace(/,/g,''))||0},c=box.querySelector('[data-t=cals]');var k=4*g('protein')+4*g('carbs')+9*g('fat');c.placeholder=k?Math.round(k)+' from macros':''};
+      $('hlOn').onchange=function(){$('hlBox').hidden=!this.checked};
       box.oninput=function(e){if(e.target.hasAttribute('data-c'))runCalc();else macro()};box.onchange=function(e){if(e.target.tagName==='SELECT'&&e.target.hasAttribute('data-c'))runCalc()};macro();runCalc();
       var ob=window.__obDoc,w=ob&&ob.answers&&ob.answers.weight;if(w){box.querySelector('[data-c=weight]').value=w;runCalc()}
       var lastW=(cur.lastWeight&&cur.lastWeight.kg);if(lastW&&!box.querySelector('[data-c=weight]').value){box.querySelector('[data-c=weight]').value=lastW;runCalc()}
       $('tgSave').onclick=function(){
         var t2={};[].forEach.call(box.querySelectorAll('[data-t]'),function(i){t2[i.getAttribute('data-t')]=i.value.trim()});
+        t2.hlOn=$('hlOn').checked?'1':'';t2.hiDays=[].filter.call(box.querySelectorAll('.hlD'),function(c){return c.checked}).map(function(c){return c.value}).join(',');
         var c=box.querySelector('[data-t=cals]');if(!t2.cals&&c.placeholder)t2.cals=String(parseInt(c.placeholder,10));
         var m=box.querySelector('.lg-msg');m.textContent='Saving…';
         if(preview){m.textContent='Saved ✓ (preview only)';return}

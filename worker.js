@@ -298,7 +298,7 @@ function cleanProgrammes(doc) {
 }
 
 // ---- daily targets set by the coach: _data/<id>/targets.json ----
-const TARGET_KEYS = ["cals", "protein", "carbs", "fat", "steps", "water", "cardio", "sleep", "notes"];
+const TARGET_KEYS = ["cals", "protein", "carbs", "fat", "steps", "water", "cardio", "sleep", "notes", "hlOn", "hiCals", "hiP", "hiC", "hiF", "loCals", "loP", "loC", "loF", "hiDays"];
 function cleanTargets(t) {
   const out = {};
   for (const k of TARGET_KEYS) {
