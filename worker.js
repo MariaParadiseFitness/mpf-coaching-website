@@ -612,12 +612,12 @@ async function handleApi(request, env, url) {
   if (path === "/portal/api/coach/acuity-status") {
     if (!coach) return json({ error: "forbidden" }, 403);
     const t0 = Date.now(); acuityCache = null;
-    let err = null; const data = await acuityBookings(env).catch((e) => { err = String(e).slice(0, 120); return null; });
-    return json({ configured: !!(env.ACUITY_USER_ID && env.ACUITY_API_KEY), ok: !!data, clients: data ? Object.keys(data).length : 0, ms: Date.now() - t0, last: acuityLast, err });
+    let err = null; const data = await acuityBookings(env, r).catch((e) => { err = String(e).slice(0, 120); return null; });
+    return json({ configured: !!(env.ACUITY_ICAL || (env.ACUITY_USER_ID && env.ACUITY_API_KEY)), ok: !!data, clients: data ? Object.keys(data.byId || data).length : 0, ms: Date.now() - t0, last: acuityLast, err });
   }
   if (path === "/portal/api/coach/clients") {
     if (!coach) return json({ error: "forbidden" }, 403);
-    const acu = await acuityBookings(env).catch(() => null);
+    const acu = await acuityBookings(env, r).catch(() => null);
     const emailsOf = (id) => Object.entries(r).filter(([, x]) => x.id === id).map(([e]) => e.toLowerCase());
     const seen = new Set();
     const uniq = Object.values(r).filter((c) => (seen.has(c.id) ? false : (seen.add(c.id), true)));
@@ -644,7 +644,7 @@ async function handleApi(request, env, url) {
         photosThisWeek: [...new Set(thisWeek)], lastUpload: photos.reduce((m, p) => (p.uploaded > m ? p.uploaded : m), ""),
         photoCount: photos.length,
         lastCheckin: Object.keys(sm.checkins || {}).sort().pop() || "",
-        pt: acu ? emailsOf(c.id).reduce((m, e) => { const b = acu[e]; if (!b) return m; return { last: b.last > m.last ? b.last : m.last, next: !m.next || (b.next && b.next < m.next) ? b.next || m.next : m.next }; }, { last: "", next: "" }) : null,
+        pt: acu && acu.byId ? (acu.byId[c.id] || { last: "", next: "" }) : acu ? emailsOf(c.id).reduce((m, e) => { const b = acu[e]; if (!b) return m; return { last: b.last > m.last ? b.last : m.last, next: !m.next || (b.next && b.next < m.next) ? b.next || m.next : m.next }; }, { last: "", next: "" }) : null,
         consent: await (async () => { const k = await getJSON(env, `${dkey(c.id)}/consent.json`, {}); return { health: !!k.health, terms: !!k.terms, photos: k.photos || "" }; })(),
       });
     };
@@ -900,7 +900,43 @@ async function notifyForm(env, client, a) {
 
 // ---- PT bookings from Acuity (optional: needs ACUITY_USER_ID + ACUITY_API_KEY secrets) ----
 let acuityCache = null, acuityLast = null;
-async function acuityBookings(env) {
+// Acuity iCal feed (free on all plans): ACUITY_ICAL secret = the "subscribe manually" export link.
+async function acuityFromIcal(env, r) {
+  const res = await fetch(String(env.ACUITY_ICAL).replace(/^webcal:/i, "https:"), { signal: AbortSignal.timeout(20000) });
+  acuityLast = { status: res.status, at: new Date().toISOString(), source: "ical" };
+  if (!res.ok) return null;
+  const txt = (await res.text()).replace(/\r?\n[ \t]/g, "");
+  const today = londonToday();
+  const byEmail = {}, byName = {};
+  for (const e of Object.entries(r)) byEmail[e[0].toLowerCase()] = e[1].id;
+  for (const c of Object.values(r)) { const k = String(c.name || "").trim().toLowerCase(); if (k) (byName[k] = byName[k] || new Set()).add(c.id); }
+  const out = {}; let events = 0, matched = 0;
+  for (const ev of txt.split("BEGIN:VEVENT").slice(1)) {
+    events++;
+    const get = (k) => { const m = ev.match(new RegExp("^" + k + "[^:\\n]*:(.*)$", "m")); return m ? m[1].replace(/\\n/g, "\n").replace(/\\,/g, ",").trim() : ""; };
+    if (/^CANCELLED$/i.test(get("STATUS"))) continue;
+    const ds = get("DTSTART").replace(/[^0-9]/g, "").slice(0, 8);
+    if (ds.length !== 8) continue;
+    const d = ds.slice(0, 4) + "-" + ds.slice(4, 6) + "-" + ds.slice(6, 8);
+    const blob = (get("SUMMARY") + "\n" + get("DESCRIPTION")).toLowerCase();
+    let id = null;
+    for (const em of blob.match(/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/g) || []) if (byEmail[em]) { id = byEmail[em]; break; }
+    if (!id) { const first = (get("SUMMARY").split(/[:(\-]/)[0] || "").trim().toLowerCase().split(/\s+/)[0]; const set = byName[first]; if (set && set.size === 1) id = [...set][0]; }
+    if (!id) continue;
+    matched++;
+    const b = (out[id] = out[id] || { last: "", next: "" });
+    if (d <= today) { if (d > b.last) b.last = d; } else if (!b.next || d < b.next) b.next = d;
+  }
+  acuityLast.events = events; acuityLast.matched = matched;
+  return { byId: out };
+}
+async function acuityBookings(env, r) {
+  if (env.ACUITY_ICAL) {
+    if (acuityCache && Date.now() - acuityCache.at < 10 * 60 * 1000) return acuityCache.data;
+    const data = await acuityFromIcal(env, r || {});
+    if (data) acuityCache = { at: Date.now(), data };
+    return data;
+  }
   if (!env.ACUITY_USER_ID || !env.ACUITY_API_KEY) return null;
   if (acuityCache && Date.now() - acuityCache.at < 10 * 60 * 1000) return acuityCache.data;
   const today = londonToday();
