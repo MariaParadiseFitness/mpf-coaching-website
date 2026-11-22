@@ -48,15 +48,17 @@
       doc.programmes.forEach(pad);prog=doc.programmes.filter(function(p){return p.id===doc.current})[0]||doc.programmes[0];cur=0;dirty=false;draw()}
     function readInputs(){
       var t=el.querySelector('[name=title]');if(!t)return;
-      prog.title=t.value;prog.notes=el.querySelector('[name=pnotes]').value;prog.goal=el.querySelector('[name=pgoal]').value;prog.schedule=el.querySelector('[name=psched]').value;
+      prog.title=t.value;var fo=el.querySelector('[name=pfolder]');if(fo)prog.folder=fo.value.trim();prog.notes=el.querySelector('[name=pnotes]').value;prog.goal=el.querySelector('[name=pgoal]').value;prog.schedule=el.querySelector('[name=psched]').value;
       var w=prog.workouts[cur];w.name=el.querySelector('[name=wname]').value||'Workout';w.notes=el.querySelector('[name=wnotes]').value;w.focus=el.querySelector('[name=wfocus]').value;
       [].forEach.call(el.querySelectorAll('tr[data-r]'),function(tr){var e=w.exercises[+tr.getAttribute('data-r')];COLS.forEach(function(c){e[c.k]=tr.querySelector('[data-k="'+c.k+'"]').value})});
     }
     function draw(){
       var w=prog.workouts[cur],isCur=prog.id===doc.current;
-      var h='<div class="pg-list"><small>'+(tpl?'Templates':'Programmes')+'</small><div class="pg-tabs">'+doc.programmes.map(function(p){return '<button type="button" data-pid="'+esc(p.id)+'" class="'+(p===prog?'on':'')+'">'+(!tpl&&p.id===doc.current?'★ ':'')+esc(p.title||'Programme')+'</button>'}).join('')+'<button type="button" class="add" data-a="newp">+ New '+(tpl?'template':'programme')+'</button>'+(tpl?'':'<button type="button" class="add" data-a="fromtpl">+ From a template</button>')+'</div></div>'+
-        '<div class="pe-mini" style="margin-bottom:12px">'+(tpl?'':'<span class="pill '+(isCur?'ok':'off')+'" style="align-self:center">'+(isCur?'★ Current: the client sees this first':'Past programme: the client can still look back at it')+'</span>'+(isCur?'':'<button type="button" data-a="makecur">Make this the current programme</button>'))+'<button type="button" data-a="copyp">Copy into a new '+(tpl?'template':'programme')+'</button>'+(tpl?'':'<button type="button" data-a="savetpl">Save as a template</button>')+'<button type="button" data-a="delp" class="del">Delete '+(tpl?'template':'programme')+'</button></div><div id="tplPick"></div>'+
-        '<div class="pe-row"><label>Programme name<input name="title" placeholder="e.g. Phase 1: Full body" value="'+esc(prog.title)+'"></label></div>'+
+      var folders={};if(tpl)doc.programmes.forEach(function(p){var f=p.folder||'Unsorted';(folders[f]=folders[f]||[]).push(p)});
+      var side=tpl?'<aside class="tpl-side"><div class="ts-h">📁 Your templates</div>'+Object.keys(folders).sort(function(a,b){return a==='Unsorted'?1:b==='Unsorted'?-1:a.localeCompare(b)}).map(function(f){return '<details class="ts-f" open><summary>📁 '+esc(f)+' <span>'+folders[f].length+'</span></summary>'+folders[f].map(function(p){return '<button type="button" data-pid="'+esc(p.id)+'" class="'+(p===prog?'on':'')+'">'+esc(p.title||'Template')+'<small>'+p.workouts.length+' workouts</small></button>'}).join('')+'</details>'}).join('')+'<button type="button" class="add" data-a="newp">+ New template</button></aside>':'';
+      var h=(tpl?'':'<div class="pg-list"><small>Programmes</small><div class="pg-tabs">'+doc.programmes.map(function(p){return '<button type="button" data-pid="'+esc(p.id)+'" class="'+(p===prog?'on':'')+'">'+(!tpl&&p.id===doc.current?'★ ':'')+esc(p.title||'Programme')+'</button>'}).join('')+'<button type="button" class="add" data-a="newp">+ New '+(tpl?'template':'programme')+'</button>'+'<button type="button" class="add" data-a="fromtpl">+ From a template</button></div></div>')+
+        '<div class="pe-mini" style="margin-bottom:12px">'+(tpl?'':'<span class="pill '+(isCur?'ok':'off')+'" style="align-self:center">'+(isCur?'★ Current: the client sees this first':'Past programme: the client can still look back at it')+'</span>'+(isCur?'':'<button type="button" data-a="makecur">Make this the current programme</button>'))+'<button type="button" data-a="copyp">Copy into a new '+(tpl?'template':'programme')+'</button>'+(tpl?'<button type="button" data-a="assign" class="asg">👤 Assign to a client</button>':'<button type="button" data-a="savetpl">Save as a template</button>')+'<button type="button" data-a="delp" class="del">Delete '+(tpl?'template':'programme')+'</button></div><div id="tplPick"></div><div id="asgBox"></div>'+
+        '<div class="pe-row"><label>Programme name<input name="title" placeholder="e.g. Phase 1: Full body" value="'+esc(prog.title)+'"></label>'+(tpl?'<label>Folder<input name="pfolder" list="tplFolders" placeholder="e.g. Women, Men, Beginners" value="'+esc(prog.folder||'')+'"><datalist id="tplFolders">'+Object.keys(folders).filter(function(f){return f!=='Unsorted'}).map(function(f){return '<option value="'+esc(f)+'">'}).join('')+'</datalist></label>':'')+'</div>'+
         '<label class="pe-full">Goal<input name="pgoal" value="'+esc(prog.goal||'')+'" placeholder="e.g. Hypertrophy and strength"></label>'+
         '<label class="pe-full">Notes for the whole programme<textarea name="pnotes" rows="3" placeholder="e.g. Warm up for 5 minutes before every session">'+esc(prog.notes)+'</textarea></label>'+
         '<label class="pe-full">Weekly schedule<textarea name="psched" rows="2" placeholder="e.g. Monday: Push · Tuesday: Pull · Wednesday: Rest">'+esc(prog.schedule||'')+'</textarea></label>'+
@@ -68,7 +70,7 @@
         w.exercises.map(function(e,i){return '<tr data-r="'+i+'"><td class="n">'+(i+1)+'</td>'+COLS.map(function(c){return '<td class="'+c.w+'"><input data-k="'+c.k+'" value="'+esc(e[c.k]||'')+'"'+(c.k==='name'?' placeholder="Exercise"':c.k==='ss'?' placeholder="A1"':'')+'></td>'}).join('')+'<td class="act"><button type="button" data-a="up" data-r="'+i+'" title="Move up">↑</button><button type="button" data-a="down" data-r="'+i+'" title="Move down">↓</button><button type="button" data-a="delr" data-r="'+i+'" title="Delete row" class="del">✕</button></td></tr>'}).join('')+
         '</tbody></table></div><div class="pe-mini" style="margin-top:8px"><button type="button" data-a="addr">+ Add exercise</button></div>'+
         '<div class="lg-save"><span class="lg-msg">'+(prog.updated?'Last saved '+esc(upd(prog)):'Not saved yet')+'</span><button class="btn" type="button" data-a="save">Save '+(tpl?'template':'programme')+'</button></div>';
-      el.innerHTML=h;
+      el.innerHTML=tpl?'<div class="tpl-lay">'+side+'<div class="tpl-main">'+h+'</div></div>':h;
       el.oninput=function(){dirty=true;var m=el.querySelector('.lg-msg');m.textContent='Not saved yet';m.className='lg-msg warn'};
       [].forEach.call(el.querySelectorAll('.pg-tabs button[data-i]'),function(b){b.onclick=function(){readInputs();cur=+b.getAttribute('data-i');draw()}});
       [].forEach.call(el.querySelectorAll('[data-pid]'),function(b){b.onclick=function(){readInputs();prog=doc.programmes.filter(function(p){return p.id===b.getAttribute('data-pid')})[0];cur=0;draw();if(dirty)warn()}});
@@ -78,6 +80,7 @@
       readInputs();var W=prog.workouts,w=W[cur],ex=w.exercises,touched=true;
       if(a==='fromtpl'){pickTemplate();return}
       if(a==='savetpl'){saveAsTemplate();return}
+      if(a==='assign'){assign();return}
       if(a==='newp'||a==='copyp'){var np=a==='newp'?blank():JSON.parse(JSON.stringify(prog));if(a==='copyp'){np.id=nid();np.title=prog.title+' (new)';np.created=new Date().toISOString();np.updated=''}
         doc.programmes.push(np);prog=np;cur=0;if(!tpl&&confirm('Make "'+np.title+'" the current programme? The client will see it first, and the old one moves to their past programmes.'))doc.current=np.id}
       else if(a==='makecur'){doc.current=prog.id}
@@ -110,6 +113,24 @@
       };
       if(o.demo){show({programmes:[MPFProgramme.demo.programmes[0]]});return}
       fetch('/portal/api/coach/templates',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(show).catch(function(){box.innerHTML='<p style="color:#ef8f85">Templates could not load. Try again.</p>'});
+    }
+    function assign(){
+      var box=el.querySelector('#asgBox'),cl=(typeof o.clients==='function'?o.clients():(o.clients||[])).slice().sort(function(a,b){return String(a.name).localeCompare(b.name)});
+      if(dirty){alert('Save this template first, then assign it.');return}
+      if(!cl.length){box.innerHTML='<div class="pg-note">No clients to assign to.</div>';return}
+      var row=function(t,lbl){var arr=cl.filter(function(c){return c.type===t});return arr.length?'<div class="asg-g"><b>'+lbl+'</b>'+arr.map(function(c){return '<button type="button" data-cid="'+esc(c.id)+'">'+esc(c.name)+'</button>'}).join('')+'</div>':''};
+      box.innerHTML='<div class="pg-note asg-p"><b>Assign "'+esc(prog.title)+'" to:</b><input class="asg-s" placeholder="🔍 Search clients" autocomplete="off"><div class="asg-l">'+row('online','💻 Online')+row('pt','🏋️ Face to face')+'</div><button type="button" class="asg-x">Cancel</button></div>';
+      var srch=box.querySelector('.asg-s');srch.focus();srch.oninput=function(){var q=srch.value.toLowerCase();[].forEach.call(box.querySelectorAll('[data-cid]'),function(b){b.hidden=q&&b.textContent.toLowerCase().indexOf(q)<0})};
+      box.querySelector('.asg-x').onclick=function(){box.innerHTML=''};
+      [].forEach.call(box.querySelectorAll('[data-cid]'),function(b){b.onclick=function(){var id=b.getAttribute('data-cid'),nm=b.textContent;
+        var mk=confirm('Give '+nm+' "'+prog.title+'" as their current programme?\n\nOK = make it their current programme\nCancel = add it without switching');
+        var t=JSON.parse(JSON.stringify(prog));t.id=nid();t.created=t.updated=new Date().toISOString();delete t.folder;
+        box.innerHTML='<div class="pg-note">Assigning to '+esc(nm)+'…</div>';
+        if(o.demo){box.innerHTML='<div class="pg-note ok">✓ Assigned to '+esc(nm)+' (preview only)</div>';return}
+        var EPc='/portal/api/coach/programmes?id='+encodeURIComponent(id);
+        fetch(EPc,{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(d){d=d&&d.programmes?d:{current:'',programmes:[]};d.programmes.push(t);if(mk||!d.current)d.current=t.id;
+          return fetch(EPc,{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify(d)})}).then(function(r){if(!r.ok)throw 0;
+          box.innerHTML='<div class="pg-note" style="border-color:#5fbf7f">✅ "'+esc(t.title)+'" assigned to <b>'+esc(nm)+'</b>'+(mk?'. It\'s now their current programme':' as a past programme')+'. You can tweak weights for them in their Programmes tab.</div>'}).catch(function(){box.innerHTML='<div class="pg-note" style="color:#ef8f85">Not assigned. Try again.</div>'})}});
     }
     function saveAsTemplate(){
       var name=prompt('Name this template:',prog.title);if(name===null)return;

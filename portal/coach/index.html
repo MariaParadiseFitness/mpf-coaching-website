@@ -184,7 +184,6 @@ html,body{overflow-x:hidden}
     <div><small>Logged today</small><b id="sLog">0</b></div>
   </div>
   <div hidden><button class="btn g" type="button" id="tplBtn">📋 Programme templates</button> <button class="btn g" type="button" id="mtplBtn">🥗 Meal plan templates</button></div>
-  <div class="panel" id="tplPanel" data-view="tpl" hidden><div class="ph-head"><div><div class="kick">Your library</div><h2>Programme <em>templates.</em></h2><div class="sub" style="margin:4px 0 0">Build programmes once here, then copy them into any client from their Programmes tab with <b>+ From a template</b>.</div></div><button class="btn g" id="tplClose" type="button">Close</button></div><div id="tplEd"></div></div>
   <input id="cSearch" type="search" placeholder="🔍 Search clients by name" autocomplete="off" style="width:100%;box-sizing:border-box;background:#0e0e0e;border:1px solid rgba(201,166,75,.35);border-radius:12px;color:#fff;font:inherit;font-size:16px;padding:11px 14px;margin:0 0 10px;outline:none">
   <div class="filters" id="fType"><button class="on" data-t="all">Everyone</button><button data-t="online">Online</button><button data-t="pt">Face to face</button></div>
   <div class="filters" id="fTag"></div>
@@ -192,6 +191,8 @@ html,body{overflow-x:hidden}
   <div id="groups"></div>
   <table id="tblView" hidden><thead><tr><th>Client</th><th>Check-in</th><th>Daily log</th><th class="hide-m">Photos</th><th class="hide-m">Weight</th></tr></thead><tbody id="rows"></tbody></table>
 </div>
+  <div class="panel" id="tplPanel" data-view="tpl" hidden><div class="ph-head"><div><div class="kick">Your library</div><h2>Programme <em>templates.</em></h2><div class="sub" style="margin:4px 0 0">Build programmes once here, then copy them into any client from their Programmes tab with <b>+ From a template</b>.</div></div><button class="btn g" id="tplClose" type="button">Close</button></div><div id="tplEd"></div></div>
+
 
   <div class="panel" id="panel" hidden>
     <div class="ph-head">
@@ -413,7 +414,7 @@ html,body{overflow-x:hidden}
     if(!noPush&&location.hash!=='#v='+v)history.pushState(null,'','#v='+v)}
   [].forEach.call(document.querySelectorAll('#vnav a[data-v]'),function(a){a.onclick=function(e){e.preventDefault();go(a.getAttribute('data-v'))}});
   window.addEventListener('popstate',function(){var m=location.hash.match(/^#v=(\w+)/);if(m)go(m[1],true);else if(!location.hash)go('today',true)});
-  (function(){var m=location.hash.match(/^#v=(\w+)/);go(m?m[1]:'today',true)})();
+  setTimeout(function(){var m=location.hash.match(/^#v=(\w+)/);go(m?m[1]:'today',true)},0);
   function targetsEditor(id){
     var box=$('pTg'),F=[['cals','Calories','kcal'],['protein','Protein','g'],['carbs','Carbs','g'],['fat','Fat','g'],['steps','Steps','per day'],['water','Water','litres'],['cardio','Cardio','e.g. 2 x 20 mins'],['sleep','Sleep','hours']];
     function calcHTML(){return '<div class="pg-box"><h3 class="calc-h">🧮 Nutritional calculator</h3><div class="lg-grid">'+
@@ -460,7 +461,7 @@ html,body{overflow-x:hidden}
     if(preview){draw({});return}
     fetch('/portal/api/coach/targets?id='+encodeURIComponent(id),{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){draw(j.targets)}).catch(function(){draw({})});
   }
-  $('tplBtn').onclick=function(){$('tplPanel').hidden=false;$('tplPanel').querySelector('h2').innerHTML='Programme <em>templates.</em>';MPFProgramme.Editor($('tplEd'),{tpl:true,name:'',demo:preview,demoDoc:{current:'',programmes:[]}});$('tplPanel').scrollIntoView({behavior:'smooth'})};
+  $('tplBtn').onclick=function(){$('tplPanel').hidden=false;$('tplPanel').querySelector('h2').innerHTML='Programme <em>templates.</em>';MPFProgramme.Editor($('tplEd'),{tpl:true,name:'',clients:function(){return clients.filter(function(c){return c.active}).map(function(c){return {id:c.id,name:c.name,type:c.type}})},demo:preview,demoDoc:{current:'',programmes:[]}});$('tplPanel').scrollIntoView({behavior:'smooth'})};
   $('tplClose').onclick=function(){go('today')};
   $('mtplBtn').onclick=function(){$('tplPanel').hidden=false;$('tplPanel').querySelector('h2').innerHTML='Meal plan <em>templates.</em>';MPFMeal.Editor($('tplEd'),{tpl:true,name:'',demo:preview});$('tplPanel').scrollIntoView({behavior:'smooth'})};
   $('cmpBtn').onclick=function(){

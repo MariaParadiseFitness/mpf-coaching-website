@@ -282,7 +282,7 @@ function cleanProgrammes(doc) {
   const programmes = (Array.isArray(doc && doc.programmes) ? doc.programmes : []).slice(0, 30).map((p) => ({
     id: str(p.id, 40).replace(/[^a-z0-9]/gi, "") || Math.random().toString(36).slice(2, 10),
     title: str(p.title, 80) || "Programme",
-    notes: str(p.notes, 3000), goal: str(p.goal, 120), schedule: str(p.schedule, 400),
+    notes: str(p.notes, 3000), goal: str(p.goal, 120), schedule: str(p.schedule, 400), folder: str(p.folder, 40),
     created: str(p.created, 30) || now,
     updated: str(p.updated, 30) || now,
     workouts: (Array.isArray(p.workouts) ? p.workouts : []).slice(0, 14).map((w) => ({
