@@ -626,7 +626,14 @@ async function handleApi(request, env, url) {
   // ---- coach ----
   if (path === "/portal/api/coach/test-email" && request.method === "POST") {
     if (!coach) return json({ error: "forbidden" }, 403);
-    try { await notifyForm(env, { name: "Test client", type: "online" }, { goal: "Fat loss", weight: "70", height: "165", job: "Test" }); return json({ ok: true, configured: !!(env.RESEND_API_KEY || env.MAILER) }); }
+    try {
+      await notifyForm(env, { name: "Test client", type: "online" }, { goal: "Fat loss", weight: "70", height: "165", job: "Test" });
+      await sendMail(env, { fromName: "Maria Paradise", subject: "Welcome to MPF Coaching, Jade! Your portal is ready (sample)", heading: 'Welcome, <em style="color:#e6cf8b">Jade.</em>',
+        intro: "Thank you for joining my online coaching. I'm so excited to get started with you. Your client portal is ready.",
+        lines: ["1. Tap the button below and log in with this email: jade@example.com", "2. You'll get a 6-digit code from Cloudflare (the secure login I use). Type it in and you're in.", "3. Follow the steps in your portal, starting with your onboarding form. It takes about 10 minutes and it's what I build your plan from.", "", "Any questions, just reply to this email or message me on WhatsApp.", "", "Maria x"],
+        button: { text: "Open my portal", url: SITE + "/login.html?paid=1" }, foot: "This is a sample of the welcome email new clients get after paying." });
+      return json({ ok: true, configured: !!(env.RESEND_API_KEY || env.MAILER) });
+    }
     catch (e) { return json({ ok: false, err: String(e).slice(0, 200) }); }
   }
   if (path === "/portal/api/coach/test-enrol" && request.method === "POST") {
@@ -637,6 +644,10 @@ async function handleApi(request, env, url) {
     const access = await autoEnrol(env, e, String(b.name || "Test Payer")).catch((x) => "error: " + String(x).slice(0, 100));
     const c = roster(env, await loadRoster(env, true))[e] || null;
     return json({ access, client: c && { id: c.id, name: c.name, type: c.type, onboarded: c.onboarded } });
+  }
+  if (path === "/portal/api/coach/business") {
+    if (!coach) return json({ error: "forbidden" }, 403);
+    return json(await businessStats(env, r, url.searchParams.get("fresh") === "1"));
   }
   if (path === "/portal/api/coach/acuity-status") {
     if (!coach) return json({ error: "forbidden" }, 403);
@@ -981,7 +992,8 @@ async function acuityFromIcal(env, r) {
   const byEmail = {}, byName = {};
   for (const e of Object.entries(r)) byEmail[e[0].toLowerCase()] = e[1].id;
   for (const c of Object.values(r)) { const k = String(c.name || "").trim().toLowerCase(); if (k) (byName[k] = byName[k] || new Set()).add(c.id); }
-  const out = {}; let events = 0, matched = 0;
+  const out = {}, months = {}; let events = 0, matched = 0, next7 = 0;
+  const in7 = new Date(Date.parse(today + "T00:00:00Z") + 7 * 86400000).toISOString().slice(0, 10);
   for (const ev of txt.split("BEGIN:VEVENT").slice(1)) {
     events++;
     const get = (k) => { const m = ev.match(new RegExp("^" + k + "[^:\\n]*:(.*)$", "m")); return m ? m[1].replace(/\\n/g, "\n").replace(/\\,/g, ",").trim() : ""; };
@@ -989,6 +1001,8 @@ async function acuityFromIcal(env, r) {
     const ds = get("DTSTART").replace(/[^0-9]/g, "").slice(0, 8);
     if (ds.length !== 8) continue;
     const d = ds.slice(0, 4) + "-" + ds.slice(4, 6) + "-" + ds.slice(6, 8);
+    months[d.slice(0, 7)] = (months[d.slice(0, 7)] || 0) + 1;
+    if (d > today && d <= in7) next7++;
     const blob = (get("SUMMARY") + "\n" + get("DESCRIPTION")).toLowerCase();
     let id = null;
     for (const em of blob.match(/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/g) || []) if (byEmail[em]) { id = byEmail[em]; break; }
@@ -999,7 +1013,7 @@ async function acuityFromIcal(env, r) {
     if (d <= today) { if (d > b.last) b.last = d; } else if (!b.next || d < b.next) b.next = d;
   }
   acuityLast.events = events; acuityLast.matched = matched;
-  return { byId: out };
+  return { byId: out, months, next7 };
 }
 async function acuityBookings(env, r) {
   if (env.ACUITY_ICAL) {
@@ -1150,3 +1164,79 @@ export default {
     return env.ASSETS.fetch(request);
   },
 };
+
+// ---- business dashboard ----
+async function stripeGet(env, path) {
+  const res = await fetch("https://api.stripe.com/v1/" + path, { headers: { authorization: "Bearer " + env.STRIPE_READ_KEY }, signal: AbortSignal.timeout(20000) });
+  const j = await res.json(); if (!res.ok) throw new Error("stripe " + res.status + " " + ((j.error && j.error.message) || "").slice(0, 120)); return j;
+}
+async function stripeMoney(env) {
+  const now = new Date(), y0 = Date.UTC(now.getUTCFullYear() - 1, 0, 1) / 1000;
+  const months = {}; let after = "", n = 0;
+  const m = (ts) => new Date(ts * 1000).toISOString().slice(0, 7);
+  while (n < 40) {
+    const j = await stripeGet(env, `balance_transactions?limit=100&created[gte]=${y0}${after ? "&starting_after=" + after : ""}`);
+    for (const t of j.data) {
+      if (!["charge", "payment", "refund", "payment_refund", "adjustment", "payment_failure_refund"].includes(t.type)) continue;
+      const k = m(t.created), o = (months[k] = months[k] || { gross: 0, refunds: 0, fees: 0, net: 0, count: 0 });
+      if (t.amount >= 0) { o.gross += t.amount; o.count++; } else o.refunds += -t.amount;
+      o.fees += t.fee; o.net += t.net;
+    }
+    n++; if (!j.has_more || !j.data.length) break; after = j.data[j.data.length - 1].id;
+  }
+  for (const o of Object.values(months)) for (const k of ["gross", "refunds", "fees", "net"]) o[k] = Math.round(o[k]) / 100;
+  let mrr = 0, subs = 0, pastDue = 0, cancelling = 0; const plans = {};
+  let sa = "";
+  for (let i = 0; i < 10; i++) {
+    const j = await stripeGet(env, `subscriptions?status=all&limit=100${sa ? "&starting_after=" + sa : ""}`);
+    for (const sb of j.data) {
+      if (sb.status === "past_due" || sb.status === "unpaid") pastDue++;
+      if (sb.status !== "active" && sb.status !== "past_due") continue;
+      subs++; if (sb.cancel_at_period_end || sb.cancel_at) cancelling++;
+      for (const it of (sb.items && sb.items.data) || []) {
+        const pr = it.price || {}, rc = pr.recurring || {}; if (!rc.interval) continue;
+        const per = rc.interval === "month" ? rc.interval_count : rc.interval === "year" ? 12 * rc.interval_count : rc.interval === "week" ? rc.interval_count / 4.345 : rc.interval_count / 30.4;
+        const v = ((pr.unit_amount || 0) * (it.quantity || 1)) / 100 / per; mrr += v;
+        const lbl = rc.interval_count === 1 && rc.interval === "month" ? "Monthly" : rc.interval_count + " " + rc.interval + "s"; plans[lbl] = (plans[lbl] || 0) + 1;
+      }
+    }
+    if (!j.has_more || !j.data.length) break; sa = j.data[j.data.length - 1].id;
+  }
+  const bal = await stripeGet(env, "balance").catch(() => null);
+  const gbp = (arr) => ((arr || []).filter((x) => x.currency === "gbp").reduce((t, x) => t + x.amount, 0)) / 100;
+  return { months, mrr: Math.round(mrr * 100) / 100, subs, pastDue, cancelling, plans, balance: bal ? { available: gbp(bal.available), pending: gbp(bal.pending) } : null };
+}
+async function businessStats(env, r, fresh) {
+  const today = londonToday(), mon = today.slice(0, 7);
+  let money = null, source = "webhook", err = null;
+  if (env.STRIPE_READ_KEY) {
+    const cache = fresh ? null : await getJSON(env, "_data/_business-cache.json", null);
+    if (cache && Date.now() - cache.at < 15 * 60 * 1000) { money = cache.money; source = "stripe"; }
+    else { try { money = await stripeMoney(env); source = "stripe"; await putJSON(env, "_data/_business-cache.json", { at: Date.now(), money }); } catch (e) { err = String(e).slice(0, 160); if (cache) { money = cache.money; source = "stripe"; } } }
+  }
+  const pay = (await getJSON(env, "_data/_payments.json", { byEmail: {} })).byEmail || {};
+  if (!money) {
+    const months = {};
+    for (const rec of Object.values(pay)) for (const h of rec.history || []) {
+      if (h.amount == null || !h.date) continue; const k = h.date.slice(0, 7), o = (months[k] = months[k] || { gross: 0, refunds: 0, fees: null, net: null, count: 0 });
+      if (/FAILED/.test(h.kind || "")) continue; o.gross += h.amount; o.count++;
+    }
+    const act = Object.values(pay).filter((x) => x.status === "active");
+    money = { months, mrr: null, subs: act.length, pastDue: Object.values(pay).filter((x) => x.status === "failed").length, cancelling: Object.values(pay).filter((x) => x.endsOn).length, plans: {}, balance: null };
+  }
+  const seen = new Set(), list = Object.entries(r).filter(([, c]) => (seen.has(c.id) ? false : (seen.add(c.id), true)));
+  const nameOf = {}; for (const [e, c] of Object.entries(r)) nameOf[e.toLowerCase()] = c.name;
+  const act = list.filter(([, c]) => c.active !== false);
+  const clients = { online: act.filter(([, c]) => c.type !== "pt").length, pt: act.filter(([, c]) => c.type === "pt").length,
+    newThisMonth: act.filter(([, c]) => String(c.start || "").slice(0, 7) === mon).map(([, c]) => c.name),
+    notOnboarded: act.filter(([, c]) => c.type !== "pt" && c.onboarded !== true).map(([, c]) => c.name) };
+  const in14 = new Date(Date.parse(today + "T00:00:00Z") + 14 * 86400000).toISOString().slice(0, 10);
+  const people = Object.entries(pay).map(([e, x]) => ({ name: nameOf[e] || e, email: e, ...x }));
+  const renewals = people.filter((x) => x.status === "active" && x.next && x.next >= today && x.next <= in14 && !x.endsOn).map((x) => ({ name: x.name, date: x.next, amount: x.lastAmount })).sort((a, b) => a.date.localeCompare(b.date));
+  const failed = people.filter((x) => x.status === "failed").map((x) => ({ name: x.name, since: x.updated ? x.updated.slice(0, 10) : "" }));
+  const ending = people.filter((x) => x.endsOn && x.status !== "cancelled").map((x) => ({ name: x.name, date: x.endsOn }));
+  const cancelReqs = [];
+  for (const [, c] of list) { const d = await getJSON(env, `${dkey(c.id)}/cancel.json`, null); if (d && d.at) cancelReqs.push({ name: c.name, date: String(d.at).slice(0, 10), reason: d.reason || "" }); }
+  const acu = await acuityBookings(env, r).catch(() => null);
+  return { today, source, err, money, clients, renewals, failed, ending, cancelReqs, pt: acu && acu.months ? { months: acu.months, next7: acu.next7 } : null };
+}
