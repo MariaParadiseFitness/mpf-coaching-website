@@ -1048,7 +1048,45 @@ async function stripeWebhook(request, env) {
     rec.updated = new Date().toISOString();
   }
   await putJSON(env, key, db);
+  if (email && ev.type === "checkout.session.completed" && o.payment_status !== "unpaid" && o.mode === "subscription") {
+    await autoEnrol(env, email, (o.customer_details && o.customer_details.name) || "").catch(() => {});
+  }
   return new Response("ok");
+}
+
+// New paying online client: create their portal straight away (and let them log in, if an Access API token is set).
+async function autoEnrol(env, email, fullName) {
+  const all = roster(env, await loadRoster(env, true));
+  if (all[email]) return;
+  const ro = (await getJSON(env, "_data/_roster.json", null)) || {};
+  const name = String(fullName || email.split("@")[0]).replace(/\s+/g, " ").trim().slice(0, 60) || "New client";
+  const taken = new Set(Object.values(all).map((c) => c.id));
+  let base = name.split(" ")[0].toLowerCase().replace(/[^a-z0-9]/g, "") || "client", id = base, n = 2;
+  while (taken.has(id)) id = base + n++;
+  ro[email] = { id, name, checkin: "Wednesday", start: londonToday(), phase: "Fat loss", active: true, type: "online", sex: "f", onboarded: false, phone: "", folder: "", auto: true };
+  await putJSON(env, "_data/_roster.json", ro);
+  rosterCache = null;
+  let access = "not set up";
+  if (env.CF_API_TOKEN && env.ACCESS_POLICY_ID && env.CF_ACCOUNT_ID) {
+    try {
+      const u = `https://api.cloudflare.com/client/v4/accounts/${env.CF_ACCOUNT_ID}/access/policies/${env.ACCESS_POLICY_ID}`;
+      const h = { authorization: "Bearer " + env.CF_API_TOKEN, "content-type": "application/json" };
+      const pol = (await (await fetch(u, { headers: h })).json()).result;
+      const has = (pol.include || []).some((r) => r.email && String(r.email.email).toLowerCase() === email);
+      if (!has) {
+        const body = { name: pol.name, decision: pol.decision, include: [...(pol.include || []), { email: { email } }], exclude: pol.exclude || [], require: pol.require || [] };
+        if (pol.session_duration) body.session_duration = pol.session_duration;
+        const res = await fetch(u, { method: "PUT", headers: h, body: JSON.stringify(body) });
+        access = res.ok ? "added" : "failed (" + res.status + ")";
+      } else access = "already allowed";
+    } catch (e) { access = "failed"; }
+  }
+  if (env.RESEND_API_KEY) {
+    await fetch("https://api.resend.com/emails", { method: "POST", signal: AbortSignal.timeout(10000),
+      headers: { authorization: "Bearer " + env.RESEND_API_KEY, "content-type": "application/json" },
+      body: JSON.stringify({ from: env.NOTIFY_FROM || "MPF Client Portal <portal@mpfcoaching.co.uk>", to: [env.NOTIFY_TO || "info@mpfcoaching.co.uk"],
+        subject: `New online client paid: ${name}`, text: `${name} (${email}) has paid for online coaching. Their portal has been created automatically.\n\nLogin access: ${access}.${access === "added" || access === "already allowed" ? " They can log in now at https://mpfcoaching.co.uk/portal" : " Add their email to the Access policy so they can log in."}\n\nCheck their name and sex in the coach view, and message them a welcome.` }) }).catch(() => {});
+  }
 }
 
 async function notifyCancel(env, client, doc) {
