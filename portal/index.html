@@ -140,11 +140,11 @@ details.app b{color:#fff}
 .ph-hist{margin-top:22px;max-width:620px}
 .ph-hist h3{font-family:var(--serif);font-size:20px;color:#fff;margin-bottom:10px}
 .cmp-t{display:flex;gap:6px;margin:8px 0}.cmp-t button{flex:1;background:none;border:1px solid var(--line);color:var(--gold-l);border-radius:20px;padding:7px;font:inherit;font-size:13px;cursor:pointer}.cmp-t button.on{background:var(--gold);color:#111;font-weight:700}
-.cmp-p{display:grid;grid-template-columns:1fr 1fr;gap:10px}.cmp-p figure{margin:0}.cmp-p img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:12px;border:1px solid var(--line);display:block}.cmp-p span.e{display:grid;place-content:center;aspect-ratio:3/4;border:1px dashed var(--line);border-radius:12px;color:#6d6452;font-size:12px}.cmp-p figcaption{text-align:center;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-top:6px;font-weight:700}
+.cmp-p{display:grid;grid-template-columns:1fr 1fr;gap:10px}.cmp-p figure{margin:0}.cmp-p a{display:block;aspect-ratio:3/4;overflow:hidden;border-radius:12px;border:1px solid var(--line);background:#0e0e0e}.cmp-p img{width:100%;height:100%;object-fit:cover;display:block;transform-origin:50% 50%}.cmp-p span.e{display:grid;place-content:center;aspect-ratio:3/4;border:1px dashed var(--line);border-radius:12px;color:#6d6452;font-size:12px}.cmp-p figcaption{text-align:center;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-top:6px;font-weight:700}
 .ph-row{display:grid;grid-template-columns:90px repeat(3,1fr);gap:10px;align-items:center;margin-bottom:10px}
 .ph-row .wk{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:700}
 .ph-row a,.ph-row span.e{display:block;aspect-ratio:3/4;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#0e0e0e}
-.ph-row img{width:100%;height:100%;object-fit:cover;display:block}
+.ph-row img{width:100%;height:100%;object-fit:cover;display:block;transform-origin:50% 50%}
 .ph-row span.e{display:grid;place-content:center;color:#4d463a;font-size:12px}
 .ph-note{font-size:12.5px;color:var(--mute);margin-top:10px}
 .consent{display:block}.consent .ob-check{display:block;margin:8px 0;font-size:13.5px;line-height:1.45}.cn-ph{margin:10px 0}.cn-ph label{display:block;margin:6px 0;font-size:14px}.cn-ph small{display:block;color:var(--mute);font-size:12px;margin-top:4px}
@@ -593,6 +593,7 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
     var curWeek=meta.week||parseInt($('stWeek').textContent,10)||1,photos=[],enabled=!!meta.photos,demo=!!meta.demo;
     $('phSub').textContent='Week '+curWeek+' · front, side and back. Tap a box to take or choose a photo.';
     function src(p){return p.local||('/portal/api/photo?key='+encodeURIComponent(p.key))}
+    function al(p){var a=p&&p.align;return a?' style="transform:translate('+a.x+'%,'+a.y+'%) scale('+a.s+')"':''}
     function latest(week,angle){return photos.filter(function(p){return p.week===week&&p.angle===angle})[0]}
     function drawWeek(){
       var box=$('phWeek');box.innerHTML='';var n=0;
@@ -612,7 +613,7 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
     function drawCmp(){var box=document.getElementById('phCmp');if(!box)return;var has=photos.filter(function(p){return p.angle===cmpAng}).map(function(p){return p.week}).sort(function(a,b){return a-b});
       var all=photos.map(function(p){return p.week});box.hidden=new Set(all).size<2;if(box.hidden)return;
       $('cmpTabs').innerHTML=ANG.map(function(a){return '<button type="button" data-a="'+a+'" class="'+(a===cmpAng?'on':'')+'">'+a[0].toUpperCase()+a.slice(1)+'</button>'}).join('');
-      var lb=function(w){return w===0?'Start':'Week '+w},im=function(w){var p=w!=null&&latest(w,cmpAng);return '<figure>'+(p?'<a href="'+esc(src(p))+'" target="_blank" rel="noopener"><img alt="" src="'+esc(src(p))+'"></a>':'<span class="e">No '+cmpAng+' photo</span>')+'<figcaption>'+(w!=null?lb(w):'')+'</figcaption></figure>'};
+      var lb=function(w){return w===0?'Start':'Week '+w},im=function(w){var p=w!=null&&latest(w,cmpAng);return '<figure>'+(p?'<a href="'+esc(src(p))+'" target="_blank" rel="noopener"><img alt="" src="'+esc(src(p))+'"'+al(p)+'></a>':'<span class="e">No '+cmpAng+' photo</span>')+'<figcaption>'+(w!=null?lb(w):'')+'</figcaption></figure>'};
       var f=has[0],l=has[has.length-1];$('cmpPics').innerHTML=has.length?im(f)+im(f===l?null:l):'<p class="ci-note">No '+cmpAng+' photos yet.</p>';
       [].forEach.call($('cmpTabs').querySelectorAll('button'),function(b){b.onclick=function(){cmpAng=b.getAttribute('data-a');drawCmp()}})}
     function drawHist(){
@@ -620,7 +621,7 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
       var weeks={};photos.forEach(function(p){if(p.week!==curWeek)weeks[p.week]=1});
       var ws=Object.keys(weeks).map(Number).sort(function(a,b){return b-a});
       $('phHist').hidden=!ws.length;
-      $('phRows').innerHTML=ws.map(function(w){return '<div class="ph-row"><div class="wk">'+(w===0?'Start':'Week '+w)+'</div>'+ANG.map(function(a){var p=latest(w,a);return p?'<a href="'+esc(src(p))+'" target="_blank" rel="noopener"><img loading="lazy" alt="Week '+w+' '+a+'" src="'+esc(src(p))+'"></a>':'<span class="e">-</span>'}).join('')+'</div>'}).join('');
+      $('phRows').innerHTML=ws.map(function(w){return '<div class="ph-row"><div class="wk">'+(w===0?'Start':'Week '+w)+'</div>'+ANG.map(function(a){var p=latest(w,a);return p?'<a href="'+esc(src(p))+'" target="_blank" rel="noopener"><img loading="lazy" alt="Week '+w+' '+a+'" src="'+esc(src(p))+'"'+al(p)+'></a>':'<span class="e">-</span>'}).join('')+'</div>'}).join('');
     }
     function shrink(file){
       return new Promise(function(res){

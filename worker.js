@@ -141,6 +141,9 @@ async function listPhotos(env, id) {
     cursor = page.truncated ? page.cursor : undefined;
   } while (cursor);
   out.sort((a, b) => b.week - a.week || ANGLES.indexOf(a.angle) - ANGLES.indexOf(b.angle) || (a.uploaded < b.uploaded ? 1 : -1));
+  // coach "line up" settings (zoom and position per photo) so bodies match in size side by side
+  const al = await getJSON(env, `_data/${id}/photo-align.json`, {});
+  for (const p of out) if (al[p.key]) p.align = al[p.key];
   return out;
 }
 
@@ -729,6 +732,18 @@ async function handleApi(request, env, url) {
     const key = `${id}/w${String(week).padStart(3, "0")}-${angle}-${Date.now()}.${ext}`;
     await env.PHOTOS.put(key, file.stream(), { httpMetadata: { contentType: file.type }, customMetadata: { week: String(week), angle, by: "coach-import" } });
     return json({ ok: true, key, week, angle });
+  }
+  if (path === "/portal/api/coach/photo-align" && request.method === "POST") {
+    if (!coach) return json({ error: "forbidden" }, 403);
+    const id = (url.searchParams.get("id") || "").toLowerCase().replace(/[^a-z0-9_-]/g, "");
+    if (!Object.values(r).some((x) => x.id === id)) return json({ error: "unknown" }, 404);
+    const b = await request.json().catch(() => ({})), key = String(b.key || "");
+    if (!key.startsWith(id + "/")) return json({ error: "key" }, 400);
+    const num = (v, lo, hi, d) => { const n = Number(v); return isFinite(n) ? Math.min(hi, Math.max(lo, Math.round(n * 1000) / 1000)) : d; };
+    const k = `${dkey(id)}/photo-align.json`, doc = await getJSON(env, k, {});
+    if (b.reset) delete doc[key]; else doc[key] = { s: num(b.s, 0.4, 3, 1), x: num(b.x, -60, 60, 0), y: num(b.y, -60, 60, 0) };
+    await putJSON(env, k, doc);
+    return json({ ok: true, align: doc[key] || null });
   }
   if (path === "/portal/api/coach/import-workouts" && request.method === "POST") {
     if (!coach) return json({ error: "forbidden" }, 403);
