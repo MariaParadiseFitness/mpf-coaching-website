@@ -5,7 +5,7 @@
   var today=function(){try{return new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/London',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date())}catch(e){return new Date().toISOString().slice(0,10)}};
   var nice=function(d,o){return new Date(d+'T12:00:00').toLocaleDateString('en-GB',o||{weekday:'short',day:'numeric',month:'short'})};
   var num=function(v){var x=parseFloat(String(v==null?'':v).replace(',','.'));return isNaN(x)?0:x};
-  var KEY='mpf-logbook-draft';
+  var KEY='mpf-logbook-draft'+(window.__mpfAs?'-as-'+window.__mpfAs:'');
   var store={get:function(){try{return JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){return null}},set:function(v){try{localStorage.setItem(KEY,JSON.stringify(v))}catch(e){}},del:function(){try{localStorage.removeItem(KEY)}catch(e){}}};
   function restSecs(t){var s=String(t||'').toLowerCase(),m=s.match(/(\d+(?:\.\d+)?)/);if(!m)return 90;var n=parseFloat(m[1]);if(/min|m\b/.test(s)&&!/s\b|sec/.test(s))return Math.round(n*60);if(n<=5)return Math.round(n*60);return Math.round(n)}
   function setCount(e){var n=parseInt(e.sets,10);return n>0&&n<13?n:3}
