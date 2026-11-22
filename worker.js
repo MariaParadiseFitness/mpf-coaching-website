@@ -358,8 +358,16 @@ async function readWorkouts(env, id, daysBack) {
 async function handleApi(request, env, url) {
   const w = await who(request, env);
   if (w instanceof Response) return w;
-  const { email, client, coach, roster: r } = w;
+  let { email, client, coach, roster: r } = w;
   const path = url.pathname;
+  // coach "see what they see": the portal sends X-MPF-As when the coach opens /portal/?as=<id>. Read only.
+  const asId = (request.headers.get("x-mpf-as") || "").toLowerCase().replace(/[^a-z0-9_-]/g, "");
+  if (asId && coach) {
+    const hit = Object.entries(r).find(([, x]) => x.id === asId);
+    if (!hit) return json({ error: "unknown client" }, 404);
+    if (request.method !== "GET") return json({ error: "preview", message: "This is a read only preview of the client's portal. Nothing was saved." }, 403);
+    email = hit[0]; client = hit[1]; coach = false;
+  }
 
   if (path === "/portal/api/me") {
     if (!client) return json({ configured: true, signedIn: true, known: false, coach, email });

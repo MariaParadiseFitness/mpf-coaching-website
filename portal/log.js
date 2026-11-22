@@ -173,8 +173,10 @@
     var COLS_=cols;
     var gap=[];var flush=function(){if(!gap.length)return;var a=gap[gap.length-1],z=gap[0];rows+='<tr class="miss"><td>'+(gap.length>1?nice(a,{month:undefined})+' to '+nice(z,{month:undefined}):nice(z,{month:undefined}))+'</td><td colspan="'+(COLS_.length+1)+'">Not logged'+(gap.length>1?' · '+gap.length+' days':'')+'</td></tr>';gap=[]};
     for(var t=toT(to);t>=toT(from);t-=DAY){var d=fromT(t),x=days[d];
+      var isT=d===londonToday();
+      if(!x&&isT){flush();rows+='<tr class="today"><td>Today<small>'+nice(d,{month:undefined})+'</small></td><td colspan="'+(COLS_.length+1)+'">Not logged yet today</td></tr>';continue}
       if(!x){gap.push(d);continue}flush();
-      rows+='<tr><td>'+nice(d,{month:undefined})+'</td>'+COLS_.map(function(k){var v=x?(k==='cals'?(kcal(x)!=null?Math.round(kcal(x)):''):k==='cycle'?(cycleDay(days,d,x.period)||''):x[k]):'';return '<td>'+esc(v||'')+'</td>'}).join('')+'<td class="nt">'+esc(x&&x.notes||'')+'</td></tr>'}
+      rows+='<tr'+(isT?' class="today"':'')+'><td>'+(isT?'Today<small>'+nice(d,{month:undefined})+'</small>':nice(d,{month:undefined}))+'</td>'+COLS_.map(function(k){var v=x?(k==='cals'?(kcal(x)!=null?Math.round(kcal(x)):''):k==='cycle'?(cycleDay(days,d,x.period)||''):x[k]):'';return '<td>'+esc(v||'')+'</td>'}).join('')+'<td class="nt">'+esc(x&&x.notes||'')+'</td></tr>'}
     flush();
     return '<div class="lt-wrap"><table class="lt"><thead><tr><th>Day</th>'+COLS_.map(function(k){var f=LABEL[k]||{l:'Cycle day'};return '<th>'+esc({cycle:'Cycle day',weight:'Weight kg',steps:'Steps',cals:'Kcal',protein:'Protein g',carbs:'Carbs g',fat:'Fat g',water:'Water L',offPlan:'Off-plan',sleep:'Sleep',cardio:'Cardio min',trained:'Trained',energy:'Energy',mood:'Mood',stress:'Stress',hunger:'Hunger',adherence:'Plan'}[k]||f.l)+'</th>'}).join('')+'<th>Notes</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
   }
