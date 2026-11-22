@@ -181,3 +181,9 @@ table.lt tbody tr:nth-child(even):not(.miss) td:first-child{background:#191712}
 
 .ci-rep{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}.ci-rep b{color:var(--gold-l);display:block;margin-bottom:8px}.ci-rep textarea{width:100%;background:#0e0e0e;border:1px solid var(--line);border-radius:12px;color:#fff;font:inherit;font-size:15px;padding:10px 12px;box-sizing:border-box}
 .ci-fb{margin-top:14px;border:1px solid var(--gold);background:rgba(201,166,75,.08);border-radius:14px;padding:12px 14px}.ci-fb b{color:var(--gold-l)}.ci-fb p{margin:6px 0 0;color:#efe6cf;line-height:1.6}
+/* grid lines on the daily log */
+table.lt th,table.lt td{border-right:1px solid rgba(201,166,75,.22)!important;border-bottom:1px solid rgba(201,166,75,.22)!important;text-align:center}
+table.lt th:first-child,table.lt td:first-child{text-align:left;border-right:1px solid rgba(201,166,75,.5)!important}
+table.lt td.nt{text-align:left}
+table.lt th:last-child,table.lt td:last-child{border-right:0!important}
+table.lt tbody tr:hover td{background:rgba(201,166,75,.12)!important}
