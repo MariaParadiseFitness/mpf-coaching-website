@@ -629,6 +629,15 @@ async function handleApi(request, env, url) {
     try { await notifyForm(env, { name: "Test client", type: "online" }, { goal: "Fat loss", weight: "70", height: "165", job: "Test" }); return json({ ok: true, configured: !!(env.RESEND_API_KEY || env.MAILER) }); }
     catch (e) { return json({ ok: false, err: String(e).slice(0, 200) }); }
   }
+  if (path === "/portal/api/coach/test-enrol" && request.method === "POST") {
+    if (!coach) return json({ error: "forbidden" }, 403);
+    const b = await request.json().catch(() => ({}));
+    const e = String(b.email || "").trim().toLowerCase();
+    if (!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/.test(e)) return json({ error: "email" }, 400);
+    const access = await autoEnrol(env, e, String(b.name || "Test Payer")).catch((x) => "error: " + String(x).slice(0, 100));
+    const c = roster(env, await loadRoster(env, true))[e] || null;
+    return json({ access, client: c && { id: c.id, name: c.name, type: c.type, onboarded: c.onboarded } });
+  }
   if (path === "/portal/api/coach/acuity-status") {
     if (!coach) return json({ error: "forbidden" }, 403);
     const t0 = Date.now(); acuityCache = null; await env.PHOTOS.delete("_data/_acuity-cache.json").catch(() => {});
@@ -1057,7 +1066,7 @@ async function stripeWebhook(request, env) {
 // New paying online client: create their portal straight away (and let them log in, if an Access API token is set).
 async function autoEnrol(env, email, fullName) {
   const all = roster(env, await loadRoster(env, true));
-  if (all[email]) return;
+  if (all[email]) return "already a client";
   const ro = (await getJSON(env, "_data/_roster.json", null)) || {};
   const name = String(fullName || email.split("@")[0]).replace(/\s+/g, " ").trim().slice(0, 60) || "New client";
   const taken = new Set(Object.values(all).map((c) => c.id));
@@ -1081,12 +1090,14 @@ async function autoEnrol(env, email, fullName) {
       } else access = "already allowed";
     } catch (e) { access = "failed"; }
   }
+  const result = access;
   if (env.RESEND_API_KEY) {
     await fetch("https://api.resend.com/emails", { method: "POST", signal: AbortSignal.timeout(10000),
       headers: { authorization: "Bearer " + env.RESEND_API_KEY, "content-type": "application/json" },
       body: JSON.stringify({ from: env.NOTIFY_FROM || "MPF Client Portal <portal@mpfcoaching.co.uk>", to: [env.NOTIFY_TO || "info@mpfcoaching.co.uk"],
         subject: `New online client paid: ${name}`, text: `${name} (${email}) has paid for online coaching. Their portal has been created automatically.\n\nLogin access: ${access}.${access === "added" || access === "already allowed" ? " They can log in now at https://mpfcoaching.co.uk/portal" : " Add their email to the Access policy so they can log in."}\n\nCheck their name and sex in the coach view, and message them a welcome.` }) }).catch(() => {});
   }
+  return result;
 }
 
 async function notifyCancel(env, client, doc) {
