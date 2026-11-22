@@ -371,13 +371,16 @@ async function handleApi(request, env, url) {
     if (request.method !== "GET") return json({ error: "preview", message: "This is a read only preview of the client's portal. Nothing was saved." }, 403);
     email = hit[0]; client = hit[1]; coach = false;
   }
+  const lock = client && !coach ? await lockState(env, client, r) : { locked: false };
+  if (lock.locked && path.startsWith("/portal/api/") && !["/portal/api/me", "/portal/api/billing", "/portal/api/consent", "/portal/api/delete-request", "/portal/api/prefs"].includes(path))
+    return json({ error: "locked", locked: true, reason: lock.reason }, 402);
 
   if (path === "/portal/api/me") {
     if (!client) return json({ configured: true, signedIn: true, known: false, coach, email });
     const { id, ...pub } = client;
     return json({
       configured: true, signedIn: true, known: true, coach, email,
-      client: { ...pub, checkin: checkinDay(client), type: client.type === "pt" ? "pt" : "online" }, paid: client.payOk === true || !!((await getJSON(env, "_data/_payments.json", { byEmail: {} })).byEmail || {})[email], week: weekOf(client.start), photos: !!env.PHOTOS, today: londonToday(),
+      client: { ...pub, checkin: checkinDay(client), type: client.type === "pt" ? "pt" : "online" }, paid: client.payOk === true || !!((await getJSON(env, "_data/_payments.json", { byEmail: {} })).byEmail || {})[email], week: weekOf(client.start), photos: !!env.PHOTOS, today: londonToday(), lock,
     });
   }
 
@@ -946,7 +949,7 @@ async function handleApi(request, env, url) {
         setup: setup.skip ? { done: true } : { done: !!setup.completed, n: Object.keys(setup.done || {}).length },
         form: c.onboarded === true ? null : !!(await getJSON(env, `${dkey(c.id)}/onboarding.json`, {})).submitted,
         planReady: c.onboarded === true ? true : !!(await getJSON(env, `${dkey(c.id)}/plan.json`, {})).ready,
-        active: c.active !== false, week, tracker: c.tracker || "", folder: c.folder || "", payOk: c.payOk === true, tags: c.tags || [],
+        active: c.active !== false, week, tracker: c.tracker || "", folder: c.folder || "", payOk: c.payOk === true, tags: c.tags || [], lockMode: c.lock || "", lockNow: await lockState(env, c, r),
         dob: c.onboarded === true ? ((await getJSON(env, `${dkey(c.id)}/onboarding.json`, {})).answers || {}).dob || "" : ((await getJSON(env, `${dkey(c.id)}/onboarding.json`, {})).answers || {}).dob || "",
         pkg: await (async () => { const a = acu && acu.byId && acu.byId[c.id]; const codes = (a && a.codes) || {}; const ks = Object.keys(codes).sort((x, y) => (codes[y].last).localeCompare(codes[x].last) || (codes[y].first).localeCompare(codes[x].first)); const pk = await getJSON(env, `${dkey(c.id)}/package.json`, null);
           const size = (pk && pk.size) || (bizSet && bizSet.pkgSize) || 0;
@@ -1080,7 +1083,7 @@ async function handleApi(request, env, url) {
           active: c.active !== false, type: c.type === "pt" ? "pt" : "online", sex: c.sex === "m" ? "m" : "f",
           onboarded: c.onboarded === true, phone: String(c.phone || "").replace(/[^0-9]/g, "").slice(0, 15),
           folder: String(c.folder || "").replace(/[^A-Za-z0-9_-]/g, "").slice(0, 80),
-          payOk: c.payOk === true,
+          payOk: c.payOk === true, lock: c.lock === "on" || c.lock === "off" ? c.lock : "",
           source: String(c.source || "").slice(0, 40),
           tags: (Array.isArray(c.tags) ? c.tags : []).map((x) => String(x).trim().slice(0, 24)).filter(Boolean).slice(0, 8),
         };
@@ -1361,20 +1364,20 @@ async function stripeWebhook(request, env) {
     const toDay = (sec) => (sec ? new Date(sec * 1000).toISOString().slice(0, 10) : "");
     if (ev.type === "checkout.session.completed" && o.payment_status !== "unpaid") {
       add({ id: o.id, date: day, amount: amt(o.amount_total), kind: o.mode === "subscription" ? "first payment" : "one-off" });
-      rec.status = o.mode === "subscription" ? "active" : "paid"; rec.lastPaid = day; rec.lastAmount = amt(o.amount_total); rec.started = rec.started || day;
+      rec.status = o.mode === "subscription" ? "active" : "paid"; delete rec.failedAt; delete rec.cancelled; rec.lastPaid = day; rec.lastAmount = amt(o.amount_total); rec.started = rec.started || day;
     } else if (ev.type === "invoice.paid" && o.amount_paid > 0) {
       const line = (o.lines && o.lines.data || []).find((l) => l.period && l.period.end && (l.recurring || (l.price && l.price.recurring) || l.type === "subscription")) || (o.lines && o.lines.data || [])[0];
       if (!rec.history.some((x) => x.date === day && x.amount === amt(o.amount_paid))) add({ id: o.id, date: day, amount: amt(o.amount_paid), kind: "payment" });
-      rec.status = "active"; rec.lastPaid = day; rec.lastAmount = amt(o.amount_paid); rec.started = rec.started || day;
+      rec.status = "active"; delete rec.failedAt; delete rec.cancelled; rec.lastPaid = day; rec.lastAmount = amt(o.amount_paid); rec.started = rec.started || day;
       if (line && line.period && line.period.end) rec.next = toDay(line.period.end);
       if (line && line.description) rec.plan = String(line.description).replace(/^\d+\s*×\s*/, "").slice(0, 120);
     } else if (ev.type === "customer.subscription.updated" || ev.type === "customer.subscription.created") {
       const end = o.current_period_end || (o.items && o.items.data && o.items.data[0] && o.items.data[0].current_period_end);
       if (end) rec.next = toDay(end);
       rec.endsOn = o.cancel_at_period_end ? toDay(o.cancel_at || end) : (o.cancel_at ? toDay(o.cancel_at) : "");
-      if (o.status === "past_due" || o.status === "unpaid") rec.status = "failed"; else if (o.status === "active") rec.status = "active";
+      if (o.status === "past_due" || o.status === "unpaid") { if (rec.status !== "failed") rec.failedAt = day; rec.status = "failed"; } else if (o.status === "active") { rec.status = "active"; delete rec.failedAt; }
     } else if (ev.type === "invoice.payment_failed") {
-      add({ id: o.id, date: day, amount: amt(o.amount_due), kind: "FAILED payment" }); rec.status = "failed";
+      add({ id: o.id, date: day, amount: amt(o.amount_due), kind: "FAILED payment" }); if (rec.status !== "failed") rec.failedAt = day; rec.status = "failed";
     } else if (ev.type === "customer.subscription.deleted") {
       rec.status = "cancelled"; rec.cancelled = day;
     }
@@ -1388,6 +1391,26 @@ async function stripeWebhook(request, env) {
 }
 
 // New paying online client: create their portal straight away (and let them log in, if an Access API token is set).
+// Online clients who stop paying get locked out of their portal (data is kept). Face to face, "paid another way",
+// and older clients with no Stripe record are never locked automatically. Coach can force lock or unlock per client.
+async function lockState(env, client, r) {
+  if (!client) return { locked: false };
+  if (client.lock === "off") return { locked: false };
+  if (client.lock === "on") return { locked: true, reason: "paused" };
+  if (client.type === "pt" || client.payOk === true) return { locked: false };
+  const pay = (await getJSON(env, "_data/_payments.json", { byEmail: {} })).byEmail || {};
+  const emails = Object.entries(r).filter(([, x]) => x.id === client.id).map(([e]) => e.toLowerCase());
+  const rec = emails.map((e) => pay[e]).filter(Boolean).sort((a, b) => String(b.updated).localeCompare(String(a.updated)))[0];
+  if (!rec) return { locked: false };
+  const today = londonToday();
+  if (rec.status === "cancelled") return { locked: true, reason: "cancelled", since: rec.cancelled || "" };
+  if (rec.status === "failed") {
+    const since = rec.failedAt || String(rec.updated || "").slice(0, 10) || today;
+    if ((toT(today) - toT(since)) / DAY_MS >= 7) return { locked: true, reason: "failed", since };
+    return { locked: false, warn: "failed", since };
+  }
+  return { locked: false };
+}
 // add one email to the Cloudflare Access login policy (no emails are sent)
 async function accessAllow(env, email) {
   if (!(env.CF_API_TOKEN && env.ACCESS_POLICY_ID && env.CF_ACCOUNT_ID)) return "not set up";
