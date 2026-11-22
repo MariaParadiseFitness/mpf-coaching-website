@@ -631,7 +631,7 @@ async function handleApi(request, env, url) {
   }
   if (path === "/portal/api/coach/acuity-status") {
     if (!coach) return json({ error: "forbidden" }, 403);
-    const t0 = Date.now(); acuityCache = null;
+    const t0 = Date.now(); acuityCache = null; await env.PHOTOS.delete("_data/_acuity-cache.json").catch(() => {});
     let err = null; const data = await acuityBookings(env, r).catch((e) => { err = String(e).slice(0, 120); return null; });
     return json({ configured: !!(env.ACUITY_ICAL || (env.ACUITY_USER_ID && env.ACUITY_API_KEY)), ok: !!data, clients: data ? Object.keys(data.byId || data).length : 0, ms: Date.now() - t0, last: acuityLast, err });
   }
@@ -967,8 +967,11 @@ async function acuityFromIcal(env, r) {
 async function acuityBookings(env, r) {
   if (env.ACUITY_ICAL) {
     if (acuityCache && Date.now() - acuityCache.at < 10 * 60 * 1000) return acuityCache.data;
+    const saved = await getJSON(env, "_data/_acuity-cache.json", null);
+    if (saved && Date.now() - saved.at < 30 * 60 * 1000) { acuityCache = saved; return saved.data; }
     const data = await acuityFromIcal(env, r || {});
-    if (data) acuityCache = { at: Date.now(), data };
+    if (data) { acuityCache = { at: Date.now(), data }; await putJSON(env, "_data/_acuity-cache.json", acuityCache); }
+    else if (saved) return saved.data;
     return data;
   }
   if (!env.ACUITY_USER_ID || !env.ACUITY_API_KEY) return null;
