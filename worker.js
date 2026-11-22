@@ -733,6 +733,17 @@ async function handleApi(request, env, url) {
     await env.PHOTOS.put(key, file.stream(), { httpMetadata: { contentType: file.type }, customMetadata: { week: String(week), angle, by: "coach-import" } });
     return json({ ok: true, key, week, angle });
   }
+  if (path === "/portal/api/coach/consent" && request.method === "POST") {
+    if (!coach) return json({ error: "forbidden" }, 403);
+    const id = (url.searchParams.get("id") || "").toLowerCase().replace(/[^a-z0-9_-]/g, "");
+    if (!Object.values(r).some((x) => x.id === id)) return json({ error: "unknown" }, 404);
+    const b = await request.json().catch(() => ({})), k = `${dkey(id)}/consent.json`, cur = await getJSON(env, k, {}), now = new Date().toISOString();
+    const next = { ...cur, history: [...(cur.history || []).slice(-50), { offline: !!b.offline, by: "coach", at: now }] };
+    if (b.offline) { next.health = cur.health || now; next.terms = cur.terms || now; next.offline = now; }
+    else { delete next.health; delete next.terms; delete next.offline; }
+    await putJSON(env, k, next);
+    return json({ ok: true, health: !!next.health, terms: !!next.terms, photos: next.photos || "" });
+  }
   if (path === "/portal/api/coach/photo-align" && request.method === "POST") {
     if (!coach) return json({ error: "forbidden" }, 403);
     const id = (url.searchParams.get("id") || "").toLowerCase().replace(/[^a-z0-9_-]/g, "");
