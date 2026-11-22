@@ -910,7 +910,7 @@ async function acuityBookings(env) {
     signal: AbortSignal.timeout(20000),
   });
   acuityLast = { status: res.status, at: new Date().toISOString() };
-  if (!res.ok) return null;
+  if (!res.ok) { acuityLast.body = (await res.text().catch(() => "")).slice(0, 300); return null; }
   const appts = await res.json();
   acuityLast.count = Array.isArray(appts) ? appts.length : -1;
   const by = {};
