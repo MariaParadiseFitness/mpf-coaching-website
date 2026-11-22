@@ -133,7 +133,7 @@
         h+='<div class="ci-ans">'+(c.questions||Q).map(function(q,i){return c.answers[i]?'<div><b>'+(i+1)+'. '+esc(q)+'</b><p>'+esc(c.answers[i])+'</p></div>':''}).join('')+'</div>';
         h+='<div class="ci-btns"><button class="btn g" type="button" data-a="edit">Edit my answers</button><a class="btn" target="_blank" rel="noopener" href="https://wa.me/447592791137?text='+encodeURIComponent('Hi Maria, my check-in for '+nice(due,{weekday:'long',month:'short'})+' is done ✅')+'">Tell Maria on WhatsApp</a></div>';
       }else{
-        h+='<form class="ci-form">'+Q.map(function(q,i){var v=c?c.answers[i]||'':(draft()[i]||'');var short=i>=4&&i<=6;return '<label><b>'+(i+1)+'. '+esc(q)+'</b>'+(short?'<input name="q'+i+'" type="text" inputmode="numeric" value="'+esc(v)+'">':'<textarea name="q'+i+'" rows="2">'+esc(v)+'</textarea>')+'</label>'}).join('')+
+        h+='<form class="ci-form">'+Q.map(function(q,i){var v=c?c.answers[i]||'':(draft()[i]||'');var short=false;return '<label><b>'+(i+1)+'. '+esc(q)+'</b>'+(short?'<input name="q'+i+'" type="text" inputmode="numeric" value="'+esc(v)+'">':'<textarea name="q'+i+'" rows="2">'+esc(v)+'</textarea>')+'</label>'}).join('')+
           '<div class="ci-btns"><span class="lg-msg"></span><button class="btn" type="submit">Send my check-in</button></div></form>';
       }
       var older={};Object.keys(all).forEach(function(k){if(k!==due)older[k]=all[k]});if(Object.keys(older).length)h+='<details class="ci-past" style="margin-top:18px"><summary style="cursor:pointer;color:var(--gold-l);font-weight:600">Past check-ins and feedback ('+Object.keys(older).length+')</summary><div style="margin-top:10px">'+checkinList(older)+'</div></details>';
