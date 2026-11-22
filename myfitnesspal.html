@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How to Use MyFitnessPal | MPF Coaching</title>
+<link rel="canonical" href="https://mpfcoaching.co.uk/myfitnesspal.html">
+<meta name="description" content="The MPF guide to MyFitnessPal: set it up, put in your coach's targets, log food accurately and avoid the common mistakes that stall progress.">
+<link rel="icon" type="image/png" href="img/favicon.png">
+<meta property="og:title" content="How to Use MyFitnessPal | MPF Coaching"><meta property="og:description" content="Set up MyFitnessPal properly, log food accurately and hit your numbers.">
+<meta property="og:image" content="https://mpfcoaching.co.uk/img/og.jpg"><meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#C9A64B;--gold-l:#E4CF8A;--gold-d:#9C7A2C;--ink:#111;--cream:#FBF7EE;--muted:#5b5547;
+--grad:linear-gradient(120deg,#9C7A2C 0%,#C9A64B 45%,#E8D79A 100%);
+--serif:"Playfair Display",Georgia,serif;--sans:"Montserrat",system-ui,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);font-size:16px;line-height:1.65;color:#1b1a17;background:var(--cream);-webkit-font-smoothing:antialiased}
+.wrap{max-width:680px;margin:0 auto;padding:0 22px}
+a{color:var(--gold-d)}
+.top{position:sticky;top:0;z-index:5;background:rgba(17,17,17,.95);padding:10px 0}
+.top .wrap{display:flex;justify-content:space-between;align-items:center}
+.top a{color:var(--gold-l);text-decoration:none;font-size:13px;font-weight:600}
+.top .cta{background:var(--grad);color:var(--ink);padding:8px 14px;border-radius:20px;font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+.cover{background:#111;color:#fff;text-align:center;padding:52px 0 56px;position:relative}
+.cover:before{content:"";position:absolute;inset:14px;border:1px solid rgba(201,166,75,.4);pointer-events:none}
+.cover img{width:140px;margin:0 auto 24px;display:block}
+.kick{font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--gold-l);margin-bottom:14px}
+.cover h1{font-family:var(--serif);font-weight:900;font-size:clamp(34px,9vw,52px);line-height:1.05}
+.cover h1 em{display:block;font-style:italic;font-weight:400;color:var(--gold)}
+.cover .sub{font-family:var(--serif);font-style:italic;font-size:19px;color:#d8ccb0;margin-top:14px}
+.cover .tags{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:22px}
+.cover .tags span{border:1px solid rgba(201,166,75,.5);border-radius:20px;padding:6px 12px;font-size:12px;color:var(--gold-l)}
+.cover .pdf{display:inline-block;margin-top:22px;color:var(--gold-l);font-size:13px}
+section.ch{padding:40px 0 6px}
+.num{font-family:var(--serif);font-weight:900;font-size:14px;color:var(--gold-d);letter-spacing:.14em;text-transform:uppercase}
+h2.t{font-family:var(--serif);font-weight:900;font-size:clamp(26px,6.5vw,34px);line-height:1.12;margin:4px 0 14px}
+h3{font-family:var(--serif);font-weight:700;font-size:20px;margin:20px 0 6px}
+p{margin-bottom:12px}
+ul.b{list-style:none;margin:4px 0 14px}
+ul.b li{position:relative;padding-left:24px;margin-bottom:8px}
+ul.b li:before{content:"";position:absolute;left:0;top:8px;width:11px;height:11px;border-radius:50%;background:var(--grad)}
+.lol{font-family:var(--serif);font-style:italic;color:var(--gold-d)}
+.note{background:#111;color:#e9e0c9;border-radius:10px;padding:18px 20px;margin:18px 0;font-size:15px}
+.note b{color:var(--gold);letter-spacing:.14em;font-size:11px;display:block;margin-bottom:6px}
+.note a{color:var(--gold-l);font-weight:600}
+.key{background:#f1e8cf;border-left:4px solid var(--gold);padding:14px 18px;border-radius:0 8px 8px 0;margin:16px 0;font-size:15px}
+table{width:100%;border-collapse:collapse;margin:12px 0 16px;font-size:14px;background:#fff;border-radius:10px;overflow:hidden}
+th{background:#111;color:var(--gold-l);text-align:left;padding:9px 10px;font-size:12px}
+td{padding:9px 10px;border-top:1px solid rgba(156,122,44,.2);vertical-align:top}
+td:first-child{font-weight:600}
+tr.total td{background:#f1e8cf;font-weight:700}
+.steps{counter-reset:s;list-style:none}
+.steps li{counter-increment:s;position:relative;padding:12px 0 12px 54px;border-bottom:1px solid rgba(156,122,44,.2)}
+.steps li:before{content:counter(s);position:absolute;left:0;top:12px;width:38px;height:38px;border-radius:50%;background:var(--grad);font-family:var(--serif);font-weight:900;display:flex;align-items:center;justify-content:center;font-size:17px}
+.steps b{display:block;font-family:var(--serif);font-size:17px}
+
+/* calculator */
+.calc{background:#111;color:#f3ecdc;border-radius:16px;padding:24px 20px;margin:18px 0;border:1px solid rgba(201,166,75,.4)}
+.calc h3{color:#fff;margin-top:0}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.fld label{display:block;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:5px;font-weight:600}
+.fld input,.fld select{width:100%;padding:12px;border-radius:10px;border:1px solid rgba(201,166,75,.45);background:#1d1c19;color:#fff;font-family:var(--sans);font-size:16px}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{flex:1;min-width:90px;padding:11px 8px;border-radius:10px;border:1px solid rgba(201,166,75,.45);background:#1d1c19;color:#e9e0c9;font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer}
+.seg button.on{background:var(--grad);color:var(--ink);border-color:transparent}
+.res{margin-top:18px;display:none}
+.res.show{display:block}
+.big{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.big div{background:#1d1c19;border:1px solid rgba(201,166,75,.35);border-radius:12px;padding:14px}
+.big small{display:block;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+.big b{font-family:var(--serif);font-size:26px;color:#fff;display:block;line-height:1.2}
+.big span{font-size:12px;color:#cfc4aa}
+.macros{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.macros div{border-radius:12px;padding:12px 8px;text-align:center;background:#1d1c19;border:1px solid rgba(201,166,75,.35)}
+.macros small{display:block;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+.macros b{font-family:var(--serif);font-size:22px;color:#fff}
+.bar{display:flex;height:12px;border-radius:8px;overflow:hidden;margin:12px 0 4px}
+.bar i{display:block}
+.legend{font-size:11px;color:#cfc4aa;display:flex;gap:12px;flex-wrap:wrap}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px;vertical-align:middle}
+.meals{margin-top:14px;background:#1d1c19;border-radius:12px;padding:14px;border:1px solid rgba(201,166,75,.35)}
+.meals p{margin:8px 0 0;font-size:14px;color:#e9e0c9}
+.warn{display:none;margin-top:12px;background:#3a2a10;border:1px solid var(--gold);border-radius:10px;padding:12px;font-size:13px;color:#f3e3b8}
+.fine{font-size:12px;color:#a89a78;margin-top:12px}
+
+/* tabs */
+.tabs{display:flex;gap:6px;margin:12px 0 0;flex-wrap:wrap}
+.tabs button{padding:9px 14px;border-radius:20px;border:1.5px solid var(--gold-d);background:none;color:var(--gold-d);font-family:var(--sans);font-weight:700;font-size:12px;letter-spacing:.06em;cursor:pointer}
+.tabs button.on{background:#111;color:var(--gold-l);border-color:#111}
+.pane{display:none}
+.pane.on{display:block}
+
+/* checklist */
+.check label{display:flex;gap:12px;align-items:flex-start;background:#fff;border-radius:10px;padding:13px 14px;margin-bottom:8px;border:1px solid rgba(156,122,44,.25);cursor:pointer;font-size:15px}
+.check input{width:20px;height:20px;accent-color:#9C7A2C;flex:0 0 auto;margin-top:2px}
+.score{font-family:var(--serif);font-size:18px;margin-top:6px}
+
+.cta-box{background:#111;color:#fff;text-align:center;border-radius:14px;padding:32px 22px;margin:36px 0}
+.cta-box h2{font-family:var(--serif);font-size:26px;margin-bottom:10px}
+.cta-box p{color:#d8ccb0}
+.btn{display:inline-block;background:var(--grad);color:var(--ink);font-weight:700;font-size:13px;letter-spacing:.16em;text-transform:uppercase;text-decoration:none;padding:16px 24px;border-radius:40px;margin:4px}
+.btn.ghost{background:none;border:1.5px solid var(--gold);color:var(--gold)}
+.disc{font-size:12px;color:#5b5547;border-top:1px solid rgba(156,122,44,.3);padding-top:14px;margin:20px 0 34px}
+footer{background:#0b0b0a;color:#6f6754;text-align:center;font-size:11px;letter-spacing:.2em;text-transform:uppercase;padding:22px 0}
+
+.toc{background:#fff;border:1px solid rgba(156,122,44,.25);border-radius:12px;padding:16px 18px;margin:26px 0 6px}.toc b{font-family:var(--serif);font-size:17px}.toc ol{margin:8px 0 0 20px}.toc li{margin:3px 0}
+.ok,.no{border-radius:10px;padding:12px 14px;margin:8px 0;font-size:15px}.ok{background:#eaf3e6;border-left:4px solid #5b9a4a}.no{background:#f7e7e4;border-left:4px solid #c0584a}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media(max-width:560px){.two{grid-template-columns:1fr}}
+.pct{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.pct div{background:#1d1c19;border:1px solid rgba(201,166,75,.35);border-radius:12px;padding:12px 8px;text-align:center}.pct small{display:block;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}.pct b{font-family:var(--serif);font-size:24px;color:#fff}
+</style>
+</head>
+<body>
+<div class="top"><div class="wrap"><a href="index.html">← MPF Coaching</a><a class="cta" href="/portal/">Client portal</a></div></div>
+
+<header class="cover"><div class="wrap">
+  <img src="img/logo.png" alt="MPF Coaching">
+  <div class="kick">Client guide · MPF Coaching</div>
+  <h1>How to use <em>MyFitnessPal</em></h1>
+  <div class="sub">Track properly, hit your numbers, see results</div>
+  <div class="tags"><span>Set-up in 10 minutes</span><span>Log like a pro</span><span>Online and face to face</span></div>
+</div></header>
+
+<main class="wrap">
+
+<div class="toc"><b>In this guide</b><ol>
+<li><a href="#why">Why we track</a></li><li><a href="#setup">Set up the app</a></li><li><a href="#targets">Put in your targets from me</a></li><li><a href="#log">How to log food</a></li><li><a href="#weigh">Weighing your food</a></li><li><a href="#time">Save time every day</a></li><li><a href="#out">Eating out, drinks and treats</a></li><li><a href="#portal">Add your totals to the portal</a></li><li><a href="#mistakes">The mistakes that stall progress</a></li><li><a href="#faq">Questions</a></li>
+</ol></div>
+
+<section class="ch" id="why">
+<div class="num">Chapter 1</div><h2 class="t">Why we track</h2>
+<p>Tracking isn't about being perfect or never eating the foods you love. It's about knowing what you're actually eating, so we can make smart changes instead of guessing.</p>
+<ul class="b"><li><b>It shows us the truth.</b> Most people underestimate what they eat by a lot. Tracking takes the guesswork out.</li><li><b>It lets me coach you properly.</b> When your weight stalls, your log tells us why, so we fix the right thing.</li><li><b>It teaches you.</b> After a few months you'll know roughly what's in most meals, even without the app.</li></ul>
+<div class="key">The goal is <b>consistent, honest and roughly right</b>, not perfect. A slightly off day logged is far more useful than a "bad" day you didn't log.</div>
+</section>
+
+<section class="ch" id="setup">
+<div class="num">Chapter 2</div><h2 class="t">Set up the app</h2>
+<ol class="steps">
+<li><b>Download MyFitnessPal</b>From the App Store or Google Play. The free version is all you need. Premium is optional (see the questions at the end).</li>
+<li><b>Create your account</b>Use any email. When it asks for your goals, put in anything to get through. We'll change them in a minute.</li>
+<li><b>Set your units</b>Go to <i>More → Settings → Units</i> and set weight to <b>kilograms</b> and energy to <b>calories</b>.</li>
+<li><b>Set your meals</b>In <i>Settings → Diary settings</i> you can rename meals, for example Breakfast, Lunch, Dinner, Snacks. Name them however you actually eat.</li>
+<li><b>Turn off exercise calories</b>In <i>Settings → Diary settings</i>, if you see an option about exercise calories, don't add them to your goal. My targets already allow for your training.</li>
+</ol>
+</section>
+
+<section class="ch" id="targets">
+<div class="num">Chapter 3</div><h2 class="t">Put in your targets from me</h2>
+<p>Your calories and macros are in your portal under <b>Today → My daily targets</b>. If I've given you high and low days, use your <b>low day</b> numbers in the app and add the extra food on high days.</p>
+<h3>On the free version</h3>
+<ol class="steps">
+<li><b>Open your goals</b><i>More → Goals → Calorie, carbs, protein and fat goals</i>.</li>
+<li><b>Type in your calories</b>Enter the calories I've given you.</li>
+<li><b>Set your macros as percentages</b>The free version uses percentages, not grams. Use the converter below to turn my grams into the percentages to enter.</li>
+</ol>
+<div class="calc" id="conv">
+<h3>Grams to MyFitnessPal percentages</h3>
+<div class="row"><div class="fld"><label>Calories</label><input id="cK" inputmode="numeric" placeholder="e.g. 1700"></div><div class="fld"><label>Protein (g)</label><input id="cP" inputmode="numeric" placeholder="e.g. 140"></div></div>
+<div class="row"><div class="fld"><label>Carbs (g)</label><input id="cC" inputmode="numeric" placeholder="e.g. 170"></div><div class="fld"><label>Fat (g)</label><input id="cF" inputmode="numeric" placeholder="e.g. 50"></div></div>
+<div class="pct"><div><small>Protein</small><b id="oP">–</b></div><div><small>Carbs</small><b id="oC">–</b></div><div><small>Fat</small><b id="oF">–</b></div></div>
+<p class="fine" id="oN">The app rounds to steps of 5%, so pick the closest. Your protein is the one that matters most, so round that one up.</p>
+</div>
+<h3>On Premium</h3>
+<p>Premium lets you type your grams in directly: <i>Goals → Calorie, carbs, protein and fat goals → switch to grams</i>. You can also set different goals for different days, which is handy for high and low days.</p>
+<div class="key">Whatever the app shows, <b>my numbers in your portal are your real targets.</b> If the app and the portal ever disagree, go with the portal.</div>
+</section>
+
+<section class="ch" id="log">
+<div class="num">Chapter 4</div><h2 class="t">How to log food</h2>
+<ol class="steps">
+<li><b>Tap + then Food</b>Pick the meal (Breakfast, Lunch, Dinner, Snacks).</li>
+<li><b>Search for the food</b>Be specific: "Tesco chicken breast raw" beats "chicken". Brand and supermarket names help.</li>
+<li><b>Pick a good entry</b>Choose entries with a <b>green tick</b> where you can. Then check the numbers against the packet. If the calories or protein look wrong, pick another entry.</li>
+<li><b>Set the amount in grams</b>Change the serving size to <b>1 g</b> and type in what your scales say, for example 150. This is the most accurate way.</li>
+<li><b>Tap the tick to add it</b>Then carry on with the next food.</li>
+</ol>
+<div class="two"><div class="ok">✅ <b>Do:</b> log as you go, or straight after each meal. It takes seconds when it's fresh.</div><div class="no">❌ <b>Don't:</b> wait until bedtime and try to remember the whole day. That's where food goes missing.</div></div>
+<h3>Packaged food</h3>
+<p>On Premium you can scan the barcode. On the free version, search the product name and brand, then check the entry against the label. If you can't find it, use <b>Create a food</b> and copy the numbers off the packet per 100 g. You only have to do it once.</p>
+<h3>Home cooking</h3>
+<p>For meals you make often, use <b>Recipes → Create a recipe</b>. Add every ingredient (including the oil), say how many portions it makes, then log one portion. Next time it's one tap.</p>
+</section>
+
+<section class="ch" id="weigh">
+<div class="num">Chapter 5</div><h2 class="t">Weighing your food</h2>
+<p>A cheap digital kitchen scale is the best £10 you'll spend on your progress. Eyeballing portions is where most tracking goes wrong.</p>
+<ul class="b">
+<li><b>Weigh in grams.</b> Put the plate or bowl on, press zero (tare), add the food.</li>
+<li><b>Raw or cooked: match the entry.</b> Rice, pasta and meat change weight a lot when cooked. If you weigh it raw, pick a raw entry. If you weigh it cooked, pick a cooked entry. Raw is the most accurate.</li>
+<li><b>Weigh the "little things".</b> Oil, butter, peanut butter, sauces and dressings are the sneaky calories. A tablespoon of oil is around 120 kcal.</li>
+<li><b>Spray oil counts too</b>, but it's small. Log a few sprays.</li>
+<li><b>Drinks count.</b> Milk in coffee, juice, fizzy drinks that aren't zero, and alcohol all go in.</li>
+</ul>
+<div class="key">You don't have to weigh forever. Weigh carefully for the first few weeks so you learn what portions really look like.</div>
+</section>
+
+<section class="ch" id="time">
+<div class="num">Chapter 6</div><h2 class="t">Save time every day</h2>
+<ul class="b">
+<li><b>Copy meals.</b> Eat the same breakfast most days? Tap the three dots next to the meal and copy it to today.</li>
+<li><b>Save meals.</b> Save your usual lunch or snack as a meal, so it's one tap.</li>
+<li><b>Use Recent and Frequent.</b> When you search, the tabs at the top show what you log most.</li>
+<li><b>Plan ahead.</b> Log tomorrow's food the night before, then just tweak it. It's the easiest way to hit your protein.</li>
+<li><b>Quick add, only when you have to.</b> Quick add lets you type in calories without a food. Use it for a meal out you can't find, not as your everyday method.</li>
+</ul>
+</section>
+
+<section class="ch" id="out">
+<div class="num">Chapter 7</div><h2 class="t">Eating out, drinks and treats</h2>
+<ul class="b">
+<li><b>Chains:</b> most big chains (Nando's, Wagamama, Greggs, Pret and so on) are in the app. Search the restaurant name and the dish.</li>
+<li><b>Independent restaurants:</b> find the closest match and add a bit extra for the oil and butter restaurants use. Overestimating is better than underestimating.</li>
+<li><b>Takeaways and buffets:</b> log your best guess. A guess is still useful data.</li>
+<li><b>Alcohol:</b> search the drink and the size (for example "large glass red wine"). A big night can add 800 to 1,500 kcal.</li>
+<li><b>Treats:</b> they fit. Log them like everything else and plan the rest of the day around them.</li>
+</ul>
+<div class="key">Never skip logging because a day went "off plan". Those are the days I most need to see.</div>
+</section>
+
+<section class="ch" id="portal">
+<div class="num">Chapter 8</div><h2 class="t">Add your totals to the portal</h2>
+<p>This is the step that lets me coach you. Whether you train with me face to face or online, your daily totals go into your <b>daily log</b> in the portal.</p>
+<ol class="steps">
+<li><b>Find your totals in the app</b>At the bottom of your diary, tap <b>Nutrition</b> (or look at the totals row). You want calories, protein, carbs and fat for the day.</li>
+<li><b>Open your portal</b>Go to <b>Today → My daily log</b>.</li>
+<li><b>Type in your totals</b>Add your calories, protein, carbs and fat, plus your weight, steps, water and sleep.</li>
+<li><b>Tap save</b>Do this every day, ideally before bed. Missed a day? Tap the day in the row and fill it in.</li>
+</ol>
+<p><a class="btn" href="/portal/" style="margin-top:10px">Open my portal</a></p>
+</section>
+
+<section class="ch" id="mistakes">
+<div class="num">Chapter 9</div><h2 class="t">The mistakes that stall progress</h2>
+<p>Tick off the ones you're already avoiding:</p>
+<div class="check" id="chk">
+<label><input type="checkbox">I weigh my food in grams instead of guessing</label>
+<label><input type="checkbox">I log cooking oil, butter and sauces</label>
+<label><input type="checkbox">I check the entry I pick matches the packet</label>
+<label><input type="checkbox">I match raw or cooked to how I weighed it</label>
+<label><input type="checkbox">I log drinks, including milk and alcohol</label>
+<label><input type="checkbox">I log the weekend, not just weekdays</label>
+<label><input type="checkbox">I don't eat back exercise calories</label>
+<label><input type="checkbox">I log the "bad" days too</label>
+<label><input type="checkbox">I add my totals to my portal every day</label>
+</div>
+<div class="score" id="sc"></div>
+</section>
+
+<section class="ch" id="faq">
+<div class="num">Chapter 10</div><h2 class="t">Questions</h2>
+<h3>Do I need Premium?</h3>
+<p>No. Everything in this guide works on the free version. Premium adds the barcode scanner, macro goals in grams, different goals for different days and no adverts. It's nice to have, not essential.</p>
+<h3>Should I eat back my exercise calories?</h3>
+<p>No. Fitness trackers and the app usually overestimate them, and your targets from me already include your training. Ignore that number.</p>
+<h3>What if I go over my calories?</h3>
+<p>Log it honestly and carry on tomorrow. Don't try to "make up for it" by eating very little the next day. One day doesn't make or break your progress. Your weekly average is what counts.</p>
+<h3>I hit my calories but not my protein. Is that OK?</h3>
+<p>Protein is the most important number, especially when you're losing fat. Plan a protein source into every meal, and use easy options like Greek yoghurt, skyr, protein shakes, chicken, eggs or tofu.</p>
+<h3>Can I use a different app?</h3>
+<p>Yes. Any calorie tracking app is fine. The same rules apply, and you still add your totals to your portal.</p>
+<h3>I feel obsessive about tracking. What should I do?</h3>
+<p>Tell me. Tracking should help you, not stress you out. There are other ways I can coach you, and we'll find what works for you.</p>
+</section>
+
+<div class="cta-box">
+  <h2>Stuck on anything?</h2>
+  <p>Message me and I'll help you get it set up. <span style="color:var(--gold-l);font-style:italic;font-family:var(--serif)">That's what I'm here for.</span></p>
+  <a class="btn" href="https://wa.me/447592791137">Message Maria</a>
+  <a class="btn ghost" href="/portal/">Open my portal</a>
+</div>
+
+<p class="disc"><b>Important:</b> this guide is for general education only and isn't medical advice. MyFitnessPal is a separate app run by another company. Menus, settings and features can change. If you have a history of disordered eating or tracking makes you anxious, speak to me and your GP before tracking.</p>
+</main>
+<footer>MPF Coaching · Maria Paradise · <a href="privacy.html" style="color:#a89a78">Privacy</a></footer>
+<script>
+(function(){var $=function(i){return document.getElementById(i)},n=function(i){var v=parseFloat($(i).value);return isNaN(v)?0:v};
+function calc(){var k=n('cK'),p=n('cP'),c=n('cC'),f=n('cF');if(!k){['oP','oC','oF'].forEach(function(i){$(i).textContent='–'});return}
+  var r5=function(x){return Math.round(x/5)*5},pp=p*4/k*100,cc=c*4/k*100,ff=f*9/k*100;
+  $('oP').textContent=r5(pp)+'%';$('oC').textContent=r5(cc)+'%';$('oF').textContent=r5(ff)+'%';
+  var tot=r5(pp)+r5(cc)+r5(ff);$('oN').textContent='Exact: protein '+pp.toFixed(1)+'%, carbs '+cc.toFixed(1)+'%, fat '+ff.toFixed(1)+'%. '+(tot!==100?'Your rounded numbers add up to '+tot+'%. The app needs 100%, so nudge carbs up or down until it does.':'These add up to 100%, so you can type them straight in.')}
+['cK','cP','cC','cF'].forEach(function(i){$(i).oninput=calc});
+var bx=document.querySelectorAll('#chk input');function sc(){var t=0;bx.forEach(function(b){if(b.checked)t++});$('sc').textContent=t+' of '+bx.length+(t===bx.length?' · You\'re tracking like a pro 🏆':t>=6?' · Nearly there, fix the rest and watch the scales move':' · Pick one to fix this week')}
+bx.forEach(function(b){b.onchange=sc});sc();
+})();
+</script>
+</body>
+</html>
