@@ -1,2 +1,8 @@
 /img/maria-profile.jpg
   Access-Control-Allow-Origin: *
+/portal/*
+  Cache-Control: no-cache
+/*.html
+  Cache-Control: no-cache
+/
+  Cache-Control: no-cache
