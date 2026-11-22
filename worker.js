@@ -609,6 +609,12 @@ async function handleApi(request, env, url) {
   }
 
   // ---- coach ----
+  if (path === "/portal/api/coach/acuity-status") {
+    if (!coach) return json({ error: "forbidden" }, 403);
+    const t0 = Date.now(); acuityCache = null;
+    let err = null; const data = await acuityBookings(env).catch((e) => { err = String(e).slice(0, 120); return null; });
+    return json({ configured: !!(env.ACUITY_USER_ID && env.ACUITY_API_KEY), ok: !!data, clients: data ? Object.keys(data).length : 0, ms: Date.now() - t0, last: acuityLast, err });
+  }
   if (path === "/portal/api/coach/clients") {
     if (!coach) return json({ error: "forbidden" }, 403);
     const acu = await acuityBookings(env).catch(() => null);
@@ -893,18 +899,20 @@ async function notifyForm(env, client, a) {
 }
 
 // ---- PT bookings from Acuity (optional: needs ACUITY_USER_ID + ACUITY_API_KEY secrets) ----
-let acuityCache = null;
+let acuityCache = null, acuityLast = null;
 async function acuityBookings(env) {
   if (!env.ACUITY_USER_ID || !env.ACUITY_API_KEY) return null;
   if (acuityCache && Date.now() - acuityCache.at < 10 * 60 * 1000) return acuityCache.data;
   const today = londonToday();
-  const qs = new URLSearchParams({ minDate: fromT(toT(today) - 90 * DAY_MS), maxDate: fromT(toT(today) + 90 * DAY_MS), max: "2500" });
+  const qs = new URLSearchParams({ minDate: fromT(toT(today) - 60 * DAY_MS), maxDate: fromT(toT(today) + 60 * DAY_MS), max: "1000" });
   const res = await fetch("https://acuityscheduling.com/api/v1/appointments?" + qs, {
     headers: { authorization: "Basic " + btoa(env.ACUITY_USER_ID + ":" + env.ACUITY_API_KEY) },
-    signal: AbortSignal.timeout(8000),
+    signal: AbortSignal.timeout(20000),
   });
+  acuityLast = { status: res.status, at: new Date().toISOString() };
   if (!res.ok) return null;
   const appts = await res.json();
+  acuityLast.count = Array.isArray(appts) ? appts.length : -1;
   const by = {};
   for (const a of Array.isArray(appts) ? appts : []) {
     if (a.canceled) continue;
