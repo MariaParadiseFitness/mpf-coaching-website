@@ -1262,7 +1262,7 @@ function brandHTML({ heading, intro, lines, button, foot }) {
 ${intro ? `<p style="margin:0 0 14px;color:#e9e1cc;font-size:15px;line-height:1.6">${escH(intro)}</p>` : ""}${body}</td></tr>
 ${button ? `<tr><td style="padding:14px 28px 6px"><a href="${button.url}" style="display:inline-block;background:#c9a64b;background-image:linear-gradient(135deg,#a8873e,#e6cf8b);color:#111;text-decoration:none;font-weight:bold;font-size:13px;letter-spacing:2px;text-transform:uppercase;padding:14px 26px;border-radius:40px">${escH(button.text)}</a></td></tr>` : ""}
 <tr><td style="padding:22px 28px 26px"><table role="presentation" cellpadding="0" cellspacing="0"><tr>
-<td valign="middle"><img src="${SITE}/img/maria-profile.jpg" alt="Maria Paradise" width="52" height="52" style="display:block;width:52px;height:52px;border-radius:50%;border:2px solid #c9a64b;object-fit:cover"></td>
+<td valign="middle"><img src="${SITE}/img/email-avatar.png" alt="Maria Paradise" width="56" height="56" style="display:block;width:56px;height:56px;border:0"></td>
 <td valign="middle" style="padding-left:14px"><div style="color:#ffffff;font-family:Georgia,serif;font-size:17px">Maria Paradise</div><div style="color:#c9a64b;font-size:12px;letter-spacing:1px">MPF COACHING · FAT LOSS &amp; BODY RECOMP</div></td></tr></table></td></tr>
 </table>
 <p style="color:#7d7565;font-size:12px;line-height:1.6;margin:16px 0 0;max-width:560px">${foot ? escH(foot) + "<br>" : ""}<a href="${SITE}" style="color:#c9a64b;text-decoration:none">mpfcoaching.co.uk</a> · <a href="https://instagram.com/mariaparadisefitness" style="color:#c9a64b;text-decoration:none">@mariaparadisefitness</a></p>
