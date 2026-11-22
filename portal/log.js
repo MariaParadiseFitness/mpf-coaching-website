@@ -164,10 +164,12 @@
   function logTable(days,from,to){
     var rows='',cols=COLS.slice();if(Object.keys(days).some(function(d){return days[d].period}))cols.push('cycle');
     var COLS_=cols;
+    var gap=[];var flush=function(){if(!gap.length)return;var a=gap[gap.length-1],z=gap[0];rows+='<tr class="miss"><td>'+(gap.length>1?nice(a,{month:undefined})+' to '+nice(z,{month:undefined}):nice(z,{month:undefined}))+'</td><td colspan="'+(COLS_.length+1)+'">Not logged'+(gap.length>1?' · '+gap.length+' days':'')+'</td></tr>';gap=[]};
     for(var t=toT(to);t>=toT(from);t-=DAY){var d=fromT(t),x=days[d];
-      if(!x){rows+='<tr class="miss"><td>'+nice(d,{month:undefined})+'</td><td colspan="'+(COLS_.length+1)+'">Not logged</td></tr>';continue}
+      if(!x){gap.push(d);continue}flush();
       rows+='<tr><td>'+nice(d,{month:undefined})+'</td>'+COLS_.map(function(k){var v=x?(k==='cals'?(kcal(x)!=null?Math.round(kcal(x)):''):k==='cycle'?(cycleDay(days,d,x.period)||''):x[k]):'';return '<td>'+esc(v||'')+'</td>'}).join('')+'<td class="nt">'+esc(x&&x.notes||'')+'</td></tr>'}
-    return '<div class="lt-wrap"><table class="lt"><thead><tr><th>Day</th>'+COLS_.map(function(k){var f=LABEL[k]||{l:'Cycle day'};return '<th>'+esc({cycle:'Cycle',weight:'Weight',steps:'Steps',cals:'Kcal',protein:'Protein',carbs:'Carbs',fat:'Fat',water:'Water',offPlan:'Off-plan',sleep:'Sleep',cardio:'Cardio',trained:'Trained',energy:'Energy',mood:'Mood',stress:'Stress',hunger:'Hunger',adherence:'Plan'}[k]||f.l)+'</th>'}).join('')+'<th>Notes</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+    flush();
+    return '<div class="lt-wrap"><table class="lt"><thead><tr><th>Day</th>'+COLS_.map(function(k){var f=LABEL[k]||{l:'Cycle day'};return '<th>'+esc({cycle:'Cycle day',weight:'Weight kg',steps:'Steps',cals:'Kcal',protein:'Protein g',carbs:'Carbs g',fat:'Fat g',water:'Water L',offPlan:'Off-plan',sleep:'Sleep',cardio:'Cardio min',trained:'Trained',energy:'Energy',mood:'Mood',stress:'Stress',hunger:'Hunger',adherence:'Plan'}[k]||f.l)+'</th>'}).join('')+'<th>Notes</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
   }
   function checkinList(all){
     var ds=Object.keys(all||{}).sort().reverse();
