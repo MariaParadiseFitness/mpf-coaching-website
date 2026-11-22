@@ -685,6 +685,7 @@ body.gated #topTabs{visibility:hidden}
     if(!j.known&&j.coach){location.replace('/portal/coach/');return}
     if(!j.known){message('Nearly <em>there.</em>','You\'re signed in as <b style="color:#fff">'+esc(j.email)+'</b>, but your portal isn\'t linked to this email yet. Message me and I\'ll get you set up.','<a class="btn" href="https://wa.me/447592791137">Message Maria</a><p style="margin-top:16px"><a href="/cdn-cgi/access/logout">Log out</a></p>');return}
     render(j.client,j.email,{week:j.week,photos:j.photos,today:j.today,paid:j.paid});
+    var pe=function(){[].forEach.call(document.querySelectorAll('a[href^="https://buy.stripe.com/"]'),function(l){if(l.href.indexOf('prefilled_email')<0)l.href+=(l.href.indexOf('?')<0?'?':'&')+'prefilled_email='+encodeURIComponent(j.email)})};pe();setTimeout(pe,1500);
   }).catch(function(){message('Something went <em>wrong.</em>','Please refresh the page. If it keeps happening, message me.','<a class="btn" href="https://wa.me/447592791137">Message Maria</a>')});
 })();
 </script>
