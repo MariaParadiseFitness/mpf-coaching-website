@@ -288,7 +288,7 @@ html,body{overflow-x:hidden}
     <div class="sub" id="cmpHelp" hidden style="margin-top:-6px">Tick two weeks below, then press Compare.</div>
     <div class="cmp" id="cmp" hidden></div>
     <details class="pmeta" style="margin:10px 0"><summary class="mini" style="cursor:pointer">⬆ Add photos for this client</summary><div class="mini" style="margin:8px 0">Name each file with its week and angle, like <b>w13-front.jpg</b> or <b>w0-side.jpg</b> (week 0 = start photos). JPEG or PNG.</div><input type="file" id="cUp" multiple accept="image/jpeg,image/png,image/webp"><div class="mini" id="cUpMsg" style="margin-top:6px"></div></details>
-    <button class="btn g" type="button" id="luOpen" style="margin:4px 0 8px">📐 Line up photos</button>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:4px 0 8px"><button class="btn" type="button" id="luAuto">✨ Auto line up all photos</button><button class="btn g" type="button" id="luOpen">📐 Fine-tune by hand</button><span class="mini" id="luAutoMsg"></span></div>
     <div id="luBox" hidden><b style="color:#fff">Line up photos so the body is the same size in every one</b><div class="mini" style="margin:4px 0 10px">The first photo shows faded underneath. Drag the photo (or use the sliders) and change the size until the head and feet sit on the same gold lines. Your client sees the lined-up version too.</div>
       <div class="lu-g"><div class="lu-st" id="luSt"><img id="luBase" alt=""><img id="luTop" alt=""><div class="lines"></div><div class="vl"></div></div>
       <div class="lu-c"><label>Angle</label><select id="luAng"><option value="front">Front</option><option value="side">Side</option><option value="back">Back</option></select>
@@ -407,6 +407,30 @@ html,body{overflow-x:hidden}
     if(id==='cvNav'){e.preventDefault();var list=(clients||[]).filter(function(c){return c.active!==false}).slice().sort(function(a,b){return a.name.localeCompare(b.name)});$('cvSel').innerHTML=list.map(function(c){return '<option value="'+esc(c.id)+'">'+esc(c.name)+' · '+(c.type==='pt'?'face to face':'online')+'</option>'}).join('');$('cvPick').style.display='grid'}
     if(id==='cvX'||id==='cvPick')$('cvPick').style.display='none';
     if(id==='cvGo'&&$('cvSel').value)location.href='/portal/?as='+encodeURIComponent($('cvSel').value)});
+  // ---- automatic line up: finds the body in each photo (pose detection, runs in this browser) and matches size and position to the first photo
+  var POSE=null;
+  function poseModel(){if(POSE)return POSE;var V='https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14';
+    POSE=import(V+'/vision_bundle.mjs').then(function(m){return m.FilesetResolver.forVisionTasks(V+'/wasm').then(function(fs){return m.PoseLandmarker.createFromOptions(fs,{baseOptions:{modelAssetPath:'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/1/pose_landmarker_full.task'},runningMode:'IMAGE',numPoses:1})})});POSE.catch(function(){POSE=null});return POSE}
+  function loadImg(u){return new Promise(function(ok,no){var i=new Image();i.onload=function(){ok(i)};i.onerror=no;i.src=u})}
+  function bodyBox(det,img){var r=det.detect(img),L=r&&r.landmarks&&r.landmarks[0];if(!L)return null;
+    var W=img.naturalWidth,H=img.naturalHeight,c=Math.max(3/W,4/H),ox=(W*c-3)/2,oy=(H*c-4)/2,P=function(i){return {x:(L[i].x*W*c-ox)/3,y:(L[i].y*H*c-oy)/4,v:L[i].visibility==null?1:L[i].visibility}};
+    var nose=P(0),sh=[P(11),P(12)],hp=[P(23),P(24)],an=[P(27),P(28)],mid=function(a){return {x:(a[0].x+a[1].x)/2,y:(a[0].y+a[1].y)/2}};
+    var S=mid(sh),Hp=mid(hp),A=mid(an),feet=an[0].v>.5&&an[1].v>.5&&A.y<1.02,top=nose.y-(S.y-nose.y)*0.85;
+    return {top:top,bot:feet?A.y:null,sh:S.y,hip:Hp.y,cx:Hp.x,feet:feet}}
+  function solve(ref,b){var useFeet=ref.feet&&b.feet,s=useFeet?(ref.bot-ref.top)/(b.bot-b.top):(ref.hip-ref.sh)/(b.hip-b.sh);if(!isFinite(s)||s<=0)return null;s=Math.max(.5,Math.min(2,s));
+    var ay=useFeet?b.bot:b.hip,ry=useFeet?ref.bot:ref.hip,ty=ry-.5-(ay-.5)*s,tx=ref.cx-.5-(b.cx-.5)*s;
+    return {s:Math.round(s*1000)/1000,x:Math.round(tx*1000)/10,y:Math.round(ty*1000)/10}}
+  function autoLineUp(){if(!cur)return;var id=cur.id,m=$('luAutoMsg'),done=0,miss=0;m.textContent='Loading body finder… (first time takes a few seconds)';
+    poseModel().then(function(det){var jobs=[];ANG.forEach(function(a){var ws=weeks().filter(function(w){return latest(w,a)}).sort(function(x,y){return x-y});if(ws.length<2)return;jobs.push({a:a,ws:ws})});
+      var all=[];jobs.forEach(function(j){j.ws.forEach(function(w){all.push({a:j.a,w:w,ref:w===j.ws[0]})})});var refs={},n=0;
+      var step=function(i){if(i>=all.length){m.textContent='✓ Lined up '+done+' photos'+(miss?' · '+miss+' need a quick check by hand (body not found)':'')+'. Use Fine-tune if any look off.';drawPhotos();return}
+        var t=all[i],p=latest(t.w,t.a);m.textContent='Lining up '+(i+1)+' of '+all.length+'…';
+        loadImg(src(p)).then(function(img){var b=bodyBox(det,img);if(!b){miss++;return}
+          if(t.ref){refs[t.a]=b;return postJ('/portal/api/coach/photo-align?id='+encodeURIComponent(id),{key:p.key,reset:true}).then(function(){p.align=undefined})}
+          var ref=refs[t.a];if(!ref){miss++;return}var a=solve(ref,b);if(!a){miss++;return}
+          return postJ('/portal/api/coach/photo-align?id='+encodeURIComponent(id),{key:p.key,s:a.s,x:a.x,y:a.y}).then(function(j){p.align=j.align;done++})}).catch(function(){miss++}).then(function(){step(i+1)})};step(0)})
+    .catch(function(){m.textContent='Could not load the body finder. Check your internet and try again.'})}
+  document.addEventListener('click',function(e){if(e.target&&e.target.id==='luAuto')autoLineUp()});
   function drawPhotos(){
     drawFvl();
     var ws=weeks();
