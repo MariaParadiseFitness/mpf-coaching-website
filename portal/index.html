@@ -144,6 +144,7 @@ details.app b{color:#fff}
 .ph-row span.e{display:grid;place-content:center;color:#4d463a;font-size:12px}
 .ph-note{font-size:12.5px;color:var(--mute);margin-top:10px}
 .consent{display:block}.consent .ob-check{display:block;margin:8px 0;font-size:13.5px;line-height:1.45}.cn-ph{margin:10px 0}.cn-ph label{display:block;margin:6px 0;font-size:14px}.cn-ph small{display:block;color:var(--mute);font-size:12px;margin-top:4px}
+.pay-opts{display:flex;flex-direction:column;gap:6px;margin:6px 0}.pay-opts small{color:var(--mute);font-size:12px}
 .ph-priv{background:#0e0e0e;border:1px solid rgba(201,166,75,.3);border-radius:12px;padding:10px 12px}.ph-priv summary{cursor:pointer;color:#e8d79a}.ph-priv p{margin:6px 0 0}
 @media(max-width:600px){.ph-week{gap:8px}.slot b{font-size:12.5px}.slot small{display:none}.ph-row{grid-template-columns:56px repeat(3,1fr);gap:6px}}
 footer{text-align:center;color:#7d735c;font-size:12px;padding:20px}
@@ -436,6 +437,7 @@ body.gated #topTabs{visibility:hidden}
   var preview=/[?&]preview\b/.test(location.search);
 
   var STEPS=[
+    {key:'pay',online:true,t:'Choose your plan and pay',d:'Pay securely through Stripe. Skip this step if you have already paid me.',extra:'<div class="pay-opts"><a class="go" target="_blank" rel="noopener" href="https://buy.stripe.com/14AcN48jBebn27H5DY1ZS07">Monthly: £75 set-up + £175 a month →</a><a class="go" target="_blank" rel="noopener" href="https://buy.stripe.com/cNidR8eHZ5ERcMl7M61ZS08">3 months upfront: £525, no set-up fee →</a><a class="go" target="_blank" rel="noopener" href="https://buy.stripe.com/9B63cu0R96IV27H0jE1ZS09">6 months upfront: £900, no set-up fee →</a><small>Signed up for my free guides? Use code GUIDE10 on the monthly plan for 10% off your first payment.</small></div>'},
     {key:'form',t:'Fill in your onboarding form',d:'Your health questions (PAR-Q), medical history, goals, training and food. This is everything I need to work out your calories and macros and build your meal plan and training. About 10 minutes, and it saves as you go.',ptD:'Your health questions (PAR-Q), medical history, goals, training and food. Please fill this in before our first session so I can work out your calories and macros and get your meal plan and training ready. About 10 minutes, and it saves as you go.',l:'#onboard',lt:'Open my form'},
     {key:'mfp',t:'Download a calorie counter',d:'MyFitnessPal, or any other calorie counting app you like. Use it to track your food, then add your daily totals to your daily log here in the portal.'},
     {key:'kit',t:'Get your kit together',d:'Kitchen scales, bodyweight scales, a tape measure and a step counter you wear on your wrist, like a Fitbit or smartwatch. Your phone isn\'t accurate enough as it\'s not always on you.'},
@@ -504,13 +506,14 @@ body.gated #topTabs{visibility:hidden}
     var pt=c.type==='pt';if(pt){STEPS=STEPS.filter(function(x){return !x.online});$('lNutri').hidden=true}
     if(pt&&c.onboarded!==true)$('ptFirst').hidden=false;
     $('sessions').classList.remove('gone');[].forEach.call(document.querySelectorAll('.ptonly'),function(a){a.hidden=false});$('bnav').classList.add('six');
+    if(pt){var so=document.createElement('div');so.className='due';so.setAttribute('data-view','sessions');so.innerHTML='<b>💻 Prefer to train on your own?</b><p style="margin:6px 0 8px">Can\'t get to the gym with me as often? Keep your progress going with online coaching: your programme, check-ins and support, all in this portal.</p><div class="pay-opts"><a class="go" target="_blank" rel="noopener" href="https://buy.stripe.com/14AcN48jBebn27H5DY1ZS07">Monthly: £75 set-up + £175 a month →</a><a class="go" target="_blank" rel="noopener" href="https://buy.stripe.com/cNidR8eHZ5ERcMl7M61ZS08">3 months upfront: £525 →</a><a class="go" target="_blank" rel="noopener" href="https://buy.stripe.com/9B63cu0R96IV27H0jE1ZS09">6 months upfront: £900 →</a><small>Once you\'ve paid, message me and I\'ll switch your portal over. All your history stays.</small></div>';var ss=$('sessions');if(ss)ss.appendChild(so)}
     if(!pt)$('sessSub').textContent='Want to train with Maria in person? Book a face to face session at PureGym Charlton.';
     STEPS.forEach(function(x){x.opt=pt&&!!x.ptOpt;if(pt&&x.ptD)x.d=x.ptD});
     var done={},ol=$('steps');
     STEPS.forEach(function(s,i){
       var li=document.createElement('li');li.className='step';
       var href=s.l||'',btn=s.av?'<label class="go">'+esc(s.lt)+' →<input type="file" accept="image/*" hidden class="stepAv"></label>':(s.lt&&href?'<a class="go" href="'+esc(href)+'"'+(href.charAt(0)==='#'?'':' target="_blank" rel="noopener"')+'>'+esc(s.lt)+' →</a>':'');
-      li.innerHTML='<button class="tick" type="button" aria-label="Mark step '+(i+1)+' done"></button><div><b>'+(i+1)+'. '+esc(s.t)+(s.opt?' <span class="opt">Optional</span>':'')+'</b><p>'+esc(s.d)+'</p>'+(s.opt?'<p class="tip">💡 '+esc(s.ptOpt)+'</p>':'')+btn+'</div>';
+      li.innerHTML='<button class="tick" type="button" aria-label="Mark step '+(i+1)+' done"></button><div><b>'+(i+1)+'. '+esc(s.t)+(s.opt?' <span class="opt">Optional</span>':'')+'</b><p>'+esc(s.d)+'</p>'+(s.extra||'')+(s.opt?'<p class="tip">💡 '+esc(s.ptOpt)+'</p>':'')+btn+'</div>';
       li.querySelector('.tick').onclick=function(){tick(s.key,!done[s.key])};
       var f=li.querySelector('.stepAv');if(f)f.onchange=function(e){var file=e.target.files[0];if(file)avUp(file,$('avBox'),function(){tick('avatar',true)});e.target.value=''};
       ol.appendChild(li);
