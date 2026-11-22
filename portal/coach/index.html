@@ -164,7 +164,7 @@ html,body{overflow-x:hidden}
 <body>
 <div class="top"><div class="in"><a href="/portal/coach/"><img src="/img/logo.png" alt="MPF Coaching"></a><a class="o" href="/cdn-cgi/access/logout">Log out</a></div></div>
 <main class="wrap" id="app" hidden>
-  <nav class="vnav" id="vnav"><a data-v="today" href="#v=today">✅ Today</a><a data-v="clients" href="#v=clients">👥 Clients</a><a data-v="prog" href="#v=prog">📋 Programmes</a><a data-v="meal" href="#v=meal">🥗 Meal plans</a><a href="/portal/coach/business.html">💷 Business</a></nav>
+  <nav class="vnav" id="vnav"><a data-v="today" href="#v=today">✅ Today</a><a data-v="clients" href="#v=clients">👥 Clients</a><a data-v="prog" href="#v=prog">📋 Programmes</a><a data-v="meal" href="#v=meal">🥗 Meal plans</a><a data-v="mkt" href="#v=mkt">📣 Marketing</a><a href="/portal/coach/business.html">💷 Business</a></nav>
   <div class="preview" id="pv" hidden>👀 Preview with made-up clients. Real clients appear once the login is switched on.</div>
   <div class="mhero" id="mhero" data-view="today">
     <div class="kick" id="today"></div>
@@ -194,6 +194,15 @@ html,body{overflow-x:hidden}
   <div class="panel" id="tplPanel" data-view="tpl" hidden><div class="ph-head"><div><div class="kick">Your library</div><h2>Programme <em>templates.</em></h2><div class="sub" style="margin:4px 0 0">Build programmes once here, then copy them into any client from their Programmes tab with <b>+ From a template</b>.</div></div><button class="btn g" id="tplClose" type="button">Close</button></div><div id="tplEd"></div></div>
 
 
+  <div data-view="mkt" id="mkt">
+    <div class="mhero" style="padding:22px"><div class="kick">Grow MPF Coaching</div><h1>Your <em>marketing.</em></h1><div class="mq">"Post like your next client is watching. Because they are."</div></div>
+    <div class="card2"><div class="t2h"><h2>This week's <em>habits.</em></h2><span class="mini" id="habN"></span></div><div id="habBody"></div>
+      <details style="margin-top:10px"><summary class="mini" style="cursor:pointer">Edit weekly habits</summary><textarea id="habEdit" rows="7" style="width:100%;box-sizing:border-box;margin-top:8px;background:#0e0e0e;border:1px solid rgba(201,166,75,.35);border-radius:12px;color:#fff;font:inherit;font-size:14px;padding:10px"></textarea><div class="mini">One habit per line. They reset every Monday.</div><button class="btn" type="button" id="habSave" style="margin-top:8px">Save habits</button></details></div>
+    <div class="card2"><div class="t2h"><h2>Marketing <em>to-do.</em></h2><span class="mini" id="mktN"></span></div>
+      <div class="filters" id="mktTabs"></div><div id="mktBody"></div>
+      <div class="todo-add"><select id="mktList" style="background:#0e0e0e;border:1px solid rgba(201,166,75,.35);border-radius:12px;color:#fff;font:inherit;font-size:14px;padding:8px"></select><input id="mktIn" placeholder="+ e.g. Film a portal walkthrough reel" maxlength="200"><button class="btn" type="button" id="mktAdd">Add</button></div></div>
+    <div class="card2"><h2>Content <em>ideas.</em></h2><div class="mini" style="margin-bottom:8px">Tap an idea to add it to your to-do list.</div><div id="ideas" class="tagpick"></div></div>
+  </div>
   <div class="panel" id="panel" hidden>
     <div class="ph-head">
       <div><div class="kick" id="pKick">Client</div><h2 id="pName">Client</h2></div>
@@ -326,7 +335,7 @@ html,body{overflow-x:hidden}
       [4,8,12,16,20,26,39,52,78,104].forEach(function(n){if(c.week===n&&c.start)T.push({g:'🎉 Milestones',key:'ms:'+c.id+':wk'+n,c:c,txt:f+' hits '+(n%52===0?(n/52)+' year'+(n>52?'s':''):n+' weeks')+' with you','sub':'Send a little shout-out'})});
     });
     return T.filter(function(t){return !TD.dismissed[t.key]})}
-  function drawTodo(){var T=autoTasks(),own=TD.items||[],gs={},order=['💬 Reply to check-ins','🏋️ PT today','💳 Money','📝 Build plans','🔁 Renewals','👀 Check on','🎉 Milestones'];T.forEach(function(t){(gs[t.g]=gs[t.g]||[]).push(t)});
+  function drawTodo(){var T=autoTasks(),own=(TD.items||[]).filter(function(x){return !x.list}),gs={},order=['💬 Reply to check-ins','🏋️ PT today','💳 Money','📝 Build plans','🔁 Renewals','👀 Check on','🎉 Milestones'];T.forEach(function(t){(gs[t.g]=gs[t.g]||[]).push(t)});
     var openOwn=own.filter(function(x){return !x.done}).length;$('todoN').textContent=(T.length+openOwn)?(T.length+openOwn)+' to do':'';
     var h=order.filter(function(g){return gs[g]}).map(function(g){return '<div class="tg-grp"><b>'+g+'</b>'+gs[g].map(function(t){return '<div class="td"><button class="ck" type="button" data-dis="'+esc(t.key)+'" title="Done"></button><div class="tx" data-open="'+esc(t.c.id)+'"><b>'+esc(t.txt)+'</b>'+(t.sub?'<small>'+esc(t.sub)+'</small>':'')+'</div></div>'}).join('')+'</div>'}).join('');
     if(own.length)h+='<div class="tg-grp"><b>✍️ Your tasks</b>'+own.map(function(x){return '<div class="td'+(x.done?' dn':'')+'"><button class="ck" type="button" data-tog="'+x.id+'">'+(x.done?'✓':'')+'</button><div class="tx">'+esc(x.text)+'</div><button class="x" type="button" data-rm="'+x.id+'">✕</button></div>'}).join('')+'</div>';
@@ -336,6 +345,28 @@ html,body{overflow-x:hidden}
     [].forEach.call($('todoBody').querySelectorAll('[data-tog]'),function(b){b.onclick=function(){postJ('/portal/api/coach/todos',{toggle:b.getAttribute('data-tog')}).then(function(j){TD=j;drawTodo()})}});
     [].forEach.call($('todoBody').querySelectorAll('[data-rm]'),function(b){b.onclick=function(){postJ('/portal/api/coach/todos',{remove:b.getAttribute('data-rm')}).then(function(j){TD=j;drawTodo()})}});
   }
+  var MLISTS=['Instagram','TikTok','Facebook','Content','Website','Other'],mTab='All',DEFH=['Post 3 Instagram Reels','Post 3 TikToks','Share a client transformation (with permission)','Post 5 Instagram stories','Reply to every DM and comment','Post in Facebook groups once','Share a portal or app tip','Ask one happy client for a review','Post a "day in the life" video'];
+  var IDEAS=['Portal walkthrough reel','Client transformation (with permission)','What I eat in a day','Gym day in my life','Myth bust: carbs at night','3 exercises for glutes','How I build a client programme','Comp prep update','Before and after of a client\'s log','Q&A: answer a DM question','Why tracking works','Behind the scenes at PureGym Charlton','Free guide promo','Client win of the week','How to read a food label','Stage prep throwback'];
+  function isoWeek(){var d=new Date(Date.parse(todayStr+'T12:00:00Z')),day=(d.getUTCDay()+6)%7;d.setUTCDate(d.getUTCDate()-day);return d.toISOString().slice(0,10)}
+  function drawMkt(){var H=(TD.habits&&TD.habits.length)?TD.habits:DEFH,wk=isoWeek(),done=0;
+    $('habBody').innerHTML=H.map(function(h,i){var k='wk:'+wk+':'+h,on=!!TD.dismissed[k];if(on)done++;return '<div class="td'+(on?' dn':'')+'"><button class="ck" type="button" data-hk="'+esc(k)+'">'+(on?'✓':'')+'</button><div class="tx">'+esc(h)+'</div></div>'}).join('');
+    $('habN').textContent=done+' of '+H.length+' this week'+(done===H.length?' 🔥':'');$('habEdit').value=H.join('\n');
+    [].forEach.call($('habBody').querySelectorAll('[data-hk]'),function(b){b.onclick=function(){var k=b.getAttribute('data-hk'),on=!!TD.dismissed[k];if(on)delete TD.dismissed[k];else TD.dismissed[k]=todayStr;drawMkt();postJ('/portal/api/coach/todos',on?{undismiss:k}:{dismiss:k}).catch(function(){})}});
+    var items=(TD.items||[]).filter(function(x){return x.list}),cnt={};items.forEach(function(x){if(!x.done)cnt[x.list]=(cnt[x.list]||0)+1});
+    $('mktTabs').innerHTML=['All'].concat(MLISTS).map(function(l){return '<button type="button" class="'+(mTab===l?'on':'')+'" data-l="'+l+'">'+({Instagram:'📸 ',TikTok:'🎵 ',Facebook:'👥 ',Content:'🎬 ',Website:'🌐 ',Other:'✨ '}[l]||'')+l+(l==='All'?'':cnt[l]?' · '+cnt[l]:'')+'</button>'}).join('');
+    [].forEach.call($('mktTabs').querySelectorAll('button'),function(b){b.onclick=function(){mTab=b.getAttribute('data-l');if(mTab!=='All')$('mktList').value=mTab;drawMkt()}});
+    var show=items.filter(function(x){return mTab==='All'||x.list===mTab}).sort(function(a,b){return (a.done?1:0)-(b.done?1:0)});
+    $('mktN').textContent=items.filter(function(x){return !x.done}).length+' to do';
+    $('mktBody').innerHTML=show.map(function(x){return '<div class="td'+(x.done?' dn':'')+'"><button class="ck" type="button" data-tog="'+x.id+'">'+(x.done?'✓':'')+'</button><div class="tx">'+esc(x.text)+'<small>'+esc(x.list)+'</small></div><button class="x" type="button" data-rm="'+x.id+'">✕</button></div>'}).join('')||'<div class="allclear" style="font-size:15px">Nothing here yet. Add a task or tap a content idea below.</div>';
+    [].forEach.call($('mktBody').querySelectorAll('[data-tog]'),function(b){b.onclick=function(){postJ('/portal/api/coach/todos',{toggle:b.getAttribute('data-tog')}).then(function(j){TD=j;drawMkt()})}});
+    [].forEach.call($('mktBody').querySelectorAll('[data-rm]'),function(b){b.onclick=function(){postJ('/portal/api/coach/todos',{remove:b.getAttribute('data-rm')}).then(function(j){TD=j;drawMkt()})}});
+    if(!$('mktList').options.length)$('mktList').innerHTML=MLISTS.map(function(l){return '<option>'+l+'</option>'}).join('');
+    $('ideas').innerHTML=IDEAS.map(function(i){return '<button type="button">'+esc(i)+'</button>'}).join('');
+    [].forEach.call($('ideas').querySelectorAll('button'),function(b){b.onclick=function(){b.disabled=true;postJ('/portal/api/coach/todos',{add:'Film: '+b.textContent,list:'Content'}).then(function(j){TD=j;drawMkt()})}});
+  }
+  $('mktAdd').onclick=function(){var v=$('mktIn').value.trim();if(!v)return;postJ('/portal/api/coach/todos',{add:v,list:$('mktList').value}).then(function(j){TD=j;$('mktIn').value='';drawMkt()})};
+  $('mktIn').onkeydown=function(e){if(e.key==='Enter')$('mktAdd').click()};
+  $('habSave').onclick=function(){var H=$('habEdit').value.split('\n').map(function(x){return x.trim()}).filter(Boolean);postJ('/portal/api/coach/todos',{habits:H}).then(function(j){TD=j;drawMkt()})};
   $('todoAdd').onclick=function(){var v=$('todoIn').value.trim();if(!v)return;postJ('/portal/api/coach/todos',{add:v}).then(function(j){TD=j;$('todoIn').value='';drawTodo()})};
   $('todoIn').onkeydown=function(e){if(e.key==='Enter')$('todoAdd').click()};
   if(!preview)fetch('/portal/api/coach/todos',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){TD=j;if(clients.length)drawTodo()}).catch(function(){});
@@ -407,7 +438,7 @@ html,body{overflow-x:hidden}
   $('closeBtn').onclick=function(){if(location.hash.indexOf('#c=')===0)history.back();else closeP()};
   window.addEventListener('popstate',function(){if(location.hash.indexOf('#c=')!==0)closeP()});
   var curView='';
-  function go(v,noPush){if(['today','clients','prog','meal'].indexOf(v)<0)v='today';
+  function go(v,noPush){if(['today','clients','prog','meal','mkt'].indexOf(v)<0)v='today';if(v==='mkt')drawMkt();
     [].forEach.call(document.querySelectorAll('[data-view]'),function(el){var dv=el.getAttribute('data-view');el.hidden=dv==='tpl'?!(v==='prog'||v==='meal'):dv!==v});
     [].forEach.call(document.querySelectorAll('#vnav a[data-v]'),function(a){a.classList.toggle('on',a.getAttribute('data-v')===v)});
     if(v!==curView){if(v==='prog')$('tplBtn').click();if(v==='meal')$('mtplBtn').click();window.scrollTo(0,0)}curView=v;

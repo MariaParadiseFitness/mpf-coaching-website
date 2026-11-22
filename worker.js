@@ -699,7 +699,8 @@ async function handleApi(request, env, url) {
     const key = "_data/_todos.json", db = await getJSON(env, key, { items: [], dismissed: {} });
     if (request.method === "POST") {
       const b = await request.json().catch(() => ({}));
-      if (b.add) db.items.unshift({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 5), text: String(b.add).slice(0, 200), done: false, at: londonToday(), client: String(b.client || "").slice(0, 40) });
+      if (b.add) db.items.unshift({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 5), text: String(b.add).slice(0, 200), done: false, at: londonToday(), client: String(b.client || "").slice(0, 40), list: String(b.list || "").slice(0, 30), due: isDate(b.due) ? b.due : "" });
+      if (b.habits && Array.isArray(b.habits)) db.habits = b.habits.map((x) => String(x).slice(0, 120)).filter(Boolean).slice(0, 30);
       if (b.toggle) db.items.forEach((x) => { if (x.id === b.toggle) { x.done = !x.done; x.doneAt = x.done ? londonToday() : ""; } });
       if (b.remove) db.items = db.items.filter((x) => x.id !== b.remove);
       if (b.dismiss) db.dismissed[String(b.dismiss).slice(0, 120)] = londonToday();
