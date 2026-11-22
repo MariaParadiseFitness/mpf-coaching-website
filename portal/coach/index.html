@@ -494,7 +494,7 @@ html,body{overflow-x:hidden}
   }
   $('tplBtn').onclick=function(){$('tplPanel').hidden=false;$('tplPanel').querySelector('h2').innerHTML='Programme <em>templates.</em>';MPFProgramme.Editor($('tplEd'),{tpl:true,name:'',clients:function(){return clients.filter(function(c){return c.active}).map(function(c){return {id:c.id,name:c.name,type:c.type}})},demo:preview,demoDoc:{current:'',programmes:[]}});$('tplPanel').scrollIntoView({behavior:'smooth'})};
   $('tplClose').onclick=function(){go('today')};
-  $('mtplBtn').onclick=function(){$('tplPanel').hidden=false;$('tplPanel').querySelector('h2').innerHTML='Meal plan <em>templates.</em>';MPFMeal.Editor($('tplEd'),{tpl:true,name:'',demo:preview});$('tplPanel').scrollIntoView({behavior:'smooth'})};
+  $('mtplBtn').onclick=function(){$('tplPanel').hidden=false;$('tplPanel').querySelector('h2').innerHTML='Meal plan <em>templates.</em>';MPFMeal.Editor($('tplEd'),{tpl:true,name:'',clients:function(){return clients.filter(function(c){return c.active}).map(function(c){return {id:c.id,name:c.name,type:c.type}})},demo:preview});$('tplPanel').scrollIntoView({behavior:'smooth'})};
   $('cmpBtn').onclick=function(){
     var picked=[].map.call(document.querySelectorAll('.pick:checked'),function(i){return +i.value}).sort(function(a,b){return a-b});
     if(picked.length!==2){$('cmpHelp').hidden=false;return}

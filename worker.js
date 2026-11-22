@@ -316,7 +316,7 @@ function cleanMealplans(doc) {
   const now = new Date().toISOString();
   const plans = (Array.isArray(doc && doc.plans) ? doc.plans : []).slice(0, 30).map((p) => ({
     id: str(p.id, 40).replace(/[^a-z0-9]/gi, "") || Math.random().toString(36).slice(2, 10),
-    title: str(p.title, 80) || "Meal plan", notes: str(p.notes, 3000),
+    title: str(p.title, 80) || "Meal plan", notes: str(p.notes, 3000), folder: str(p.folder, 40),
     created: str(p.created, 30) || now, updated: str(p.updated, 30) || now,
     days: (Array.isArray(p.days) ? p.days : []).slice(0, 7).map((d) => ({
       name: str(d.name, 60) || "Day", notes: str(d.notes, 1500),

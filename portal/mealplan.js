@@ -44,17 +44,19 @@
     function pad(p){if(!p.days.length)p.days.push({name:'Every day',notes:'',meals:[]});p.days.forEach(function(d){if(!d.meals.length)d.meals.push(meal(1));d.meals.forEach(function(m){if(!m.foods.length)m.foods.push({})})})}
     function load(d){doc=d&&d.plans&&d.plans.length?JSON.parse(JSON.stringify(d)):{current:'',plans:[]};if(!doc.plans.length){var b=blank();doc.plans.push(b);doc.current=b.id}doc.plans.forEach(pad);plan=doc.plans.filter(function(p){return p.id===doc.current})[0]||doc.plans[0];di=0;dirty=false;draw()}
     function read(){
-      var t=el.querySelector('[name=mtitle]');if(!t)return;plan.title=t.value;plan.notes=el.querySelector('[name=mnotes]').value;
+      var t=el.querySelector('[name=mtitle]');if(!t)return;plan.title=t.value;var fo=el.querySelector('[name=mfolder]');if(fo)plan.folder=fo.value.trim();plan.notes=el.querySelector('[name=mnotes]').value;
       var d=plan.days[di];d.name=el.querySelector('[name=dname]').value||'Day';d.notes=el.querySelector('[name=dnotes]').value;
       [].forEach.call(el.querySelectorAll('[data-m]'),function(mb){var m=d.meals[+mb.getAttribute('data-m')];m.name=mb.querySelector('[name=mname]').value;m.notes=mb.querySelector('[name=mnote]').value;
         [].forEach.call(mb.querySelectorAll('tr[data-f]'),function(tr){var f=m.foods[+tr.getAttribute('data-f')];['food','amount','unit','kcal','p','c','f'].forEach(function(k){f[k]=tr.querySelector('[data-k='+k+']').value})})});
     }
     function draw(){
       var d=plan.days[di],isCur=plan.id===doc.current;
+      var folders={};if(tpl)doc.plans.forEach(function(p){var f=p.folder||'Unsorted';(folders[f]=folders[f]||[]).push(p)});
+      var side=tpl?'<aside class="tpl-side"><div class="ts-h">📁 Your meal plan templates</div>'+Object.keys(folders).sort(function(a,b){return a==='Unsorted'?1:b==='Unsorted'?-1:a.localeCompare(b)}).map(function(f){return '<details class="ts-f" open><summary>📁 '+esc(f)+' <span>'+folders[f].length+'</span></summary>'+folders[f].map(function(p){var k=Math.round(dayTot(p.days[0]||{meals:[]}).kcal||0);return '<button type="button" data-pid="'+esc(p.id)+'" class="'+(p===plan?'on':'')+'">'+esc(p.title||'Template')+'<small>'+(k?k+' kcal · ':'')+p.days.length+' day'+(p.days.length>1?'s':'')+'</small></button>'}).join('')+'</details>'}).join('')+'<button type="button" class="add" data-a="newp">+ New template</button></aside>':'';
       var h='<datalist id="mpFoods">'+foodList().map(function(f){return '<option value="'+esc(f.name)+'">'}).join('')+'</datalist>'+
-        '<div class="pg-list"><small>'+(tpl?'Meal plan templates':'Meal plans')+'</small><div class="pg-tabs">'+doc.plans.map(function(p){return '<button type="button" data-pid="'+esc(p.id)+'" class="'+(p===plan?'on':'')+'">'+(!tpl&&p.id===doc.current?'★ ':'')+esc(p.title||'Plan')+'</button>'}).join('')+'<button type="button" class="add" data-a="newp">+ New</button>'+(tpl?'':'<button type="button" class="add" data-a="fromtpl">+ From a template</button>')+'</div></div>'+
-        '<div class="pe-mini" style="margin-bottom:10px">'+(tpl?'':'<span class="pill '+(isCur?'ok':'off')+'" style="align-self:center">'+(isCur?'★ Current: the client sees this':'Past plan')+'</span>'+(isCur?'':'<button type="button" data-a="makecur">Make current</button>'))+'<button type="button" data-a="copyp">Copy into a new plan</button>'+(tpl?'':'<button type="button" data-a="savetpl">Save as a template</button>')+'<button type="button" data-a="delp" class="del">Delete</button></div><div id="mpPick"></div>'+
-        '<div class="pe-row"><label>Plan name<input name="mtitle" value="'+esc(plan.title)+'"></label></div><label class="pe-full">Notes for the whole plan<textarea name="mnotes" rows="2" placeholder="e.g. Drink 3L of water a day. Swap any carb source for one in your guide.">'+esc(plan.notes)+'</textarea></label>'+
+        (tpl?'':'<div class="pg-list"><small>Meal plans</small><div class="pg-tabs">'+doc.plans.map(function(p){return '<button type="button" data-pid="'+esc(p.id)+'" class="'+(p===plan?'on':'')+'">'+(p.id===doc.current?'★ ':'')+esc(p.title||'Plan')+'</button>'}).join('')+'<button type="button" class="add" data-a="newp">+ New</button><button type="button" class="add" data-a="fromtpl">+ From a template</button></div></div>')+
+        '<div class="pe-mini" style="margin-bottom:10px">'+(tpl?'':'<span class="pill '+(isCur?'ok':'off')+'" style="align-self:center">'+(isCur?'★ Current: the client sees this':'Past plan')+'</span>'+(isCur?'':'<button type="button" data-a="makecur">Make current</button>'))+'<button type="button" data-a="copyp">Copy into a new plan</button>'+(tpl?'<button type="button" data-a="assign" class="asg">👤 Assign to a client</button>':'<button type="button" data-a="savetpl">Save as a template</button>')+'<button type="button" data-a="delp" class="del">Delete</button></div><div id="mpPick"></div><div id="asgBox"></div>'+
+        '<div class="pe-row"><label>Plan name<input name="mtitle" value="'+esc(plan.title)+'"></label>'+(tpl?'<label>Folder<input name="mfolder" list="mpFolders" placeholder="e.g. 1500 kcal, Vegetarian, Men" value="'+esc(plan.folder||'')+'"><datalist id="mpFolders">'+Object.keys(folders).filter(function(f){return f!=='Unsorted'}).map(function(f){return '<option value="'+esc(f)+'">'}).join('')+'</datalist></label>':'')+'</div><label class="pe-full">Notes for the whole plan<textarea name="mnotes" rows="2" placeholder="e.g. Drink 3L of water a day. Swap any carb source for one in your guide.">'+esc(plan.notes)+'</textarea></label>'+
         '<div class="pg-tabs">'+plan.days.map(function(x,i){return '<button type="button" data-di="'+i+'" class="'+(i===di?'on':'')+'">'+esc(x.name||'Day')+'</button>'}).join('')+'<button type="button" class="add" data-a="addday">+ Add a day (e.g. refeed)</button></div>'+
         '<div class="pe-row"><label>Day name<input name="dname" value="'+esc(d.name)+'"></label><div class="pe-mini"><button type="button" data-a="dupday">Duplicate day</button><button type="button" data-a="delday" class="del">Delete day</button></div></div><label class="pe-full">Day notes<textarea name="dnotes" rows="2">'+esc(d.notes)+'</textarea></label>'+
         '<div id="mpTot">'+totLine(dayTot(d),tg)+'</div>'+
@@ -63,7 +65,7 @@
           '<div class="pe-mini" style="margin-top:6px"><button type="button" data-a="fadd" data-mi="'+mi+'">+ Add food</button><span class="mp-mt" data-mt="'+mi+'"></span></div><label class="pe-full" style="margin-top:6px">Meal notes<input name="mnote" value="'+esc(m.notes||'')+'" placeholder="Optional"></label></div>'}).join('')+
         '<div class="pe-mini" style="margin:8px 0"><button type="button" data-a="madd">+ Add meal</button></div>'+
         '<div class="lg-save"><span class="lg-msg">'+(plan.updated?'Last saved '+esc(upd(plan)):'Not saved yet')+'</span><button class="btn" type="button" data-a="save">Save '+(tpl?'template':'meal plan')+'</button></div>';
-      el.innerHTML=h;refreshTotals();
+      el.innerHTML=tpl?'<div class="tpl-lay">'+side+'<div class="tpl-main">'+h+'</div></div>':h;refreshTotals();
       el.oninput=function(e){dirty=true;warn();var tr=e.target.closest('tr[data-f]');if(tr&&(e.target.getAttribute('data-k')==='food'||e.target.getAttribute('data-k')==='amount'))autofill(tr,e.target.getAttribute('data-k'));refreshTotals()};
       [].forEach.call(el.querySelectorAll('[data-pid]'),function(b){b.onclick=function(){read();plan=doc.plans.filter(function(p){return p.id===b.getAttribute('data-pid')})[0];di=0;draw();if(dirty)warn()}});
       [].forEach.call(el.querySelectorAll('[data-di]'),function(b){b.onclick=function(){read();di=+b.getAttribute('data-di');draw();if(dirty)warn()}});
@@ -86,6 +88,7 @@
       if(a==='save'){save();return}
       if(a==='fromtpl'){pick();return}
       if(a==='savetpl'){saveTpl();return}
+      if(a==='assign'){assign();return}
       read();var d=plan.days[di],P=doc.plans;
       if(a==='newp'||a==='copyp'){var np=a==='newp'?blank():JSON.parse(JSON.stringify(plan));np.id=nid();if(a==='copyp')np.title=plan.title+' (new)';np.created=new Date().toISOString();np.updated='';P.push(np);plan=np;di=0;if(!tpl&&confirm('Make "'+np.title+'" the current meal plan? The client will see it straight away after you save.'))doc.current=np.id}
       else if(a==='makecur')doc.current=plan.id;
@@ -108,6 +111,24 @@
         box.innerHTML='<div class="pg-note"><b>Pick a template:</b><div class="pe-mini" style="margin-top:8px">'+ts.map(function(x,i){return '<button type="button" data-t="'+i+'">'+esc(x.title)+'</button>'}).join('')+'<button type="button" data-t="x" class="del">Cancel</button></div></div>';
         [].forEach.call(box.querySelectorAll('[data-t]'),function(b){b.onclick=function(){var v=b.getAttribute('data-t');if(v==='x'){box.innerHTML='';return}read();var np=JSON.parse(JSON.stringify(ts[+v]));np.id=nid();np.created=new Date().toISOString();np.updated='';pad(np);doc.plans.push(np);plan=np;di=0;if(confirm('Make "'+np.title+'" the current meal plan?'))doc.current=np.id;dirty=true;draw();warn()}});
       }).catch(function(){box.innerHTML='<p style="color:#ef8f85">Templates could not load.</p>'});
+    }
+    function assign(){
+      var box=el.querySelector('#asgBox'),cl=(typeof o.clients==='function'?o.clients():(o.clients||[])).slice().sort(function(a,b){return String(a.name).localeCompare(b.name)});
+      if(dirty){alert('Save this template first, then assign it.');return}
+      if(!cl.length){box.innerHTML='<div class="pg-note">No clients to assign to.</div>';return}
+      var row=function(t,lbl){var arr=cl.filter(function(c){return c.type===t});return arr.length?'<div class="asg-g"><b>'+lbl+'</b>'+arr.map(function(c){return '<button type="button" data-cid="'+esc(c.id)+'">'+esc(c.name)+'</button>'}).join('')+'</div>':''};
+      box.innerHTML='<div class="pg-note asg-p"><b>Assign "'+esc(plan.title)+'" to:</b><input class="asg-s" placeholder="🔍 Search clients" autocomplete="off"><div class="asg-l">'+row('online','💻 Online')+row('pt','🏋️ Face to face')+'</div><button type="button" class="asg-x">Cancel</button></div>';
+      var srch=box.querySelector('.asg-s');srch.focus();srch.oninput=function(){var q=srch.value.toLowerCase();[].forEach.call(box.querySelectorAll('[data-cid]'),function(b){b.hidden=q&&b.textContent.toLowerCase().indexOf(q)<0})};
+      box.querySelector('.asg-x').onclick=function(){box.innerHTML=''};
+      [].forEach.call(box.querySelectorAll('[data-cid]'),function(b){b.onclick=function(){var id=b.getAttribute('data-cid'),nm=b.textContent;
+        var mk=confirm('Give '+nm+' "'+plan.title+'" as their current meal plan?\n\nOK = make it their current plan\nCancel = add it without switching');
+        var t=JSON.parse(JSON.stringify(plan));t.id=nid();t.created=t.updated=new Date().toISOString();delete t.folder;
+        box.innerHTML='<div class="pg-note">Assigning to '+esc(nm)+'…</div>';
+        if(o.demo){box.innerHTML='<div class="pg-note">✓ Assigned to '+esc(nm)+' (preview only)</div>';return}
+        var EPc='/portal/api/coach/mealplans?id='+encodeURIComponent(id);
+        fetch(EPc,{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(d){d=d&&d.plans?d:{current:'',plans:[]};d.plans.push(t);if(mk||!d.current)d.current=t.id;
+          return fetch(EPc,{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify(d)})}).then(function(r){if(!r.ok)throw 0;
+          box.innerHTML='<div class="pg-note" style="border-color:#5fbf7f">✅ "'+esc(t.title)+'" assigned to <b>'+esc(nm)+'</b>'+(mk?'. It\'s now their current meal plan':' as a past plan')+'. You can tweak it for them in their Meal plan tab.</div>'}).catch(function(){box.innerHTML='<div class="pg-note" style="color:#ef8f85">Not assigned. Try again.</div>'})}});
     }
     function saveTpl(){
       read();var name=prompt('Name this template:',plan.title);if(name===null)return;
