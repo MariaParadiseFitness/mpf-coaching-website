@@ -11,7 +11,8 @@
       {k:'job',l:'What do you do for work?',t:'text',req:1},
       {k:'jobactivity',l:'How active is your job?',t:'choice',o:['Sitting most of the day','On my feet some of the day','On my feet most of the day','Physical job'],req:1},
       {k:'height',l:'Height (cm)',t:'num',req:1},
-      {k:'weight',l:'Current weight (kg)',t:'num',req:1}
+      {k:'weight',l:'Current weight (kg)',t:'num',req:1},
+      {k:'heard',l:'How did you hear about me?',t:'choice',o:['Instagram','TikTok','Google','A friend or client','My free guide','Saw me at the gym','Other'],req:1}
     ]},
     {t:'Your goals',i:'🎯',q:[
       {k:'goal',l:'Main goal',t:'choice',o:['Fat loss','Build muscle','Body recomposition (lose fat and build muscle)','Get stronger / performance','Health and fitness'],req:1},

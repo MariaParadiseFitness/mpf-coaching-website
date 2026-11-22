@@ -645,6 +645,55 @@ async function handleApi(request, env, url) {
     const c = roster(env, await loadRoster(env, true))[e] || null;
     return json({ access, client: c && { id: c.id, name: c.name, type: c.type, onboarded: c.onboarded } });
   }
+  if (path === "/portal/api/coach/biz-settings" && request.method === "POST") {
+    if (!coach) return json({ error: "forbidden" }, 403);
+    const b = await request.json().catch(() => ({}));
+    const cur = await getJSON(env, "_data/_biz-settings.json", {});
+    for (const k of ["goal", "slots"]) if (b[k] != null) cur[k] = Math.max(0, Math.min(1e7, Number(b[k]) || 0));
+    await putJSON(env, "_data/_biz-settings.json", cur); return json({ ok: true, settings: cur });
+  }
+  if (path === "/portal/api/coach/expenses" && request.method === "POST") {
+    if (!coach) return json({ error: "forbidden" }, 403);
+    const b = await request.json().catch(() => ({}));
+    const db = await getJSON(env, "_data/_expenses.json", { items: [] });
+    if (b.delete) { const it = db.items.find((x) => x.id === b.delete); if (it && it.receipt) await env.PHOTOS.delete(`_data/_receipts/${it.id}`).catch(() => {}); db.items = db.items.filter((x) => x.id !== b.delete); }
+    else {
+      if (!isDate(b.date) || !(Number(b.amount) > 0)) return json({ error: "bad" }, 400);
+      const it = { id: String(b.id || "").replace(/[^a-z0-9]/gi, "").slice(0, 20) || Date.now().toString(36) + Math.random().toString(36).slice(2, 6), date: b.date, amount: Math.round(Number(b.amount) * 100) / 100, category: String(b.category || "Other").slice(0, 40), note: String(b.note || "").slice(0, 200), receipt: false };
+      const old = db.items.find((x) => x.id === it.id); if (old) it.receipt = old.receipt;
+      db.items = [it, ...db.items.filter((x) => x.id !== it.id)].slice(0, 3000);
+      await putJSON(env, "_data/_expenses.json", db); return json({ ok: true, item: it });
+    }
+    await putJSON(env, "_data/_expenses.json", db); return json({ ok: true });
+  }
+  if (path === "/portal/api/coach/receipt") {
+    if (!coach) return json({ error: "forbidden" }, 403);
+    const id = String(url.searchParams.get("id") || "").replace(/[^a-z0-9]/gi, "");
+    if (!id) return json({ error: "id" }, 400);
+    if (request.method === "PUT") {
+      const ct = request.headers.get("content-type") || "";
+      if (!/^image\/(jpeg|png|webp|heic)|^application\/pdf/.test(ct)) return json({ error: "type" }, 400);
+      const buf = await request.arrayBuffer(); if (buf.byteLength > 12e6) return json({ error: "size" }, 413);
+      await env.PHOTOS.put(`_data/_receipts/${id}`, buf, { httpMetadata: { contentType: ct } });
+      const db = await getJSON(env, "_data/_expenses.json", { items: [] }); const it = db.items.find((x) => x.id === id); if (it) { it.receipt = true; await putJSON(env, "_data/_expenses.json", db); }
+      return json({ ok: true });
+    }
+    const o = await env.PHOTOS.get(`_data/_receipts/${id}`); if (!o) return new Response("not found", { status: 404 });
+    return new Response(o.body, { headers: { "content-type": (o.httpMetadata && o.httpMetadata.contentType) || "application/octet-stream", "cache-control": "private, no-store" } });
+  }
+  if (path === "/portal/api/coach/leads" && request.method === "POST") {
+    if (!coach) return json({ error: "forbidden" }, 403);
+    const b = await request.json().catch(() => ({}));
+    const db = await getJSON(env, "_data/_leads.json", { items: [] });
+    if (b.delete) db.items = db.items.filter((x) => x.id !== b.delete);
+    else {
+      const st = ["New", "Consult booked", "Won", "Lost"];
+      const it = { id: String(b.id || "").replace(/[^a-z0-9]/gi, "").slice(0, 20) || Date.now().toString(36) + Math.random().toString(36).slice(2, 6), date: isDate(b.date) ? b.date : londonToday(), name: String(b.name || "").slice(0, 60), source: String(b.source || "").slice(0, 40), status: st.includes(b.status) ? b.status : "New", note: String(b.note || "").slice(0, 300), updated: londonToday() };
+      if (!it.name) return json({ error: "name" }, 400);
+      db.items = [it, ...db.items.filter((x) => x.id !== it.id)].slice(0, 3000);
+    }
+    await putJSON(env, "_data/_leads.json", db); return json({ ok: true });
+  }
   if (path === "/portal/api/coach/business") {
     if (!coach) return json({ error: "forbidden" }, 403);
     return json(await businessStats(env, r, url.searchParams.get("fresh") === "1"));
@@ -805,6 +854,7 @@ async function handleApi(request, env, url) {
           onboarded: c.onboarded === true, phone: String(c.phone || "").replace(/[^0-9]/g, "").slice(0, 15),
           folder: String(c.folder || "").replace(/[^A-Za-z0-9_-]/g, "").slice(0, 80),
           payOk: c.payOk === true,
+          source: String(c.source || "").slice(0, 40),
         };
       }
       const old = await getJSON(env, "_data/_roster.json", null);
@@ -992,7 +1042,7 @@ async function acuityFromIcal(env, r) {
   const byEmail = {}, byName = {};
   for (const e of Object.entries(r)) byEmail[e[0].toLowerCase()] = e[1].id;
   for (const c of Object.values(r)) { const k = String(c.name || "").trim().toLowerCase(); if (k) (byName[k] = byName[k] || new Set()).add(c.id); }
-  const out = {}, months = {}; let events = 0, matched = 0, next7 = 0;
+  const out = {}, months = {}, weeks = {}, done = {}; let events = 0, matched = 0, next7 = 0;
   const in7 = new Date(Date.parse(today + "T00:00:00Z") + 7 * 86400000).toISOString().slice(0, 10);
   for (const ev of txt.split("BEGIN:VEVENT").slice(1)) {
     events++;
@@ -1002,6 +1052,8 @@ async function acuityFromIcal(env, r) {
     if (ds.length !== 8) continue;
     const d = ds.slice(0, 4) + "-" + ds.slice(4, 6) + "-" + ds.slice(6, 8);
     months[d.slice(0, 7)] = (months[d.slice(0, 7)] || 0) + 1;
+    if (d <= today) done[d.slice(0, 7)] = (done[d.slice(0, 7)] || 0) + 1;
+    { const dt = new Date(d + "T00:00:00Z"), wk = new Date(dt - ((dt.getUTCDay() + 6) % 7) * 86400000).toISOString().slice(0, 10); weeks[wk] = (weeks[wk] || 0) + 1; }
     if (d > today && d <= in7) next7++;
     const blob = (get("SUMMARY") + "\n" + get("DESCRIPTION")).toLowerCase();
     let id = null;
@@ -1013,7 +1065,7 @@ async function acuityFromIcal(env, r) {
     if (d <= today) { if (d > b.last) b.last = d; } else if (!b.next || d < b.next) b.next = d;
   }
   acuityLast.events = events; acuityLast.matched = matched;
-  return { byId: out, months, next7 };
+  return { byId: out, months, weeks, done, next7 };
 }
 async function acuityBookings(env, r) {
   if (env.ACUITY_ICAL) {
@@ -1182,10 +1234,11 @@ async function stripeMoney(env) {
       const k = m(t.created), o = (months[k] = months[k] || { gross: 0, refunds: 0, fees: 0, net: 0, count: 0 });
       const tk = ty(t.created), q = (taxYears[tk] = taxYears[tk] || { gross: 0, refunds: 0, fees: 0, net: 0, count: 0 });
       for (const x of [o, q]) { if (t.amount >= 0) { x.gross += t.amount; x.count++; } else x.refunds += -t.amount; x.fees += t.fee; x.net += t.net; }
+      if (t.amount > 0) { const kind = /subscri|invoice/i.test(t.description || "") ? "online" : "other"; o[kind] = (o[kind] || 0) + t.amount; }
     }
     n++; if (!j.has_more || !j.data.length) break; after = j.data[j.data.length - 1].id;
   }
-  for (const o of [...Object.values(months), ...Object.values(taxYears)]) for (const k of ["gross", "refunds", "fees", "net"]) o[k] = Math.round(o[k]) / 100;
+  for (const o of [...Object.values(months), ...Object.values(taxYears)]) for (const k of ["gross", "refunds", "fees", "net", "online", "other"]) if (o[k] != null) o[k] = Math.round(o[k]) / 100;
   let mrr = 0, subs = 0, pastDue = 0, cancelling = 0; const plans = {};
   let sa = "";
   for (let i = 0; i < 10; i++) {
@@ -1240,5 +1293,15 @@ async function businessStats(env, r, fresh) {
   const cancelReqs = [];
   for (const [, c] of list) { const d = await getJSON(env, `${dkey(c.id)}/cancel.json`, null); if (d && d.at) cancelReqs.push({ name: c.name, date: String(d.at).slice(0, 10), reason: d.reason || "" }); }
   const acu = await acuityBookings(env, r).catch(() => null);
-  return { today, source, err, money, clients, renewals, failed, ending, cancelReqs, pt: acu && acu.months ? { months: acu.months, next7: acu.next7 } : null };
+  const sources = {}, roster2 = [];
+  await Promise.all(list.map(async ([e, c]) => {
+    let src = c.source || "";
+    if (!src) { const ob = await getJSON(env, `${dkey(c.id)}/onboarding.json`, null); src = (ob && ob.answers && ob.answers.heard) || ""; }
+    roster2.push({ id: c.id, email: e, name: c.name, type: c.type === "pt" ? "pt" : "online", start: c.start || "", active: c.active !== false, source: src });
+    if (c.active !== false) sources[src || "Unknown"] = (sources[src || "Unknown"] || 0) + 1;
+  }));
+  const settings = await getJSON(env, "_data/_biz-settings.json", {});
+  const expenses = (await getJSON(env, "_data/_expenses.json", { items: [] })).items || [];
+  const leads = (await getJSON(env, "_data/_leads.json", { items: [] })).items || [];
+  return { today, source, err, money, clients, renewals, failed, ending, cancelReqs, pt: acu && acu.months ? { months: acu.months, done: acu.done || {}, weeks: acu.weeks || {}, next7: acu.next7 } : null, sources, roster: roster2, settings, expenses, leads };
 }

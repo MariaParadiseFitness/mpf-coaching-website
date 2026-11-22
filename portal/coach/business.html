@@ -142,6 +142,13 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 .seg{display:inline-flex;border:1px solid rgba(201,166,75,.35);border-radius:30px;overflow:hidden;margin-top:6px}.seg button{background:none;border:0;color:#e6cf8b;font:inherit;font-size:12px;padding:8px 14px;cursor:pointer}.seg button.on{background:var(--gold);color:#111;font-weight:700}
 .dl{float:right;background:none;border:1px solid rgba(201,166,75,.5);color:#e6cf8b;border-radius:30px;padding:7px 14px;font:inherit;font-size:12px;cursor:pointer;margin-top:4px}
 .fl{display:block;font-size:12px;color:#e6cf8b}.fl input{display:block;width:100%;margin-top:6px;background:#0e0e0e;border:1px solid rgba(201,166,75,.35);border-radius:10px;color:#fff;font:inherit;font-size:16px;padding:10px 12px}
+.goal{margin-top:16px}.goal .gb{height:14px;background:#0e0e0e;border:1px solid rgba(201,166,75,.3);border-radius:10px;overflow:hidden;margin:10px 0 6px}.goal .gb i{display:block;height:100%;background:var(--grad)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px}.row>*{flex:1 1 120px}.row input,.row select{width:100%;background:#0e0e0e;border:1px solid rgba(201,166,75,.35);border-radius:10px;color:#fff;font:inherit;font-size:16px;padding:9px 10px}.row label{font-size:11px;color:#e6cf8b}
+.gbtn{background:var(--grad);color:#111;border:0;border-radius:30px;padding:11px 16px;font:inherit;font-weight:700;font-size:12px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;flex:0 0 auto}
+.hb{display:flex;align-items:center;gap:10px;margin:6px 0;font-size:13px}.hb span:first-child{flex:0 0 130px;color:#efe6cf}.hb .t{flex:1;height:10px;background:#0e0e0e;border-radius:6px;overflow:hidden}.hb .t i{display:block;height:100%;background:var(--grad)}.hb b{flex:0 0 auto;color:#fff;min-width:44px;text-align:right}
+.mini{font-size:12px;color:#9b927f}.x{background:none;border:0;color:#9b927f;cursor:pointer;font-size:15px}
+.pill2{display:inline-block;font-size:11px;padding:3px 9px;border-radius:20px;border:1px solid rgba(201,166,75,.4);color:#e6cf8b}
+select.st{background:#0e0e0e;border:1px solid rgba(201,166,75,.35);border-radius:8px;color:#fff;font:inherit;font-size:13px;padding:5px}
 .back{color:var(--gold-l);font-size:13px;text-decoration:none}
 </style>
 </head>
@@ -150,6 +157,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 <div class="wrap">
   <h1>Your <em>business.</em></h1>
   <div class="sub" id="src">Loading…</div>
+  <div class="card goal" id="goal"></div>
   <div class="tiles" id="tiles"></div>
   <h2>Money in, <em>by month</em></h2>
   <div class="card"><div class="seg" id="seg"><button data-k="gross" class="on">Takings</button><button data-k="net">After Stripe fees</button></div><div class="chart" id="chart"></div><div class="note" id="cmp"></div></div>
@@ -157,10 +165,20 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
     <div><h2>Coming <em>up</em></h2><div class="card"><div class="lst" id="renew"></div></div></div>
     <div><h2>Needs <em>you</em></h2><div class="card"><div class="lst" id="needs"></div></div></div>
   </div>
+  <h2>Income <em>by type</em></h2>
+  <div class="card" id="byType"></div>
+  <h2>PT <em>sessions</em></h2>
+  <div class="card" id="ptBox"></div>
+  <h2>Clients <em>&amp; retention</em></h2>
+  <div class="card" id="ret"><div class="note">Loading clients…</div></div>
+  <h2>Where clients <em>come from</em></h2>
+  <div class="card" id="srcBox"></div>
+  <h2>Leads <em>&amp; conversion</em></h2>
+  <div class="card" id="leadBox"></div>
   <h2>Tax <em>estimate</em></h2>
   <div class="card" id="taxc">
     <div class="two" style="gap:10px">
-      <label class="fl">Business expenses this tax year (£)<input id="txExp" inputmode="decimal" placeholder="e.g. gym rent, insurance, kit, phone, courses"></label>
+      <label class="fl">Business expenses this tax year, from your accountant (£)<input id="txExp" inputmode="decimal" placeholder="0"></label>
       <label class="fl">Other income this tax year, e.g. a job (£)<input id="txOther" inputmode="decimal" placeholder="0"></label>
     </div>
     <div class="tiles" id="txT" style="margin-top:12px"></div>
@@ -180,6 +198,8 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
   var nice=function(d){var p=d.split('-');return +p[2]+' '+MN[+p[1]-1]};
   var D,key='gross';
   function load(fresh){fetch('/portal/api/coach/business'+(fresh?'?fresh=1':''),{credentials:'same-origin',cache:'no-store'}).then(function(r){if(r.status===403){location.replace('/portal/');throw 0}return r.json()}).then(function(j){D=j;draw()}).catch(function(e){if(e)$('src').textContent='Could not load. Refresh to try again.'})}
+  var CL=null;fetch('/portal/api/coach/clients',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){CL=j.clients||j;if(D)draw()}).catch(function(){});
+  var post=function(u,b){return fetch(u,{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify(b)}).then(function(r){if(!r.ok)throw 0;return r.json()})};
   function sum(ms,pre,k){var t=0;Object.keys(ms).forEach(function(m){if(m.indexOf(pre)===0&&ms[m][k]!=null)t+=ms[m][k]});return t}
   function draw(){
     var j=D,ms=j.money.months||{},t=j.today,y=t.slice(0,4),m=t.slice(0,7),ly=String(+y-1),lm=(function(){var d=new Date(Date.UTC(+y,+t.slice(5,7)-2,1));return d.toISOString().slice(0,7)})();
@@ -227,7 +247,8 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
     var num=function(v){v=parseFloat(String(v).replace(/[^0-9.]/g,''));return isNaN(v)?0:v};
     var st=Date.UTC(+tyNow.slice(0,4),3,6),en=Date.UTC(+tyNow.slice(0,4)+1,3,6),nowT=Date.parse(t+'T12:00:00Z'),frac=Math.min(1,Math.max(.02,(nowT-st)/(en-st)));
     var cur=tys[tyNow]||{gross:0,net:0,fees:0,refunds:0},kept=cur.net!=null?cur.net:cur.gross;
-    var exp=num(eI.value),oth=num(oI.value);
+    var tyStart=tyNow.slice(0,4)+'-04-06',tyEnd=(+tyNow.slice(0,4)+1)+'-04-05',logged=(j.expenses||[]).filter(function(x){return x.date>=tyStart&&x.date<=tyEnd}).reduce(function(a,x){return a+x.amount},0);
+    var exp=logged+num(eI.value),oth=num(oI.value);
     function tax(profit,other){profit=Math.max(0,profit);var tot=profit+other,pa=12570;if(tot>100000)pa=Math.max(0,pa-(tot-100000)/2);
       var band=function(inc){var x=Math.max(0,inc-pa),t2=0,b1=37700,b2=125140-pa-b1;t2+=Math.min(x,b1)*.2;x-=Math.min(x,b1);t2+=Math.min(x,Math.max(0,b2))*.4;x-=Math.min(x,Math.max(0,b2));t2+=Math.max(0,x)*.45;return t2};
       var it=band(tot)-band(other),ni=Math.max(0,Math.min(profit,50270)-12570)*.06+Math.max(0,profit-50270)*.02;return {it:it,ni:ni,all:it+ni}}
@@ -236,6 +257,51 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
     var roll=0;keys.forEach(function(k){if(ms[k])roll+=ms[k].gross});
     $('txT').innerHTML=[['Profit so far',gbp(kept-exp),'takings after fees and refunds, minus expenses'],['Tax + NI so far',gbp(soFar.all),'income tax '+gbp(soFar.it)+' · NI '+gbp(soFar.ni),1],['Full year forecast',gbp(proj.all),'if you keep this pace: profit ≈ '+gbp(projProfit),1],['Put aside each month',gbp(Math.max(0,(proj.all-0)/12)),'≈ '+Math.round(proj.all/Math.max(1,projProfit+0)*100)+'% of profit'],['VAT watch',gbp(roll),'last 12 months takings · register at £90,000']].map(function(x){return '<div class="tile'+(x[3]?' hi':'')+'"><small>'+x[0]+'</small><b>'+x[1]+'</b><span>'+esc(x[2])+'</span></div>'}).join('');
     $('txN').innerHTML='Rough guide only, using 2026/27 rates for England, Wales and Northern Ireland: £12,570 tax free, 20% up to £50,270, 40% above that, plus Class 4 National Insurance at 6% (2% above £50,270). It doesn\'t include student loan, Scottish rates or any income outside Stripe. Your '+tyNow+' bill is due by <b style="color:#fff">31 January '+(+tyNow.slice(0,4)+2)+'</b>. If it\'s over £1,000, HMRC usually also asks for half of next year\'s bill upfront at the same time ("payments on account"), so put a little extra aside. I\'m not an accountant, so check the final figure with yours.';
+    // ---- goal ----
+    var goal=(j.settings&&j.settings.goal)||0,tmv=sum(ms,m,'gross');
+    $('goal').innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><div><small style="color:var(--gold);font-size:10px;letter-spacing:.16em;font-weight:700">'+MN[+m.slice(5)-1].toUpperCase()+' GOAL</small><div style="color:#fff;font-family:var(--serif);font-size:22px">'+gbp(tmv)+(goal?' <span style="color:#9b927f;font-size:15px">of '+gbp(goal)+'</span>':'')+'</div></div><button class="dl" id="gSet" type="button">'+(goal?'Change goal':'Set a monthly goal')+'</button></div>'+(goal?'<div class="gb"><i style="width:'+Math.min(100,tmv/goal*100)+'%"></i></div><div class="mini">'+(tmv>=goal?'🎉 Goal hit! '+gbp(tmv-goal)+' over.':gbp(goal-tmv)+' to go · '+Math.round(tmv/goal*100)+'%')+'</div>':'');
+    $('gSet').onclick=function(){var v=prompt('Monthly takings goal (£)',goal||'');if(v==null)return;post('/portal/api/coach/biz-settings',{goal:num(v)}).then(function(){load(false)})};
+    // ---- income by type ----
+    var tsum=function(pre,k){return Object.keys(ms).filter(function(x){return x.indexOf(pre)===0}).reduce(function(a,x){return a+(ms[x][k]||0)},0)};
+    var onM=tsum(m,'online'),otM=tsum(m,'other'),onY=tsum(y,'online'),otY=tsum(y,'other');
+    $('byType').innerHTML=(j.source==='stripe'?[['This month',onM,otM],['This year',onY,otY]].map(function(r){var t2=r[1]+r[2]||1;return '<div class="mini" style="margin-top:6px">'+r[0]+'</div><div class="hb"><span>💻 Online plans</span><span class="t"><i style="width:'+(r[1]/t2*100)+'%"></i></span><b>'+gbp(r[1])+'</b></div><div class="hb"><span>🏋️ PT &amp; packages</span><span class="t"><i style="width:'+(r[2]/t2*100)+'%"></i></span><b>'+gbp(r[2])+'</b></div>'}).join('')+'<div class="note">Online plans = Stripe subscriptions. PT &amp; packages = everything else through Stripe (Acuity bookings, one-off payments).</div>':'<div class="note">Needs the Stripe read key.</div>');
+    // ---- PT ----
+    var pd=pt.done||{},pm=pt.months||{},pw=pt.weeks||{},slots=(j.settings&&j.settings.slots)||0;
+    var doneY=Object.keys(pd).filter(function(k){return k.indexOf(y)===0}).reduce(function(a,k){return a+pd[k]},0),aheadM=(pm[m]||0)-(pd[m]||0);
+    var wks=Object.keys(pw).filter(function(k){return k<=t}).sort().slice(-8),avgW=wks.length?wks.reduce(function(a,k){return a+pw[k]},0)/wks.length:0;
+    var ptMonths=Object.keys(pd).filter(function(k){return k.indexOf(y)===0}).sort();
+    $('ptBox').innerHTML=j.pt?'<div class="tiles" style="margin-top:0">'+[['Done in '+y,doneY,'sessions so far',1],['Done this month',pd[m]||0,(aheadM>0?aheadM+' more booked in '+MN[+m.slice(5)-1]:'none more booked yet')],['Next 7 days',pt.next7||0,'sessions booked'],['Weekly average',avgW.toFixed(1),'last '+wks.length+' weeks'],['Diary full',slots?Math.round(avgW/slots*100)+'%':'–',slots?'of '+slots+' slots a week':'set your weekly slots']].map(function(x){return '<div class="tile'+(x[3]?' hi':'')+'"><small>'+x[0]+'</small><b>'+x[1]+'</b><span>'+esc(x[2])+'</span></div>'}).join('')+'</div>'+
+      '<div class="chart" style="height:140px">'+ptMonths.map(function(k){var mx=Math.max.apply(null,ptMonths.map(function(q){return pd[q]}).concat([1]));return '<div class="bar"><em>'+pd[k]+'</em><i style="height:'+(pd[k]/mx*100)+'%"></i><small>'+MN[+k.slice(5)-1]+'</small></div>'}).join('')+'</div>'+
+      '<div class="row" style="margin-top:12px"><label>PT slots you can offer a week<input id="slotsI" inputmode="numeric" value="'+(slots||'')+'" placeholder="e.g. 30"></label><button class="gbtn" id="slotsS" type="button">Save</button></div><div class="note">Counts bookings from your Acuity calendar (cancelled ones are left out). "Done" means the date has passed.</div>':'<div class="note">PT numbers load from Acuity. Check back in a few minutes.</div>';
+    if($('slotsS'))$('slotsS').onclick=function(){post('/portal/api/coach/biz-settings',{slots:num($('slotsI').value)}).then(function(){load(false)})};
+    // ---- clients & retention ----
+    var R=j.roster||[],actR=R.filter(function(c){return c.active});
+    var allTake=Object.keys(ms).reduce(function(a,k){return a+(ms[k].gross||0)},0);
+    var mon=function(d){return d?Math.max(0,(Date.parse(t)-Date.parse(d))/(30.44*864e5)):0},ten=actR.map(function(c){return mon(c.start)}).filter(function(x){return x>0});
+    var risk=[];if(CL){CL.forEach(function(c){if(!c.active)return;var days=function(d){return d?Math.round((Date.parse(t)-Date.parse(d))/864e5):999},why=[];
+      if(c.type!=='pt'&&c.form===null&&days(c.lastCheckin)>=21)why.push('no check-in for '+(c.lastCheckin?days(c.lastCheckin)+' days':'ages'));
+      if(c.type==='pt'&&c.pt&&!c.pt.next&&days(c.pt.last)>=21)why.push(c.pt.last?'no PT for '+days(c.pt.last)+' days, none booked':'no PT booked');
+      if(c.payment&&c.payment.status==='failed')why.push('payment failed');if(c.cancelReq)why.push('asked to cancel');
+      if(why.length)risk.push({n:c.name,w:why.join(' · ')})})}
+    $('ret').innerHTML='<div class="tiles" style="margin-top:0">'+[['Average client value',R.length?gbp(allTake/R.length):'–','takings so far ÷ '+R.length+' clients'],['Average time with you',ten.length?(ten.reduce(function(a,b){return a+b},0)/ten.length).toFixed(1)+' months':'–','active clients'],['Longest client',ten.length?Math.max.apply(null,ten).toFixed(0)+' months':'–',''],['At risk',CL?risk.length:'…','clients who might drop off',risk.length?1:0]].map(function(x){return '<div class="tile'+(x[3]?' hi':'')+'"><small>'+x[0]+'</small><b>'+x[1]+'</b><span>'+esc(x[2])+'</span></div>'}).join('')+'</div>'+
+      (risk.length?'<div class="lst" style="margin-top:12px">'+risk.map(function(x){return '<div><span><b>'+esc(x.n)+'</b></span><span class="mini">'+esc(x.w)+'</span></div>'}).join('')+'</div><div class="note">Message these clients first. A quick "how are you getting on?" keeps people.</div>':'');
+    // ---- sources ----
+    var SRC=['Instagram','TikTok','Google','A friend or client','My free guide','Saw me at the gym','Other'],sc=j.sources||{},sk=Object.keys(sc).sort(function(a,b){return sc[b]-sc[a]}),smx=Math.max.apply(null,sk.map(function(k){return sc[k]}).concat([1]));
+    var unk=actR.filter(function(c){return !c.source});
+    $('srcBox').innerHTML=sk.map(function(k){return '<div class="hb"><span>'+esc(k)+'</span><span class="t"><i style="width:'+(sc[k]/smx*100)+'%"></i></span><b>'+sc[k]+'</b></div>'}).join('')+
+      (unk.length?'<details style="margin-top:12px"><summary class="mini" style="cursor:pointer">Set where '+unk.length+' clients came from</summary><div class="lst" style="margin-top:8px">'+unk.map(function(c){return '<div><span>'+esc(c.name)+'</span><select class="st" data-id="'+esc(c.id)+'"><option value="">Choose</option>'+SRC.map(function(o){return '<option>'+o+'</option>'}).join('')+'</select></div>'}).join('')+'</div></details>':'')+'<div class="note">New clients pick this on their onboarding form.</div>';
+    [].forEach.call($('srcBox').querySelectorAll('select.st'),function(sel){sel.onchange=function(){var id=sel.getAttribute('data-id'),v=sel.value;if(!v)return;sel.disabled=true;
+      fetch('/portal/api/coach/roster',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(rj){var ro=rj.roster||{},scl=rj.secretClients||{};Object.keys(scl).forEach(function(e){if(scl[e].id===id&&!ro[e])ro[e]=Object.assign({},scl[e])});Object.keys(ro).forEach(function(e){if(ro[e].id===id)ro[e].source=v});return post('/portal/api/coach/roster',ro)}).then(function(){load(false)}).catch(function(){sel.disabled=false;alert('Not saved')})}});
+    // ---- leads ----
+    var L=j.leads||[],won=L.filter(function(x){return x.status==='Won'}).length,lost=L.filter(function(x){return x.status==='Lost'}).length,open=L.length-won-lost,lm30=L.filter(function(x){return x.date>=new Date(Date.parse(t)-30*864e5).toISOString().slice(0,10)});
+    var bySrc={};L.forEach(function(x){var k=x.source||'Unknown',o=bySrc[k]=bySrc[k]||{n:0,w:0};o.n++;if(x.status==='Won')o.w++});
+    $('leadBox').innerHTML='<div class="tiles" style="margin-top:0">'+[['Conversion',won+lost?Math.round(won/(won+lost)*100)+'%':'–',won+' won · '+lost+' lost',1],['Open leads',open,'waiting on a reply or consult'],['Last 30 days',lm30.length,'new enquiries']].map(function(x){return '<div class="tile'+(x[3]?' hi':'')+'"><small>'+x[0]+'</small><b>'+x[1]+'</b><span>'+esc(x[2])+'</span></div>'}).join('')+'</div>'+
+      '<div class="row" style="margin-top:14px"><label>Name<input id="ldN" placeholder="Who enquired"></label><label>From<select id="ldS"><option value="">Choose</option>'+SRC.map(function(o){return '<option>'+o+'</option>'}).join('')+'</select></label><button class="gbtn" id="ldA" type="button">Add lead</button></div>'+
+      (Object.keys(bySrc).length?'<div class="mini" style="margin:4px 0 6px">Which places turn into clients:</div>'+Object.keys(bySrc).map(function(k){var o=bySrc[k];return '<div class="hb"><span>'+esc(k)+'</span><span class="t"><i style="width:'+(o.n?o.w/o.n*100:0)+'%"></i></span><b>'+o.w+'/'+o.n+'</b></div>'}).join(''):'')+
+      '<div class="lst" style="margin-top:10px">'+L.slice(0,40).map(function(x){return '<div><span><b>'+esc(x.name)+'</b> <span class="mini">'+esc(x.source||'')+' · '+nice(x.date)+'</span></span><span><select class="st ld" data-id="'+x.id+'">'+['New','Consult booked','Won','Lost'].map(function(o){return '<option'+(o===x.status?' selected':'')+'>'+o+'</option>'}).join('')+'</select> <button class="x" data-del="'+x.id+'" title="Delete">✕</button></span></div>'}).join('')+'</div><div class="note">Add everyone who messages you about coaching, then change them to Won or Lost. Over time you\'ll see which platform is worth your time.</div>';
+    $('ldA').onclick=function(){var n=$('ldN').value.trim();if(!n)return;post('/portal/api/coach/leads',{name:n,source:$('ldS').value}).then(function(){load(false)})};
+    [].forEach.call($('leadBox').querySelectorAll('select.ld'),function(sel){sel.onchange=function(){var x=L.filter(function(q){return q.id===sel.getAttribute('data-id')})[0];post('/portal/api/coach/leads',Object.assign({},x,{status:sel.value})).then(function(){load(false)})}});
+    [].forEach.call($('leadBox').querySelectorAll('[data-del]'),function(b){b.onclick=function(){if(confirm('Delete this lead?'))post('/portal/api/coach/leads',{delete:b.getAttribute('data-del')}).then(function(){load(false)})}});
     $('foot').textContent='Takings = money paid to you through Stripe. "You keep" = after Stripe fees and refunds, before tax. Payments taken outside Stripe (cash, bank transfer) are not included. Tax years cover what Stripe has from 1 January last year onwards.';
   }
   load(false);
