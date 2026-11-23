@@ -992,7 +992,7 @@ async function handleApi(request, env, url) {
     const id = (url.searchParams.get("id") || "").toLowerCase();
     const acu = await acuityBookings(env, r).catch(() => null);
     const a = acu && acu.byId && acu.byId[id];
-    return json({ id, emails: (a && a.em) || {}, onFile: Object.entries(r).filter(([, x]) => x.id === id).map(([e]) => e) });
+    return json({ id, sample: (a && a.sample) || "", emails: (a && a.em) || {}, onFile: Object.entries(r).filter(([, x]) => x.id === id).map(([e]) => e) });
   }
   if (path === "/portal/api/coach/acuity-status") {
     if (!coach) return json({ error: "forbidden" }, 403);
@@ -1374,6 +1374,7 @@ async function acuityFromIcal(env, r) {
     if (b.dates.length < 400) b.dates.push(d);
     { const tm = (v) => { const m = ev.match(new RegExp("^" + v + "([^:\\n]*):(\\d{8}T\\d{4,6}Z?)", "m")); if (!m) return ""; const x = m[2]; if (/Z$/.test(x)) { const dt = new Date(Date.UTC(+x.slice(0, 4), +x.slice(4, 6) - 1, +x.slice(6, 8), +x.slice(9, 11), +x.slice(11, 13))); return new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/London", hour: "2-digit", minute: "2-digit", hour12: false }).format(dt); } return x.slice(9, 11) + ":" + x.slice(11, 13); };
       b.slots = b.slots || {}; const st = tm("DTSTART"), en = tm("DTEND"); if (st) b.slots[d] = (b.slots[d] ? b.slots[d] + ", " : "") + st + (en ? "–" + en : ""); }
+    if (!b.sample && d > today) b.sample = (get("DESCRIPTION") + "\n" + (ev.match(/^URL[^:\n]*:(.*)$/m) || ["", ""])[1]).replace(/[0-9]{6,}/g, "#").slice(0, 900);
     { b.em = b.em || {}; const ems = blob.match(/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/g) || []; const k = ems[0] || "(no email)"; const q = (b.em[k] = b.em[k] || { past: 0, up: 0 }); if (d > today) q.up++; else q.past++; }
     const cc = (get("DESCRIPTION").match(/Certificate Code:\s*([A-Z0-9-]{4,20})/i) || [])[1];
     if (cc) { const desc = get("DESCRIPTION"); for (const m of desc.matchAll(/^\s*([A-Za-z][A-Za-z ]{1,30}):/gm)) labels.add(m[1].trim());
