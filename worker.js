@@ -947,6 +947,15 @@ async function handleApi(request, env, url) {
     if (!c || !isDate(b.due)) return json({ error: "bad" }, 400);
     const key = `${dkey(c.id)}/checkins.json`, all = await getJSON(env, key, {});
     if (!all[b.due]) return json({ error: "no check-in" }, 404);
+    if (b.skip === true || b.skip === false) {
+      const at0 = new Date().toISOString();
+      if (b.skip) all[b.due].reviewed = at0; else delete all[b.due].reviewed;
+      await putJSON(env, key, all);
+      const sk0 = `${dkey(c.id)}/summary.json`, sm0 = await getJSON(env, sk0, {}); sm0.replied = sm0.replied || {};
+      if (b.skip) sm0.replied[b.due] = at0; else if (!(all[b.due].reply && all[b.due].reply.text)) delete sm0.replied[b.due];
+      await putJSON(env, sk0, sm0);
+      return json({ ok: true, reviewed: all[b.due].reviewed || null });
+    }
     const text = String(b.text || "").trim().slice(0, 5000), at = new Date().toISOString(), isNew = !(all[b.due].reply && all[b.due].reply.text);
     if (text) all[b.due].reply = { text, at }; else delete all[b.due].reply;
     await putJSON(env, key, all);
