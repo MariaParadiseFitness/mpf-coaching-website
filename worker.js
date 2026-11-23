@@ -1001,7 +1001,7 @@ async function handleApi(request, env, url) {
         dob: c.onboarded === true ? ((await getJSON(env, `${dkey(c.id)}/onboarding.json`, {})).answers || {}).dob || "" : ((await getJSON(env, `${dkey(c.id)}/onboarding.json`, {})).answers || {}).dob || "",
         pkg: await (async () => { const a = acu && acu.byId && acu.byId[c.id]; const codes = (a && a.codes) || {}; const ks = Object.keys(codes).sort((x, y) => (codes[y].last).localeCompare(codes[x].last) || (codes[y].first).localeCompare(codes[x].first)); const pk = await getJSON(env, `${dkey(c.id)}/package.json`, null);
           const size = (pk && pk.size) || (bizSet && bizSet.pkgSize) || 0;
-          if (ks.length) { const k = ks[0], q = codes[k]; return { auto: true, code: k, size, used: q.used, booked: q.booked, start: q.first, packages: ks.length }; }
+          if (ks.length) { const k = ks[0], q = codes[k]; return { auto: true, code: k, size: (pk && pk.size) || q.size || (bizSet && bizSet.pkgSize) || 0, name: q.name || "", used: q.used, booked: q.booked, start: q.first, packages: ks.length }; }
           if (!pk || !pk.size) return null; const ds = (a && a.dates) || []; return { size: pk.size, start: pk.start, used: ds.filter((d) => d >= pk.start && d <= today).length, booked: ds.filter((d) => d > today).length }; })(),
         startWeight: wts.length ? wts[0] : null, needsReply: (() => { const ks = Object.keys(sm.checkins || {}).sort(); const k = ks[ks.length - 1]; return !!k && !((sm.replied || {})[k]); })(),
         photosThisWeek: [...new Set(thisWeek)], lastUpload: photos.reduce((m, p) => (p.uploaded > m ? p.uploaded : m), ""),
@@ -1321,7 +1321,7 @@ async function acuityFromIcal(env, r) {
   const byEmail = {}, byName = {};
   for (const e of Object.entries(r)) byEmail[e[0].toLowerCase()] = e[1].id;
   for (const c of Object.values(r)) { const k = String(c.name || "").trim().toLowerCase(); if (k) (byName[k] = byName[k] || new Set()).add(c.id); }
-  const out = {}, months = {}, weeks = {}, done = {}; let events = 0, matched = 0, next7 = 0;
+  const out = {}, months = {}, weeks = {}, done = {}, labels = new Set(); let events = 0, matched = 0, next7 = 0;
   const in7 = new Date(Date.parse(today + "T00:00:00Z") + 7 * 86400000).toISOString().slice(0, 10);
   for (const ev of txt.split("BEGIN:VEVENT").slice(1)) {
     events++;
@@ -1343,10 +1343,14 @@ async function acuityFromIcal(env, r) {
     const b = (out[id] = out[id] || { last: "", next: "", dates: [], codes: {} });
     if (b.dates.length < 400) b.dates.push(d);
     const cc = (get("DESCRIPTION").match(/Certificate Code:\s*([A-Z0-9-]{4,20})/i) || [])[1];
-    if (cc) { const k = cc.toUpperCase(), q = (b.codes[k] = b.codes[k] || { used: 0, booked: 0, first: d, last: d }); if (d <= today) q.used++; else q.booked++; if (d < q.first) q.first = d; if (d > q.last) q.last = d; }
+    if (cc) { const desc = get("DESCRIPTION"); for (const m of desc.matchAll(/^\s*([A-Za-z][A-Za-z ]{1,30}):/gm)) labels.add(m[1].trim());
+      const pn = (desc.match(/^\s*(?:package|product|purchased|certificate name)[^:\n]*:\s*(.+)$/im) || [])[1] || "";
+      const ps = Number((pn.match(/(\d{1,2})\s*(?:x\s*)?(?:pt\s*|personal training\s*)?(?:sessions?|classes|pack)/i) || [])[1] || 0); }
+    if (cc) { const k = cc.toUpperCase(), q = (b.codes[k] = b.codes[k] || { used: 0, booked: 0, first: d, last: d });
+      { const desc = get("DESCRIPTION"), pn = (desc.match(/^\s*(?:package|product|purchased|certificate name)[^:\n]*:\s*(.+)$/im) || [])[1] || ""; const ps = Number((pn.match(/(\d{1,2})\s*(?:x\s*)?(?:pt\s*|personal training\s*)?(?:sessions?|classes|pack)/i) || [])[1] || 0); if (pn) q.name = pn.slice(0, 60); if (ps) q.size = ps; } if (d <= today) q.used++; else q.booked++; if (d < q.first) q.first = d; if (d > q.last) q.last = d; }
     if (d <= today) { if (d > b.last) b.last = d; } else if (!b.next || d < b.next) b.next = d;
   }
-  acuityLast.events = events; acuityLast.matched = matched;
+  acuityLast.events = events; acuityLast.matched = matched; acuityLast.packageLabels = [...labels].slice(0, 40);
   return { byId: out, months, weeks, done, next7 };
 }
 async function acuityBookings(env, r) {
