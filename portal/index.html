@@ -621,7 +621,7 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
     function startSetup(st){
       done={};Object.keys((st&&st.done)||{}).forEach(function(k){done[k]=1});
       setGate(!(st&&(st.completed||st.skip)));
-      if(!window.__gated){$('start').setAttribute('data-view','more')}
+      /* once set up, the checklist stays out of the way: only 'My setup checklist' in Account opens it */
       route();
     }
     if(meta.demo)startSetup(/[?&]setup\b/.test(location.search)?{done:{}}:{completed:true});
