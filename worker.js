@@ -964,6 +964,20 @@ async function handleApi(request, env, url) {
     if (!coach) return json({ error: "forbidden" }, 403);
     return json(await businessStats(env, r, url.searchParams.get("fresh") === "1"));
   }
+  // ---- client's own PT sessions (from Acuity) ----
+  if (path === "/portal/api/sessions" && request.method === "GET") {
+    if (!client) return json({ error: "unknown" }, 403);
+    const acu = await acuityBookings(env, r).catch(() => null);
+    const a = acu && acu.byId && acu.byId[client.id];
+    if (!a) return json({ dates: [], pkg: null });
+    const today = londonToday();
+    const codes = a.codes || {}; const ks = Object.keys(codes).sort((x, y) => (codes[y].last).localeCompare(codes[x].last) || (codes[y].first).localeCompare(codes[x].first));
+    const pk = await getJSON(env, `${dkey(client.id)}/package.json`, null), bs = await getJSON(env, "_data/_biz-settings.json", {});
+    let pkg = null;
+    if (ks.length) { const q = codes[ks[0]]; const size = (pk && pk.size) || q.size || bs.pkgSize || 0; pkg = { size, used: q.used, booked: q.booked, left: size ? Math.max(0, size - q.used) : null, start: q.first }; }
+    const dates = [...new Set(a.dates || [])].sort();
+    return json({ today, past: dates.filter((d) => d <= today).reverse(), upcoming: dates.filter((d) => d > today), pkg });
+  }
   if (path === "/portal/api/coach/acuity-status") {
     if (!coach) return json({ error: "forbidden" }, 403);
     const t0 = Date.now(); acuityCache = null; await env.PHOTOS.delete("_data/_acuity-cache.json").catch(() => {});
