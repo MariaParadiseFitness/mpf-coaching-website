@@ -985,7 +985,7 @@ async function handleApi(request, env, url) {
     let pkg = null;
     if (ks.length) { const q = codes[ks[0]]; const size = (pk && pk.size) || q.size || bs.pkgSize || 0; pkg = { size, used: q.used, booked: q.booked, left: size ? Math.max(0, size - q.used) : null, start: q.first }; }
     const dates = [...new Set(a.dates || [])].sort();
-    return json({ today, past: dates.filter((d) => d <= today).reverse(), upcoming: dates.filter((d) => d > today), pkg });
+    return json({ today, past: dates.filter((d) => d <= today).reverse(), upcoming: dates.filter((d) => d > today), times: a.slots || {}, pkg });
   }
   if (path === "/portal/api/coach/acuity-emails") {
     if (!coach) return json({ error: "forbidden" }, 403);
@@ -1372,6 +1372,8 @@ async function acuityFromIcal(env, r) {
     matched++;
     const b = (out[id] = out[id] || { last: "", next: "", dates: [], codes: {} });
     if (b.dates.length < 400) b.dates.push(d);
+    { const tm = (v) => { const m = ev.match(new RegExp("^" + v + "([^:\\n]*):(\\d{8}T\\d{4,6}Z?)", "m")); if (!m) return ""; const x = m[2]; if (/Z$/.test(x)) { const dt = new Date(Date.UTC(+x.slice(0, 4), +x.slice(4, 6) - 1, +x.slice(6, 8), +x.slice(9, 11), +x.slice(11, 13))); return new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/London", hour: "2-digit", minute: "2-digit", hour12: false }).format(dt); } return x.slice(9, 11) + ":" + x.slice(11, 13); };
+      b.slots = b.slots || {}; const st = tm("DTSTART"), en = tm("DTEND"); if (st) b.slots[d] = (b.slots[d] ? b.slots[d] + ", " : "") + st + (en ? "–" + en : ""); }
     { b.em = b.em || {}; const ems = blob.match(/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/g) || []; const k = ems[0] || "(no email)"; const q = (b.em[k] = b.em[k] || { past: 0, up: 0 }); if (d > today) q.up++; else q.past++; }
     const cc = (get("DESCRIPTION").match(/Certificate Code:\s*([A-Z0-9-]{4,20})/i) || [])[1];
     if (cc) { const desc = get("DESCRIPTION"); for (const m of desc.matchAll(/^\s*([A-Za-z][A-Za-z ]{1,30}):/gm)) labels.add(m[1].trim());
