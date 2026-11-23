@@ -23,21 +23,45 @@
     function api(b){if(demo)return Promise.resolve({items:b?b.items:(items.length?items:demoItems()),feed:b&&b.feed==='on'?'https://mpfcoaching.co.uk/cal/example.ics':feed});return fetch('/portal/api/schedule',b?{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify(b)}:{credentials:'same-origin',cache:'no-store'}).then(function(r){if(!r.ok)throw r.status;return r.json()})}
     function load(){el.innerHTML='<p class="ci-note">Loading your week…</p>';api().then(function(j){items=j.items||[];feed=j.feed||'';draw()}).catch(function(){draw()})}
     function save(extra){var b=Object.assign({items:items},extra||{});return api(b).then(function(j){items=j.items||items;feed=j.feed||'';return j})}
-    function draw(){
-      var t=today(),h='<div class="pl-top"><button type="button" class="pl-nav" data-w="-7" aria-label="Previous week">‹</button><div><b>'+(wk===monday(t)?'This week':wk===add(monday(t),7)?'Next week':'Week of '+fmt(wk))+'</b><small>'+fmt(wk)+' to '+fmt(add(wk,6))+'</small></div><button type="button" class="pl-nav" data-w="7" aria-label="Next week">›</button></div>';
+    var view='week',mo=today().slice(0,8)+'01',sel=today(),sess={},MN=['January','February','March','April','May','June','July','August','September','October','November','December'];
+    try{if(localStorage.getItem('mpfPlView')==='month')view='month'}catch(e){}
+    var addM=function(s,n){var p=s.split('-'),d=new Date(+p[0],+p[1]-1+n,1,12);return iso(d)};
+    function dayList(d){return items.filter(function(x){return occurs(x,d)}).sort(function(a,b){return a.time<b.time?-1:1})}
+    function sessOn(d){return sess[d]||[]}
+    function itemBtn(x){var ty=TM[x.type];return '<button type="button" class="pl-it t-'+x.type+'" data-id="'+esc(x.id)+'"><i>'+ty[1]+'</i><span><b>'+esc(x.title)+'</b><small>'+x.time+' to '+endT(x.time,x.dur)+(x.days&&x.days.length?' · repeats':'')+'</small></span></button>'}
+    function sessBtn(t){return '<div class="pl-it t-pt"><i>💪</i><span><b>PT session with Maria</b><small>'+(t?esc(t.replace('–',' to ')):'Booked')+' · PureGym Charlton</small></span></div>'}
+    function dayBody(d){var l=dayList(d),ss=sessOn(d);return (ss.length||l.length)?ss.map(sessBtn).join('')+l.map(itemBtn).join(''):'<div class="pl-free">Nothing planned</div>'}
+    function toggle(){return '<div class="seg pl-vw"><button type="button" data-v="week" class="'+(view==='week'?'on':'')+'">📋 Week</button><button type="button" data-v="month" class="'+(view==='month'?'on':'')+'">🗓️ Month</button></div>'}
+    function drawWeek(t){
+      var h='<div class="pl-top"><button type="button" class="pl-nav" data-w="-7" aria-label="Previous week">‹</button><div><b>'+(wk===monday(t)?'This week':wk===add(monday(t),7)?'Next week':'Week of '+fmt(wk))+'</b><small>'+fmt(wk)+' to '+fmt(add(wk,6))+'</small></div><button type="button" class="pl-nav" data-w="7" aria-label="Next week">›</button></div>';
       h+='<button type="button" class="pl-add" data-a="new">＋ Add to my plan</button><p class="ci-note" id="plOk" style="margin:-4px 0 10px;color:#e8c872"></p><div id="plForm"></div>';
-      var any=false;
-      for(var i=0;i<7;i++){var d=add(wk,i),list=items.filter(function(x){return occurs(x,d)}).sort(function(a,b){return a.time<b.time?-1:1});if(list.length)any=true;
-        var sm=list.length?list.map(function(x){return TM[x.type][1]+' '+esc(x.title)}).join(' · '):'Nothing planned',op=d===t||(t<wk||t>add(wk,6))&&i===0;h+='<details class="pl-day'+(d===t?' today':'')+(d<t?' past':'')+'"'+(op?' open':'')+'><summary class="pl-dh"><b>'+DN[i]+'</b><span>'+fmt(d)+(d===t?' · Today':'')+'</span><em class="pl-sum">'+sm+'</em></summary>'+(list.length?list.map(function(x){var ty=TM[x.type];return '<button type="button" class="pl-it t-'+x.type+'" data-id="'+esc(x.id)+'"><i>'+ty[1]+'</i><span><b>'+esc(x.title)+'</b><small>'+x.time+' to '+endT(x.time,x.dur)+(x.days&&x.days.length?' · repeats':'')+'</small></span></button>'}).join(''):'<div class="pl-free">Nothing planned</div>')+'</details>'}
-      if(!any&&!items.length)h+='<p class="ci-note">Plan your training, cardio, meal prep and anything else. Then add it all to your Google Calendar below.</p>';
+      for(var i=0;i<7;i++){var d=add(wk,i),list=dayList(d),ss=sessOn(d);
+        var sm=(ss.length||list.length)?ss.map(function(){return '💪 PT session'}).concat(list.map(function(x){return TM[x.type][1]+' '+esc(x.title)})).join(' · '):'Nothing planned',op=d===t||(t<wk||t>add(wk,6))&&i===0;h+='<details class="pl-day'+(d===t?' today':'')+(d<t?' past':'')+'"'+(op?' open':'')+'><summary class="pl-dh"><b>'+DN[i]+'</b><span>'+fmt(d)+(d===t?' · Today':'')+'</span><em class="pl-sum">'+sm+'</em></summary>'+dayBody(d)+'</details>'}
+      return h}
+    function drawMonth(t){
+      var p=mo.split('-'),y=+p[0],m=+p[1]-1,last=iso(new Date(y,m+1,0,12)),start=monday(mo),end=add(monday(last),6);
+      var h='<div class="pl-top"><button type="button" class="pl-nav" data-m="-1" aria-label="Previous month">‹</button><div><b>'+MN[m]+' '+y+'</b><small>'+(mo===t.slice(0,8)+'01'?'This month':'Tap a day to see it')+'</small></div><button type="button" class="pl-nav" data-m="1" aria-label="Next month">›</button></div>';
+      h+='<div class="pl-mg">'+DN.map(function(n){return '<span class="pl-mh">'+n.charAt(0)+'<i>'+n.slice(1)+'</i></span>'}).join('');
+      for(var d=start;d<=end;d=add(d,1)){var l=dayList(d),ss=sessOn(d),dots=ss.map(function(){return '<em class="t-pt"></em>'}).concat(l.map(function(x){return '<em class="t-'+x.type+'"></em>'})),n=dots.length;
+        h+='<button type="button" class="pl-mc'+(d.slice(0,7)!==mo.slice(0,7)?' out':'')+(d===t?' today':'')+(d===sel?' sel':'')+(d<t?' past':'')+(ss.length?' pt':'')+'" data-day="'+d+'" aria-label="'+fmt(d,{weekday:'long',day:'numeric',month:'long'})+(n?', '+n+' planned':'')+'"><b>'+(+d.slice(8))+'</b><span class="pl-dots">'+dots.slice(0,4).join('')+(n>4?'<small>+'+(n-4)+'</small>':'')+'</span></button>'}
+      h+='</div><div class="pl-key">'+(Object.keys(sess).length?'<span><em class="t-pt"></em>PT session</span>':'')+TYPES.filter(function(ty){return items.some(function(x){return x.type===ty[0]})}).map(function(ty){return '<span><em class="t-'+ty[0]+'"></em>'+ty[2]+'</span>'}).join('')+'</div>';
+      h+='<div class="pl-day pl-sel'+(sel===t?' today':'')+'"><div class="pl-dh"><b>'+fmt(sel,{weekday:'long'})+'</b><span>'+fmt(sel,{day:'numeric',month:'long'})+(sel===t?' · Today':'')+'</span></div>'+dayBody(sel)+'<button type="button" class="pl-addday" data-a="new">＋ Add to '+fmt(sel,{weekday:'short',day:'numeric',month:'short'})+'</button></div>';
+      h+='<p class="ci-note" id="plOk" style="margin:4px 0 10px;color:#e8c872"></p><div id="plForm"></div>';
+      return h}
+    function draw(){
+      var t=today(),h=toggle()+(view==='month'?drawMonth(t):drawWeek(t));
+      if(!items.length&&!Object.keys(sess).length)h+='<p class="ci-note">Plan your training, cardio, meal prep and anything else. Then add it all to your Google Calendar below.</p>';
       h+='<div class="pl-cal"><b>📲 Put my plan in Google Calendar</b>'+(feed?'<p>Your plan is ready to sync. Tap the button, then <b>Add</b> in Google Calendar. Anything you change here updates in your calendar automatically (Google can take a few hours to refresh).</p><div class="pl-cb"><a class="btn" href="https://calendar.google.com/calendar/r?cid='+encodeURIComponent(feed.replace(/^https:/,'webcal:'))+'" target="_blank" rel="noopener">Add to Google Calendar</a><button type="button" class="btn g" data-a="copy">Copy link</button></div><details class="pl-more"><summary>Other calendars, or not working?</summary><p>On a computer, open Google Calendar, click <b>+</b> next to "Other calendars", choose <b>From URL</b> and paste your link. On iPhone you can also open the link to add it to Apple Calendar.</p><p class="pl-url">'+esc(feed)+'</p><p>Keep this link to yourself, it shows your plan. <button type="button" class="lb-link" data-a="reset">Make a new link</button> · <button type="button" class="lb-link" data-a="off">Turn off sync</button></p></details>':'<p>Get everything you plan here showing in your own Google Calendar, kept up to date automatically.</p><button type="button" class="btn" data-a="on">Turn on calendar sync</button>')+'<span class="lg-msg" id="plMsg"></span></div>';
       el.innerHTML=h;bind();if(edit)form(edit);
     }
     function bind(){
       [].forEach.call(el.querySelectorAll('[data-w]'),function(b){b.onclick=function(){wk=add(wk,+b.getAttribute('data-w'));edit=null;draw()}});
+      [].forEach.call(el.querySelectorAll('[data-m]'),function(b){b.onclick=function(){mo=addM(mo,+b.getAttribute('data-m'));var t=today();sel=mo===t.slice(0,8)+'01'?t:mo;edit=null;draw()}});
+      [].forEach.call(el.querySelectorAll('[data-day]'),function(b){b.onclick=function(){sel=b.getAttribute('data-day');if(sel.slice(0,7)!==mo.slice(0,7))mo=sel.slice(0,8)+'01';edit=null;draw();var s=el.querySelector('.pl-sel');if(s&&s.scrollIntoView)s.scrollIntoView({block:'nearest',behavior:'smooth'})}});
+      [].forEach.call(el.querySelectorAll('.pl-vw [data-v]'),function(b){b.onclick=function(){var v=b.getAttribute('data-v');if(v===view)return;if(v==='month'){var t=today();sel=(t>=wk&&t<=add(wk,6))?t:wk;mo=sel.slice(0,8)+'01'}else wk=monday(sel);view=v;try{localStorage.setItem('mpfPlView',v)}catch(e){}edit=null;draw()}});
       [].forEach.call(el.querySelectorAll('.pl-it'),function(b){b.onclick=function(){var x=items.filter(function(i){return i.id===b.getAttribute('data-id')})[0];if(x){edit=JSON.parse(JSON.stringify(x));form(edit);$f().scrollIntoView({block:'center',behavior:'smooth'})}}});
       var a=function(n,f){var b=el.querySelector('[data-a="'+n+'"]');if(b)b.onclick=f};
-      a('new',function(){var d=wk===monday(today())?today():wk;edit={id:'',type:'training',title:'',date:d,time:'07:00',dur:60,days:[],until:'',notes:''};form(edit)});
+      a('new',function(){var d=view==='month'?sel:wk===monday(today())?today():wk;edit={id:'',type:'training',title:'',date:d,time:'07:00',dur:60,days:[],until:'',notes:''};form(edit)});
       var msg=function(t){var m=el.querySelector('#plMsg');if(m)m.textContent=t};
       a('on',function(){msg('Setting up…');save({feed:'on'}).then(draw).catch(function(){msg('Not done. Try again.')})});
       a('reset',function(){if(!confirm('Make a new link? The old one stops working, so you\'ll need to add the new one to your calendar again.'))return;save({feed:'reset'}).then(draw)});
@@ -64,10 +88,14 @@
       var del=f.querySelector('[data-f=del]');if(del)del.onclick=function(){if(!confirm('Delete '+x.title+(x.days.length?' (every week)':'')+'?'))return;items=items.filter(function(i){return i.id!==x.id});save().then(function(){edit=null;draw()}).catch(function(){f.querySelector('#plFm').textContent='Not deleted. Try again.'})};
       f.querySelector('[data-f=save]').onclick=function(){keep();var m=f.querySelector('#plFm');if(!x.title.trim()){m.textContent='Add a name first.';f.querySelector('#plT').focus();return}
         if(!x.id)x.id=Math.random().toString(36).slice(2,10);items=items.filter(function(i){return i.id!==x.id}).concat([x]);m.textContent='Saving…';
-        save().then(function(){edit=null;var f=x.date;if(x.days.length){for(var i=0;i<7;i++){if(occurs(x,add(x.date,i))){f=add(x.date,i);break}}}if(f<wk||f>add(wk,6))wk=monday(f);draw();var m=el.querySelector('#plOk');if(m)m.textContent='✓ Saved. First one: '+fmt(f,{weekday:'short',day:'numeric',month:'short'})+(x.time?' at '+x.time:'');setTimeout(function(){if(m)m.textContent=''},6000)}).catch(function(){m.textContent='Not saved. Check your signal and try again.'})};
+        save().then(function(){edit=null;var f=x.date;if(x.days.length){for(var i=0;i<7;i++){if(occurs(x,add(x.date,i))){f=add(x.date,i);break}}}if(f<wk||f>add(wk,6))wk=monday(f);if(view==='month'){sel=f;mo=f.slice(0,8)+'01'}draw();var m=el.querySelector('#plOk');if(m)m.textContent='✓ Saved. First one: '+fmt(f,{weekday:'short',day:'numeric',month:'short'})+(x.time?' at '+x.time:'');setTimeout(function(){if(m)m.textContent=''},6000)}).catch(function(){m.textContent='Not saved. Check your signal and try again.'})};
     }
     load();
-    return {setWorkouts:function(w){workouts=w||[];if(edit)form(edit)}};
+    var me={setWorkouts:function(w){workouts=w||[];if(edit)form(edit)},
+      setSessions:function(j){sess={};if(j){var T=j.times||{};(j.past||[]).concat(j.upcoming||[]).forEach(function(d){sess[d]=T[d]?String(T[d]).split(', '):['']})}draw()}};
+    window.MPFPlanner.current=me;
+    if(demo)setTimeout(function(){var m=monday(today());me.setSessions({upcoming:[add(m,2),add(m,9)],past:[add(m,-5)],times:{}})},0);
+    return me;
   }
   window.MPFPlanner={Mount:Mount};
 })();
