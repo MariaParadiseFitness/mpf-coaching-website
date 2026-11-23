@@ -331,3 +331,14 @@ table.lt tbody tr:hover td{background:rgba(201,166,75,.12)!important}
 .pl-more summary{cursor:pointer;color:var(--gold-l,#e8c872);font-size:13px;margin-top:6px}
 .pl-url{word-break:break-all;font-family:monospace;font-size:12px!important;background:#0b0b0b;padding:8px;border-radius:8px}
 @media(max-width:420px){.pl-row{grid-template-columns:1fr 1fr}.pl-row label:first-child{grid-column:1/-1}}
+
+/* collapsed week days */
+details.pl-day>summary{list-style:none;cursor:pointer;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;margin-bottom:0}
+details.pl-day>summary::-webkit-details-marker{display:none}
+details.pl-day>summary b{flex:none}details.pl-day>summary span{flex:none}
+details.pl-day>summary:after{content:'▾';margin-left:auto;color:var(--mute);font-size:12px}
+details.pl-day[open]>summary:after{content:'▴'}
+details.pl-day[open]>summary{margin-bottom:6px}
+.pl-sum{flex-basis:100%;font-style:normal;color:#cfc5ad;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+details.pl-day[open] .pl-sum{display:none}
+details.pl-day{padding:9px 12px;margin-bottom:6px}

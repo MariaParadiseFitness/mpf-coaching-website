@@ -366,10 +366,12 @@ body.gated #topTabs{visibility:hidden}
 
   <!-- PLAN -->
   <section data-view="plan" id="plan">
+    <div class="seg ptonly" hidden id="plSeg"><button type="button" data-p="mine" class="on">📅 My plan</button><button type="button" data-p="book">🏋️ Book a session</button></div>
+    <div id="plMine">
     <h2>My <em>plan.</em></h2>
     <div class="sub">Plan your week: training, cardio, meal prep, walks, anything. Turn on calendar sync and it all shows in your Google Calendar.</div>
-    <div class="ptonly" hidden style="margin:0 0 14px"><a class="act" href="#sessions"><span class="ic">📅</span><span><b>Book a PT session with Maria</b><span>See times and book below</span></span></a></div>
     <div class="pl-box" id="plBox"><div class="pg-empty">Loading…</div></div>
+    </div>
   </section>
 
   <!-- SESSIONS (PT clients, shown on the Plan page) -->
@@ -501,9 +503,12 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
     [].forEach.call(document.querySelectorAll('#topTabs a,#bnav a'),function(a){a.classList.toggle('on',a.getAttribute('data-v')===v)});
     $('backSetup').hidden=!(window.__gated&&v!=='setup');
     if(v==='plan'&&!$('sessions').classList.contains('gone')){var f=$('acuity');if(f&&!f.src)f.src=f.getAttribute('data-src')}
+    if(v==='plan'&&!$('sessions').classList.contains('gone'))plTab(id==='sessions'||id==='bookNow'||(id!=='plan'&&$('sessions').contains(t))?'book':'mine');
     if(noScroll)return;
     if(['log','targets','checkin','progress','folder','account','start'].indexOf(id)>=0||(t===host&&host===firstOf(v)))window.scrollTo(0,0);else t.scrollIntoView({block:'start'});
   }
+  function plTab(w){$('plMine').hidden=w==='book';$('sessions').style.display=w==='book'?'':'none';[].forEach.call(document.querySelectorAll('#plSeg button'),function(b){b.classList.toggle('on',b.getAttribute('data-p')===w)})}
+  document.addEventListener('click',function(e){var b=e.target.closest('#plSeg button');if(!b)return;plTab(b.getAttribute('data-p'));window.scrollTo(0,0)});
   function route(){go((location.hash||'#log').slice(1))}
   window.addEventListener('hashchange',route);
   document.addEventListener('click',function(e){var a=e.target.closest('a[href^="#"]');if(!a)return;var id=a.getAttribute('href').slice(1);if(!id)return;e.preventDefault();if(location.hash!=='#'+id)history.pushState(null,'','#'+id);go(id)});
