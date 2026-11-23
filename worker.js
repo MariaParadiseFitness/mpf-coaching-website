@@ -987,6 +987,13 @@ async function handleApi(request, env, url) {
     const dates = [...new Set(a.dates || [])].sort();
     return json({ today, past: dates.filter((d) => d <= today).reverse(), upcoming: dates.filter((d) => d > today), pkg });
   }
+  if (path === "/portal/api/coach/acuity-emails") {
+    if (!coach) return json({ error: "forbidden" }, 403);
+    const id = (url.searchParams.get("id") || "").toLowerCase();
+    const acu = await acuityBookings(env, r).catch(() => null);
+    const a = acu && acu.byId && acu.byId[id];
+    return json({ id, emails: (a && a.em) || {}, onFile: Object.entries(r).filter(([, x]) => x.id === id).map(([e]) => e) });
+  }
   if (path === "/portal/api/coach/acuity-status") {
     if (!coach) return json({ error: "forbidden" }, 403);
     const t0 = Date.now(); acuityCache = null; await env.PHOTOS.delete("_data/_acuity-cache.json").catch(() => {});
@@ -1365,6 +1372,7 @@ async function acuityFromIcal(env, r) {
     matched++;
     const b = (out[id] = out[id] || { last: "", next: "", dates: [], codes: {} });
     if (b.dates.length < 400) b.dates.push(d);
+    { b.em = b.em || {}; const ems = blob.match(/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/g) || []; const k = ems[0] || "(no email)"; const q = (b.em[k] = b.em[k] || { past: 0, up: 0 }); if (d > today) q.up++; else q.past++; }
     const cc = (get("DESCRIPTION").match(/Certificate Code:\s*([A-Z0-9-]{4,20})/i) || [])[1];
     if (cc) { const desc = get("DESCRIPTION"); for (const m of desc.matchAll(/^\s*([A-Za-z][A-Za-z ]{1,30}):/gm)) labels.add(m[1].trim());
       const pn = (desc.match(/^\s*(?:package|product|purchased|certificate name)[^:\n]*:\s*(.+)$/im) || [])[1] || "";
