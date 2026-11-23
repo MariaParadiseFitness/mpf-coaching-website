@@ -358,7 +358,7 @@ async function readWorkouts(env, id, daysBack) {
   return out.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : a.at < b.at ? 1 : -1));
 }
 
-async function handleApi(request, env, url) {
+async function handleApi(request, env, url, ctx) {
   const w = await who(request, env);
   if (w instanceof Response) return w;
   let { email, client, coach, roster: r } = w;
@@ -472,6 +472,7 @@ async function handleApi(request, env, url) {
     if (!client) return json({ error: "unknown" }, 403);
     const today = londonToday();
     const all = await getJSON(env, `${dkey(client.id)}/checkins.json`, {});
+    for (const k of Object.keys(all)) if (all[k] && all[k].draft) { all[k] = { ...all[k] }; delete all[k].draft; }
     return json({ today, day: checkinDay(client), lastDue: lastDue(client, today), questions: QUESTIONS, checkins: all });
   }
   if (path === "/portal/api/checkin" && request.method === "POST") {
@@ -496,7 +497,9 @@ async function handleApi(request, env, url) {
     sm.checkins = sm.checkins || {};
     sm.checkins[due] = all[due].at;
     await putJSON(env, sk, sm);
-    return json({ ok: true, due, checkin: all[due] });
+    if (env.ANTHROPIC_API_KEY && ctx && !(all[due].reply && all[due].reply.text)) ctx.waitUntil(aiDraft(env, r, client, due).catch(() => {}));
+    const safe = { ...all[due] }; delete safe.draft;
+    return json({ ok: true, due, checkin: safe });
   }
 
   // ---- training programme ----
@@ -847,6 +850,7 @@ async function handleApi(request, env, url) {
     if (request.method === "POST") {
       const b = await request.json().catch(() => ({}));
       if (b.enabled && typeof b.enabled === "object") for (const k of AUTO_RULES) if (k in b.enabled) db.enabled[k] = !!b.enabled[k];
+      if (Array.isArray(b.snippets)) db.snippets = b.snippets.slice(0, 40).map((t) => ({ name: String(t.name || "").slice(0, 40), text: String(t.text || "").slice(0, 1200) })).filter((t) => t.name && t.text);
       if (Array.isArray(b.templates)) db.templates = b.templates.slice(0, 40).map((t) => ({ name: String(t.name || "").slice(0, 60), text: String(t.text || "").slice(0, 1200) })).filter((t) => t.name && t.text);
       if (b.test) { const res = await runAutomations(env, { testTo: env.NOTIFY_TO || "info@mpfcoaching.co.uk", rule: String(b.test) }); return json({ ok: true, res }); }
       if (b.runNow) { const res = await runAutomations(env, {}); return json({ ok: true, res, ...db }); }
@@ -866,7 +870,7 @@ async function handleApi(request, env, url) {
       out.push({ id: c.id, name: c.name, type: c.type === "pt" ? "pt" : "online", check: checkinStatus(c, sm, today), lastLog: (sm.logged || []).slice(-1)[0] || "",
         latest: k ? { due: k, ...all[k] } : null, prev: pk ? { due: pk, stats: all[pk].stats || {}, answers: all[pk].answers || [] } : null, targets: await getJSON(env, `${dkey(c.id)}/targets.json`, null) });
     }));
-    return json({ today, questions: QUESTIONS, clients: out });
+    return json({ today, questions: QUESTIONS, clients: out, ai: !!env.ANTHROPIC_API_KEY });
   }
   if (path === "/portal/api/coach/backup") {
     if (!coach) return json({ error: "forbidden" }, 403);
@@ -940,6 +944,14 @@ async function handleApi(request, env, url) {
     if (request.method === "POST") { const b = await request.json().catch(() => ({})); const d = { text: String(b.text || "").slice(0, 20000), updated: new Date().toISOString() }; await putJSON(env, key, d); return json(d); }
     return json(await getJSON(env, key, { text: "", updated: "" }));
   }
+  if (path === "/portal/api/coach/checkin-draft" && request.method === "POST") {
+    if (!coach) return json({ error: "forbidden" }, 403);
+    const b = await request.json().catch(() => ({}));
+    const id = String(b.id || "").toLowerCase(), c = Object.values(r).find((x) => x.id === id);
+    if (!c || !isDate(b.due)) return json({ error: "bad" }, 400);
+    const out = await aiDraft(env, r, c, b.due);
+    return json(out, out.error ? (out.error === "no-key" ? 501 : 502) : 200);
+  }
   if (path === "/portal/api/coach/checkin-reply" && request.method === "POST") {
     if (!coach) return json({ error: "forbidden" }, 403);
     const b = await request.json().catch(() => ({}));
@@ -957,7 +969,7 @@ async function handleApi(request, env, url) {
       return json({ ok: true, reviewed: all[b.due].reviewed || null });
     }
     const text = String(b.text || "").trim().slice(0, 5000), at = new Date().toISOString(), isNew = !(all[b.due].reply && all[b.due].reply.text);
-    if (text) all[b.due].reply = { text, at }; else delete all[b.due].reply;
+    if (text) { all[b.due].reply = { text, at }; delete all[b.due].draft; } else delete all[b.due].reply;
     await putJSON(env, key, all);
     const sk = `${dkey(c.id)}/summary.json`, sm = await getJSON(env, sk, {}); sm.replied = sm.replied || {};
     if (text) sm.replied[b.due] = at; else delete sm.replied[b.due];
@@ -1580,14 +1592,14 @@ async function notifyCancel(env, client, doc) {
     button: { text: "Open Stripe", url: "https://dashboard.stripe.com/subscriptions" } });
 }
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
     if (url.pathname === "/stripe/webhook" && request.method === "POST") return stripeWebhook(request, env).catch(() => new Response("error", { status: 500 }));
     if (url.pathname === "/api/recs" && request.method === "GET") return json(await getJSON(env, "_data/_recs.json", { items: [] }));
     if (url.pathname.startsWith("/cal/") && url.pathname.endsWith(".ics")) return calFeed(env, url).catch(() => new Response("error", { status: 500 }));
     if (url.pathname.startsWith("/portal/api/")) {
       try {
-        return await handleApi(request, env, url);
+        return await handleApi(request, env, url, ctx);
       } catch (e) {
         return json({ error: "server" }, 500);
       }
@@ -1598,6 +1610,72 @@ export default {
     ctx.waitUntil(runAutomations(env, {}).catch(() => {}));
   },
 };
+
+// ---- AI check-in drafts: when a client checks in, Claude writes a draft reply for Maria to edit. Never sent automatically. ----
+// Needs the Cloudflare secret ANTHROPIC_API_KEY. Optional variable AI_MODEL to change the model.
+const AI_SYSTEM = `You are drafting a weekly check-in reply for Maria Paradise, a UK personal trainer and online coach (MPF Coaching, fat loss and body recomp, evidence-based, flexible dieting). Maria will read and edit your draft before sending, so write it exactly as she would send it, in the first person as Maria, to the client.
+
+How Maria writes check-in feedback:
+- Warm, real, straight-talking big-sister energy. Proud of her clients and shows it ("so bloody proud of you"). Never corporate, never cheesy.
+- British spelling and phrasing. Mild slang is fine (proper, knackered, bloody). No swearing beyond that.
+- Absolutely no em dashes or en dashes. Use full stops, commas or line breaks.
+- Short paragraphs, one idea each. 80 to 180 words in total.
+- Open with their name and a genuine reaction to their week. Pick out specific wins from their answers and numbers.
+- Then the coaching: one or two clear, practical things to focus on next week, explained simply. Base them on their answers and numbers against their targets. Consistency over perfection, adjust the plan don't abandon it, the scale fluctuates (water, salt, carbs, stress, their cycle) so judge the trend.
+- Respond to what they actually wrote. If they mention a struggle (stress, a bad weekend, low energy), acknowledge it like a friend, no lecture.
+- End warmly, signed "Maria x". A couple of emojis at most (💪🏼 🔥 🖤 ❤️‍🔥).
+- Never invent numbers, events or plan changes. Never change their calories, macros or programme yourself. If a change might be needed, say you'll look at it ("I'm going to have a look at your calories and update you").
+- Never diagnose or give medical advice. If they mention pain, injury, illness, a medical issue, very low intake, or anything worrying about their mood or relationship with food, keep the reply kind and simple and put it in the note for Maria instead of handling it in the reply.
+
+Return ONLY JSON, no other text: {"reply": "the message to the client", "note": "a short private heads-up for Maria about anything she should personally check before sending, or an empty string"}`;
+
+async function aiDraft(env, r, c, due) {
+  if (!env.ANTHROPIC_API_KEY) return { error: "no-key" };
+  const key = `${dkey(c.id)}/checkins.json`;
+  const all = await getJSON(env, key, {});
+  const ci = all[due];
+  if (!ci) return { error: "no check-in" };
+  const ks = Object.keys(all).sort(), pk = ks.filter((k) => k < due).pop();
+  const targets = await getJSON(env, `${dkey(c.id)}/targets.json`, null) || {};
+  const Q = ci.questions || QUESTIONS;
+  const qa = (ci.answers || []).map((a, i) => (String(a || "").trim() ? `Q: ${Q[i] || "Question " + (i + 1)}\nA: ${a}` : "")).filter(Boolean).join("\n\n") || "(no written answers)";
+  const fmt = (s) => Object.entries(s || {}).filter(([, v]) => v !== null && v !== "" && v !== undefined).map(([k, v]) => `${k}: ${v}`).join(", ") || "(none)";
+  const tg = Object.entries(targets).filter(([k, v]) => v && !["updated", "notes", "hlOn", "hiDays"].includes(k)).map(([k, v]) => `${k}: ${v}`).join(", ") || "(not set)";
+  const past = ks.filter((k) => k < due && all[k].reply && all[k].reply.text).slice(-3).map((k) => all[k].reply.text);
+  const first = String(c.name || "").split(" ")[0];
+  const user = [
+    `Client first name: ${first}`,
+    `Client type: ${c.type === "pt" ? "face-to-face PT client (trains with Maria in the gym)" : "online coaching client"}`,
+    c.phase ? `Phase: ${c.phase}` : "",
+    c.start ? `Started with Maria: ${c.start}` : "",
+    `Week ending: ${due}`,
+    `Their daily targets: ${tg}`,
+    `This week's averages from their daily log (weight kg, daysLogged out of 7, cals, protein g, steps, sleep h, change = kg vs last week): ${fmt(ci.stats)}`,
+    pk ? `Last week's averages: ${fmt(all[pk].stats)}` : "No previous check-in.",
+    `Their check-in answers:\n${qa}`,
+    past.length ? `Maria's last replies to this client, for her tone (don't repeat them):\n${past.map((t) => "---\n" + t).join("\n")}` : "",
+  ].filter(Boolean).join("\n\n");
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: { "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json" },
+    body: JSON.stringify({ model: env.AI_MODEL || "claude-sonnet-5-5", max_tokens: 1200, system: AI_SYSTEM, messages: [{ role: "user", content: user }] }),
+    signal: AbortSignal.timeout(60000),
+  });
+  if (!res.ok) return { error: "api " + res.status };
+  const j = await res.json().catch(() => null);
+  const raw = ((j && j.content) || []).filter((b) => b.type === "text").map((b) => b.text).join("").trim();
+  let reply = "", note = "";
+  try { const m = raw.match(/\{[\s\S]*\}/); const o = JSON.parse(m ? m[0] : raw); reply = String(o.reply || ""); note = String(o.note || ""); } catch (e) { reply = raw; }
+  const clean = (t) => t.replace(/\s*[—–]\s*/g, ", ").replace(/,\s*,/g, ",").trim();
+  reply = clean(reply).slice(0, 5000); note = clean(note).slice(0, 600);
+  if (!reply) return { error: "empty" };
+  // re-read so we never overwrite a reply Maria sent while the draft was being written
+  const fresh = await getJSON(env, key, {});
+  if (!fresh[due]) return { error: "no check-in" };
+  const draft = { text: reply, note, at: new Date().toISOString() };
+  if (!(fresh[due].reply && fresh[due].reply.text)) { fresh[due].draft = draft; await putJSON(env, key, fresh); }
+  return { draft };
+}
 
 // ---- business dashboard ----
 async function stripeGet(env, path) {
