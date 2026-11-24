@@ -29,6 +29,8 @@
     o.weight=avg(S.weight,1);o.steps=avg(S.steps,0);o.cals=avg(S.cals,0);o.sleep=avg(S.sleep,1);o.protein=avg(S.protein,0);return o;
   }
   // day of cycle: days since the first 'Yes' of the most recent period, counting that day as 1
+  // cardio target: "2 x 30 mins a week" = 2 sessions of 30 mins, not every day
+  function cardioT(v){var s=String(v||''),m=s.match(/(\d+)\s*x\s*(\d+)/i);if(m&&/week|wk/i.test(s))return {perWeek:+m[1],mins:+m[2]};var n=parseFloat(s);return n>0?{perWeek:0,mins:n}:null}
   function cycleDay(days,date,todayVal){
     var isP=function(d){return d===date?todayVal==='Yes':!!(days[d]&&days[d].period==='Yes')};
     for(var i=0;i<60;i++){var d=fromT(toT(date)-i*DAY);if(isP(d)&&!isP(fromT(toT(d)-DAY)))return i+1}
@@ -104,11 +106,11 @@
     var lastT=null;
     function bars(){var box=el.querySelector('.lg-bars');if(!box)return;var t=dayTargets(lastT||{},cur),num=function(v){var n=parseFloat(String(v==null?'':v).replace(/,/g,''));return isFinite(n)?n:null};
       var B=[['cals','Calories',' kcal',1],['protein','Protein','g',0],['carbs','Carbs','g',1],['fat','Fat','g',1],['steps','Steps','',0],['water','Water',' L',0],['cardio','Cardio',' mins',0]];
-      var rows=B.map(function(b){var tg=num(t[b[0]]);if(!tg||tg<=0)return '';var v=num(vals[b[0]]);if(b[0]==='cals'&&v==null){var k=kcal({carbs:vals.carbs,protein:vals.protein,fat:vals.fat});if(k)v=k}v=v||0;
+      var cT=cardioT(t.cardio);var rows=B.map(function(b){var tg=b[0]==='cardio'?(cT?cT.mins:null):num(t[b[0]]);if(!tg||tg<=0)return '';var v=num(vals[b[0]]);if(b[0]==='cardio'&&cT&&cT.perWeek&&!v)return '';if(b[0]==='cals'&&v==null){var k=kcal({carbs:vals.carbs,protein:vals.protein,fat:vals.fat});if(k)v=k}v=v||0;
         var pc=v/tg,cls=pc>=1.1&&b[3]?'over':pc>=0.95?'hit':'',left=tg-v,fm=function(n){return b[0]==='water'?Math.round(n*10)/10:Math.round(n).toLocaleString('en-GB')};
         var note=!v?'Not logged yet':cls==='over'?fm(-left)+b[2]+' over':left>0?fm(left)+b[2]+' to go':'Target hit ✓';
         return '<div class="lb-r '+cls+'"><div class="lb-t"><b>'+b[1]+'</b><span>'+fm(v)+' / '+fm(tg)+b[2]+'</span></div><div class="lb-b"><i style="width:'+Math.min(100,pc*100).toFixed(1)+'%"></i></div><small>'+note+'</small></div>'}).join('');
-      var st={},need=0,got=0;[['protein',0.95],['steps',0.95],['cardio',0.95]].forEach(function(q){var tg=num(t[q[0]]);if(!tg)return;need++;if((num(vals[q[0]])||0)>=tg*q[1])got++});
+      var st={},need=0,got=0;[['protein',0.95],['steps',0.95],['cardio',0.95]].forEach(function(q){var tg=q[0]==='cardio'?(cardioT(t.cardio)||{}).mins:num(t[q[0]]);if(!tg)return;if(q[0]==='cardio'&&(cardioT(t.cardio)||{}).perWeek&&!num(vals.cardio))return;need++;if((num(vals[q[0]])||0)>=tg*q[1])got++});
       var tc=num(t.cals);if(tc){need++;var cv=num(vals.cals);if(cv==null)cv=kcal({carbs:vals.carbs,protein:vals.protein,fat:vals.fat});if(cv&&Math.abs(cv-tc)<=tc*0.1)got++}
       need++;if(vals.trained==='Yes'||vals.trained==='No')got++;
       bars.state={all:need>=3&&got===need,rest:vals.trained==='No'};
@@ -219,6 +221,6 @@
       return '<div class="hl-box">'+row('🔼 High day'+(hd.length?' ('+hd.join(', ')+')':''),'hi',tt.dayType==='High day')+row('🔽 Low day','lo',tt.dayType==='Low day')+'</div>'+(rest.length?'<div class="lg-stats tgt">'+rest.map(function(x){var v=t[x[0]];return '<div><small>'+x[1]+'</small><b>'+esc(v)+'</b>'+(x[2]&&!/[a-z]/i.test(v)?'<span>'+x[2]+'</span>':'')+'</div>'}).join('')+'</div>':'')+(t.notes?'<div class="pg-note" style="margin-top:10px">'+esc(t.notes)+'</div>':'')}
     return '<div class="lg-stats tgt">'+L.filter(function(x){return t[x[0]]}).map(function(x){var v=t[x[0]];return '<div><small>'+x[1]+'</small><b>'+esc(v)+'</b>'+(x[2]&&!/[a-z]/i.test(v)?'<span>'+x[2]+'</span>':'')+'</div>'}).join('')+'</div>'+(t.notes?'<div class="pg-note">'+esc(t.notes)+'</div>':'')+(t.updated?'<p class="pg-key">Set by Maria · updated '+new Date(t.updated).toLocaleDateString('en-GB',{day:'numeric',month:'long'})+'</p>':'');
   }
-  window.MPFLog={dayTargets:dayTargets,targetsHTML:targetsHTML,Today:Today,CheckIn:CheckIn,logTable:logTable,checkinList:checkinList,weekStats:weekStats,londonToday:londonToday,fromT:fromT,toT:toT,nice:nice,
+  window.MPFLog={cardioT:cardioT,dayTargets:dayTargets,targetsHTML:targetsHTML,Today:Today,CheckIn:CheckIn,logTable:logTable,checkinList:checkinList,weekStats:weekStats,londonToday:londonToday,fromT:fromT,toT:toT,nice:nice,
     demoDays:function(today,n){var o={},b=74.2;for(var i=n;i>=1;i--){if(i%5===3)continue;var d=fromT(toT(today)-i*DAY);b-=0.04;o[d]={weight:(b+Math.sin(i)*0.4).toFixed(1),steps:String(8000+Math.round(Math.cos(i)*2500)),protein:String(140+i%20),carbs:'180',fat:'55',sleep:'7:'+(10+i%40),trained:i%2?'Yes':'No',energy:String(6+i%4),mood:'8',stress:String(3+i%3),hunger:'5',adherence:'9',_at:'x'}}return o}};
 })();

@@ -31,6 +31,7 @@
         tile('Avg steps',fm(st),ts?'target '+fm(ts):'',ts&&st!=null&&st>=ts*0.95)+
         tile('Avg calories',fm(ca),tc?'target '+fm(tc):'',tc&&ca!=null&&Math.abs(ca-tc)<=tc*0.07)+
         (tp?tile('Protein hit',pHit+' / 7 days','target '+fm(tp)+'g',pHit>=5):'')+
+        (function(){var ct=window.MPFLog&&MPFLog.cardioT?MPFLog.cardioT(t.cardio):null;if(!ct)return '';var done=pick(cur,function(d){var c=num(d.cardio);return c&&c>=ct.mins*0.95?1:null}).length;return ct.perWeek?tile('Cardio',done+' / '+ct.perWeek+' sessions',ct.mins+' mins each',done>=ct.perWeek):tile('Cardio',done+' / 7 days',ct.mins+' mins a day',done>=6)})()+
         tile('Avg sleep',sl!=null?Math.floor(sl)+'h '+String(Math.round((sl%1)*60)).padStart(2,'0')+'m':'–','',sl!=null&&sl>=7)+
         '</div>';
       var wins=[];if(logged>=6)wins.push('logged nearly every day');if(tp&&pHit>=5)wins.push('hit your protein '+pHit+' days');if(tr>=3)wins.push('trained '+tr+' times');if(ts&&st!=null&&st>=ts*0.95)wins.push('smashed your steps');
