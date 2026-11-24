@@ -1,7 +1,7 @@
 /* MPF training programme: read-only view (client) and editor (coach). Stored on the website, not in Google Sheets. */
 (function(){
   var esc=function(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
-  var COLS=[{k:'ss',l:'SS',w:'w-ss'},{k:'name',l:'Exercise',w:'w-name'},{k:'sets',l:'Sets',w:'w-s'},{k:'reps',l:'Reps',w:'w-s'},{k:'tempo',l:'Tempo',w:'w-s'},{k:'rir',l:'RIR',w:'w-s'},{k:'rest',l:'Rest',w:'w-s'},{k:'notes',l:'Notes',w:'w-notes'}];
+  var COLS=[{k:'ss',l:'SS',w:'w-ss'},{k:'name',l:'Exercise',w:'w-name'},{k:'opts',l:'Pick from (comma separated)',w:'w-notes'},{k:'sets',l:'Sets',w:'w-s'},{k:'reps',l:'Reps',w:'w-s'},{k:'tempo',l:'Tempo',w:'w-s'},{k:'rir',l:'RIR',w:'w-s'},{k:'rest',l:'Rest',w:'w-s'},{k:'notes',l:'Notes',w:'w-notes'}];
   function upd(p){return p&&p.updated?new Date(p.updated).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}):''}
 
   /* ---------- client: read-only ---------- */
@@ -21,7 +21,7 @@
       h+='<div class="pg-tabs">'+prog.workouts.map(function(x,i){return '<button type="button" data-i="'+i+'" class="'+(i===cur?'on':'')+'">'+esc(x.name)+'</button>'}).join('')+'</div>';
       if(w.focus)h+='<p class="pg-key" style="margin:4px 0 8px"><b>Focus:</b> '+esc(w.focus)+'</p>';
       if(w.notes)h+='<div class="pg-note">'+esc(w.notes)+'</div>';
-      var hasSS=w.exercises.some(function(e){return e.ss}),cols=COLS.filter(function(c){return c.k!=='ss'||hasSS});
+      var hasSS=w.exercises.some(function(e){return e.ss}),hasOpts=w.exercises.some(function(e){return e.opts}),cols=COLS.filter(function(c){return (c.k!=='ss'||hasSS)&&(c.k!=='opts'||hasOpts)});
       h+='<div class="pg-wrap"><table class="pg"><thead><tr><th>#</th>'+cols.map(function(c){return '<th class="'+c.w+'">'+c.l+'</th>'}).join('')+'</tr></thead><tbody>'+
         w.exercises.map(function(e,i){return '<tr'+(e.ss?' class="ssrow"':'')+'><td class="n">'+(i+1)+'</td>'+cols.map(function(c){return '<td class="'+c.w+'">'+(c.k==='ss'&&e.ss?'<span class="sspill">'+esc(e.ss)+'</span>':esc(e[c.k]))+'</td>'}).join('')+'</tr>'}).join('')+'</tbody></table></div>';
       if(hasSS)h+='<p class="pg-key"><b>SS</b> = superset: exercises with the same letter (A1, A2) are done back to back, then rest.</p>';

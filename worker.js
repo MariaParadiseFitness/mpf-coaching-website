@@ -290,7 +290,7 @@ function checkinStatus(c, s, today) {
 }
 
 // ---- training programmes: _data/<id>/programmes.json  {current:"<pid>", programmes:[{id,title,notes,workouts,created,updated}]} ----
-const EX_KEYS = ["ss", "name", "sets", "reps", "tempo", "rir", "rest", "notes"];
+const EX_KEYS = ["ss", "name", "sets", "reps", "tempo", "rir", "rest", "notes", "opts"]; // opts: "pick one" choices, comma separated
 function cleanProgrammes(doc) {
   const str = (v, n) => String(v == null ? "" : v).trim().slice(0, n);
   const now = new Date().toISOString();
@@ -304,7 +304,7 @@ function cleanProgrammes(doc) {
       name: str(w.name, 80) || "Workout",
       notes: str(w.notes, 1500), focus: str(w.focus, 160),
       exercises: (Array.isArray(w.exercises) ? w.exercises : []).slice(0, 40)
-        .map((e) => Object.fromEntries(EX_KEYS.map((k) => [k, str(e && e[k], k === "notes" ? 400 : 80)])))
+        .map((e) => Object.fromEntries(EX_KEYS.map((k) => [k, str(e && e[k], k === "notes" || k === "opts" ? 400 : 80)])))
         .filter((e) => EX_KEYS.some((k) => e[k])),
     })),
   }));
