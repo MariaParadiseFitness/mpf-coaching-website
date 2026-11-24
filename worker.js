@@ -266,6 +266,17 @@ async function saveDay(env, c, date, data) {
   await putJSON(env, sk, s);
   return doc[date] || null;
 }
+// Maintenance calories (Katch-McArdle): BMR = 370 + 21.6 x lean mass (kg), x activity (default 1.55: training 3-5x a week + steps)
+async function bodyInfo(env, c, body) {
+  const ws = summaryWeights(await getJSON(env, `${dkey(c.id)}/summary.json`, {})), last = ws[ws.length - 1];
+  const ob = (await getJSON(env, `${dkey(c.id)}/onboarding.json`, { answers: {} })).answers || {};
+  const tg = await getJSON(env, `${dkey(c.id)}/targets.json`, null);
+  const kg = last ? Number(last.kg) : Number(ob.weight || 0) || 0, bf = Number(body.bf) || 0, act = Number(body.activity) || 1.55;
+  let maint = null, bmr = null, lean = null;
+  if (kg > 0 && bf > 0) { lean = Math.round(kg * (1 - bf / 100) * 10) / 10; bmr = Math.round(370 + 21.6 * lean); maint = Math.round((bmr * act) / 10) * 10; }
+  return { weight: kg || null, weightDate: last ? last.date : "", bf: body.bf || "", bfAt: body.at || "", activity: String(act), lean, bmr, maintenance: maint,
+    goal: ob.goal || "", goalweight: ob.goalweight || "", phase: c.phase || "", cals: tg && tg.cals ? tg.cals : "", history: (body.history || []).slice(-12) };
+}
 const summaryWeights = (s) => Object.keys((s && s.weights) || {}).sort().map((d) => ({ date: d, kg: s.weights[d] }));
 function checkinStatus(c, s, today) {
   const ci = s.checkins || {};
@@ -648,7 +659,55 @@ async function handleApi(request, env, url, ctx) {
   }
   if (path === "/portal/api/mealplans") {
     if (!client) return json({ error: "unknown" }, 403);
-    return json(await getJSON(env, `${dkey(client.id)}/mealplans.json`, { current: "", plans: [] }));
+    const key = `${dkey(client.id)}/mealplans.json`;
+    // client "Generate me a meal plan": saves the generated plan as their current one (coach plans are kept)
+    if (request.method === "POST") {
+      const b = await request.json().catch(() => null);
+      if (!b || !b.plan) return json({ error: "bad" }, 400);
+      const cur = await getJSON(env, key, { current: "", plans: [] });
+      const p = { ...b.plan, id: "gen" + Date.now().toString(36), folder: "" };
+      const plans = [p, ...(cur.plans || [])];
+      const gens = plans.filter((x) => String(x.id).startsWith("gen")); // keep the client's 5 newest generated plans
+      const drop = new Set(gens.slice(5).map((x) => x.id));
+      if (cur.plans && cur.plans.length) await putJSON(env, `${dkey(client.id)}/mealplans-backup/${Date.now()}.json`, cur);
+      const doc = cleanMealplans({ current: p.id, plans: plans.filter((x) => !drop.has(x.id)) });
+      await putJSON(env, key, doc);
+      return json({ ok: true, ...doc });
+    }
+    return json(await getJSON(env, key, { current: "", plans: [] }));
+  }
+  // ---- body stats for the maintenance calculator: _data/<id>/body.json {bf, activity, at, history:[{bf,at}]} ----
+  if (path === "/portal/api/body") {
+    if (!client) return json({ error: "unknown" }, 403);
+    const key = `${dkey(client.id)}/body.json`;
+    const cur = await getJSON(env, key, { bf: "", activity: "", history: [] });
+    if (request.method === "POST") {
+      const b = await request.json().catch(() => ({}));
+      const bf = Math.round(Number(b.bf) * 10) / 10;
+      if (!(bf >= 3 && bf <= 60)) return json({ error: "bad" }, 400);
+      const at = new Date().toISOString();
+      const next = { ...cur, bf: String(bf), at, history: [...(cur.history || []), { bf: String(bf), at }].slice(-60) };
+      await putJSON(env, key, next);
+      return json(await bodyInfo(env, client, next));
+    }
+    return json(await bodyInfo(env, client, cur));
+  }
+  if (path === "/portal/api/coach/body") {
+    if (!coach) return json({ error: "forbidden" }, 403);
+    const id = (url.searchParams.get("id") || "").toLowerCase();
+    const c = Object.values(r).find((x) => x.id === id);
+    if (!c) return json({ error: "unknown" }, 404);
+    const key = `${dkey(c.id)}/body.json`;
+    const cur = await getJSON(env, key, { bf: "", activity: "", history: [] });
+    if (request.method === "POST") {
+      const b = await request.json().catch(() => ({}));
+      const next = { ...cur };
+      if (b.bf !== undefined && b.bf !== "") { const bf = Math.round(Number(b.bf) * 10) / 10; if (bf >= 3 && bf <= 60) { next.bf = String(bf); next.at = new Date().toISOString(); next.history = [...(cur.history || []), { bf: String(bf), at: next.at }].slice(-60); } }
+      if (b.activity !== undefined) { const a = Number(b.activity); next.activity = a >= 1.2 && a <= 2 ? String(a) : ""; }
+      await putJSON(env, key, next);
+      return json(await bodyInfo(env, c, next));
+    }
+    return json(await bodyInfo(env, c, cur));
   }
 
   // ---- workout log (weights and reps per set): _data/<id>/workouts/<YYYY-MM>.json {date:[session,...]} ----

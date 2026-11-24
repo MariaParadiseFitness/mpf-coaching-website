@@ -283,11 +283,14 @@ body.gated #topTabs{visibility:hidden}
     <h2>My daily <em>targets.</em></h2>
     <div class="sub">What to aim for each day. Your coach sets these and updates them as you progress.</div>
     <div class="pg-box" id="tgBox"><div class="pg-empty">Loading…</div></div>
+    <h3 style="margin-top:18px">My goal and <em>maintenance.</em></h3>
+    <div class="pg-box" id="bodyBox"><div class="pg-empty">Loading…</div></div>
   </section>
 
   <section data-view="nutrition" id="meals">
     <h2>My meal <em>plan.</em></h2>
     <div class="sub">Built by your coach to hit your targets. Tap a day if you have more than one.</div>
+    <div id="mgBox" style="margin-bottom:12px"></div>
     <div class="pg-box" id="mpBox"><div class="pg-empty">Loading…</div></div>
     <div class="acts" style="margin-top:14px"><a class="act" href="/myfitnesspal.html" target="_blank" rel="noopener"><span class="ic">📱</span><span><b>How to use MyFitnessPal</b><span>Set it up, hit your targets, log properly</span></span></a><a class="act" href="#log"><span class="ic">📝</span><span><b>Add today's food to my log</b><span>Your daily totals go in your daily log</span></span></a></div>
   </section>
@@ -473,6 +476,7 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
 <script src="/portal/planner.js"></script>
 <script src="/portal/onboard.js"></script>
 <script src="/portal/mealplan.js"></script>
+<script src="/portal/mealgen.js"></script>
 <script>
 (function(){
   var $=function(id){return document.getElementById(id)};
@@ -736,6 +740,7 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
     if(demo){showPlan({ready:true,at:new Date().toISOString()});MPFMeal.View($('mpBox'),{current:'d',plans:[{id:'d',title:'Fat loss plan',notes:'Drink 3L of water a day.',updated:new Date().toISOString(),days:[{name:'Every day',meals:[{name:'Breakfast',foods:[{food:'Egg Whites',amount:'200',unit:'g',kcal:'86',p:'21.6',c:'0',f:'0'},{food:'Oats',amount:'40',unit:'g',kcal:'150',p:'5',c:'26',f:'3'}]},{name:'Lunch',foods:[{food:'Chicken Breast (Cooked)',amount:'150',unit:'g',kcal:'218',p:'48',c:'0',f:'2.9'},{food:'Jasmine Rice (dry)',amount:'60',unit:'g',kcal:'210',p:'4.6',c:'46.8',f:'0.5'}]}]}]}]})}
     else{fetch('/portal/api/plan',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(showPlan).catch(function(){});
       fetch('/portal/api/mealplans',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){MPFMeal.View($('mpBox'),j)}).catch(function(){MPFMeal.View($('mpBox'),null)})}
+    MPFMealGen.Panel($('mgBox'),{demo:!!demo,onSaved:function(j){MPFMeal.View($('mpBox'),j)}});MPFBody.Panel($('bodyBox'),{demo:!!demo});
     if(demo){var dt={cals:'1,800',protein:'150',carbs:'180',fat:'55',steps:'10,000',water:'3',cardio:'2 x 20',sleep:'8',notes:'Hit your protein first, then fit carbs and fats around it.',updated:new Date().toISOString()};$('tgBox').innerHTML=MPFLog.targetsHTML(dt);log.setTargets(dt)}
     else fetch('/portal/api/targets',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){$('tgBox').innerHTML=MPFLog.targetsHTML(j.targets);log.setTargets(j.targets)}).catch(function(){$('tgBox').innerHTML=MPFLog.targetsHTML(null)});
     $('ciSub').textContent='Every '+day+': upload your photos, check your week\'s numbers, answer the questions and send.';
