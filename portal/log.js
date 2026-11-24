@@ -93,7 +93,7 @@
     saveBtn.onclick=function(){
       var data={};Object.keys(vals).forEach(function(k){if(vals[k]!==''&&vals[k]!=null)data[k]=vals[k]});
       saveBtn.disabled=true;msg.textContent='Saving…';msg.className='lg-msg';
-      var done=function(day){days[cur]=day;if(!day)delete days[cur];dirty=false;saveBtn.disabled=false;msg.textContent='Saved ✓';msg.className='lg-msg ok';strip();if(o.onSaved)o.onSaved(days)};
+      var done=function(day){days[cur]=day;if(!day)delete days[cur];dirty=false;saveBtn.disabled=false;msg.textContent='Saved ✓';msg.className='lg-msg ok';strip();if(o.onSaved)o.onSaved(days);bars();if(bars.state&&bars.state.all)congrats(cur)};
       if(demo){setTimeout(function(){done(Object.keys(data).length?Object.assign({_at:new Date().toISOString()},data):null)},300);return}
       api('/portal/api/log',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({date:cur,data:data})}).then(function(j){done(j.day)}).catch(function(){saveBtn.disabled=false;msg.textContent='Not saved. Check your signal and try again.';msg.className='lg-msg warn'});
     };
@@ -108,7 +108,13 @@
         var pc=v/tg,cls=pc>=1.1&&b[3]?'over':pc>=0.95?'hit':'',left=tg-v,fm=function(n){return b[0]==='water'?Math.round(n*10)/10:Math.round(n).toLocaleString('en-GB')};
         var note=!v?'Not logged yet':cls==='over'?fm(-left)+b[2]+' over':left>0?fm(left)+b[2]+' to go':'Target hit ✓';
         return '<div class="lb-r '+cls+'"><div class="lb-t"><b>'+b[1]+'</b><span>'+fm(v)+' / '+fm(tg)+b[2]+'</span></div><div class="lb-b"><i style="width:'+Math.min(100,pc*100).toFixed(1)+'%"></i></div><small>'+note+'</small></div>'}).join('');
+      var n=0,ok=0,miss=[];B.forEach(function(b){var tg=num(t[b[0]]);if(!tg||tg<=0)return;n++;var v=num(vals[b[0]]);if(b[0]==='cals'&&v==null){var k=kcal({carbs:vals.carbs,protein:vals.protein,fat:vals.fat});if(k)v=k}v=v||0;var pc=v/tg;if(pc>=0.95&&!(pc>=1.1&&b[3]))ok++;else miss.push(b[1])});bars.state={n:n,ok:ok,all:n>=2&&ok===n};
       box.hidden=!rows;box.innerHTML=rows?'<div class="lb-h">'+(cur===today?'Today':'This day')+' vs your targets</div>'+rows:''}
+    function congrats(d){var k='mpfAll:'+d;try{if(localStorage.getItem(k))return;localStorage.setItem(k,'1')}catch(e){}
+      var L=['You hit every single target today. That\'s how results happen 🔥','Every target smashed. So proud of you 🖤','All targets hit. Consistency like this changes everything 💪','Perfect day. Calories, protein, steps, the lot. Keep stacking these 🏆'];
+      var m=document.createElement('div');m.className='cg';m.innerHTML='<div class="cg-c"><div class="cg-b">🏆</div><h3>'+(d===today?'You did it!':'Target day!')+'</h3><p>'+L[Math.floor(Math.random()*L.length)]+'</p><button type="button" class="btn">Yes I did 🙌</button></div>';
+      for(var i=0;i<40;i++){var c=document.createElement('i');c.className='cg-f';c.style.left=Math.random()*100+'%';c.style.animationDelay=(Math.random()*0.8)+'s';c.style.background=['#c9a64b','#e8c872','#fff','#8a6d2b'][i%4];m.appendChild(c)}
+      document.body.appendChild(m);var x=function(){m.remove()};m.querySelector('button').onclick=x;m.onclick=function(e){if(e.target===m)x()};try{navigator.vibrate&&navigator.vibrate([60,40,60])}catch(e){}}
     function setTargets(t0){
       lastT=t0||{};var t=dayTargets(lastT,cur);var U={cals:' kcal',protein:' g',carbs:' g',fat:' g',water:' L',cardio:' mins',sleep:' hrs'};
       [].forEach.call(form.querySelectorAll('.tg'),function(n){var k=n.getAttribute('data-tk'),v=t[k];n.hidden=!v;if(v)n.textContent='🎯 Target: '+v+(/[a-z]/i.test(v)?'':(U[k]||''))});
