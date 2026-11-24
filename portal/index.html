@@ -344,13 +344,11 @@ body.noperiod .cy-today{display:none}
   <!-- CHECK-IN -->
   <div class="seg vseg" data-view="progress" id="prSeg"><a href="#progress" data-s="prog"><i class="ti ti-chart-line" aria-hidden="true"></i> Progress</a><a href="#checkin" data-s="ci"><i class="ti ti-circle-check" aria-hidden="true"></i> Check-in<em class="dot" id="ciDot3" hidden></em></a></div>
   <section data-view="today" data-sub="cyc" id="cycle">
-    <a class="cy-back" href="#log"><i class="ti ti-chevron-left" aria-hidden="true"></i> Today</a>
     <h2>My <em>cycle.</em></h2>
     <div id="cyBox"><div class="wc-empty">Loading…</div></div>
   </section>
   <section data-view="today" data-sub="wk" id="planner">
     <div id="plMine">
-    <a class="cy-back" href="#log"><i class="ti ti-chevron-left" aria-hidden="true"></i> Today</a>
     <h2>My <em>planner.</em></h2>
     <div class="sub">Plan your week: training, cardio, meal prep, walks, anything. Turn on calendar sync and it all shows in your Google Calendar.</div>
     <div class="pl-box" id="plBox"><div class="pg-empty">Loading…</div></div>
@@ -795,6 +793,7 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
       b.hidden=!show;$('ciDot').hidden=!show;$('ciDot2').hidden=!show;$('ciDot3').hidden=!show;b.classList.toggle('late',st.diff<0);
       var late=st.diff<0,n=-st.diff,ttl=late?'Your check-in is '+(n===1?'1 day':n+' days')+' overdue':'It\'s check-in day!',sub=late?'Send it now with your photos so Maria can review your week.':'Upload your front, side and back photos and answer a few quick questions.';
       b.classList.add('ci-big');b.innerHTML='<i class="ti '+(late?'ti-alarm':'ti-camera')+' ci-ic" aria-hidden="true"></i><div class="ci-tx"><b>'+ttl+'</b><small>'+sub+'</small></div><span class="ci-go">'+(late?'Do it now':'Start')+' →</span>';
+      if(show&&$('stNext'))$('stNext').textContent=late?'overdue':'today';
       if(show)ciPop(late,ttl,sub);
     }
     function ciPop(late,ttl,sub){
@@ -803,7 +802,7 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
         if(document.body.classList.contains('touring')||document.querySelector('.ob-wrap:not([hidden]),#setupView:not([hidden])')){setTimeout(open,2500);return}
         if(document.getElementById('ciPop'))return;
         var d=document.createElement('div');d.id='ciPop';d.className='ci-pop'+(late?' late':'');
-        d.innerHTML='<div class="ci-sheet" role="dialog" aria-modal="true" aria-label="'+ttl+'"><div class="ci-pic"><i class="ti '+(late?'ti-alarm':'ti-camera')+'" aria-hidden="true"></i></div><h3>'+ttl+'</h3><p>'+sub+'</p><a class="btn g" href="#checkin" data-go>'+(late?'Do my check-in now':'Do my check-in')+'</a><button type="button" class="ci-later" data-x>'+(late?'Remind me later':'Later today')+'</button></div>';
+        d.innerHTML='<div class="ci-sheet" role="dialog" aria-modal="true" aria-label="'+ttl+'"><div class="ci-pic"><i class="ti '+(late?'ti-alarm':'ti-camera')+'" aria-hidden="true"></i></div><h3>'+ttl+'</h3><p>'+sub+'</p><a class="btn" href="#checkin" data-go>'+(late?'Do my check-in now':'Do my check-in')+'</a><button type="button" class="ci-later" data-x>'+(late?'Remind me later':'Later today')+'</button></div>';
         document.body.appendChild(d);
         var close=function(){try{localStorage.setItem(k,'1')}catch(e){}d.remove()};
         d.querySelector('[data-x]').onclick=close;d.querySelector('[data-go]').addEventListener('click',close);
