@@ -715,6 +715,14 @@ async function handleApi(request, env, url, ctx) {
   }
 
   // ---- workout log (weights and reps per set): _data/<id>/workouts/<YYYY-MM>.json {date:[session,...]} ----
+  if (path === "/portal/api/workout-draft") {
+    // the workout in progress, backed up from the phone every few seconds so nothing is lost if the screen closes or the phone glitches
+    if (!client) return json({ error: "unknown" }, 403);
+    const key = `${dkey(client.id)}/workout-draft.json`;
+    if (request.method === "DELETE") { await env.PHOTOS.delete(key); return json({ ok: true }); }
+    if (request.method === "POST") { const raw = await request.text(); if (raw.length > 120000) return json({ error: "too big" }, 413); let d = null; try { d = JSON.parse(raw); } catch (e) {} if (!d || !Array.isArray(d.exercises)) return json({ error: "bad" }, 400); await putJSON(env, key, { w: d, at: new Date().toISOString() }); return json({ ok: true }); }
+    return json(await getJSON(env, key, null) || {});
+  }
   if (path === "/portal/api/workouts" && request.method === "GET") {
     if (!client) return json({ error: "unknown" }, 403);
     return json({ sessions: await readWorkouts(env, client.id, 400) });

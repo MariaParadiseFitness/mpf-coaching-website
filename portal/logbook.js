@@ -16,7 +16,11 @@
   var ST={w:['W','Warm-up'],d:['D','Drop set'],m:['M','Myo-reps / rest-pause'],f:['F','To failure']};
   function setLbl(sets,k){var s=sets[k];if(s.t&&ST[s.t])return ST[s.t][0];var n=0;for(var i=0;i<=k;i++)if(!sets[i].t||sets[i].t==='f')n++;return String(n)}
   function chip(x){var t=x.t&&ST[x.t]?'<em class="st-'+x.t+'">'+ST[x.t][0]+'</em> ':'';return t+esc((x.kg?x.kg+'kg':'')+(x.kg&&x.reps?' × ':'')+(x.reps||''))}
-  var store={get:function(){try{return JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){return null}},set:function(v){try{localStorage.setItem(KEY,JSON.stringify(v))}catch(e){}},del:function(){try{localStorage.removeItem(KEY)}catch(e){}}};
+  var DEMO_LB=/[?&]demo/.test(location.search)||!!window.__mpfAs,rT=null,rLast='';
+  function rPush(v,now){if(DEMO_LB)return;clearTimeout(rT);var go=function(){var s=JSON.stringify(v);if(s===rLast)return;rLast=s;try{if(now&&navigator.sendBeacon){navigator.sendBeacon('/portal/api/workout-draft',new Blob([s],{type:'application/json'}));return}}catch(e){}fetch('/portal/api/workout-draft',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:s,keepalive:true}).catch(function(){rLast=''})};if(now)go();else rT=setTimeout(go,4000)}
+  var store={get:function(){try{return JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){return null}},set:function(v){try{v._at=Date.now();localStorage.setItem(KEY,JSON.stringify(v))}catch(e){}rPush(v)},del:function(){try{localStorage.removeItem(KEY)}catch(e){}clearTimeout(rT);rLast='';if(!DEMO_LB)fetch('/portal/api/workout-draft',{method:'DELETE',credentials:'same-origin'}).catch(function(){})}};
+  document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden'){var d=store.get();if(d&&d.exercises&&d.exercises.length)rPush(d,true)}});
+  window.addEventListener('pagehide',function(){var d=store.get();if(d&&d.exercises&&d.exercises.length)rPush(d,true)});
   function restSecs(t){var s=String(t||'').toLowerCase(),m=s.match(/(\d+(?:\.\d+)?)/);if(!m)return 90;var n=parseFloat(m[1]);if(/min|m\b/.test(s)&&!/s\b|sec/.test(s))return Math.round(n*60);if(n<=5)return Math.round(n*60);return Math.round(n)}
   function setCount(e){var n=parseInt(e.sets,10);return n>0&&n<13?n:3}
   function e1rm(s){var kg=num(s.kg),r=num(s.reps);return kg&&r?kg*(1+Math.min(r,30)/30):0}
@@ -190,6 +194,9 @@
 
     var d0=store.get();if(d0&&d0.exercises&&o.resume!==false){W=d0;view='active'}
     load();
+    // no workout on this phone? check for one backed up from another session (closed screen, other device, phone glitch)
+    if(!DEMO_LB&&o.resume!==false)fetch('/portal/api/workout-draft',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){var rw=j&&j.w;if(!rw||!rw.exercises||!rw.exercises.length)return;var lw=store.get();if(lw&&lw.exercises&&(lw._at||0)>=(rw._at||0))return;try{localStorage.setItem(KEY,JSON.stringify(rw))}catch(e){}W=rw;if(sessions)show('active');else view='active';if(o.onResume)o.onResume()}).catch(function(){});
+    if(W&&o.onResume)setTimeout(o.onResume,0);
     return {show:function(v){if(sessions)show(v)},start:function(i){if(curProg&&curProg.workouts[i])startFrom(curProg,curProg.workouts[i])},view:function(){return view}};
   }
   window.MPFLogbook={Mount:Mount};
