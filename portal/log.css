@@ -505,3 +505,7 @@ i.ti.emo{color:#E8C872;font-size:1.12em;line-height:1;vertical-align:-.14em;font
 .btn.g i.ti.emo,.on>i.ti.emo,.pill i.ti.emo,a.on i.ti.emo{color:inherit}
 i.ti.emo.ico-red{color:#f07b6e}i.ti.emo.ico-amb{color:#e8a34a}
 .pill.off i.ti.emo{color:#f4a59e}.pill.ok i.ti.emo{color:inherit}
+/* About me form: same fields as the rest of the app */
+.pg-note.am{white-space:normal;padding:14px 16px}
+.am input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file]),.am select,.am textarea{box-sizing:border-box;width:100%;background:#0e0e0e;border:1px solid var(--line);border-radius:12px;color:#fff;font:inherit;font-size:16px;font-weight:400;padding:11px 12px;outline:none;color-scheme:dark}
+.am input:focus,.am select:focus,.am textarea:focus{border-color:var(--gold)}
