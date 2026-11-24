@@ -840,11 +840,11 @@ box.addEventListener('input',function(){var m=document.getElementById('amMsg');m
 document.getElementById('amSave').onclick=function(){var m=document.getElementById('amMsg'),b={phone:q('phone').value,about:q('about').value,food:{style:q('style').value,diet:q('diet').value,meals:q('meals').value,ban:[].map.call(box.querySelectorAll('[name=ban]:checked'),function(x){return x.value}),dislike:q('dislike').value,love:q('love').value}};
   if(demo){m.textContent='Saved ✓';m.className='lg-msg ok';return}m.textContent='Saving…';fetch('/portal/api/prefs',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify(b)}).then(function(r){if(!r.ok)throw 0;m.textContent='Saved ✓';m.className='lg-msg ok';if(window.__tick)window.__tick('about',true)}).catch(function(){m.textContent='Not saved. Try again.';m.className='lg-msg warn'})}})();</script>
 
-<div id="tour" class="tour" hidden><div class="tour-card" role="dialog" aria-modal="true" aria-labelledby="tourT"><div class="tour-dots" id="tourDots"></div><div class="tour-ic" id="tourIc"></div><h3 id="tourT"></h3><p id="tourP"></p><div class="tour-btns"><button type="button" class="tour-skip" id="tourSkip">Skip</button><button type="button" class="btn" id="tourNext">Next</button></div></div></div>
+<div id="tour" class="tour" hidden><div class="tour-card" role="dialog" aria-modal="true" aria-labelledby="tourT"><div class="tour-dots" id="tourDots"></div><div class="tour-ic" id="tourIc"></div><h3 id="tourT"></h3><p id="tourP"></p><div class="tour-btns"><button type="button" class="tour-skip" id="tourSkip">Later</button><button type="button" class="btn" id="tourNext">Next</button></div></div></div>
 <script>
 (function(){
   var KEY='mpf_tour_v1',T=[
-    {ic:'🖤',t:'Welcome to your MPF app',p:'A quick 30-second tour so you know where everything lives. Tap Next.'},
+    {ic:'🖤',t:'Welcome to your MPF app',p:'A quick 30-second tour so you know where everything lives. Skip for now and it pops up again next time you open the app.'},
     {v:'today',ic:'📝',t:'Today',p:'Log your day here: your weight first thing, then food, steps, water and cardio. The bars fill up and turn green when you hit your targets 🔥'},
     {v:'nutrition',ic:'🥗',t:'Food',p:'Your targets and your meal plan. Tap Generate to build a new day of food in 15 cuisines, and swap any meal you fancy.'},
     {v:'training',ic:'🏋️',t:'Training',p:'Your programme, your workout logbook (it tells you when to go up in weight) and your Planner, which syncs to Google Calendar.'},
@@ -859,12 +859,12 @@ document.getElementById('amSave').onclick=function(){var m=document.getElementBy
     document.getElementById('tourDots').innerHTML=T.map(function(_,k){return '<i'+(k===i?' class="on"':'')+'></i>'}).join('');
     document.getElementById('tourNext').textContent=i===0?'Show me':i===T.length-1?"Let's go":'Next';
     document.getElementById('tourSkip').hidden=i===T.length-1;box.classList.toggle('tour-mid',!s.v)}
-  function end(){clear();box.hidden=true;document.body.classList.remove('touring');try{localStorage.setItem(KEY,'1')}catch(e){}}
-  document.getElementById('tourNext').onclick=function(){if(i>=T.length-1)return end();i++;show()};
-  document.getElementById('tourSkip').onclick=end;
+  function end(finished){clear();box.hidden=true;document.body.classList.remove('touring');try{if(finished)localStorage.setItem(KEY,'1');else sessionStorage.setItem(KEY,'later')}catch(e){}}
+  document.getElementById('tourNext').onclick=function(){if(i>=T.length-1)return end(true);i++;show()};
+  document.getElementById('tourSkip').onclick=function(){end(false)};
   window.__tour=function(auto,force){
     if(window.__gated)return;
-    if(!force){if(/[?&]as=/.test(location.search))return;try{if(localStorage.getItem(KEY))return}catch(e){return}
+    if(!force){if(/[?&]as=/.test(location.search))return;try{if(localStorage.getItem(KEY)||sessionStorage.getItem(KEY))return}catch(e){return}
       if(/[?&]preview\b/.test(location.search)&&!/[?&]tour\b/.test(location.search))return}
     i=0;box.hidden=false;document.body.classList.add('touring');show()};
 })();
