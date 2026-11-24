@@ -1631,18 +1631,27 @@ async function calFeed(env, url) {
   const esc = (t) => String(t || "").replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/([,;])/g, "\\$1");
   const em = { training: "🏋️", cardio: "🏃", mealprep: "🥗", walk: "🚶", stretch: "🧘", sleep: "😴", checkin: "✅", other: "⭐" };
   const BY = ["MO", "TU", "WE", "TH", "FR", "SA", "SU"], stamp = new Date().toISOString().replace(/[-:]/g, "").slice(0, 15) + "Z";
-  const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//MPF Coaching//Planner//EN", "CALSCALE:GREGORIAN", "METHOD:PUBLISH", "X-WR-CALNAME:MPF Coaching plan", "X-WR-TIMEZONE:Europe/London", "REFRESH-INTERVAL;VALUE=DURATION:PT6H", "X-PUBLISHED-TTL:PT6H"];
+  const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//MPF Coaching//Planner//EN", "CALSCALE:GREGORIAN", "METHOD:PUBLISH", "X-WR-CALNAME:MPF Coaching plan", "X-WR-TIMEZONE:Europe/London", "REFRESH-INTERVAL;VALUE=DURATION:PT6H", "X-PUBLISHED-TTL:PT6H",
+    "BEGIN:VTIMEZONE", "TZID:Europe/London", "X-LIC-LOCATION:Europe/London",
+    "BEGIN:DAYLIGHT", "TZOFFSETFROM:+0000", "TZOFFSETTO:+0100", "TZNAME:BST", "DTSTART:19700329T010000", "RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU", "END:DAYLIGHT",
+    "BEGIN:STANDARD", "TZOFFSETFROM:+0100", "TZOFFSETTO:+0000", "TZNAME:GMT", "DTSTART:19701025T020000", "RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU", "END:STANDARD",
+    "END:VTIMEZONE"];
   for (const x of doc.items || []) {
     const [h, m] = (x.time || "07:00").split(":").map(Number), st = new Date(Date.UTC(2000, 0, 1, h, m)), en = new Date(st.getTime() + (x.dur || 60) * 60000);
-    const d = x.date.replace(/-/g, ""), t = (z) => String(z.getUTCHours()).padStart(2, "0") + String(z.getUTCMinutes()).padStart(2, "0") + "00";
-    const dayAdd = en.getUTCDate() !== st.getUTCDate() ? 1 : 0, ed = dayAdd ? fromT(toT(x.date) + DAY_MS).replace(/-/g, "") : d;
+    // a repeating item starts on its first matching weekday (the portal never shows it on a non-matching start date)
+    let sd = x.date; if (x.days && x.days.length) for (let i = 0; i < 7; i++) { const dd = fromT(toT(x.date) + i * DAY_MS), wd = (new Date(toT(dd)).getUTCDay() + 6) % 7; if (x.days.includes(wd)) { sd = dd; break; } }
+    if (x.days && x.days.length && x.until && sd > x.until) continue;
+    const d = sd.replace(/-/g, ""), t = (z) => String(z.getUTCHours()).padStart(2, "0") + String(z.getUTCMinutes()).padStart(2, "0") + "00";
+    const dayAdd = en.getUTCDate() !== st.getUTCDate() ? 1 : 0, ed = dayAdd ? fromT(toT(sd) + DAY_MS).replace(/-/g, "") : d;
     lines.push("BEGIN:VEVENT", `UID:${x.id}-${id}@mpfcoaching.co.uk`, `DTSTAMP:${stamp}`, `DTSTART;TZID=Europe/London:${d}T${t(st)}`, `DTEND;TZID=Europe/London:${ed}T${t(en)}`, `SUMMARY:${esc((em[x.type] || "") + " " + x.title)}`);
     if (x.notes) lines.push(`DESCRIPTION:${esc(x.notes)}`);
     if (x.days && x.days.length) lines.push(`RRULE:FREQ=WEEKLY;BYDAY=${x.days.map((n) => BY[n]).join(",")}${x.until ? ";UNTIL=" + x.until.replace(/-/g, "") + "T235959Z" : ""}`);
     lines.push("END:VEVENT");
   }
   lines.push("END:VCALENDAR");
-  return new Response(lines.join("\r\n") + "\r\n", { headers: { "content-type": "text/calendar; charset=utf-8", "cache-control": "no-cache" } });
+  // fold long lines at 75 bytes (RFC 5545), without splitting emoji or other multi-byte characters
+  const enc = new TextEncoder(), fold = (l) => { if (enc.encode(l).length <= 75) return l; const out = []; let cur = "", n = 0, lim = 75; for (const ch of l) { const b = enc.encode(ch).length; if (n + b > lim) { out.push(cur); cur = " "; n = 1; lim = 75; } cur += ch; n += b; } out.push(cur); return out.join("\r\n"); };
+  return new Response(lines.map(fold).join("\r\n") + "\r\n", { headers: { "content-type": "text/calendar; charset=utf-8", "cache-control": "no-cache" } });
 }
 // add one email to the Cloudflare Access login policy (no emails are sent)
 async function accessAllow(env, email) {
