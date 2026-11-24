@@ -608,6 +608,17 @@ section[id],header[id]{scroll-margin-top:84px}
 .oc-who{display:flex;gap:12px;align-items:center}.oc-who img{width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid var(--gold)}
 .oc-who b{display:block;color:#fff}.oc-who div{font-size:13px;color:#b8ad93}
 @media(max-width:860px){.oc-grid,.oc-vgrid{grid-template-columns:1fr}.oc-hero{padding-top:100px}.oc-pic{max-width:330px}.oc-phone{left:-14px;width:110px;bottom:-20px}.oc-strip figure{flex-basis:200px}}
+
+.oc-links{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:540px}
+.oc-links a{display:flex;align-items:center;gap:10px;text-decoration:none;border:1px solid rgba(201,166,75,.5);border-radius:14px;padding:12px;background:rgba(20,18,16,.85);transition:transform .2s,border-color .2s,box-shadow .2s}
+.oc-links a:hover{transform:translateY(-3px);border-color:#E8C872;box-shadow:0 10px 26px rgba(201,166,75,.22)}
+.oc-i{flex:0 0 36px;height:36px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#E8C872,#a8893f);font-size:17px}
+.oc-links b{display:block;color:#fff;font-size:14px;line-height:1.2}
+.oc-links small{display:block;color:var(--gold);font-size:12px;margin-top:2px;font-weight:600}
+.oc-phone{left:-60px!important;bottom:-34px!important;width:188px!important;aspect-ratio:9/19.5;border-radius:34px!important;border:6px solid #0b0a08!important;outline:2px solid #c9a64b;transform:rotate(-5deg)!important;box-shadow:0 24px 60px rgba(0,0,0,.75),0 0 40px rgba(201,166,75,.25)!important}
+.oc-phone img{object-position:top!important}
+.oc-isl{position:absolute;top:7px;left:50%;width:54px;height:15px;margin-left:-27px;border-radius:10px;background:#000;z-index:2}
+@media(max-width:860px){.oc-links{grid-template-columns:1fr;max-width:none}.oc-phone{left:-10px!important;width:130px!important;bottom:-24px!important;border-radius:24px!important}}
 </style>
 </head>
 <body>
@@ -640,11 +651,15 @@ section[id],header[id]{scroll-margin-top:84px}
     <h1>Coaching that <em>fits your life.</em></h1>
     <p>Your own programme, your own food plan, weekly check-ins with me and the MPF app in your pocket. Real fat loss and muscle, built around your life, wherever you live.</p>
     <div class="oc-btns"><a class="btn" href="book.html#online">Book your free call</a><a class="btn ghost" href="#pricing">See the prices</a></div>
-    <div class="oc-stats"><div><b>−30kg</b><span>fully online</span></div><div><b>Weekly</b><span>check-ins with me</span></div><div><b>24/7</b><span>your own app</span></div></div>
+    <div class="oc-links">
+      <a href="app.html"><span class="oc-i">📱</span><span><b>Your own app</b><small>Take the tour →</small></span></a>
+      <a href="#how"><span class="oc-i">✅</span><span><b>Weekly check-ins</b><small>How it works →</small></span></a>
+      <a href="#online-results"><span class="oc-i">🏆</span><span><b>Real results</b><small>See them →</small></span></a>
+    </div>
   </div>
   <div class="oc-pic">
     <img class="oc-me" src="img/maria-flex.jpg" alt="Maria Paradise, your online coach, flexing in the gym">
-    <div class="oc-phone"><img src="img/app/today.jpg" alt="The MPF app's daily targets screen" loading="lazy"></div>
+    <div class="oc-phone"><span class="oc-isl"></span><img src="img/app/meals.jpg" alt="The MPF app's meal plan builder" loading="lazy"></div>
   </div>
 </div></section>
 <section class="dark" id="coaching">
