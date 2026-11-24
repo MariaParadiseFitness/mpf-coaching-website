@@ -533,3 +533,4 @@ i.ti.emo.ico-red{color:#f07b6e}i.ti.emo.ico-amb{color:#e8a34a}
 .pv-o,.pv-nt{display:block;font-size:12px;color:var(--mute);line-height:1.35;margin-top:2px}.pv-nt{font-style:italic}
 .pv-ch{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}.pv-ch em{font-style:normal;font-size:11px;color:#d8ccb0;background:rgba(255,255,255,.05);border-radius:6px;padding:2px 6px}
 .pv-sr{flex:0 0 auto;font-weight:700;font-size:15px;color:#E8C872;white-space:nowrap;margin-top:1px}
+.lg-pick{display:flex;flex-wrap:wrap;gap:6px}.lg-pick button{padding:8px 12px;flex:0 0 auto}

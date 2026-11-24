@@ -9,8 +9,8 @@
   var GROUPS=[
     {g:'Morning',i:'⚖️',f:[{k:'weight',l:'Bodyweight',u:'kg',t:'num',ph:'e.g. 72.4',h:'Fasted, after the toilet'},{k:'weighTime',l:'Weigh-in time',t:'time'},{k:'water',l:'Water',u:'litres',t:'num',ph:'e.g. 2.5'}]},
     {g:'Sleep',i:'😴',f:[{k:'sleep',l:'Sleep duration',u:'hrs:mins',t:'text',ph:'e.g. 7:45',h:'Aim for 8 hours'},{k:'sleepScore',l:'Sleep quality',u:'score',t:'num',ph:'From your watch'},{k:'bed',l:'Sleep time',t:'time'},{k:'wake',l:'Wake time',t:'time'}]},
-    {g:'Food',i:'🍽️',f:[{k:'carbs',l:'Carbs',u:'g',t:'num'},{k:'protein',l:'Protein',u:'g',t:'num'},{k:'fat',l:'Fat',u:'g',t:'num'},{k:'cals',l:'Calories',u:'kcal',t:'num',ph:'Auto from macros'},{k:'offPlan',l:'Off-plan meal?',t:'yn'},{k:'bowel',l:'Bowel movements',t:'num',ph:'How many'}]},
-    {g:'Activity',i:'👟',f:[{k:'steps',l:'Steps',t:'num',ph:'From your wrist tracker'},{k:'cardio',l:'Cardio',u:'mins',t:'num'},{k:'trained',l:'Did you train today?',t:'yn'},
+    {g:'Food',i:'🍽️',f:[{k:'carbs',l:'Carbs',u:'g',t:'num'},{k:'protein',l:'Protein',u:'g',t:'num'},{k:'fat',l:'Fat',u:'g',t:'num'},{k:'cals',l:'Calories',u:'kcal',t:'num',ph:'Auto from macros'},{k:'offPlan',l:'Takeaway or off-plan meal?',t:'yn'},{k:'offType',l:'What was it?',t:'pick',o:['Takeaway','Meal out','Drinks / night out','Party or event','Snacks / treats','Other'],if:'offPlan'},{k:'offWhat',l:'What did you have?',t:'text',ph:'Optional, e.g. Nando\'s, half chicken and chips',if:'offPlan'},{k:'bowel',l:'Bowel movements',t:'num',ph:'How many'}]},
+    {g:'Activity',i:'👟',f:[{k:'steps',l:'Steps',t:'num',ph:'From your wrist tracker'},{k:'cardio',l:'Cardio',u:'mins',t:'num'},{k:'trained',l:'Did you train today?',t:'yn'},{k:'otherAct',l:'Any other exercise or activity?',t:'yn'},{k:'actType',l:'What did you do?',t:'text',ph:'e.g. pole dance, spin class, football',dl:['Dance class','Pole dance','Spin class','Yoga','Pilates','Reformer Pilates','Barre','HIIT class','Boxing','Kickboxing','Martial arts','Swimming','Running','Cycling','Hiking','Climbing','Football','Netball','Tennis','Padel','Badminton','Squash','Rowing','CrossFit','Zumba','Aerobics','Skating','Horse riding','Golf','Gardening','Other'],if:'otherAct'},{k:'actMins',l:'How long?',u:'mins',t:'num',ph:'e.g. 45',if:'otherAct'},
       {k:'trainTime',l:'Time of training',t:'time',if:'trained'},{k:'desire',l:'Desire to train',t:'scale',if:'trained'},{k:'energyGym',l:'Energy in the gym',t:'scale',if:'trained'},{k:'moodGym',l:'Mood in the gym',t:'scale',if:'trained'}]},
     {g:'How you feel',i:'💛',f:[{k:'energy',l:'Energy outside the gym',t:'scale'},{k:'mood',l:'Mood outside the gym',t:'scale'},{k:'stress',l:'Stress',t:'scale'},{k:'hunger',l:'Hunger',t:'scale'},{k:'adherence',l:'Sticking to the plan',t:'scale'},{k:'rhr',l:'Resting heart rate',u:'bpm',t:'num',ph:'From your watch'},{k:'period',l:'On your period today?',t:'yn',sex:'f'}]},
     {g:'Notes',i:'📝',f:[{k:'notes',l:'Anything else for Maria?',t:'area',ph:'Optional'}]}
@@ -60,9 +60,10 @@
       var id='lg-'+f.k,lab='<label for="'+id+'">'+esc(f.l)+(f.u?' <i>'+esc(f.u)+'</i>':'')+'</label>';
       if(f.t==='scale'){var b='';for(var i=1;i<=10;i++)b+='<button type="button" data-v="'+i+'">'+i+'</button>';return '<div class="lg-f lg-wide" data-k="'+f.k+'"'+(f.if?' data-if="'+f.if+'"':'')+'>'+lab.replace('<label for="'+id+'"','<label')+'<div class="lg-scale" data-k="'+f.k+'">'+b+'</div></div>'}
       if(f.t==='yn')return '<div class="lg-f" data-k="'+f.k+'">'+lab.replace('<label for="'+id+'"','<label')+'<div class="lg-yn" data-k="'+f.k+'"><button type="button" data-v="Yes">Yes</button><button type="button" data-v="No">No</button></div></div>';
+      if(f.t==='pick')return '<div class="lg-f lg-wide" data-k="'+f.k+'"'+(f.if?' data-if="'+f.if+'"':'')+'>'+lab.replace('<label for="'+id+'"','<label')+'<div class="lg-yn lg-pick" data-k="'+f.k+'">'+f.o.map(function(x){return '<button type="button" data-v="'+esc(x)+'">'+esc(x)+'</button>'}).join('')+'</div></div>';
       if(f.t==='area')return '<div class="lg-f lg-wide">'+lab+'<textarea id="'+id+'" name="'+f.k+'" rows="3" placeholder="'+esc(f.ph||'')+'"></textarea></div>';
       var type=f.t==='time'?'time':'text',im=f.t==='num'?' inputmode="decimal"':'';
-      return '<div class="lg-f"'+(f.if?' data-if="'+f.if+'"':'')+'>'+lab+'<input id="'+id+'" name="'+f.k+'" type="'+type+'"'+im+' placeholder="'+esc(f.ph||'')+'">'+(f.h?'<small>'+esc(f.h)+'</small>':'')+'<small class="tg" data-tk="'+f.k+'" hidden></small></div>';
+      return '<div class="lg-f"'+(f.if?' data-if="'+f.if+'"':'')+'>'+lab+'<input id="'+id+'" name="'+f.k+'" type="'+type+'"'+im+(f.dl?' list="'+id+'-dl"':'')+' placeholder="'+esc(f.ph||'')+'">'+(f.dl?'<datalist id="'+id+'-dl">'+f.dl.map(function(x){return '<option value="'+esc(x)+'">'}).join('')+'</datalist>':'')+(f.h?'<small>'+esc(f.h)+'</small>':'')+'<small class="tg" data-tk="'+f.k+'" hidden></small></div>';
     }
     var keep=function(f){return !f.sex||f.sex===o.sex};
     form.innerHTML=GROUPS.map(function(g){return '<fieldset><legend>'+g.i+' '+esc(g.g)+'</legend><div class="lg-grid">'+g.f.filter(keep).map(field).join('')+'</div></fieldset>'}).join('');
@@ -76,7 +77,7 @@
     function touch(){dirty=true;msg.textContent='Not saved yet';msg.className='lg-msg warn'}
     function fill(){
       var d=days[cur]||{};vals={};
-      GROUPS.forEach(function(g){g.f.filter(keep).forEach(function(f){var v=d[f.k]||'';if(f.t==='scale'||f.t==='yn')setPick(f.k,v);else{var inp=form.querySelector('[name="'+f.k+'"]');inp.value=v;vals[f.k]=v}})});
+      GROUPS.forEach(function(g){g.f.filter(keep).forEach(function(f){var v=d[f.k]||'';if(f.t==='scale'||f.t==='yn'||f.t==='pick')setPick(f.k,v);else{var inp=form.querySelector('[name="'+f.k+'"]');inp.value=v;vals[f.k]=v}})});
       showIf();calHint();bars();dirty=false;
       msg.className='lg-msg';msg.textContent=d._at?'Saved ✓':'';
       el.querySelector('.lg-date b').textContent=cur===today?'Today':(cur===fromT(toT(today)-DAY)?'Yesterday':nice(cur,{weekday:'long'}));
@@ -193,7 +194,7 @@
   }
 
   /* ---------------- coach: tables ---------------- */
-  var COLS=['weight','steps','cals','protein','carbs','fat','water','sleep','cardio','trained','energy','mood','stress','hunger','adherence','offPlan'];
+  var COLS=['weight','steps','cals','protein','carbs','fat','water','sleep','cardio','trained','actType','actMins','energy','mood','stress','hunger','adherence','offPlan','offType'];
   var WD=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   function dayTargets(t,date){t=t||{};if(t.hlOn!=='1')return t;var wd=WD[new Date(toT(date)).getUTCDay()],hi=String(t.hiDays||'').split(',').indexOf(wd)>-1,o={};for(var k in t)o[k]=t[k];
     var p=hi?'hi':'lo';o.cals=t[p+'Cals']||t.cals;o.protein=t[p+'P']||t.protein;o.carbs=t[p+'C']||t.carbs;o.fat=t[p+'F']||t.fat;o.dayType=hi?'High day':'Low day';return o}
@@ -207,7 +208,7 @@
       if(!x){gap.push(d);continue}flush();
       rows+='<tr'+(isT?' class="today"':'')+'><td>'+(isT?'Today<small>'+nice(d,{month:undefined})+'</small>':nice(d,{month:undefined}))+'</td>'+COLS_.map(function(k){var v=x?(k==='cals'?(kcal(x)!=null?Math.round(kcal(x)):''):k==='cycle'?(cycleDay(days,d,x.period)||''):x[k]):'';return '<td>'+esc(v||'')+'</td>'}).join('')+'<td class="nt">'+esc(x&&x.notes||'')+'</td></tr>'}
     flush();
-    return '<div class="lt-wrap"><table class="lt"><thead><tr><th>Day</th>'+COLS_.map(function(k){var f=LABEL[k]||{l:'Cycle day'};return '<th>'+esc({cycle:'Cycle day',weight:'Weight kg',steps:'Steps',cals:'Kcal',protein:'Protein g',carbs:'Carbs g',fat:'Fat g',water:'Water L',offPlan:'Off-plan',sleep:'Sleep',cardio:'Cardio min',trained:'Trained',energy:'Energy',mood:'Mood',stress:'Stress',hunger:'Hunger',adherence:'Plan'}[k]||f.l)+'</th>'}).join('')+'<th>Notes</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+    return '<div class="lt-wrap"><table class="lt"><thead><tr><th>Day</th>'+COLS_.map(function(k){var f=LABEL[k]||{l:'Cycle day'};return '<th>'+esc({cycle:'Cycle day',weight:'Weight kg',steps:'Steps',cals:'Kcal',protein:'Protein g',carbs:'Carbs g',fat:'Fat g',water:'Water L',offPlan:'Off-plan',sleep:'Sleep',cardio:'Cardio min',trained:'Trained',energy:'Energy',mood:'Mood',stress:'Stress',hunger:'Hunger',adherence:'Plan',actType:'Activity',actMins:'Activity min',offType:'Off-plan type'}[k]||f.l)+'</th>'}).join('')+'<th>Notes</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
   }
   function checkinList(all,opt){
     opt=opt||{};var ds=Object.keys(all||{}).sort().reverse();
