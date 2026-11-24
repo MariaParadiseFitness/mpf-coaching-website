@@ -385,3 +385,4 @@ em.t-pt{background:#fff;box-shadow:0 0 0 1.5px #c9a64b}
 .cg-f{position:absolute;top:-12px;width:8px;height:14px;border-radius:2px;animation:cgF 2.6s ease-in forwards}
 @keyframes cgF{to{transform:translateY(105vh) rotate(720deg);opacity:.9}}@keyframes cgIn{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
 .mg-pref{background:rgba(201,166,75,.1);border:1px solid var(--gold,#c9a64b);border-radius:10px;padding:10px 12px;margin-bottom:10px;font-size:14px}
+.am label{display:block;margin:0 0 10px;font-size:14px}.am label input,.am label select,.am label textarea{display:block;width:100%;margin-top:4px}.am h4{margin:14px 0 8px;color:var(--gold-l,#e8c872)}.am small{color:var(--mute,#888)}

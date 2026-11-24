@@ -628,6 +628,8 @@ async function handleApi(request, env, url, ctx) {
     if (!client) return json({ error: "unknown" }, 403);
     const key = `${dkey(client.id)}/prefs.json`, cur = await getJSON(env, key, { reminders: true });
     if (request.method === "POST") { const b = await request.json().catch(() => ({})); if ("reminders" in b) cur.reminders = !!b.reminders;
+      if ("phone" in b) { const ph = String(b.phone || "").replace(/[^0-9+]/g, "").slice(0, 16); if (ph) cur.phone = ph; else delete cur.phone; }
+      if ("about" in b) { const ab = String(b.about || "").trim().slice(0, 1000); if (ab) cur.about = ab; else delete cur.about; }
       if (b.food && typeof b.food === "object") { const f = b.food, s = (v, n) => String(v || "").slice(0, n); cur.food = { style: s(f.style, 20), diet: s(f.diet, 10), meals: s(f.meals, 2), ban: (Array.isArray(f.ban) ? f.ban : []).map((x) => s(x, 12)).slice(0, 10), dislike: s(f.dislike, 300), love: s(f.love, 300), at: new Date().toISOString() }; }
       await putJSON(env, key, cur); }
     return json(cur);
@@ -1128,7 +1130,7 @@ async function handleApi(request, env, url, ctx) {
       const thisWeek = photos.filter((p) => p.week === week).map((p) => p.angle);
       return ({
         id: c.id, name: c.name, phase: c.phase || "", checkin: checkinDay(c), start: c.start || "",
-        type: c.type === "pt" ? "pt" : "online", phone: String(c.phone || "").replace(/[^0-9]/g, ""),
+        type: c.type === "pt" ? "pt" : "online", ...(await (async () => { const pf = await getJSON(env, `${dkey(c.id)}/prefs.json`, {}); return { phone: String(c.phone || pf.phone || "").replace(/[^0-9]/g, ""), about: pf.about || "", food: pf.food || null }; })()),
         lastLog: logged[logged.length - 1] || "", loggedWeek: logged.filter((d) => d >= weekAgo && d <= today).length,
         lastWeight: wts.length ? wts[wts.length - 1] : null, check: checkinStatus(c, sm, today),
         setup: setup.skip ? { done: true } : { done: !!setup.completed, n: Object.keys(setup.done || {}).length },

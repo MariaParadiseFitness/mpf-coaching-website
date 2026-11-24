@@ -421,6 +421,24 @@ body.gated #topTabs{visibility:hidden}
     </div>
   </section>
 
+  <section data-view="more" id="aboutme">
+    <h2>About <em>me.</em></h2>
+    <div class="sub">Keep this up to date so Maria can coach you properly and your generated meal plans suit you. Only you and Maria see it.</div>
+    <div class="pg-note am">
+      <label>Mobile number <small>(so Maria can message you on WhatsApp)</small><input name="phone" type="tel" inputmode="tel" placeholder="07…"></label>
+      <h4>🍽 My food preferences</h4>
+      <label>Food style I like<select name="style"><option value="standard">Everyday British</option><option value="indian">Indian</option><option value="mediterranean">Mediterranean</option><option value="turkish">Turkish</option><option value="bulgarian">Bulgarian</option></select></label>
+      <label>My diet<select name="diet"><option value="all">I eat everything</option><option value="nobp">No beef or pork</option><option value="pesc">Pescatarian (fish, no meat)</option><option value="veg">Vegetarian</option><option value="vegan">Vegan</option></select></label>
+      <label>Meals a day<select name="meals"><option>3</option><option selected>4</option><option>5</option></select></label>
+      <div class="mg-cks"><small>I don't eat</small><label class="mg-ck"><input type="checkbox" name="ban" value="beef"> Beef</label><label class="mg-ck"><input type="checkbox" name="ban" value="pork"> Pork</label><label class="mg-ck"><input type="checkbox" name="ban" value="fish"> Fish</label><label class="mg-ck"><input type="checkbox" name="ban" value="dairy"> Dairy</label><label class="mg-ck"><input type="checkbox" name="ban" value="egg"> Eggs</label><label class="mg-ck"><input type="checkbox" name="ban" value="gluten"> Gluten</label><label class="mg-ck"><input type="checkbox" name="ban" value="nuts"> Nuts</label></div>
+      <label>Other foods I don't like<input name="dislike" placeholder="e.g. salmon, tofu"></label>
+      <label>Foods I love<input name="love" placeholder="e.g. chicken, rice, eggs, chapati"></label>
+      <h4>💬 Anything else Maria should know</h4>
+      <label><textarea name="about" rows="4" placeholder="Injuries, work shifts, the days you can train, things you're working on, anything at all."></textarea></label>
+      <div class="mg-act"><button type="button" class="btn" id="amSave">Save</button><span class="lg-msg" id="amMsg"></span></div>
+    </div>
+  </section>
+
   <section data-view="more" id="billing" hidden>
     <h2>My <em>plan.</em></h2>
     <div id="billBox"><p class="ci-note">Loading…</p></div>
@@ -807,5 +825,12 @@ document.getElementById('appInstall').onclick=function(){if(dp){dp.prompt();dp=n
 var open=function(){m.hidden=false},close=function(){m.hidden=true;try{localStorage.setItem('mpfAppSeen','1')}catch(e){}};
 b.onclick=open;document.getElementById('appX').onclick=close;m.onclick=function(e){if(e.target===m)close()};
 try{if(!standalone&&os&&!localStorage.getItem('mpfAppSeen'))setTimeout(open,1500)}catch(e){}})();</script>
+<script>(function(){var box=document.querySelector('#aboutme .am');if(!box)return;var q=function(n){return box.querySelector('[name='+n+']')};
+var demo=/[?&]demo/.test(location.search);
+function fill(p){p=p||{};var f=p.food||{};q('phone').value=p.phone||'';if(f.style)q('style').value=f.style;if(f.diet)q('diet').value=f.diet;if(f.meals)q('meals').value=f.meals;q('dislike').value=f.dislike||'';q('love').value=f.love||'';q('about').value=p.about||'';[].forEach.call(box.querySelectorAll('[name=ban]'),function(x){x.checked=(f.ban||[]).indexOf(x.value)>-1})}
+if(!demo)fetch('/portal/api/prefs',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(fill).catch(function(){});
+box.addEventListener('input',function(){var m=document.getElementById('amMsg');m.textContent='Not saved yet';m.className='lg-msg warn'});
+document.getElementById('amSave').onclick=function(){var m=document.getElementById('amMsg'),b={phone:q('phone').value,about:q('about').value,food:{style:q('style').value,diet:q('diet').value,meals:q('meals').value,ban:[].map.call(box.querySelectorAll('[name=ban]:checked'),function(x){return x.value}),dislike:q('dislike').value,love:q('love').value}};
+  if(demo){m.textContent='Saved ✓';m.className='lg-msg ok';return}m.textContent='Saving…';fetch('/portal/api/prefs',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify(b)}).then(function(r){if(!r.ok)throw 0;m.textContent='Saved ✓';m.className='lg-msg ok'}).catch(function(){m.textContent='Not saved. Try again.';m.className='lg-msg warn'})}})();</script>
 </body>
 </html>
