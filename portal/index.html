@@ -371,9 +371,9 @@ body.gated #topTabs{visibility:hidden}
   <!-- TRAINING -->
   <section data-view="training" id="folder">
     <h2>My <em>training.</em></h2>
-    <div class="seg" id="trSeg"><button type="button" data-t="lb" class="on">🏋️ Workout</button><button type="button" data-t="hist">📖 Logbook</button><button type="button" data-t="pg">📋 My plan</button></div>
-    <div class="pg-box lb-box" id="lbBox"><div class="pg-empty">Loading…</div></div>
-    <div id="pgWrap" hidden><div class="sub">Your programmes from Maria. Tap a workout to see your exercises, or open an old programme to look back. Scroll the table sideways on your phone.</div>
+    <div class="seg" id="trSeg"><button type="button" data-t="pg" class="on">📋 My plan</button><button type="button" data-t="lb">🏋️ Workout</button><button type="button" data-t="hist">📖 Logbook</button></div>
+    <div class="pg-box lb-box" id="lbBox" hidden><div class="pg-empty">Loading…</div></div>
+    <div id="pgWrap"><div class="sub">Your programmes from Maria. Tap a workout to see your exercises, or open an old programme to look back. Scroll the table sideways on your phone.</div>
     <div class="pg-box" id="pgBox"><div class="pg-empty">Loading…</div></div></div>
     <div class="acts">
       <a class="act" href="https://wa.me/447592791137?text=Hi%20Maria%2C%20here%27s%20my%20training%20video%20%F0%9F%8E%A5" target="_blank" rel="noopener"><span class="ic">🎥</span><span><b>Send me a training video</b><span>On WhatsApp, so I can reply fast</span></span></a>
@@ -557,7 +557,7 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
     var LB=null,trSeg=function(t){[].forEach.call(document.querySelectorAll('#trSeg button'),function(b){b.classList.toggle('on',b.getAttribute('data-t')===t)});$('lbBox').hidden=t==='pg';$('pgWrap').hidden=t!=='pg';if(LB&&t!=='pg')LB.show(t==='hist'?'history':'home')};
     [].forEach.call(document.querySelectorAll('#trSeg button'),function(b){b.onclick=function(){trSeg(b.getAttribute('data-t'))}});
     window.__lbStart=function(i){trSeg('lb');if(LB)LB.start(i);window.scrollTo(0,$('folder').offsetTop-70)};
-    var mountTr=function(j){try{var cp=((j&&j.programmes)||[]).filter(function(x){return x.id===(j&&j.current)})[0]||((j&&j.programmes)||[])[0];PL&&PL.setWorkouts(((cp&&cp.workouts)||[]).map(function(w){return w.name||w.title}).filter(Boolean))}catch(e){}MPFProgramme.View($('pgBox'),j,meta.demo?{demo:true}:{});LB=MPFLogbook.Mount($('lbBox'),{doc:j||{programmes:[]},demo:!!meta.demo,onView:function(v){[].forEach.call(document.querySelectorAll('#trSeg button'),function(b){var t=b.getAttribute('data-t');b.classList.toggle('on',v==='history'?t==='hist':t==='lb')})}})};
+    var mountTr=function(j){try{var cp=((j&&j.programmes)||[]).filter(function(x){return x.id===(j&&j.current)})[0]||((j&&j.programmes)||[])[0];PL&&PL.setWorkouts(((cp&&cp.workouts)||[]).map(function(w){return w.name||w.title}).filter(Boolean))}catch(e){}MPFProgramme.View($('pgBox'),j,meta.demo?{demo:true}:{});LB=MPFLogbook.Mount($('lbBox'),{doc:j||{programmes:[]},demo:!!meta.demo,onView:function(v){if($('lbBox').hidden)return;[].forEach.call(document.querySelectorAll('#trSeg button'),function(b){var t=b.getAttribute('data-t');b.classList.toggle('on',v==='history'?t==='hist':t==='lb')})}})};
     (function(){var ic={book:'📖',podcast:'🎧',app:'📱',video:'🎬',other:'⭐'};var draw=function(items){if(!items||!items.length)return;$('recs').hidden=false;$('recList').innerHTML=items.map(function(x){var amz=/amazon\./.test(x.link||''),inner=(x.img?'<img class="rcov" src="'+esc(x.img)+'" alt="" loading="lazy">':'<span class="ri">'+(ic[x.type]||'⭐')+'</span>')+'<span><b>'+esc(x.title)+'</b><small>'+esc(x.type)+(x.by?' · '+esc(x.by):'')+'</small>'+(x.why?'<p>'+esc(x.why)+'</p>':'')+(x.link?'<i>'+(amz?'Get it on Amazon →':'Have a look →')+'</i>':'')+'</span>';return x.link?'<a class="rec" href="'+esc(x.link)+'" target="_blank" rel="noopener">'+inner+'</a>':'<div class="rec">'+inner+'</div>'}).join('')};
       if(meta.demo)draw([{type:'book',title:'Atomic Habits',by:'James Clear',why:'Small habits, done daily, change everything.'}]);else fetch('/portal/api/recs',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){draw(j.items)}).catch(function(){})})();
     var PL=MPFPlanner.Mount($('plBox'),{demo:!!meta.demo});
