@@ -444,3 +444,4 @@ input[type=range]::-moz-range-track{height:6px;background:#2a2620;border-radius:
 input[type=file]{color:#ccc;background:transparent;border:0;padding:0}
 input[type=file]::file-selector-button{background:#0e0e0e;color:#E8C872;border:1px solid #C9A64B;border-radius:20px;padding:8px 14px;font:inherit;font-weight:600;margin-right:10px;cursor:pointer}
 input[type=date],input[type=time]{color-scheme:dark}
+.pl-log{display:block;width:100%;margin:4px 0 2px;background:none;border:1px dashed rgba(201,166,75,.55);color:#E8C872;border-radius:10px;padding:8px 10px;font:inherit;font-size:13px;font-weight:600;cursor:pointer;text-align:left}.pl-log.done{border-style:solid;border-color:#2f8f5b;color:#7fd6a2;background:rgba(47,143,91,.12);cursor:default}
