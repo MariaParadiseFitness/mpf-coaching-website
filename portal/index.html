@@ -318,6 +318,7 @@ body.gated #topTabs{visibility:hidden}
   <section data-view="checkin" id="checkin">
     <h2>Weekly <em>check-in.</em></h2>
     <div class="sub" id="ciSub">Every week on your check-in day: answer the questions, upload your photos and send.</div>
+    <div class="wk" id="wkBox" hidden></div>
     <div class="ci" id="ciBox"><div class="wc-empty">Loading…</div></div>
   </section>
 
@@ -349,6 +350,12 @@ body.gated #topTabs{visibility:hidden}
     <h2>My <em>progress.</em></h2>
     <div class="sub">Your bodyweight from your daily log. Day to day it jumps around with water, salt and carbs. The gold line is your real trend.</div>
     <div class="wc" id="wChart"><div class="wc-empty">Loading your graph…</div></div>
+  </section>
+
+  <section data-view="progress" id="pbs">
+    <h2>My personal <em>bests.</em></h2>
+    <div class="sub">Your best lift on every exercise from your logbook, newest first. Beat one and it updates here.</div>
+    <div id="pbBox"><div class="wc-empty">Loading…</div></div>
   </section>
 
   <section data-view="progress" id="photos">
@@ -489,6 +496,7 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
 <script src="/portal/planner.js"></script>
 <script src="/portal/onboard.js"></script>
 <script src="/portal/mealplan.js"></script>
+<script src="/portal/week.js"></script>
 <script src="/portal/mealgen.js"></script>
 <script>
 (function(){
@@ -743,7 +751,7 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
       weightsAll=Object.keys(m).sort().map(function(d){return {date:d,kg:m[d]}});redrawChart();
     }
     var today=meta.today||MPFLog.londonToday(),demoDays=demo?MPFLog.demoDays(today,70):null,ci;
-    var log=MPFLog.Today($('logBox'),{demo:demo,demoDays:demoDays,today:today,sex:c.sex,onSaved:function(days){mergeDays(days);if(ci)ci.refresh()}});
+    var log=MPFLog.Today($('logBox'),{demo:demo,demoDays:demoDays,today:today,sex:c.sex,onSaved:function(days){mergeDays(days);if(ci)ci.refresh();if(window.__WK)window.__WK.refresh()}});
     ci=MPFLog.CheckIn($('ciBox'),{onState:dueState,start:c.start,demo:demo,today:today,day:day,email:email,getDays:log.days,photoCount:function(){return window.__phN==null?null:window.__phN},
       demoQuestions:["What were this week's biggest wins/achievements?","Any comments on stress levels and management techniques?","How was gym performance this week?","How was recovery in general this week?","Number of weeks on current training set-up.","Number of weeks since deload.","Number of weeks in current phase (cut/bulk/maintenance).","Is there anything you struggled with this week?","Are there any areas you want to improve next week?","Is there anything you would like me to run through for you?"]});
     window.__ci=ci;
@@ -756,8 +764,10 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
     else{fetch('/portal/api/plan',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(showPlan).catch(function(){});
       fetch('/portal/api/mealplans',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){MPFMeal.View($('mpBox'),j)}).catch(function(){MPFMeal.View($('mpBox'),null)})}
     MPFMealGen.Panel($('mgBox'),{demo:!!demo,onSaved:function(j){MPFMeal.View($('mpBox'),j)}});MPFBody.Panel($('bodyBox'),{demo:!!demo});
-    if(demo){var dt={cals:'1,800',protein:'150',carbs:'180',fat:'55',steps:'10,000',water:'3',cardio:'2 x 20',sleep:'8',notes:'Hit your protein first, then fit carbs and fats around it.',updated:new Date().toISOString()};$('tgBox').innerHTML=MPFLog.targetsHTML(dt);log.setTargets(dt)}
-    else fetch('/portal/api/targets',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){$('tgBox').innerHTML=MPFLog.targetsHTML(j.targets);log.setTargets(j.targets)}).catch(function(){$('tgBox').innerHTML=MPFLog.targetsHTML(null)});
+    (function(){var SS=[];window.__WK=MPFWeek.Week($('wkBox'),{today:today,getDays:log.days,getTargets:function(){return window.__TG||{}},getSessions:function(){return SS}});var PB=MPFWeek.PBs($('pbBox'),{getSessions:function(){return SS}});
+      if(!demo)fetch('/portal/api/workouts',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){SS=j.sessions||[];window.__WK.refresh();PB.refresh()}).catch(function(){})})();
+    if(demo){var dt={cals:'1,800',protein:'150',carbs:'180',fat:'55',steps:'10,000',water:'3',cardio:'2 x 20',sleep:'8',notes:'Hit your protein first, then fit carbs and fats around it.',updated:new Date().toISOString()};window.__TG=dt;$('tgBox').innerHTML=MPFLog.targetsHTML(dt);log.setTargets(dt);window.__WK.refresh()}
+    else fetch('/portal/api/targets',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){window.__TG=j.targets||{};$('tgBox').innerHTML=MPFLog.targetsHTML(j.targets);log.setTargets(j.targets);if(window.__WK)window.__WK.refresh()}).catch(function(){$('tgBox').innerHTML=MPFLog.targetsHTML(null)});
     $('ciSub').textContent='Every '+day+': upload your photos, check your week\'s numbers, answer the questions and send.';
     if(demo){weightsAll=[];mergeDays(demoDays)}
     else{fetch('/portal/api/weights',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){var keep=weightsAll;weightsAll=j.weights||[];if(keep.length){var m={};weightsAll.concat(keep).forEach(function(w){m[w.date]=w.kg});weightsAll=Object.keys(m).sort().map(function(d){return {date:d,kg:m[d]}})}redrawChart()}).catch(redrawChart)}
