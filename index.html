@@ -570,7 +570,7 @@ section[id],header[id]{scroll-margin-top:84px}
 
 /* hero: the MPF app on two phones */
 .hero-app{display:flex;gap:10px;justify-content:center;align-items:flex-end;flex-wrap:wrap;margin:26px auto 0;text-decoration:none;color:#fff;max-width:none!important}
-.ph{width:124px;height:250px;border-radius:24px;background:#050505;border:2px solid #C9A64B;padding:6px;box-shadow:0 18px 40px rgba(0,0,0,.6),0 0 0 1px rgba(232,200,114,.15) inset;position:relative;text-align:left;flex:0 0 auto}
+.ph{width:134px;height:304px;border-radius:24px;background:#050505;border:2px solid #C9A64B;padding:6px;box-shadow:0 18px 40px rgba(0,0,0,.6),0 0 0 1px rgba(232,200,114,.15) inset;position:relative;text-align:left;flex:0 0 auto}
 .ph:before{content:"";position:absolute;top:8px;left:50%;transform:translateX(-50%);width:40px;height:5px;border-radius:5px;background:#1d1d1d;z-index:2}
 .ph2{transform:translateY(-14px)}
 .ph-scr{height:100%;border-radius:18px;background:#0f0e0c;overflow:hidden;padding:18px 7px 7px;font-size:7px;line-height:1.3;color:#ddd}
@@ -582,13 +582,14 @@ section[id],header[id]{scroll-margin-top:84px}
 .ph-ex{display:block;color:#fff;font-size:9px;margin-bottom:3px}.ph-next{background:rgba(95,191,127,.15);border:1px solid rgba(95,191,127,.4);color:#8fe0a6;border-radius:5px;padding:3px 4px;margin-bottom:4px;font-size:6.5px}
 .ph-set{display:grid;grid-template-columns:12px 1fr 1fr 10px;gap:4px;align-items:center;padding:2px 0;border-top:1px solid #222}.ph-set i{font-style:normal;text-align:center;background:#2a2620;border-radius:3px;color:#E8C872;font-weight:700}.ph-set.w i{background:#333;color:#bbb}.ph-set.d i{background:#6b3fa0;color:#fff}.ph-set u{text-decoration:none;color:#5fbf7f;font-weight:700}
 .ph-meal{display:flex;justify-content:space-between;gap:4px;padding:2px 0}.ph-meal b{color:#fff;font-weight:600}.ph-meal em{font-style:normal;color:#aaa;white-space:nowrap}
+.ph-pb{margin-top:4px;background:rgba(201,166,75,.15);border:1px solid rgba(201,166,75,.5);color:#E8C872;border-radius:5px;padding:2px 4px;font-weight:700;text-align:center}.ph-swap{margin-top:3px;color:#E8C872;font-size:6.2px;text-align:center;border-top:1px solid #2a2620;padding-top:3px}.ph-wk .ph-meal em{color:#8fe0a6}
 .ph-cap{flex:0 0 100%;text-align:center;margin-top:10px;text-shadow:0 2px 10px rgba(0,0,0,.95),0 0 4px rgba(0,0,0,.9)}.ph-cap b{display:block;color:#E8C872;font-size:13px;letter-spacing:.12em;text-transform:uppercase}.ph-cap span{font-size:13px;color:#d8ccb0}
 @media(min-width:760px){
   .hero-app{position:relative;margin-top:26px;justify-content:flex-start;max-width:none;width:auto}
   .hero-in>.hero-app{max-width:none}
   .ph-cap{text-align:left}
 }
-@media(min-width:1300px){.hero-app{position:absolute;z-index:2;left:465px;bottom:70px;margin:0;width:262px;justify-content:center}.ph-cap{text-align:center}}
+@media(min-width:1300px){.hero-app{position:absolute;z-index:2;left:452px;bottom:70px;margin:0;width:284px;justify-content:center}.ph-cap{text-align:center}}
 </style>
 </head>
 <body>
@@ -637,7 +638,8 @@ section[id],header[id]{scroll-margin-top:84px}
         <div class="ph-bar ok"><span>Protein</span><i style="width:100%"></i><em>152 / 150g ✓</em></div>
         <div class="ph-bar"><span>Steps</span><i style="width:64%"></i><em>6,420 / 10,000</em></div>
         <div class="ph-bar ok"><span>Water</span><i style="width:100%"></i><em>2.5 / 2.5L ✓</em></div></div>
-      <div class="ph-pop">🏆 <b>Target day!</b> Every target smashed 🖤</div>
+      <div class="ph-pop">🔥 <b>7 days in a row!</b> Target day, every target smashed 🖤</div>
+      <div class="ph-card ph-wk"><small>📊 YOUR WEEK</small><div class="ph-meal"><b>Weight</b><em>−0.6 kg</em></div><div class="ph-meal"><b>Workouts</b><em>4 ✓</em></div></div>
     </div></div>
     <div class="ph ph2"><div class="ph-scr">
       <div class="ph-top"><b>Workout</b><span>24:10</span></div>
@@ -646,8 +648,9 @@ section[id],header[id]{scroll-margin-top:84px}
         <div class="ph-set w"><i>W</i><span>40kg</span><span>12</span><u>✓</u></div>
         <div class="ph-set"><i>1</i><span>62.5kg</span><span>12</span><u>✓</u></div>
         <div class="ph-set"><i>2</i><span>62.5kg</span><span>11</span><u>✓</u></div>
-        <div class="ph-set d"><i>D</i><span>50kg</span><span>10</span><u>✓</u></div></div>
-      <div class="ph-card"><small>✨ YOUR NEW MEAL PLAN</small><div class="ph-meal"><b>Chicken burrito bowl</b><em>520 kcal · P 46g</em></div><div class="ph-meal"><b>Salmon teriyaki</b><em>610 kcal · P 42g</em></div></div>
+        <div class="ph-set d"><i>D</i><span>50kg</span><span>10</span><u>✓</u></div>
+        <div class="ph-pb">🏆 New PB: 62.5kg × 12</div></div>
+      <div class="ph-card"><small>✨ MEAL PLAN BUILDER · 15 CUISINES</small><div class="ph-meal"><b>Chicken burrito bowl</b><em>520 kcal</em></div><div class="ph-meal"><b>Salmon teriyaki</b><em>610 kcal</em></div><div class="ph-swap">🔄 Swap meal · 🌱 Make it vegan</div></div>
     </div></div>
     <div class="ph-cap"><b>🔒 Use my app</b><span>Become a member to unlock it →</span></div>
   </a>
