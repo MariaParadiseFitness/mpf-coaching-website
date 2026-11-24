@@ -388,3 +388,24 @@ em.t-pt{background:#fff;box-shadow:0 0 0 1.5px #c9a64b}
 .am label{display:block;margin:0 0 10px;font-size:14px}.am label input,.am label select,.am label textarea{display:block;width:100%;margin-top:4px}.am h4{margin:14px 0 8px;color:var(--gold-l,#e8c872)}.am small{color:var(--mute,#888)}
 .ci-hist{margin-top:18px;background:var(--card,#141414);border:1px solid var(--gold,#c9a64b);border-radius:14px;padding:14px}.ci-hist h4{margin:0 0 4px;color:var(--gold-l,#e8c872)}.ci-hist h4 span{color:var(--mute,#888);font-weight:400}
 .ci-fbh{border-top:1px solid var(--line,#2a2a2a);padding:10px 0}.ci-fbh summary{cursor:pointer;display:flex;justify-content:space-between;gap:8px}.ci-fbh summary span{font-size:12px;color:var(--mute,#888)}.ci-fbh p{margin:8px 0 0;line-height:1.55;white-space:normal}
+
+/* ---- default form controls: match the site (dark, gold focus) wherever a box has no style of its own ---- */
+:where(input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=range]):not([type=color]),select,textarea){box-sizing:border-box;background:#0e0e0e;border:1px solid var(--line,rgba(201,166,75,.25));border-radius:12px;color:#fff;font:inherit;font-size:16px;padding:11px 12px;outline:none;color-scheme:dark;-webkit-appearance:none;appearance:none;max-width:100%}
+:where(input,select,textarea):focus{border-color:var(--gold-l,#e8c872);box-shadow:0 0 0 3px rgba(201,166,75,.15)}
+:where(input,textarea)::placeholder{color:#6f6650}
+:where(select){padding-right:36px;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23C9A64B' stroke-width='2' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+:where(select) option{background:#141414;color:#fff}
+:where(input[type=checkbox],input[type=radio]){accent-color:#C9A64B;width:18px;height:18px}
+
+/* meal plan generator + About me forms: stacked labels and chip-style checkboxes */
+.mg-form label,.am label{display:block;margin:0 0 12px;font-size:14px;font-weight:600;color:var(--soft,#ddd)}
+.mg-form label input,.mg-form label select,.mg-form label textarea,.am label input,.am label select,.am label textarea{display:block;width:100%;margin-top:6px;font-weight:400}
+.mg-form>p{margin:0 0 12px}
+.mg-cks{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:4px 0 14px}.mg-cks small{flex:0 0 100%;font-size:14px;font-weight:600;color:var(--soft,#ddd)}
+.mg-cks .mg-ck,.am .mg-cks .mg-ck{display:inline-flex;align-items:center;gap:7px;margin:0;padding:8px 13px;border:1px solid var(--line,rgba(201,166,75,.25));border-radius:30px;background:#0e0e0e;font-weight:600;font-size:13.5px;cursor:pointer;user-select:none}
+.mg-cks .mg-ck input{position:absolute;opacity:0;width:0;height:0}
+.mg-cks .mg-ck:has(input:checked){background:var(--grad,linear-gradient(90deg,#c9a64b,#e8c872));color:#111;border-color:transparent}
+.mg-cks .mg-ck:has(input:focus-visible){box-shadow:0 0 0 3px rgba(201,166,75,.3)}
+.mg-act{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:6px}
+.mg-new{background:rgba(201,166,75,.12);border:1px solid var(--gold,#c9a64b);border-radius:12px;padding:12px 14px;margin:14px 0 10px}.mg-new b{display:block;color:var(--gold-l,#e8c872);font-size:17px}.mg-new span{font-size:13.5px;color:var(--soft,#ccc)}
+.mg-flash{animation:mgFlash .9s ease}@keyframes mgFlash{0%{opacity:.2;transform:translateY(8px)}100%{opacity:1;transform:none}}

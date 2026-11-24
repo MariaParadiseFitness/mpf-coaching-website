@@ -158,13 +158,13 @@
     var meals=plan.map(function(p,mi){return {name:p[0],notes:p[1].name+(p[1].note?'. '+p[1].note:''),foods:vars.filter(function(v){return v.mi===mi&&v.q>0}).map(function(v){var f=F[v.k],x=macros(v.k,v.q),r=function(n){return String(Math.round(n*10)/10)};return {food:f[0],amount:String(v.q),unit:f[1],kcal:String(Math.round(x[0])),p:r(x[1]),c:r(x[2]),f:r(x[3])}})}}).filter(function(m){return m.foods.length});
     var styleName={standard:'',indian:'Indian ',mediterranean:'Mediterranean ',turkish:'Turkish ',bulgarian:'Bulgarian '}[o.style]||'';
     var now=new Date().toISOString();
-    return {id:'gen'+Date.now().toString(36),title:'My '+styleName+cals+' kcal plan',created:now,updated:now,
+    return {id:'gen'+Date.now().toString(36),title:'My '+styleName+cals+' kcal plan · '+new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short'}),created:now,updated:now,
       notes:'Made with "Generate me a meal plan" for your targets: '+cals+' kcal · '+P+'g protein · '+C+'g carbs · '+Fa+'g fat.\nWeigh meat, fish and potatoes raw and rice, pasta, oats and lentils dry. Swaps are fine if they fit your macros.',
       days:[{name:'Every day',notes:'',meals:meals}],_t:[cals,P,C,Fa]}}
 
   /* ---------- the panel in the client's Meal plan tab ---------- */
   function Panel(el,o){ // o: {onSaved(doc), demo}
-    var targets=null,last=null;
+    var targets=null,last=null,gn=0;
     el.innerHTML='<div class="mg"><button type="button" class="btn" data-g="open">✨ Generate me a meal plan</button><div class="mg-body"></div></div>';
     var body=el.querySelector('.mg-body');
     function getT(){if(o.demo)return Promise.resolve({cals:'1800',protein:'150',carbs:'190',fat:'50'});
@@ -190,9 +190,10 @@
     function show(p){
       var out=body.querySelector('.mg-out'),d=p.days[0],t={k:0,p:0,c:0,f:0};
       d.meals.forEach(function(m){m.foods.forEach(function(f){t.k+=+f.kcal;t.p+=+f.p;t.c+=+f.c;t.f+=+f.f})});
-      out.innerHTML='<div class="lg-stats mp-tot"><div><small>Calories</small><b>'+Math.round(t.k)+'</b><span>target '+esc(targets.cals)+'</span></div><div><small>Protein</small><b>'+Math.round(t.p)+'g</b></div><div><small>Carbs</small><b>'+Math.round(t.c)+'g</b></div><div><small>Fat</small><b>'+Math.round(t.f)+'g</b></div></div>'+
+      gn++;out.innerHTML='<div class="mg-new"><b>✨ '+(gn>1?'New plan generated (option '+gn+')':'Your new plan is ready')+'</b><span>'+esc(p.title)+'. Like it? Save it. Not quite? Tap Try another.</span></div><div class="lg-stats mp-tot"><div><small>Calories</small><b>'+Math.round(t.k)+'</b><span>target '+esc(targets.cals)+'</span></div><div><small>Protein</small><b>'+Math.round(t.p)+'g</b></div><div><small>Carbs</small><b>'+Math.round(t.c)+'g</b></div><div><small>Fat</small><b>'+Math.round(t.f)+'g</b></div></div>'+
         d.meals.map(function(m){return '<div class="mp-meal"><div class="mp-mh"><b>'+esc(m.name)+'</b></div><p class="mp-note">'+esc(m.notes)+'</p><ul>'+m.foods.map(function(f){return '<li><span>'+esc(f.food)+'</span><b>'+esc(f.amount)+' '+esc(f.unit)+'</b></li>'}).join('')+'</ul></div>'}).join('')+
-        '<div class="mg-act"><button type="button" class="btn" data-g="save">Save to my meal plans</button><button type="button" class="btn g" data-g="go">Try another</button></div><p class="lg-msg"></p>';
+        '<div class="mg-act"><button type="button" class="btn" data-g="save">💾 Save to my meal plans</button><button type="button" class="btn g" data-g="go">🔄 Try another</button></div><p class="lg-msg"></p>';
+      out.classList.remove('mg-flash');void out.offsetWidth;out.classList.add('mg-flash');try{out.scrollIntoView({behavior:'smooth',block:'start'})}catch(e){}
     }
     el.addEventListener('click',function(e){var b=e.target.closest('[data-g]');if(!b)return;var a=b.getAttribute('data-g');
       if(a==='open'){body.innerHTML='<p style="color:var(--mute)">Loading your targets…</p>';getT().then(function(t){if(!t||!+t.cals){body.innerHTML='<div class="pg-note">Your coach hasn\'t set your calories and macros yet. Once they have, you can generate a plan here.</div>';return}targets=t;form();prefill();loadPrefs()}).catch(function(){body.innerHTML='<div class="pg-note">Couldn\'t load your targets. Try again.</div>'})}
@@ -201,7 +202,7 @@
       if(a==='save'&&last){var m=body.querySelector('.lg-msg');b.disabled=true;m.textContent='Saving…';
         if(o.demo){m.textContent='Saved ✓ (preview only)';return}
         fetch('/portal/api/mealplans',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({plan:last})}).then(function(r){return r.json().then(function(j){if(!r.ok)throw 0;return j})})
-          .then(function(j){body.innerHTML='<div class="pg-note" style="border-color:#5fbf7f">✅ Saved. It\'s now your current meal plan.</div>';o.onSaved&&o.onSaved(j)})
+          .then(function(j){gn=0;body.innerHTML='<div class="pg-note" style="border-color:#5fbf7f">✅ Saved. It\'s now your current meal plan, and it\'s kept in <b>My meal plans</b> below with all your past plans, so you can look back at any of them.</div>';o.onSaved&&o.onSaved(j)})
           .catch(function(){b.disabled=false;m.textContent='Not saved. Try again.'})}
     });
   }

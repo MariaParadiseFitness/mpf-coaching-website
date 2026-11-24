@@ -671,8 +671,8 @@ async function handleApi(request, env, url, ctx) {
       const cur = await getJSON(env, key, { current: "", plans: [] });
       const p = { ...b.plan, id: "gen" + Date.now().toString(36), folder: "" };
       const plans = [p, ...(cur.plans || [])];
-      const gens = plans.filter((x) => String(x.id).startsWith("gen")); // keep the client's 5 newest generated plans
-      const drop = new Set(gens.slice(5).map((x) => x.id));
+      const gens = plans.filter((x) => String(x.id).startsWith("gen")); // keep the client's 20 newest generated plans as their history
+      const drop = new Set(gens.slice(20).map((x) => x.id));
       if (cur.plans && cur.plans.length) await putJSON(env, `${dkey(client.id)}/mealplans-backup/${Date.now()}.json`, cur);
       const doc = cleanMealplans({ current: p.id, plans: plans.filter((x) => !drop.has(x.id)) });
       await putJSON(env, key, doc);

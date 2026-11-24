@@ -18,7 +18,7 @@
     var pi=0,di=0;
     function draw(){
       var p=ps[pi],d=p.days[di]||{meals:[]},isCur=p.id===doc.current;
-      var h=(ps.length>1?'<div class="pg-list"><small>My meal plans</small><div class="pg-tabs">'+ps.map(function(x,i){return '<button type="button" data-p="'+i+'" class="'+(i===pi?'on':'')+'">'+(x.id===doc.current?'★ ':'')+esc(x.title)+'</button>'}).join('')+'</div></div>':'')+
+      var h=(ps.length>1?'<div class="pg-list"><small>My meal plans'+(ps.length>1?' ('+ps.length+')':'')+'</small><div class="pg-tabs">'+ps.map(function(x,i){return '<button type="button" data-p="'+i+'" class="'+(i===pi?'on ':'')+(x.id===doc.current?'cur':'')+'">'+(x.id===doc.current?'★ ':'')+esc(x.title)+'</button>'}).join('')+'</div></div>':'')+
         '<div class="pg-top"><h3>'+esc(p.title)+(ps.length>1?' <span class="pill '+(isCur?'ok':'off')+'">'+(isCur?'Current':'Past plan')+'</span>':'')+'</h3><small>Updated '+esc(upd(p))+'</small></div>'+(p.notes?'<div class="pg-note">'+esc(p.notes)+'</div>':'');
       if(p.days.length>1)h+='<div class="pg-tabs">'+p.days.map(function(x,i){return '<button type="button" data-d="'+i+'" class="'+(i===di?'on':'')+'">'+esc(x.name)+'</button>'}).join('')+'</div>';
       if(d.notes)h+='<div class="pg-note">'+esc(d.notes)+'</div>';
