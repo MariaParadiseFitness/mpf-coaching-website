@@ -231,12 +231,14 @@
       {n:'Apple and peanut butter',s:[['apple'],['pb']]},
       {n:'Roasted chana',s:[['chana']]}]
   };
+  var CUISINES=[['standard','Everyday British'],['indian','Indian'],['chinese','Chinese'],['thai','Thai'],['japanese','Japanese'],['korean','Korean'],['mexican','Mexican'],['caribbean','Caribbean'],['westafrican','West African'],['middleeastern','Middle Eastern'],['mediterranean','Mediterranean'],['italian','Italian'],['turkish','Turkish'],['bulgarian','Bulgarian'],['easterneuropean','Eastern European']];
   var DIETS={all:'',nobp:'beef pork',pesc:'meat',veg:'meat fish',vegan:'meat fish dairy egg honey'};
   function blocked(k,ban,dislike){var f=F[k],t=' '+f[11]+' ';if(ban.some(function(b){return t.indexOf(' '+b+' ')>=0}))return true;
     var n=f[0].toLowerCase();return dislike.some(function(w){return w&&n.indexOf(w)>=0})}
   function rnd(a){return a[Math.floor(Math.random()*a.length)]}
   var EGGN=/\begg|eggs\b|omelette|frittata|huevos|shakshuka|menemen|gyeran|kai jeow/i,DAIRYN=/cottage cheese|halloumi|feta|white cheese|sirene/i;
-  function pname(k){return F[k][0].replace(/ \(.*\)/,'').replace(/^\d+% /,'').replace(/^(Firm|Cooked|Light|Lean|Mixed|Medium|Reduced-fat|Low-fat) /i,'').replace(/ (fillet|breast|mince|loin steak, fat trimmed|leg steak|in spring water)$/i,'').replace(/^(\w)/,function(c){return c.toLowerCase()})}
+  var PN={egg:'egg',prawns:'prawn',chick:'chickpea',beans:'bean',bbeans:'black bean',soya:'soya chunk',ew:'egg white'};
+  function pname(k){if(PN[k])return PN[k];return F[k][0].replace(/ \(.*\)/,'').replace(/^\d+% /,'').replace(/^(Firm|Cooked|Light|Lean|Mixed|Medium|Reduced-fat|Low-fat) /i,'').replace(/ (fillet|breast|mince|loin steak, fat trimmed|leg steak|in spring water)$/i,'').replace(/^(\w)/,function(c){return c.toLowerCase()})}
   function build(meal,ban,dislike,force){ // -> {name,note,items:[keys],alts:[[keys]],tpl} or null if a must-have slot has nothing allowed
     var items=[],alts=[],prot='',tn=meal.n.replace('{p}','');
     if(ban.indexOf('egg')>-1&&EGGN.test(tn))return null;
@@ -340,11 +342,11 @@
       notes:'Made with "Generate me a meal plan" for your targets: '+cals+' kcal · '+P+'g protein · '+C+'g carbs · '+Fa+'g fat.\nWeigh meat, fish and potatoes raw and rice, pasta, oats and lentils dry. Swaps are fine if they fit your macros.',
       days:[{name:'Every day',notes:'',meals:meals}],_t:st.T,_st:st}}
   function listFor(st,label){var S=M[st.style]||M.standard;if(/^Snack/.test(label))return M.snack;var k=label.toLowerCase(),own=S[k]||[];return own.length>1||S===M.standard?own:own.concat(M.standard[k]||[])}
-  function swapMeal(p,mi){var st=p._st,cur=st.plan[mi],L=listFor(st,cur[0]),opts=L.map(function(t){return build(t,st.ban,st.dis)}).filter(function(b){return b&&b.name!==cur[1].name});if(!opts.length)return null;
-    var plan=st.plan.slice();plan[mi]=[cur[0],rnd(opts)];return render({plan:plan,T:st.T,ban:st.ban,dis:st.dis,style:st.style})}
+  function swapMeal(p,mi,style){var st=p._st,cur=st.plan[mi],L=listFor(style?{style:style}:st,cur[0]),opts=L.map(function(t){return build(t,st.ban,st.dis)}).filter(function(b){return b&&b.name!==cur[1].name});if(!opts.length)return null;
+    var plan=st.plan.slice();plan[mi]=[cur[0],rnd(opts),style||cur[2]||st.style];return render({plan:plan,T:st.T,ban:st.ban,dis:st.dis,style:st.style})}
   function swapFood(p,mi,oldK,newK){var st=p._st,cur=st.plan[mi],b=cur[1],i=b.items.indexOf(oldK);if(i<0)return null;
     var items=b.items.slice();items[i]=newK;var nb={name:b.name,note:b.note,items:items,alts:b.alts,tpl:b.tpl};nb.name=i===0?rename(nb):b.name;
-    var plan=st.plan.slice();plan[mi]=[cur[0],nb];return render({plan:plan,T:st.T,ban:st.ban,dis:st.dis,style:st.style})}
+    var plan=st.plan.slice();plan[mi]=[cur[0],nb,cur[2]];return render({plan:plan,T:st.T,ban:st.ban,dis:st.dis,style:st.style})}
   function strip(p){var c=JSON.parse(JSON.stringify(p,function(k,v){return k==='_st'||k==='_k'||k==='_t'||k==='tpl'?undefined:v}));return c}
 
   /* ---------- the panel in the client's Meal plan tab ---------- */
@@ -377,15 +379,16 @@
       var out=body.querySelector('.mg-out'),d=p.days[0],t=mt([].concat.apply([],d.meals.map(function(m){return m.foods})));
       if(!quiet)gn++;
       out.innerHTML='<div class="mg-new"><b>✨ '+(quiet?'Plan updated':gn>1?'New plan generated (option '+gn+')':'Your new plan is ready')+'</b><span>'+esc(p.title)+'. Tap 🔄 Change meal to swap a whole meal, or change any food from its drop-down. Portions re-balance to keep you on your targets.</span></div><div class="lg-stats mp-tot"><div><small>Calories</small><b>'+Math.round(t.k)+'</b><span>target '+esc(targets.cals)+'</span></div><div><small>Protein</small><b>'+Math.round(t.p)+'g</b></div><div><small>Carbs</small><b>'+Math.round(t.c)+'g</b></div><div><small>Fat</small><b>'+Math.round(t.f)+'g</b></div></div>'+
-        d.meals.map(function(m,mi){var mt0=mt(m.foods),b=p._st.plan[mi][1];return '<div class="mp-meal"><div class="mp-mh"><b>'+esc(m.name)+'</b><span>'+Math.round(mt0.k)+' kcal · P '+Math.round(mt0.p)+'g · C '+Math.round(mt0.c)+'g · F '+Math.round(mt0.f)+'g</span></div><p class="mp-note">'+esc(m.notes)+'</p><ul>'+m.foods.map(function(f){var i=b.items.indexOf(f._k),al=i>-1?b.alts[i]:[];return '<li><span>'+(al&&al.length>1?'<select class="mg-sw" data-mi="'+mi+'" data-k="'+f._k+'">'+al.map(function(k){return '<option value="'+k+'"'+(k===f._k?' selected':'')+'>'+esc(F[k][0])+'</option>'}).join('')+'</select>':esc(f.food))+'</span><b>'+esc(f.amount)+' '+esc(f.unit)+'</b></li>'}).join('')+'</ul><button type="button" class="btn g mg-chg" data-g="chg" data-mi="'+mi+'">🔄 Change meal</button></div>'}).join('')+
+        d.meals.map(function(m,mi){var mt0=mt(m.foods),b=p._st.plan[mi][1];return '<div class="mp-meal"><div class="mp-mh"><b>'+esc(m.name)+'</b><span>'+Math.round(mt0.k)+' kcal · P '+Math.round(mt0.p)+'g · C '+Math.round(mt0.c)+'g · F '+Math.round(mt0.f)+'g</span></div><p class="mp-note">'+esc(m.notes)+'</p><ul>'+m.foods.map(function(f){var i=b.items.indexOf(f._k),al=i>-1?b.alts[i]:[];return '<li><span>'+(al&&al.length>1?'<select class="mg-sw" data-mi="'+mi+'" data-k="'+f._k+'">'+al.map(function(k){return '<option value="'+k+'"'+(k===f._k?' selected':'')+'>'+esc(F[k][0])+'</option>'}).join('')+'</select>':esc(f.food))+'</span><b>'+esc(f.amount)+' '+esc(f.unit)+'</b></li>'}).join('')+'</ul><div class="mg-mrow"><button type="button" class="btn g mg-chg" data-g="chg" data-mi="'+mi+'">🔄 Change meal</button>'+(/^Snack/.test(m.name)?'':'<label class="mg-cu">Cuisine <select data-cu="'+mi+'">'+CUISINES.map(function(c){return '<option value="'+c[0]+'"'+(c[0]===(p._st.plan[mi][2]||p._st.style)?' selected':'')+'>'+c[1]+'</option>'}).join('')+'</select></label>')+'</div></div>'}).join('')+
         '<div class="mg-act"><button type="button" class="btn" data-g="save">💾 Save to my meal plans</button><button type="button" class="btn g" data-g="go">🔄 Try another day</button></div><p class="lg-msg"></p>';
+      [].forEach.call(out.querySelectorAll('[data-cu]'),function(s){s.onchange=function(){var np=swapMeal(last,+s.getAttribute('data-cu'),s.value);if(np){last=np;show(last,true)}else{s.value=last._st.plan[+s.getAttribute('data-cu')][2]||last._st.style;alert('That cuisine has no options for this meal with your food choices.')}}});
       [].forEach.call(out.querySelectorAll('.mg-sw'),function(s){s.onchange=function(){var np=swapFood(last,+s.getAttribute('data-mi'),s.getAttribute('data-k'),s.value);if(np){last=np;show(last,true)}}});
       if(!quiet){out.classList.remove('mg-flash');void out.offsetWidth;out.classList.add('mg-flash');try{out.scrollIntoView({behavior:'smooth',block:'start'})}catch(e){}}
     }
     el.addEventListener('click',function(e){var b=e.target.closest('[data-g]');if(!b)return;var a=b.getAttribute('data-g');
       if(a==='open'){body.innerHTML='<p style="color:var(--mute)">Loading your targets…</p>';getT().then(function(t){if(!t||!+t.cals){body.innerHTML='<div class="pg-note">Your coach hasn\'t set your calories and macros yet. Once they have, you can generate a plan here.</div>';return}targets=t;form();prefill();loadPrefs()}).catch(function(){body.innerHTML='<div class="pg-note">Couldn\'t load your targets. Try again.</div>'})}
       if(a==='close'){body.innerHTML=''}
-      if(a==='chg'&&last){var mi=+b.getAttribute('data-mi'),y=b.getBoundingClientRect().top,np=swapMeal(last,mi);if(!np){b.textContent='No other options for this meal';return}last=np;show(last,true);var nb=body.querySelectorAll('.mg-chg')[mi];if(nb)try{window.scrollBy(0,nb.getBoundingClientRect().top-y)}catch(e){}}
+      if(a==='chg'&&last){var mi=+b.getAttribute('data-mi'),y=b.getBoundingClientRect().top,np=swapMeal(last,mi,last._st.plan[mi][2]);if(!np){b.textContent='No other options for this meal';return}last=np;show(last,true);var nb=body.querySelectorAll('.mg-chg')[mi];if(nb)try{window.scrollBy(0,nb.getBoundingClientRect().top-y)}catch(e){}}
       if(a==='go'){last=generate(opts());if(!last){body.querySelector('.mg-out').innerHTML='<div class="pg-note">Those choices rule out too many foods. Untick something and try again.</div>';return}show(last)}
       if(a==='save'&&last){var m=body.querySelector('.lg-msg');b.disabled=true;m.textContent='Saving…';
         if(o.demo){m.textContent='Saved ✓ (preview only)';return}
