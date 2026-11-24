@@ -12,25 +12,25 @@
     var pi=0,cur=0;
     function draw(){
       var prog=ps[pi],isCur=prog.id===doc.current,w=prog.workouts[cur]||{exercises:[]};
-      var h='<div class="pg-list"><small>My programmes</small><div class="pg-tabs">'+ps.map(function(p,i){return '<button type="button" data-p="'+i+'" class="'+(i===pi?'on ':'')+(p.id===doc.current?'cur':'')+'">'+(p.id===doc.current?'★ ':'')+esc(p.title)+'</button>'}).join('')+'</div></div>';
-      h+='<div class="pg-top"><h3>'+esc(prog.title)+' <span class="pill '+(isCur?'ok':'off')+'">'+(isCur?'Current':'Past programme')+'</span></h3><small>Updated '+esc(upd(prog))+'</small></div>';
-      if(prog.goal)h+='<p class="pg-key" style="margin:0 0 6px"><b>Goal:</b> '+esc(prog.goal)+'</p>';
-      if(prog.schedule)h+='<div class="pg-note"><b>Weekly schedule</b><br>'+esc(prog.schedule)+'</div>';
-      if(prog.notes)h+='<div class="pg-note">'+esc(prog.notes)+'</div>';
+      var past=ps.filter(function(p,i){return i!==pi});
+      var h='<div class="pv-head"><div><h3>'+esc(prog.title)+'</h3><small>'+(isCur?'<span class="pv-cur">Current</span> · ':'<span class="pv-old">Past programme</span> · ')+'Updated '+esc(upd(prog))+'</small></div>'+
+        (ps.length>1?'<label class="pv-pick"><span><i class="ti ti-history" aria-hidden="true"></i> '+(isCur?'Past ('+(ps.length-1)+')':'Switch')+' <i class="ti ti-chevron-down" aria-hidden="true"></i></span><select aria-label="Choose programme">'+ps.map(function(p,i){return '<option value="'+i+'"'+(i===pi?' selected':'')+'>'+(p.id===doc.current?'★ ':'')+esc(p.title)+'</option>'}).join('')+'</select></label>':'')+'</div>';
+      if(prog.goal||prog.schedule||prog.notes)h+='<details class="pv-info"><summary>'+(prog.goal?'<b>Goal:</b> '+esc(prog.goal):'Notes from Maria')+'</summary>'+(prog.schedule?'<p><b>Weekly schedule</b><br>'+esc(prog.schedule)+'</p>':'')+(prog.notes?'<p>'+esc(prog.notes)+'</p>':'')+'</details>';
       if(!prog.workouts.length){el.innerHTML=h+'<div class="pg-empty">No workouts in this programme yet.</div>';bind();return}
-      h+='<div class="pg-tabs">'+prog.workouts.map(function(x,i){return '<button type="button" data-i="'+i+'" class="'+(i===cur?'on':'')+'">'+esc(x.name)+'</button>'}).join('')+'</div>';
-      if(w.focus)h+='<p class="pg-key" style="margin:4px 0 8px"><b>Focus:</b> '+esc(w.focus)+'</p>';
-      if(w.notes)h+='<div class="pg-note">'+esc(w.notes)+'</div>';
-      var hasSS=w.exercises.some(function(e){return e.ss}),hasOpts=w.exercises.some(function(e){return e.opts}),cols=COLS.filter(function(c){return (c.k!=='ss'||hasSS)&&(c.k!=='opts'||hasOpts)});
-      h+='<div class="pg-wrap"><table class="pg"><thead><tr><th>#</th>'+cols.map(function(c){return '<th class="'+c.w+'">'+c.l+'</th>'}).join('')+'</tr></thead><tbody>'+
-        w.exercises.map(function(e,i){return '<tr'+(e.ss?' class="ssrow"':'')+'><td class="n">'+(i+1)+'</td>'+cols.map(function(c){return '<td class="'+c.w+'">'+(c.k==='ss'&&e.ss?'<span class="sspill">'+esc(e.ss)+'</span>':esc(e[c.k]))+'</td>'}).join('')+'</tr>'}).join('')+'</tbody></table></div>';
-      if(hasSS)h+='<p class="pg-key"><b>SS</b> = superset: exercises with the same letter (A1, A2) are done back to back, then rest.</p>';
-      if(isCur)h+='<button class="btn" type="button" id="logW" style="margin-top:12px">📝 Log this workout</button><div id="logBox"></div>';
-      h+='<p class="pg-key"><b>RIR</b> = reps in reserve: how many more good reps you could have done. <b>Tempo</b> e.g. 3-1-1-0 = 3 seconds down, 1 second pause, 1 second up, 0 at the top.</p>';
+      h+='<div class="pv-tabs">'+prog.workouts.map(function(x,i){return '<button type="button" data-i="'+i+'" class="'+(i===cur?'on':'')+'">'+esc(x.name)+'</button>'}).join('')+'</div>';
+      var n=w.exercises.length,sets=w.exercises.reduce(function(a,e){return a+(parseInt(e.sets,10)||0)},0);
+      h+='<div class="pv-sum"><span>'+n+' exercise'+(n===1?'':'s')+(sets?' · '+sets+' sets':'')+(w.focus?' · '+esc(w.focus):'')+'</span>'+(isCur?'<button class="btn" type="button" id="logW"><i class="ti ti-player-play" aria-hidden="true"></i> Start</button>':'')+'</div><div id="logBox"></div>';
+      if(w.notes)h+='<div class="pv-note">'+esc(w.notes)+'</div>';
+      var hasSS=w.exercises.some(function(e){return e.ss});
+      h+='<ol class="pv-list">'+w.exercises.map(function(e,i){
+        var ch=[];if(e.rir)ch.push('RIR '+esc(e.rir));if(e.tempo)ch.push('Tempo '+esc(e.tempo));if(e.rest)ch.push('Rest '+esc(e.rest));
+        var sr=(e.sets?esc(e.sets):'')+(e.sets&&e.reps?' × ':'')+(e.reps?esc(e.reps):'');
+        return '<li class="pv-ex'+(e.ss?' ss':'')+'"><span class="pv-n">'+(e.ss?esc(e.ss):i+1)+'</span><div class="pv-b"><b>'+esc(e.name)+'</b>'+(e.opts?'<small class="pv-o">or: '+esc(e.opts)+'</small>':'')+(ch.length?'<div class="pv-ch">'+ch.map(function(c){return '<em>'+c+'</em>'}).join('')+'</div>':'')+(e.notes?'<small class="pv-nt">'+esc(e.notes)+'</small>':'')+'</div>'+(sr?'<span class="pv-sr">'+sr+'</span>':'')+'</li>'}).join('')+'</ol>';
+      h+='<details class="pv-key"><summary>What do '+(hasSS?'SS, ':'')+'RIR and tempo mean?</summary>'+(hasSS?'<p><b>SS</b> = superset: exercises with the same letter (A1, A2) are done back to back, then rest.</p>':'')+'<p><b>RIR</b> = reps in reserve: how many more good reps you could have done.</p><p><b>Tempo</b> e.g. 3-1-1-0 = 3 seconds down, 1 second pause, 1 second up, 0 at the top.</p></details>';
       el.innerHTML=h;bind();
     }
     function bind(){
-      [].forEach.call(el.querySelectorAll('[data-p]'),function(b){b.onclick=function(){pi=+b.getAttribute('data-p');cur=0;draw()}});
+      var sel=el.querySelector('.pv-pick select');if(sel)sel.onchange=function(){pi=+sel.value;cur=0;draw()};
       [].forEach.call(el.querySelectorAll('[data-i]'),function(b){b.onclick=function(){cur=+b.getAttribute('data-i');draw()}});
       var lb=el.querySelector('#logW');if(lb)lb.onclick=function(){if(window.__lbStart){window.__lbStart(cur);return}lb.hidden=true;Logger(el.querySelector('#logBox'),ps[pi],ps[pi].workouts[cur],opts)};
     }
