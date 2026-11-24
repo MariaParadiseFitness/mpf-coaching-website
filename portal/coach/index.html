@@ -191,6 +191,7 @@ html,body{overflow-x:hidden}
 .cqa{font-size:13px;color:#efe6cf}.cqa div{margin:6px 0}.cqa i{color:var(--gold-l);font-style:normal;display:block;font-size:11.5px}
 .cqr textarea{width:100%;box-sizing:border-box;background:#0e0e0e;border:1px solid rgba(201,166,75,.35);border-radius:12px;color:#fff;font:inherit;font-size:15px;padding:10px;margin-top:8px}
 .cqt{display:flex;gap:6px;margin-top:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px}.cqt button{flex:0 0 auto;background:none;border:1px solid rgba(201,166,75,.4);color:#e6cf8b;border-radius:20px;padding:7px 12px;font:inherit;font-size:12.5px;cursor:pointer;white-space:nowrap}
+.cqmic{font-size:18px;padding:8px 16px;line-height:1}.cqmic.on{background:#c0392b!important;color:#fff;animation:micp 1.2s infinite}
 .cqt .mic{background:var(--grad);color:#111;font-weight:700;border-color:transparent;font-size:14px;padding:8px 16px}.cqt .mic.on{background:#c0392b;color:#fff;animation:micp 1.2s infinite}@keyframes micp{50%{opacity:.6}}
 .arule{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;background:#0f0f0f;border:1px solid rgba(201,166,75,.15);border-radius:12px;margin-bottom:6px}.arule b{color:#fff}.arule small{display:block;color:var(--mute);font-size:12px}
 .sw{position:relative;width:46px;height:26px;flex:0 0 auto}.sw input{opacity:0;width:0;height:0}.sw span{position:absolute;inset:0;background:#333;border-radius:20px;cursor:pointer;transition:.2s}.sw span:before{content:"";position:absolute;width:20px;height:20px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}.sw input:checked+span{background:var(--gold)}.sw input:checked+span:before{transform:translateX(20px)}
@@ -445,7 +446,7 @@ html,body{overflow-x:hidden}
     $('pRows').innerHTML=ws.length?ws.map(function(w){return '<div class="ph-row"><div class="wk"><label><input type="checkbox" class="pick" value="'+w+'">'+wkLbl(w)+'</label></div>'+ANG.map(function(a){var p=latest(w,a);return p?'<a href="'+esc(src(p))+'" target="_blank" rel="noopener"><img loading="lazy" alt="" src="'+esc(src(p))+'"'+al(p)+'></a>':'<span class="e">-</span>'}).join('')+'</div>'}).join(''):'<p style="color:var(--mute)">No photos uploaded yet.</p>';
     $('cmp').hidden=true;
   }
-  var TAGS=['Fat loss','Body recomp','Maintenance','Surplus','Comp prep','VIP','Needs a push'],tagF='',view='cards',TD={items:[],dismissed:{}};
+  var TAGS=['🆕 New client','Fat loss','Body recomp','Maintenance','Surplus','Comp prep','VIP','Needs a push'],tagF='',view='cards',TD={items:[],dismissed:{}};
   var postJ=function(u,b){return fetch(u,{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify(b)}).then(function(r){if(!r.ok)throw 0;return r.json()})};
   function saveRoster(id,fn){return fetch('/portal/api/coach/roster',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){var ro=j.roster||{},sc=j.secretClients||{},n=0;Object.keys(sc).forEach(function(e){if(sc[e].id===id&&!ro[e])ro[e]=Object.assign({},sc[e])});Object.keys(ro).forEach(function(e){if(ro[e].id===id){fn(ro[e]);n++}});if(!n)throw 0;return postJ('/portal/api/coach/roster',ro)})}
   function wireReplies(id){[].forEach.call(document.querySelectorAll('#pCi .ci-rep'),function(box){var b=box.querySelector('[data-rep]'),ta=box.querySelector('textarea'),msg=box.querySelector('.lg-msg');b.onclick=function(){b.disabled=true;msg.textContent='Sending…';
@@ -459,7 +460,7 @@ html,body{overflow-x:hidden}
     ta.oninput=function(){st.textContent='Saving…';clearTimeout(tmr);tmr=setTimeout(sv,800)};$('pNotesB').onclick=sv}
   // ---------- today's to-do ----------
   function days(d){return d?Math.round((MPFLog.toT(todayStr)-MPFLog.toT(d))/864e5):9999}
-  function autoTasks(){var T=[],add=function(g,key,c,txt,sub){T.push({g:g,key:key+':'+todayStr,c:c,txt:txt,sub:sub||''})},A=clients.filter(function(c){return c.active});
+  function autoTasks(){var T=[],add=function(g,key,c,txt,sub,tab){T.push({g:g,key:key+':'+todayStr,c:c,txt:txt,sub:sub||'',tab:tab||''})},A=clients.filter(function(c){return c.active});
     var LP=A.filter(lapsed);if(LP.length)add('👀 Check on','lapsed:'+LP.length,LP[0],LP.length+' lapsed clients to win back','No session, log or check-in for 2+ months: '+LP.slice(0,5).map(function(c){return c.name.split(' ')[0]}).join(', ')+(LP.length>5?' +'+(LP.length-5):''));
     A.forEach(function(c){var f=c.name.split(' ')[0];
       if(c.deleteReq)add('💳 Money','del:'+c.id,c,f+' asked for their data to be deleted','Delete them from their profile (bottom of the page) within a month');
@@ -469,6 +470,7 @@ html,body{overflow-x:hidden}
     A.forEach(function(c){var f=c.name.split(' ')[0],p=c.payment||{};if(lapsed(c))return;
       if(c.needsReply)add('💬 Reply to check-ins','rep:'+c.id+':'+(c.lastCheckin||''),c,'Reply to '+f+'\'s check-in','Sent '+MPFLog.nice(c.lastCheckin,{weekday:'short'}));
       if(c.form===true&&!c.planReady)add('📝 Build plans','plan:'+c.id,c,'Build '+f+'\'s plan','Onboarding form is in');
+      var H=c.has;if(H){if(!H.macros)add('🛠️ To set up','sm:'+c.id,c,'Set '+f+'\'s macros','No calorie or protein targets yet','tg');if(!H.prog)add('🛠️ To set up','sp:'+c.id,c,'Write '+f+'\'s training programme','No programme in their portal yet','pg');if(!H.meal)add('🛠️ To set up','sd:'+c.id,c,'Write '+f+'\'s meal plan','No meal plan in their portal yet','mp')}
       if(c.pt&&c.pt.next===todayStr)add('🏋️ PT today','pt:'+c.id,c,f+' has PT today','');
       if(p.status==='failed')add('💳 Money','fail:'+c.id,c,f+'\'s payment failed','Message them to update their card');
       if(c.cancelReq)add('💳 Money','canc:'+c.id,c,f+' asked to cancel','Cancel in Stripe at the end of their period, then message them');
@@ -483,18 +485,18 @@ html,body{overflow-x:hidden}
       [4,8,12,16,20,26,39,52,78,104].forEach(function(n){if(c.week===n&&c.start)T.push({g:'🎉 Milestones',key:'ms:'+c.id+':wk'+n,c:c,txt:f+' hits '+(n%52===0?(n/52)+' year'+(n>52?'s':''):n+' weeks')+' with you','sub':'Send a little shout-out'})});
     });
     return T.filter(function(t){return !TD.dismissed[t.key]})}
-  var PRI={'💳 Money':'🔴 Critical','💬 Reply to check-ins':'🟠 Do today','🏋️ PT today':'🟠 Do today','🎂 Birthdays':'🟠 Do today','📝 Build plans':'🏋️ Coaching','👀 Check on':'🏋️ Coaching','🎉 Milestones':'🏋️ Coaching','🔁 Renewals':'💷 Money in','📦 Packages':'💷 Money in'};
-  function drawTodo(){var T=autoTasks(),own=(TD.items||[]).filter(function(x){return !x.list}),gs={},order=['🔴 Critical','🟠 Do today','🏋️ Coaching','💷 Money in'];T.forEach(function(t){var g=PRI[t.g]||'🏋️ Coaching';(gs[g]=gs[g]||[]).push(t)});
+  var PRI={'💳 Money':'🔴 Critical','💬 Reply to check-ins':'🟠 Do today','🏋️ PT today':'🟠 Do today','🎂 Birthdays':'🟠 Do today','📝 Build plans':'🏋️ Coaching','👀 Check on':'🏋️ Coaching','🎉 Milestones':'🏋️ Coaching','🛠️ To set up':'🛠️ To set up','🔁 Renewals':'💷 Money in','📦 Packages':'💷 Money in'};
+  function drawTodo(){var T=autoTasks(),own=(TD.items||[]).filter(function(x){return !x.list}),gs={},order=['🔴 Critical','🟠 Do today','🏋️ Coaching','🛠️ To set up','💷 Money in'];T.forEach(function(t){var g=PRI[t.g]||'🏋️ Coaching';(gs[g]=gs[g]||[]).push(t)});
     var doneAuto=Object.keys(TD.dismissed||{}).filter(function(k){return TD.dismissed[k]===todayStr&&k.slice(-10)===todayStr}).length,doneOwn=own.filter(function(x){return x.done&&x.doneAt===todayStr}).length,left=T.length+own.filter(function(x){return !x.done}).length,dn=doneAuto+doneOwn,pc=dn+left?Math.round(dn/(dn+left)*100):100;
     var openOwn=own.filter(function(x){return !x.done}).length;$('todoN').textContent=(T.length+openOwn)?(T.length+openOwn)+' to do':'';
-    var h=order.filter(function(g){return gs[g]}).map(function(g){return '<div class="tg-grp"><b>'+g+'</b>'+gs[g].map(function(t){return '<div class="td"><button class="ck" type="button" data-dis="'+esc(t.key)+'" title="Done"></button><div class="tx" data-open="'+esc(t.c.id)+'"><b>'+esc(t.txt)+'</b>'+(t.sub?'<small>'+esc(t.sub)+'</small>':'')+'</div></div>'}).join('')+'</div>'}).join('');
+    var h=order.filter(function(g){return gs[g]}).map(function(g){return '<div class="tg-grp"><b>'+g+'</b>'+gs[g].map(function(t){return '<div class="td"><button class="ck" type="button" data-dis="'+esc(t.key)+'" title="Done"></button><div class="tx" data-open="'+esc(t.c.id)+'"'+(t.tab?' data-tab="'+t.tab+'"':'')+'><b>'+esc(t.txt)+'</b>'+(t.sub?'<small>'+esc(t.sub)+'</small>':'')+'</div></div>'}).join('')+'</div>'}).join('');
     if(own.length)h+='<div class="tg-grp"><b>🗂️ Admin and your tasks</b>'+own.map(function(x){return '<div class="td'+(x.done?' dn':'')+'"><button class="ck" type="button" data-tog="'+x.id+'">'+(x.done?'✓':'')+'</button><div class="tx">'+esc(x.text)+'</div><button class="x" type="button" data-rm="'+x.id+'">✕</button></div>'}).join('')+'</div>';
     var mk=(TD.items||[]).filter(function(x){return x.list&&!x.done}).length;if(mk)h+='<div class="tg-grp"><b>📣 Marketing</b><div class="td"><div class="tx" data-go="mkt"><b>'+mk+' marketing task'+(mk>1?'s':'')+' waiting</b><small>Tap to open Marketing</small></div></div></div>';
     var hr=new Date().getHours(),eod=hr>=18?'<div class="mini" style="margin-bottom:8px">🌙 Today: '+dn+' done'+(left?', '+left+' to carry over to tomorrow':'. Everything cleared, amazing.')+'</div>':'';
     $('todoBody').innerHTML='<div class="prog"><i style="width:'+pc+'%"></i></div><div class="mini" style="margin:-6px 0 8px">'+pc+'% done today · '+dn+' done, '+left+' left</div>'+eod+(h||'<div class="allclear">✨ All clear. You\'re on top of everything. Go get a client. ✨</div>');
     [].forEach.call($('todoBody').querySelectorAll('[data-go]'),function(b){b.onclick=function(){go(b.getAttribute('data-go'))}});
     [].forEach.call($('todoBody').querySelectorAll('[data-dis]'),function(b){b.onclick=function(){var k=b.getAttribute('data-dis');TD.dismissed[k]=todayStr;b.closest('.td').classList.add('dn');setTimeout(drawTodo,350);if(!preview)postJ('/portal/api/coach/todos',{dismiss:k}).catch(function(){})}});
-    [].forEach.call($('todoBody').querySelectorAll('[data-open]'),function(b){b.onclick=function(){open(b.getAttribute('data-open'))}});
+    [].forEach.call($('todoBody').querySelectorAll('[data-open]'),function(b){b.onclick=function(){open(b.getAttribute('data-open'));var tb=b.getAttribute('data-tab');if(tb)setTimeout(function(){var x=document.querySelector('#pTabs [data-p="'+tb+'"]');if(x)x.click()},50)}});
     [].forEach.call($('todoBody').querySelectorAll('[data-tog]'),function(b){b.onclick=function(){postJ('/portal/api/coach/todos',{toggle:b.getAttribute('data-tog')}).then(function(j){TD=j;drawTodo()})}});
     [].forEach.call($('todoBody').querySelectorAll('[data-rm]'),function(b){b.onclick=function(){postJ('/portal/api/coach/todos',{remove:b.getAttribute('data-rm')}).then(function(j){TD=j;drawTodo()})}});
   }
@@ -589,7 +591,7 @@ html,body{overflow-x:hidden}
       var ans=(L.answers||[]).map(function(a,i){return a?'<div><i>'+esc(Q[i]||('Question '+(i+1)))+'</i>'+esc(a)+'</div>':''}).join('');
       return '<div class="cqc'+(cqTab==='review'?' need':'')+'"><div class="cqh"><b>'+esc(c.name)+' <span class="mini">'+(c.type==='pt'?'🏋️':'💻')+'</span></b><span class="mini">week ending '+MPFLog.nice(L.due,{weekday:'short'})+' · <a href="#" data-open="'+esc(c.id)+'">open profile</a></span></div>'+
         '<div class="cq-sent">📩 Sent <b>'+sentAt(L.at)+'</b> <span>('+ago(String(L.at).slice(0,10)).toLowerCase()+')</span>'+(L.reply?' · ✅ Replied '+sentAt(L.reply.at):L.reviewed?' · ✓ Marked no reply needed '+sentAt(L.reviewed):'')+'</div>'+
-        '<div class="chips">'+chip('Avg weight',num(S.weight),num(PS.weight),' kg','down')+chip('Days logged',num(S.daysLogged),num(PS.daysLogged),'','up')+chip('Avg kcal',num(S.cals),num(PS.cals),'',null)+chip('Avg protein',num(S.protein),num(PS.protein),' g','up')+chip('Avg steps',num(S.steps),num(PS.steps),'','up')+chip('Avg sleep',num(S.sleep),num(PS.sleep),' h','up')+'</div>'+
+        '<div class="chips">'+cqTop(c)+chip('Avg weight',num(S.weight),num(PS.weight),' kg','down')+chip('Days logged',num(S.daysLogged),num(PS.daysLogged),'','up')+chip('Avg kcal',num(S.cals),num(PS.cals),'',null)+chip('Avg protein',num(S.protein),num(PS.protein),' g','up')+chip('Avg steps',num(S.steps),num(PS.steps),'','up')+chip('Avg sleep',num(S.sleep),num(PS.sleep),' h','up')+cqMore(c)+'</div>'+
         (flags.length?'<div class="mini" style="color:#f4a59e;margin-bottom:8px">⚠️ '+esc(flags.join(' · '))+'</div>':'')+
         '<details><summary class="mini" style="cursor:pointer">Their answers</summary><div class="cqa">'+(ans||'<div>No written answers.</div>')+'</div></details>'+
         '<div class="cqr"><textarea rows="4" placeholder="Your feedback for '+esc(f)+'">'+esc(L.reply?L.reply.text:'')+'</textarea><div style="display:flex;gap:8px;align-items:center;margin-top:6px"><button class="btn" type="button" data-rep="'+esc(c.id)+'" data-due="'+L.due+'">'+(L.reply?'Update reply':'Send reply')+'</button>'+(!L.reply?(L.reviewed?'<button class="btn g" type="button" data-skip="0" data-id="'+esc(c.id)+'" data-due="'+L.due+'">↩ Move back to To reply</button>':'<button class="btn g" type="button" data-skip="1" data-id="'+esc(c.id)+'" data-due="'+L.due+'" title="Marks it as seen. Nothing is sent to them.">✓ No reply needed</button>'):'')+'<span class="mini lg-msg"></span></div></div></div>'}).join('')||'<div class="allclear" style="font-size:16px">'+(cqTab==='review'?'✨ No check-ins waiting for a reply.':'Nobody here.')+'</div>';
@@ -602,6 +604,20 @@ html,body{overflow-x:hidden}
   }
   // ---------- faster replies: voice, smart draft, snippets, numbers, drafts ----------
   var DEFSN=[{name:'👏 Great week',text:'Amazing week {name}! {days}/7 days logged and you\'re staying really consistent. Keep doing exactly what you\'re doing 💪'},{name:'🍗 Protein low',text:'Protein was averaging {protein}g this week. Let\'s bring that up. Get a protein source in every meal and snack.'},{name:'👟 Steps low',text:'Steps were averaging {steps} this week. Try a short walk after meals to bump that up.'},{name:'⚖️ Scale up, don\'t panic',text:'Don\'t worry about the scale going up {change}kg this week. That\'s normal water fluctuation, not fat. We look at the trend over a few weeks.'},{name:'📝 Log every day',text:'Only {days}/7 days logged this week. The more you log, the better I can help you, so get every day in, even the messy ones.'},{name:'😴 Sleep',text:'Sleep was averaging {sleep}h. Let\'s work on getting that up as it makes a huge difference to hunger, energy and recovery.'},{name:'💛 Sign-off',text:'Proud of you. Have a great week and message me if you need anything!'}];
+  function cqTop(c){var X=c.extra||{},o='';var kg=function(v){return (v>0?'+':'')+v+' kg'};var col=function(v){return v<0?'up':v>0?'dn':''};
+    o+='<div class="chip" style="border-color:var(--gold)">This week<b class="'+col(X.wChange)+'">'+(X.wChange!=null?kg(X.wChange):'–')+'</b><span>'+(X.wChange!=null?'avg weight vs last week':'needs 2 weeks of weigh-ins')+'</span></div>';
+    if(X.totalChange!=null)o+='<div class="chip" style="border-color:var(--gold)">Since start<b class="'+col(X.totalChange)+'">'+kg(X.totalChange)+'</b><span>'+X.startW+' → '+X.latestW+' kg</span></div>';
+    return o}
+  function cqMore(c){var X=c.extra||{},o='',sc=function(l,v){return v!=null?'<div class="chip">'+l+'<b>'+v+'/10</b></div>':''};
+    if(!c.extra)return '';
+    o+='<div class="chip">Trained<b>'+X.trained+'/7</b></div>';
+    if(X.cardio!=null)o+='<div class="chip">Cardio<b>'+X.cardio+' min</b></div>';
+    if(X.water!=null)o+='<div class="chip">Avg water<b>'+X.water+' L</b></div>';
+    o+='<div class="chip">Off-plan meals<b>'+X.offPlan+'</b></div>';
+    o+=sc('Energy',X.energy)+sc('Mood',X.mood)+sc('Stress',X.stress)+sc('Hunger',X.hunger)+sc('On plan',X.adherence);
+    if(X.sex!=='m'&&X.period)o+='<div class="chip">Period<b>'+X.period+' day'+(X.period>1?'s':'')+'</b><span>can push the scale up</span></div>';
+    if(X.photos!=null)o+='<div class="chip">Photos<b>'+(X.photos?'✅ sent':'❌ none')+'</b></div>';
+    return o}
   function snips(){return (AUTO&&AUTO.snippets&&AUTO.snippets.length)?AUTO.snippets:DEFSN}
   function cqKey(id,due){return 'mpf-cqd:'+id+':'+due}
   function cqDraft(id,due,v){try{if(v==null||!String(v).trim())localStorage.removeItem(cqKey(id,due));else localStorage.setItem(cqKey(id,due),v)}catch(e){}}
@@ -632,17 +648,21 @@ html,body{overflow-x:hidden}
     if(k!=null&&k0!=null&&tk&&Math.abs(k-tk)<=tk*0.05&&!fix.length)out.push('Calories bang on target too.');
     out.push('Proud of you. Have a great week and message me if you need anything 💛');
     return out.join('\n\n')}
-  function cqTidy(t){t=' '+t+' ';t=t.replace(/\s+(full stop|period)\b/gi,'.').replace(/\s+comma\b/gi,',').replace(/\s+question mark\b/gi,'?').replace(/\s+exclamation mark\b/gi,'!').replace(/\s*\bnew (line|paragraph)\b\s*/gi,'\n');t=t.trim();t=t.replace(/(^|[.!?]\s+|\n)([a-z])/g,function(m,a,b){return a+b.toUpperCase()});return t}
+  function cqTidy(t,ctx){t=' '+t+' ';t=t.replace(/\s+(full stop|period)\b/gi,'.').replace(/\s+comma\b/gi,',').replace(/\s+question mark\b/gi,'?').replace(/\s+exclamation mark\b/gi,'!').replace(/\s*\bnew (line|paragraph)\b\s*/gi,'\n');t=t.trim();var cap=!ctx||/[.!?\n]\s*$/.test(ctx)||!ctx.trim();t=t.replace(/([.!?]\s+|\n)([a-z])/g,function(m,a,b){return a+b.toUpperCase()});if(cap)t=t.charAt(0).toUpperCase()+t.slice(1);return t}
   var SR=window.SpeechRecognition||window.webkitSpeechRecognition,recNow=null;
-  function cqMic(btn,ta,m){if(recNow){recNow.stop();return}
-    if(!SR){m.textContent='Voice button not supported here. Tap the 🎤 on your phone keyboard instead.';ta.focus();return}
-    var r=new SR(),base=ta.value.replace(/\s+$/,''),said='';r.lang='en-GB';r.continuous=true;r.interimResults=true;
-    var put=function(){var t=cqTidy(said);ta.value=base&&t?base+(/[.!?💪💛]$/.test(base)?' ':'. ')+t:(base||t);ta.dispatchEvent(new Event('input'));ta.scrollTop=ta.scrollHeight};
-    r.onresult=function(e){var a='';for(var i=0;i<e.results.length;i++){var x=e.results[i][0].transcript;a+=(a&&!/^\s/.test(x)?' ':'')+x}said=a;put()};
-    r.onerror=function(e){m.textContent=(e.error==='not-allowed'||e.error==='service-not-allowed')?'Allow the microphone for mpfcoaching.co.uk, or use the 🎤 on your keyboard.':(e.error==='no-speech'?'Didn\'t hear anything. Tap Speak and try again.':'Voice stopped. Tap Speak to carry on.')};
-    r.onend=function(){recNow=null;btn.classList.remove('on');btn.textContent='🎤 Speak';if(said)m.textContent='Check it reads right, then send.'};
-    try{r.start()}catch(e){m.textContent='Could not start the mic. Use the 🎤 on your keyboard.';return}
-    recNow=r;btn.classList.add('on');btn.textContent='⏹ Stop';m.textContent='Listening… say "full stop", "comma" or "new line" for punctuation.'}
+  function cqMic(btn,ta,m){if(recNow){recNow.stop2();return}
+    if(!SR){m.textContent='The voice button doesn\'t work in this browser. Tap in the box and use the 🎤 on your keyboard instead.';ta.focus();return}
+    var s=ta.selectionStart,e=ta.selectionEnd;if(document.activeElement!==ta||s==null){s=e=ta.value.length}
+    var before=ta.value.slice(0,s),after=ta.value.slice(e),on=true,said='',r=null;
+    var build=function(txt){var t=cqTidy(txt,before);if(!t)return {v:before+after,b:before};var sep=before&&!/\s$/.test(before)?' ':'',sep2=after&&!/^[\s.,!?]/.test(after)?' ':'';return {v:before+sep+t+sep2+after,b:before+sep+t,pos:(before+sep+t).length}};
+    var put=function(){var o=build(said);ta.value=o.v;if(o.pos!=null){try{ta.setSelectionRange(o.pos,o.pos)}catch(x){}}ta.dispatchEvent(new Event('input'))};
+    var start=function(){r=new SR();r.lang='en-GB';r.continuous=true;r.interimResults=true;said='';
+      r.onresult=function(ev){var a='';for(var i=0;i<ev.results.length;i++){var x=ev.results[i][0].transcript;a+=(a&&!/^\s/.test(x)?' ':'')+x}said=a;put()};
+      r.onerror=function(ev){if(ev.error==='not-allowed'||ev.error==='service-not-allowed'){on=false;m.textContent='Microphone blocked. Allow the mic for mpfcoaching.co.uk in your browser settings, or use the 🎤 on your keyboard.'}else if(ev.error==='audio-capture'){on=false;m.textContent='No microphone found.'}};
+      r.onend=function(){before=build(said).b;said='';if(on){try{start();return}catch(x){}}recNow=null;btn.classList.remove('on');btn.textContent='🎤';if(!/blocked|found/.test(m.textContent))m.textContent='Check it reads right, then send.'};
+      try{r.start()}catch(x){on=false;m.textContent='Couldn\'t start the mic. Use the 🎤 on your keyboard instead.'}};
+    recNow={stop2:function(){on=false;try{r.stop()}catch(x){}}};
+    start();btn.classList.add('on');btn.textContent='⏹ Stop';m.textContent='Listening… keep talking, tap Stop when done. Say "full stop", "comma" or "new line".'}
   var cqQ=[],cqBusy=false,cqPend={};
   function cqRun(){if(cqBusy||!cqQ.length)return;cqBusy=true;var f=cqQ.shift();f().then(function(){cqBusy=false;cqRun()},function(){cqBusy=false;cqRun()})}
   function cqAI(c,id,due,ta,m,force){m.textContent='✍️ Claude is drafting a reply…';ta.disabled=true;
@@ -658,9 +678,10 @@ html,body{overflow-x:hidden}
       var nt=box.querySelector('.cqnote');if(nt)nt.remove();if(!sent&&L.draft&&L.draft.note){nt=document.createElement('div');nt.className='cqnote mini';nt.style.cssText='color:#e8a34a;margin-top:8px';nt.textContent='⚠️ Heads up from Claude: '+L.draft.note;ta.parentNode.insertBefore(nt,ta)}
       ta.oninput=function(){if(!(c.latest&&c.latest.reply))cqDraft(id,due,ta.value)};
       var V=cqVals(c),bar=document.createElement('div');bar.className='cqt';
-      bar.innerHTML='<button type="button" class="mic">🎤 Speak</button><button type="button" class="mic" data-smart>'+(CQ.ai?'✨ New Claude draft':'✨ Draft for me')+'</button><button type="button" data-nums>📊 Their numbers</button>'+snips().map(function(t,i){return '<button type="button" data-sn="'+i+'" title="'+esc(cqFill(t.text,V))+'">'+esc(t.name)+'</button>'}).join('');
+      bar.innerHTML='<button type="button" class="mic" data-smart>'+(CQ.ai?'✨ New Claude draft':'✨ Draft for me')+'</button><button type="button" data-nums>📊 Their numbers</button>'+snips().map(function(t,i){return '<button type="button" data-sn="'+i+'" title="'+esc(cqFill(t.text,V))+'">'+esc(t.name)+'</button>'}).join('');
       ta.parentNode.insertBefore(bar,ta);
-      bar.querySelector('.mic').onclick=function(){cqMic(this,ta,m)};
+      var om=box.querySelector('.cqmic');if(om)om.remove();var mb=document.createElement('button');mb.type='button';mb.className='btn cqmic';mb.title='Speak your reply';mb.textContent='🎤';send.insertAdjacentElement('afterend',mb);
+      mb.onmousedown=function(ev){ev.preventDefault()};mb.onclick=function(){cqMic(mb,ta,m)};
       bar.querySelector('[data-smart]').onclick=function(){if(ta.value.trim()&&!confirm('Replace what\'s in the box with a fresh draft?'))return;
         if(!CQ.ai){ta.value=cqSmart(c);ta.dispatchEvent(new Event('input'));m.textContent='Draft ready. Edit or 🎤 add your own bit, then send.';return}
         cqAI(c,id,due,ta,m,true)};

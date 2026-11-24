@@ -358,6 +358,30 @@ async function readWorkouts(env, id, daysBack) {
   return out.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : a.at < b.at ? 1 : -1));
 }
 
+// ---- extra numbers for a check-in week (coach queue + AI drafts) ----
+async function weekExtra(env, c, due, sm) {
+  const from = fromT(toT(due) - 13 * DAY_MS);
+  const days = await readLog(env, c.id, from, due);
+  const cur = weekStats(days, due), pv = weekStats(days, fromT(toT(due) - 7 * DAY_MS));
+  const wk = []; for (let i = 0; i < 7; i++) { const d = days[fromT(toT(due) - i * DAY_MS)]; if (d) wk.push(d); }
+  const yes = (k) => wk.filter((d) => String(d[k] || "").toLowerCase() === "yes").length;
+  const avg = (k, dp) => { const a = wk.map((d) => num(d[k])).filter((x) => x !== null); return a.length ? +(a.reduce((x, y) => x + y, 0) / a.length).toFixed(dp) : null; };
+  const sum = (k) => { const a = wk.map((d) => num(d[k])).filter((x) => x !== null); return a.length ? Math.round(a.reduce((x, y) => x + y, 0)) : null; };
+  const ws = summaryWeights(sm || {}), first = ws[0], last = ws[ws.length - 1];
+  let photos = null;
+  try { const lo = toT(due) - 7 * DAY_MS, hi = toT(due) + 3 * DAY_MS; photos = (await listPhotos(env, c.id)).filter((p) => { const t = Date.parse(p.uploaded); return t >= lo && t <= hi; }).length; } catch (e) {}
+  return {
+    wChange: cur.weight && pv.weight ? +(cur.weight - pv.weight).toFixed(1) : null,
+    avgW: cur.weight, prevW: pv.weight,
+    startW: first ? first.kg : null, startDate: first ? first.date : null, latestW: last ? last.kg : null,
+    totalChange: first && last && first.date !== last.date ? +(last.kg - first.kg).toFixed(1) : null,
+    trained: yes("trained"), cardio: sum("cardio"), water: avg("water", 1), offPlan: yes("offPlan"),
+    period: c.sex === "m" ? null : yes("period"),
+    energy: avg("energy", 1), mood: avg("mood", 1), stress: avg("stress", 1), hunger: avg("hunger", 1), adherence: avg("adherence", 1),
+    photos, isNew: (c.tags || []).some((t) => /new client/i.test(t)), sex: c.sex === "m" ? "m" : "f",
+  };
+}
+
 async function handleApi(request, env, url, ctx) {
   const w = await who(request, env);
   if (w instanceof Response) return w;
@@ -867,7 +891,8 @@ async function handleApi(request, env, url, ctx) {
       const all = await getJSON(env, `${dkey(c.id)}/checkins.json`, {});
       const sm = await getJSON(env, `${dkey(c.id)}/summary.json`, {});
       const ks = Object.keys(all).sort(), k = ks[ks.length - 1], pk = ks[ks.length - 2];
-      out.push({ id: c.id, name: c.name, type: c.type === "pt" ? "pt" : "online", check: checkinStatus(c, sm, today), lastLog: (sm.logged || []).slice(-1)[0] || "",
+      const extra = k ? await weekExtra(env, c, k, sm).catch(() => null) : null;
+      out.push({ id: c.id, name: c.name, type: c.type === "pt" ? "pt" : "online", sex: c.sex === "m" ? "m" : "f", extra, check: checkinStatus(c, sm, today), lastLog: (sm.logged || []).slice(-1)[0] || "",
         latest: k ? { due: k, ...all[k] } : null, prev: pk ? { due: pk, stats: all[pk].stats || {}, answers: all[pk].answers || [] } : null, targets: await getJSON(env, `${dkey(c.id)}/targets.json`, null) });
     }));
     return json({ today, questions: QUESTIONS, clients: out, ai: !!env.ANTHROPIC_API_KEY });
@@ -1039,6 +1064,8 @@ async function handleApi(request, env, url, ctx) {
         setup: setup.skip ? { done: true } : { done: !!setup.completed, n: Object.keys(setup.done || {}).length },
         form: c.onboarded === true ? null : !!(await getJSON(env, `${dkey(c.id)}/onboarding.json`, {})).submitted,
         planReady: c.onboarded === true ? true : !!(await getJSON(env, `${dkey(c.id)}/plan.json`, {})).ready,
+        has: await (async () => { const [tg, pg, mp] = await Promise.all([getJSON(env, `${dkey(c.id)}/targets.json`, null), getJSON(env, `${dkey(c.id)}/programmes.json`, null), getJSON(env, `${dkey(c.id)}/mealplans.json`, null)]);
+          return { macros: !!(tg && (tg.cals || tg.protein)), prog: !!(pg && (pg.programmes || []).length), meal: !!(mp && (mp.plans || []).length) }; })(),
         active: c.active !== false, week, tracker: c.tracker || "", folder: c.folder || "", payOk: c.payOk === true, tags: c.tags || [], lockMode: c.lock || "", lockNow: await lockState(env, c, r),
         dob: c.onboarded === true ? ((await getJSON(env, `${dkey(c.id)}/onboarding.json`, {})).answers || {}).dob || "" : ((await getJSON(env, `${dkey(c.id)}/onboarding.json`, {})).answers || {}).dob || "",
         pkg: await (async () => { const a = acu && acu.byId && acu.byId[c.id]; const codes = (a && a.codes) || {}; const ks = Object.keys(codes).sort((x, y) => (codes[y].last).localeCompare(codes[x].last) || (codes[y].first).localeCompare(codes[x].first)); const pk = await getJSON(env, `${dkey(c.id)}/package.json`, null);
@@ -1644,15 +1671,26 @@ async function aiDraft(env, r, c, due) {
   const tg = Object.entries(targets).filter(([k, v]) => v && !["updated", "notes", "hlOn", "hiDays"].includes(k)).map(([k, v]) => `${k}: ${v}`).join(", ") || "(not set)";
   const past = ks.filter((k) => k < due && all[k].reply && all[k].reply.text).slice(-3).map((k) => all[k].reply.text);
   const first = String(c.name || "").split(" ")[0];
+  const ex = await weekExtra(env, c, due, await getJSON(env, `${dkey(c.id)}/summary.json`, {})).catch(() => null) || {};
+  const exl = [
+    ex.wChange != null ? `Average weight change vs last week: ${ex.wChange > 0 ? "+" : ""}${ex.wChange} kg` : "",
+    ex.totalChange != null ? `Weight change since their first weigh-in on the portal (${ex.startDate}): ${ex.totalChange > 0 ? "+" : ""}${ex.totalChange} kg` : "",
+    `Training days logged this week: ${ex.trained ?? "?"}/7`, ex.cardio != null ? `Cardio this week: ${ex.cardio} mins` : "",
+    ex.water != null ? `Average water: ${ex.water} L` : "", ex.offPlan ? `Off-plan meals logged: ${ex.offPlan}` : "",
+    ex.period ? `Days on their period this week: ${ex.period} (can explain water retention and scale jumps; mention gently only if relevant)` : "",
+    ["energy", "mood", "stress", "hunger", "adherence"].filter((k) => ex[k] != null).map((k) => `${k} ${ex[k]}/10`).join(", ") ? `Average daily scores out of 10: ${["energy", "mood", "stress", "hunger", "adherence"].filter((k) => ex[k] != null).map((k) => `${k} ${ex[k]}`).join(", ")}` : "",
+    ex.photos != null ? `Progress photos uploaded this week: ${ex.photos ? "yes" : "no"}` : "",
+  ].filter(Boolean).join("\n");
   const user = [
     `Client first name: ${first}`,
     `Client type: ${c.type === "pt" ? "face-to-face PT client (trains with Maria in the gym)" : "online coaching client"}`,
     c.phase ? `Phase: ${c.phase}` : "",
-    c.start ? `Started with Maria: ${c.start}` : "",
+    ex.isNew ? "NEW CLIENT: this is one of their first weeks with Maria, so welcome them." : "EXISTING CLIENT: they have been coached by Maria for a while and have only just moved onto her new portal. Do NOT welcome them, call them new, or treat this as their first week.",
     `Week ending: ${due}`,
     `Their daily targets: ${tg}`,
     `This week's averages from their daily log (weight kg, daysLogged out of 7, cals, protein g, steps, sleep h, change = kg vs last week): ${fmt(ci.stats)}`,
     pk ? `Last week's averages: ${fmt(all[pk].stats)}` : "No previous check-in.",
+    exl ? `More from their daily log this week:\n${exl}` : "",
     `Their check-in answers:\n${qa}`,
     past.length ? `Maria's last replies to this client, for her tone (don't repeat them):\n${past.map((t) => "---\n" + t).join("\n")}` : "",
   ].filter(Boolean).join("\n\n");
