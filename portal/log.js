@@ -132,7 +132,9 @@
       [].forEach.call(form.querySelectorAll('.tg'),function(n){var k=n.getAttribute('data-tk'),v=t[k];n.hidden=!v;if(v)n.textContent='🎯 Target: '+v+(/[a-z]/i.test(v)?'':(U[k]||''))});
       bars();var dt=el.querySelector('.lg-daytype');if(!dt){dt=document.createElement('div');dt.className='lg-daytype';var hd=el.querySelector('.lg-nav');if(hd)hd.parentNode.insertBefore(dt,hd.nextSibling)}dt.hidden=!t.dayType;if(t.dayType)dt.textContent=(t.dayType==='High day'?'🔼 ':'🔽 ')+t.dayType+': '+t.cals+' kcal · P '+t.protein+'g · C '+t.carbs+'g · F '+t.fat+'g';
     }
-    return {days:function(){return days},setTargets:setTargets};
+    function reload(){if(demo||dirty)return;api('/portal/api/log?from='+fromT(toT(today)-60*DAY)+'&to='+today).then(function(j){days=j.days||{};fill();if(o.onSaved)o.onSaved(days)}).catch(function(){})}
+    window.addEventListener('mpf-workout-saved',function(){setTimeout(reload,600)});
+    return {days:function(){return days},setTargets:setTargets,reload:reload};
   }
 
   /* ---------------- weekly check-in (client) ---------------- */

@@ -737,6 +737,7 @@ async function handleApi(request, env, url, ctx) {
       id: str(b.id, 20).replace(/[^a-z0-9]/gi, "") || Math.random().toString(36).slice(2, 10),
       date: b.date, programme: str(b.programme, 80), workout: str(b.workout, 80), notes: str(b.notes, 1500), at: new Date().toISOString(),
       pre: (Array.isArray(b.pre) ? b.pre : []).slice(0, 10).map((x) => ({ n: str(x && x.n, 60), m: str(x && x.m, 6) })).filter((x) => x.n), post: (Array.isArray(b.post) ? b.post : []).slice(0, 10).map((x) => ({ n: str(x && x.n, 60), m: str(x && x.m, 6) })).filter((x) => x.n),
+      cardio: (Array.isArray(b.cardio) ? b.cardio : []).slice(0, 6).map((x) => ({ type: str(x && x.type, 40), mins: str(x && x.mins, 5), hr: str(x && x.hr, 5), km: str(x && x.km, 6), lvl: str(x && x.lvl, 30) })).filter((x) => x.type),
       exercises: (Array.isArray(b.exercises) ? b.exercises : []).slice(0, 40).map((e) => ({
         name: str(e.name, 80), ss: str(e.ss, 6), notes: str(e.notes, 600), ...(e.fin ? { fin: true } : {}),
         sets: (Array.isArray(e.sets) ? e.sets : []).slice(0, 24).map((x) => ({ kg: str(x.kg, 10), reps: str(x.reps, 10), done: !!x.done, ...(["w", "d", "m", "f"].includes(x.t) ? { t: x.t } : {}) })),
@@ -744,10 +745,16 @@ async function handleApi(request, env, url, ctx) {
     };
     const key = `${dkey(client.id)}/workouts/${b.date.slice(0, 7)}.json`;
     const doc = await getJSON(env, key, {});
+    const prevSess = (doc[b.date] || []).find((x) => x.id === sess.id);
     const list = (doc[b.date] || []).filter((x) => x.id !== sess.id);
     if (b.delete !== true) list.push(sess);
     if (list.length) doc[b.date] = list; else delete doc[b.date];
     await putJSON(env, key, doc);
+    // cardio logged in a workout also counts in that day's daily log (only the change, so editing a workout doesn't double it)
+    const cm = (s) => ((s && s.cardio) || []).reduce((t, x) => t + (parseFloat(x.mins) || 0), 0);
+    const delta = (b.delete === true ? 0 : cm(sess)) - cm(prevSess);
+    if (delta) { const lk = `${dkey(client.id)}/log/${b.date.slice(0, 7)}.json`, ld = await getJSON(env, lk, {}), day = { ...(ld[b.date] || {}) }; delete day._at;
+      const cur = parseFloat(day.cardio) || 0; day.cardio = String(Math.max(0, Math.round(cur + delta))); if (day.cardio === "0") delete day.cardio; await saveDay(env, client, b.date, day).catch(() => {}); }
     return json({ ok: true, session: b.delete === true ? null : sess });
   }
 
