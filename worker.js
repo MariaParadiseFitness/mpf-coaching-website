@@ -736,6 +736,7 @@ async function handleApi(request, env, url, ctx) {
     const sess = {
       id: str(b.id, 20).replace(/[^a-z0-9]/gi, "") || Math.random().toString(36).slice(2, 10),
       date: b.date, programme: str(b.programme, 80), workout: str(b.workout, 80), notes: str(b.notes, 1500), at: new Date().toISOString(),
+      pre: (Array.isArray(b.pre) ? b.pre : []).slice(0, 10).map((x) => ({ n: str(x && x.n, 60), m: str(x && x.m, 6) })).filter((x) => x.n), post: (Array.isArray(b.post) ? b.post : []).slice(0, 10).map((x) => ({ n: str(x && x.n, 60), m: str(x && x.m, 6) })).filter((x) => x.n),
       exercises: (Array.isArray(b.exercises) ? b.exercises : []).slice(0, 40).map((e) => ({
         name: str(e.name, 80), ss: str(e.ss, 6), notes: str(e.notes, 600), ...(e.fin ? { fin: true } : {}),
         sets: (Array.isArray(e.sets) ? e.sets : []).slice(0, 24).map((x) => ({ kg: str(x.kg, 10), reps: str(x.reps, 10), done: !!x.done, ...(["w", "d", "m", "f"].includes(x.t) ? { t: x.t } : {}) })),
