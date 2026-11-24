@@ -361,7 +361,7 @@ html,body{overflow-x:hidden}
     drawTagF();drawTodo();
     $('sActive').textContent=act.length;
     $('sDone').textContent=act.filter(function(c){return c.check&&c.check.done}).length;
-    $('sWait').textContent=act.filter(function(c){return c.check&&(c.check.dueToday||c.check.late)}).length;
+    $('sWait').textContent=act.filter(function(c){return !ciOff(c)&&c.check&&(c.check.dueToday||c.check.late)}).length;
     $('sLog').textContent=act.filter(function(c){return c.lastLog===todayStr}).length;
     var list=pool.filter(function(c){return filter==='all'||(filter==='active'?c.active:!c.active)});
     $('groups').hidden=view!=='cards';$('tblView').hidden=view==='cards';if(view==='cards')drawGroups(list);
@@ -482,7 +482,7 @@ html,body{overflow-x:hidden}
       if(p.endsOn&&days(p.endsOn)<=0&&days(p.endsOn)>=-21)add('🔁 Renewals','end:'+c.id+':'+p.endsOn,c,f+'\'s plan ends '+MPFLog.nice(p.endsOn,{weekday:'short'}),'Talk to them about staying on');
       if(c.type==='pt'&&c.pt&&!c.pt.next&&c.pt.last&&days(c.pt.last)>=21)add('👀 Check on','nopt:'+c.id,c,'No PT for '+f+' in '+days(c.pt.last)+' days','Nothing booked. Offer a session or online coaching');
       else if(quiet(c))add('👀 Check on','quiet:'+c.id,c,f+' has gone quiet','No log or check-in for 3+ weeks');
-      else if(c.check&&c.check.late)add('👀 Check on','late:'+c.id,c,f+'\'s check-in is late','Due '+MPFLog.nice(c.check.due,{weekday:'short'}));
+      else if(!ciOff(c)&&c.check&&c.check.late)add('👀 Check on','late:'+c.id,c,f+'\'s check-in is late','Due '+MPFLog.nice(c.check.due,{weekday:'short'}));
       // milestones
       var sw=c.startWeight,lw=c.lastWeight,surplus=(c.tags||[]).indexOf('Surplus')>-1;
       if(sw&&lw&&sw.date!==lw.date){var ch=surplus?(lw.kg-sw.kg):(sw.kg-lw.kg);[3,5,10,15,20,25,30].forEach(function(n){if(ch>=n&&ch<n+(n<5?2:5))T.push({g:'🎉 Milestones',key:'ms:'+c.id+':kg'+n,c:c,txt:f+' has '+(surplus?'gained ':'lost ')+n+' kg+ 🎉','sub':(surplus?'+':'-')+ch.toFixed(1)+' kg since starting. Celebrate it, and ask for a review or before-and-after'})})}
@@ -578,7 +578,7 @@ html,body{overflow-x:hidden}
   // ---------- check-in queue ----------
   var CQ=null,cqTab='review';
   function loadQueue(){if(preview){CQ={clients:[],questions:[]};drawQueue();return}$('cqBody').innerHTML='<p class="mini">Loading check-ins…</p>';fetch('/portal/api/coach/checkin-queue',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){CQ=j;drawQueue()}).catch(function(){$('cqBody').innerHTML='<p class="mini">Could not load. Refresh to try again.</p>'})}
-  function cqState(c){var k=c.check||{},L=c.latest;if(L&&(k.done||(L.due>=MPFLog.fromT(MPFLog.toT(todayStr)-10*864e5)))){return (L.reply||L.reviewed)?'replied':'review'}if(k.dueToday)return 'today';if(k.late)return 'late';return 'upcoming'}
+  function cqState(c){var k=c.check||{},L=c.latest;if(L&&(k.done||(L.due>=MPFLog.fromT(MPFLog.toT(todayStr)-10*864e5)))){return (L.reply||L.reviewed)?'replied':'review'}if(ciOff(c)&&(k.dueToday||k.late))return 'upcoming';if(k.dueToday)return 'today';if(k.late)return 'late';return 'upcoming'}
   function num(v){var x=parseFloat(v);return isNaN(x)?null:x}
   function chip(lbl,cur,prev,unit,good){var d=cur!=null&&prev!=null?cur-prev:null,cls=d==null||Math.abs(d)<1e-9?'':((good==='down'?d<0:d>0)?'up':'dn');return '<div class="chip">'+lbl+'<b>'+(cur!=null?(Math.round(cur*10)/10)+(unit||''):'–')+'</b>'+(d!=null?'<span class="'+cls+'">'+(d>0?'+':'')+(Math.round(d*10)/10)+(unit||'')+' vs last week</span>':'')+'</div>'}
   function sentAt(t){if(!t)return '';var d=new Date(t);if(isNaN(d))return '';return d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})+', '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}
@@ -744,6 +744,7 @@ html,body{overflow-x:hidden}
   if(!preview)fetch('/portal/api/coach/todos',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){TD=j;if(clients.length)drawTodo()}).catch(function(){});
   // ---------- grouped client cards ----------
   function pkLeft(c){var k=c.pkg;return k&&k.size?Math.max(0,k.size-k.used):null}
+  function ciOff(c){return c.type==='pt'&&!(c.pt&&c.pt.next)}
   function noBook(c){return c.type==='pt'&&c.active&&!lapsed(c)&&c.pt&&!c.pt.next}
   function fup(c){if(c.type!=='pt'||!c.active||lapsed(c))return [];var a=[],L=pkLeft(c);
     if(L!==null&&L<=2)a.push({k:'pkg',t:L===0?'Package used up':L+' session'+(L===1?'':'s')+' left'});
@@ -755,7 +756,7 @@ html,body{overflow-x:hidden}
   function card(c){var w=whyNeeds(c);return '<div class="cc" data-id="'+esc(c.id)+'"><div class="av"'+(preview?'':' style="background-image:url(/portal/api/coach/avatar?id='+encodeURIComponent(c.id)+')"')+'>'+esc((c.name||'?')[0])+'</div><div class="in"><b>'+esc(c.name)+'</b> <span class="mini">'+(c.type==='pt'?'🏋️':'💻')+' wk '+c.week+'</span><div class="st">'+esc(statusLine(c))+'</div>'+(w.length?'<div class="why">'+esc(w.slice(0,2).join(' · '))+(w.length>2?' +'+(w.length-2):'')+'</div>':'')+((c.tags||[]).length?'<div>'+c.tags.map(function(t){return '<span class="tchip">'+esc(t)+'</span>'}).join('')+'</div>':'')+'</div></div>'}
   var boardCol='pt';
   function rank(c){return !c.active?4:lapsed(c)?3:whyNeeds(c).length?0:(c.check&&c.check.dueToday||(c.pt&&c.pt.next&&days(c.pt.next)>=-2))?1:2}
-  function icons(c){var p=c.payment||{},I=[];if(c.needsReply)I.push(['💬','Reply to check-in']);if(c.form===true&&!c.planReady)I.push(['📝','Build plan']);if(c.form===false)I.push(['🆕','No onboarding form yet']);if(p.status==='failed')I.push(['💳','Payment failed']);if(c.cancelReq)I.push(['🛑','Asked to cancel']);if(c.check&&c.check.late)I.push(['⏰','Check-in late']);if(!lapsed(c)&&quiet(c))I.push(['💤','Quiet 3+ weeks']);fup(c).forEach(function(f){I.push([f.k==='pkg'?'📦':'📅',f.t])});return I}
+  function icons(c){var p=c.payment||{},I=[];if(c.needsReply)I.push(['💬','Reply to check-in']);if(c.form===true&&!c.planReady)I.push(['📝','Build plan']);if(c.form===false)I.push(['🆕','No onboarding form yet']);if(p.status==='failed')I.push(['💳','Payment failed']);if(c.cancelReq)I.push(['🛑','Asked to cancel']);if(!ciOff(c)&&c.check&&c.check.late)I.push(['⏰','Check-in late']);if(!lapsed(c)&&quiet(c))I.push(['💤','Quiet 3+ weeks']);fup(c).forEach(function(f){I.push([f.k==='pkg'?'📦':'📅',f.t])});return I}
   function waNum(c){var p=String(c.phone||'').replace(/[^0-9]/g,'');return p?p.replace(/^0/,'44'):''}
   function tplText(n,c){var f=(c.name||'').split(' ')[0],t=(tpls().filter(function(x){return x.name===n})[0]||{}).text;return String(t||n).replace(/\{name\}/g,f)}
   var FORMTXT='Hi {name}! 😊 Just a reminder to fill in your onboarding form in your portal (mpfcoaching.co.uk/portal) so I can get your plan ready for you x',QUIETTXT='Hi {name}, just checking in! How are you getting on? x';
