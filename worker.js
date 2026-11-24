@@ -627,7 +627,9 @@ async function handleApi(request, env, url, ctx) {
   if (path === "/portal/api/prefs") {
     if (!client) return json({ error: "unknown" }, 403);
     const key = `${dkey(client.id)}/prefs.json`, cur = await getJSON(env, key, { reminders: true });
-    if (request.method === "POST") { const b = await request.json().catch(() => ({})); if ("reminders" in b) cur.reminders = !!b.reminders; await putJSON(env, key, cur); }
+    if (request.method === "POST") { const b = await request.json().catch(() => ({})); if ("reminders" in b) cur.reminders = !!b.reminders;
+      if (b.food && typeof b.food === "object") { const f = b.food, s = (v, n) => String(v || "").slice(0, n); cur.food = { style: s(f.style, 20), diet: s(f.diet, 10), meals: s(f.meals, 2), ban: (Array.isArray(f.ban) ? f.ban : []).map((x) => s(x, 12)).slice(0, 10), dislike: s(f.dislike, 300), love: s(f.love, 300), at: new Date().toISOString() }; }
+      await putJSON(env, key, cur); }
     return json(cur);
   }
   if (path === "/portal/api/delete-request" && request.method === "POST") {

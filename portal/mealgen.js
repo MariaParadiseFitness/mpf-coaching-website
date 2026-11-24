@@ -142,7 +142,7 @@
   function generate(o){ // tries many meal combinations and keeps the one that lands closest to the targets
     var best=null,bestE=1e9;
     for(var i=0;i<40;i++){var p=generateOnce(o);if(!p)continue;var s=[0,0,0,0];p.days[0].meals.forEach(function(m){m.foods.forEach(function(f){s[0]+=+f.kcal;s[1]+=+f.p;s[2]+=+f.c;s[3]+=+f.f})});
-      var t=p._t,e=Math.abs(s[0]-t[0])/t[0]+Math.abs(s[1]-t[1])/t[1]*1.5+Math.abs(s[2]-t[2])/t[2]+Math.abs(s[3]-t[3])/t[3];if(e<bestE){bestE=e;best=p}}
+      var t=p._t,e=Math.abs(s[0]-t[0])/t[0]+Math.abs(s[1]-t[1])/t[1]*1.5+Math.abs(s[2]-t[2])/t[2]+Math.abs(s[3]-t[3])/t[3];var lv=(o.love||[]).map(function(w){return String(w).trim().toLowerCase()}).filter(function(w){return w.length>2});if(lv.length){var txt=JSON.stringify(p.days[0].meals).toLowerCase();lv.forEach(function(w){if(txt.indexOf(w)>-1)e-=0.04})}if(e<bestE){bestE=e;best=p}}
     if(best)delete best._t;return best}
   function generateOnce(o){ // o: {targets, style, diet, ban[], dislike[], meals}
     var t=o.targets,cals=+t.cals||0;if(!cals)return null;
@@ -172,16 +172,21 @@
     function form(){
       var ck=function(v,l){return '<label class="mg-ck"><input type="checkbox" name="ban" value="'+v+'"> '+l+'</label>'};
       body.innerHTML='<div class="pg-note mg-form">'+
+        '<div class="mg-pref">📝 <b>Update your food preferences first.</b> Pick your food style, your diet, anything you don\'t eat and the foods you love, so your plan is built around you. They\'re saved for next time.</div>'+
         '<p>Pick what you like to eat and I\'ll build a day of food that hits your targets: <b>'+esc(targets.cals)+' kcal</b>'+(targets.protein?' · '+esc(targets.protein)+'g protein · '+esc(targets.carbs)+'g carbs · '+esc(targets.fat)+'g fat':'')+'.</p>'+
         '<label>Food style<select name="style"><option value="standard">Everyday British</option><option value="indian">Indian</option><option value="mediterranean">Mediterranean</option><option value="turkish">Turkish</option><option value="bulgarian">Bulgarian</option></select></label>'+
         '<label>Diet<select name="diet"><option value="all">I eat everything</option><option value="nobp">No beef or pork</option><option value="pesc">Pescatarian (fish, no meat)</option><option value="veg">Vegetarian</option><option value="vegan">Vegan</option></select></label>'+
         '<label>Meals a day<select name="meals"><option>3</option><option selected>4</option><option>5</option></select></label>'+
         '<div class="mg-cks"><small>I don\'t eat</small>'+ck('beef','Beef')+ck('pork','Pork')+ck('fish','Fish')+ck('dairy','Dairy')+ck('egg','Eggs')+ck('gluten','Gluten')+ck('nuts','Nuts')+'</div>'+
         '<label>Anything else you don\'t like? (optional)<input name="dislike" placeholder="e.g. salmon, tofu"></label>'+
+        '<label>Foods you love (optional)<input name="love" placeholder="e.g. chicken, rice, eggs, chapati"></label>'+
         '<div class="mg-act"><button type="button" class="btn" data-g="go">Generate</button><button type="button" class="btn g" data-g="close">Cancel</button></div></div><div class="mg-out"></div>';
     }
     function opts(){var g=function(n){return body.querySelector('[name='+n+']').value};
-      return {targets:targets,style:g('style'),diet:g('diet'),meals:g('meals'),ban:[].map.call(body.querySelectorAll('[name=ban]:checked'),function(x){return x.value}),dislike:g('dislike').split(',')}}
+      var r={targets:targets,style:g('style'),diet:g('diet'),meals:g('meals'),ban:[].map.call(body.querySelectorAll('[name=ban]:checked'),function(x){return x.value}),dislike:g('dislike').split(','),love:g('love').split(',')};
+      var fp={style:r.style,diet:r.diet,meals:r.meals,ban:r.ban,dislike:g('dislike'),love:g('love')};if(!o.demo&&JSON.stringify(fp)!==JSON.stringify(saved))fetch('/portal/api/prefs',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({food:fp})}).then(function(){saved=fp}).catch(function(){});return r}
+    var saved=null;function prefill(){if(!saved)return;var set=function(n,v){var x=body.querySelector('[name='+n+']');if(x&&v!=null&&v!=='')x.value=v};set('style',saved.style);set('diet',saved.diet);set('meals',saved.meals);set('dislike',saved.dislike);set('love',saved.love);[].forEach.call(body.querySelectorAll('[name=ban]'),function(x){x.checked=(saved.ban||[]).indexOf(x.value)>-1});var p=body.querySelector('.mg-pref');if(p&&saved.at)p.innerHTML='📝 <b>Your saved food preferences are filled in.</b> Change anything that\'s different now, then tap Generate.'}
+    if(!o.demo)fetch('/portal/api/prefs',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(p){if(p&&p.food){saved={style:p.food.style,diet:p.food.diet,meals:p.food.meals,ban:p.food.ban||[],dislike:p.food.dislike||'',love:p.food.love||'',at:p.food.at};prefill()}}).catch(function(){});
     function show(p){
       var out=body.querySelector('.mg-out'),d=p.days[0],t={k:0,p:0,c:0,f:0};
       d.meals.forEach(function(m){m.foods.forEach(function(f){t.k+=+f.kcal;t.p+=+f.p;t.c+=+f.c;t.f+=+f.f})});
@@ -190,7 +195,7 @@
         '<div class="mg-act"><button type="button" class="btn" data-g="save">Save to my meal plans</button><button type="button" class="btn g" data-g="go">Try another</button></div><p class="lg-msg"></p>';
     }
     el.addEventListener('click',function(e){var b=e.target.closest('[data-g]');if(!b)return;var a=b.getAttribute('data-g');
-      if(a==='open'){body.innerHTML='<p style="color:var(--mute)">Loading your targets…</p>';getT().then(function(t){if(!t||!+t.cals){body.innerHTML='<div class="pg-note">Your coach hasn\'t set your calories and macros yet. Once they have, you can generate a plan here.</div>';return}targets=t;form()}).catch(function(){body.innerHTML='<div class="pg-note">Couldn\'t load your targets. Try again.</div>'})}
+      if(a==='open'){body.innerHTML='<p style="color:var(--mute)">Loading your targets…</p>';getT().then(function(t){if(!t||!+t.cals){body.innerHTML='<div class="pg-note">Your coach hasn\'t set your calories and macros yet. Once they have, you can generate a plan here.</div>';return}targets=t;form();prefill()}).catch(function(){body.innerHTML='<div class="pg-note">Couldn\'t load your targets. Try again.</div>'})}
       if(a==='close'){body.innerHTML=''}
       if(a==='go'){last=generate(opts());if(!last){body.querySelector('.mg-out').innerHTML='<div class="pg-note">Those choices rule out too many foods. Untick something and try again.</div>';return}show(last)}
       if(a==='save'&&last){var m=body.querySelector('.lg-msg');b.disabled=true;m.textContent='Saving…';
