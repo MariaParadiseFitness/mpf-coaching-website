@@ -104,6 +104,8 @@ table.pe td.act{white-space:nowrap}
 .pe-mini button.del,table.pe td.act button.del{color:#ef8f85}
 .pg-list small{display:block;font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:700}
 .pg-list .pg-tabs{margin-top:6px}
+.pg-list .pg-tabs button.on{background:#0e0e0e;color:#fff;border-color:var(--gold,#c9a64b)}
+.pg-list .pg-tabs button.cur{background:var(--grad);color:#111;border-color:transparent}
 .pg-top .pill{vertical-align:middle;margin-left:6px;font-family:var(--sans)}
 table.lt th:first-child,table.lt td:first-child{position:sticky;left:0;z-index:1;background:#151410}
 table.lt th:first-child{background:#1d1b15;z-index:2}
