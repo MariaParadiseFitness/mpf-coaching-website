@@ -398,7 +398,10 @@
           .catch(function(){b.disabled=false;m.textContent='Not saved. Try again.'})}
     });
   }
-  window.MPFMealGen={generate:function(o){var p=generate(o);return p?strip(p):p},generateRaw:generate,swapMeal:swapMeal,swapFood:swapFood,strip:strip,howForFoods:howForFoods,Panel:Panel};
+  function conflicts(plan,food){food=food||{};var ban=(DIETS[food.diet]||'').split(' ').concat(food.ban||[]).filter(Boolean),dis=String(food.dislike||'').split(',').map(function(w){return w.trim().toLowerCase()}).filter(function(w){return w.length>1}),bad=[];
+    ((plan&&plan.days)||[]).forEach(function(d){(d.meals||[]).forEach(function(m){var mn=String(m.notes||'').split('\n')[0];if(ban.indexOf('egg')>-1&&EGGN.test(mn)&&bad.indexOf(mn)<0)bad.push(mn);if(ban.indexOf('dairy')>-1&&DAIRYN.test(mn)&&bad.indexOf(mn)<0)bad.push(mn);
+      (m.foods||[]).forEach(function(f){var nm=String(f.food||''),k=Object.keys(F).filter(function(x){return F[x][0]===nm})[0],hit=k?blocked(k,ban,dis):dis.some(function(w){return nm.toLowerCase().indexOf(w)>=0});if(hit&&bad.indexOf(nm)<0)bad.push(nm)})})});return bad}
+  window.MPFMealGen={generate:function(o){var p=generate(o);return p?strip(p):p},conflicts:conflicts,generateRaw:generate,swapMeal:swapMeal,swapFood:swapFood,strip:strip,howForFoods:howForFoods,Panel:Panel};
 
   /* ---------- "My goal and maintenance" card ---------- */
   function Body(el,o){
