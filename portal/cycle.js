@@ -20,31 +20,38 @@
 
 
   var G={
+    hormones:{i:'mood-crazy-happy',t:'Your hormones are talking (know yourself)',b:[
+      ['Let\'s be honest','Ever cried at an advert, rage-cleaned the whole kitchen and eaten half the snack cupboard, all before 8pm? Welcome to being a woman with hormones. 😂 We can be so irrational sometimes, and it\'s not because we\'re crazy. It\'s because our hormones are talking, loudly, and it\'s hard to make sense of it in the moment.'],
+      ['Why knowing your cycle is a superpower','When you know where you are in your cycle, you can go "ahh, that\'s why I feel like this" instead of "what is wrong with me". It doesn\'t make the feelings go away, but it takes the panic and the guilt out of it. That\'s why tracking it here is so useful.'],
+      ['My mum\'s best advice','My mum always said: never make a big decision when you\'re on your period or just before it. Honestly, best advice ever. Don\'t quit the job, dump the boyfriend, cut your own fringe or decide your diet "isn\'t working" that week. Write it down, wait a week, then see if you still feel the same.'],
+      ['What it looks like in real life','Week before your period: more emotional, more irritable, hungrier, puffier, and everything feels harder. After your period: energy\'s back, mood\'s up, you feel like you can take on the world. Same woman, different hormones.'],
+      ['Use it to your advantage','Plan your big sessions and PB attempts for your strong weeks. Plan cosy, easier days and a bit more food for the tough week. Tell the people around you what you need. And be a bit kinder to yourself when your hormones are running the show.'],
+      ['The bottom line','You\'re not irrational. You\'re hormonal, and that\'s a completely different thing. Know yourself, plan for it, and you\'ll make so much better decisions. 🖤']]},
     training:{i:'barbell',t:'Training around your cycle',b:[
-      ['The short version','Your cycle can change how you feel in the gym, but it doesn\'t stop you making progress. You don\'t need a totally different programme every week. You just need to listen to your body and adjust the effort, not abandon the plan.'],
-      ['Period (days 1 to 5ish)','Train how you feel. Lots of women feel surprisingly strong from day 2 or 3. If day 1 is grim, go lighter, drop a set or swap to a walk and some stretching. Moving usually helps cramps more than lying on the sofa.'],
-      ['Follicular (after your period, up to ovulation)','This is your power week. Energy, mood and recovery are usually at their best. Push for PBs, add weight, and make the most of it.'],
-      ['Ovulation (mid-cycle)','Strength can peak around now. Go for it, but warm up properly and keep your form tight.'],
-      ['Luteal (after ovulation, up to your period)','Things can feel heavier and harder, especially in the last week. That\'s hormones, not you getting weaker. Keep your weights, focus on form, leave a rep or two more in the tank if you need to, and don\'t judge yourself on these sessions.'],
-      ['The golden rule','Consistency beats perfection. A "meh" session in your luteal phase still counts. Log it, move on, smash the next one.']]},
+      ['The short version','Your cycle changes how you feel in the gym, but it doesn\'t stop you making progress. You don\'t need a brand new programme every week. Adjust the effort, don\'t abandon the plan.'],
+      ['Your period (days 1 to 5ish)','Train how you feel. Lots of women feel bloody strong from day 2 or 3. If day 1 is grim, go lighter, drop a set or swap to a walk and a stretch. Moving usually helps cramps way more than lying on the sofa feeling sorry for yourself (been there).'],
+      ['After your period (follicular)','This is your power week. Energy\'s high, push for a PB! Recovery is at its best, so add weight and make the most of it.'],
+      ['Ovulation (mid-cycle)','Strength often peaks around now, so go for it. Warm up properly and keep your form tight.'],
+      ['The week before your period (luteal)','Everything feels heavier and harder. That\'s hormones, not you getting weaker. Keep your weights, focus on form, leave a rep or two more in the tank and don\'t judge yourself on these sessions.'],
+      ['The golden rule','Consistency beats perfection. A "meh" session in your luteal week still counts. Log it, move on, smash the next one. 💪']]},
     eating:{i:'apple',t:'Eating around your cycle',b:[
-      ['Why you\'re hungrier before your period','In the week or so before your period, your body burns a little more energy and hormones can crank up your appetite and cravings. It\'s not a lack of willpower. It\'s biology.'],
-      ['What to do about it','Plan for it instead of fighting it. In your luteal week you can move 100 to 200 kcal into carbs, keep your protein high (it keeps you fuller), eat plenty of veg and fibre, and drink your water. Fit a treat in on purpose so it doesn\'t turn into a free-for-all.'],
+      ['Why you\'re starving before your period','In the week or so before your period, your body burns a bit more energy and your hormones crank up your appetite and cravings. It\'s not a lack of willpower. It\'s biology.'],
+      ['What to do about it','Hunger is higher this week. That\'s normal. Add 100 to 200 calories of carbs and don\'t feel guilty about it. Keep your protein high (it keeps you fuller), eat loads of veg, drink your water and plan a treat in, so it doesn\'t turn into a free-for-all.'],
       ['During your period','Iron matters, especially if your periods are heavy. Red meat, eggs, spinach, lentils, beans and fortified cereals all help. Pair plant iron with vitamin C (peppers, berries, citrus).'],
-      ['Why the scale jumps','Before and during your period you can hold 1 to 2kg of extra water. It\'s not fat, and it drops off again once your period gets going. That\'s exactly why we watch your weekly trend line, not one weigh-in.'],
-      ['Check-in tip','If your check-in lands right before your period, tell me in your check-in. I\'ll know not to panic about the scale, and neither should you.']]},
+      ['Why the scale freaks out','Before and during your period you can hold 1 to 2kg of extra water. It\'s not fat, and it drops off once your period gets going. This is exactly why we watch your weekly trend line, not one random weigh-in.'],
+      ['Check-in tip','If your check-in lands right before your period, tell me. I\'ll know not to panic about the scale, and neither should you.']]},
     cravings:{i:'cookie',t:'Hormonal eating and cravings',b:[
-      ['First things first','Cravings before your period are normal. You\'re not broken, and you don\'t need to "start again on Monday".'],
-      ['Why they happen','Changing hormones affect your appetite, your mood and the bits of your brain that like sugar and salt. Being tired or stressed makes it louder.'],
-      ['What actually helps','Eat regular meals with protein in each one. Don\'t save all your calories for later. Plan a treat that fits your day (yes, chocolate fits). Get your sleep and steps in. If you want something sweet, have a proper portion, sit down and enjoy it, then carry on with your day.'],
+      ['First things first','Cravings before your period are normal. You\'re not broken, and you do NOT need to "start again on Monday".'],
+      ['Why they happen','Your hormones mess with your appetite, your mood and the bit of your brain that wants chocolate, crisps and everything beige. Being tired or stressed turns the volume up.'],
+      ['What actually helps','Eat regular meals with protein in every one. Don\'t save all your calories for later. Plan a treat that fits your day (yes, chocolate fits). Get your sleep and steps in. If you want something sweet, have a proper portion, sit down, enjoy it, and carry on with your day.'],
       ['If you go over','One higher day doesn\'t undo a week. Log it honestly, drink your water and get back to your next normal meal. No skipping meals, no punishment cardio. Adjust the plan, don\'t abandon the plan.'],
       ['Talk to me','If cravings feel out of control every single month, tell me. We can tweak your calories and macros for that week.']]},
     binge:{i:'heart-handshake',t:'Binge eating: you\'re not broken',b:[
-      ['You\'re not alone','Lots of people feel out of control around food at times, especially after a long stretch of strict dieting. It\'s nothing to be ashamed of, and it can get better.'],
-      ['Why it happens','Binges often follow restriction: skipping meals, cutting out foods you love, or "being good" all week. Tiredness, stress and strong emotions play a big part too. Your body and brain push back when they feel deprived.'],
-      ['What helps','Eat regularly: three meals and a snack or two, so you never get to starving. Don\'t ban foods. Planned treats take away the "last chance" feeling. Notice what tends to come before a binge (stress, boredom, a bad day) and have a plan for those moments, like a walk, a call with a friend or a bath.'],
+      ['You\'re not alone','So many people feel out of control around food at times, especially after a long stretch of strict dieting. I\'ve seen it, I\'ve coached it, and it\'s nothing to be ashamed of. It can get better.'],
+      ['Why it happens','Binges often follow restriction: skipping meals, cutting out foods you love, or "being good" all week. Tiredness, stress and big emotions play a huge part too. Your body and brain push back when they feel deprived.'],
+      ['What helps','Eat regularly: three meals and a snack or two, so you never get to starving. Don\'t ban foods. Planned treats take away that "last chance" feeling. Notice what tends to come before a binge (stress, boredom, a crap day) and have a plan for those moments, like a walk, a call with a friend or a bath.'],
       ['After a binge','Be kind to yourself. Don\'t skip your next meal, don\'t do extra cardio to "burn it off" and don\'t start a strict diet the next day. Have your next normal meal at the normal time. That\'s how you break the cycle.'],
-      ['When to get support','If binges happen often, feel out of your control, or leave you feeling very low or guilty, please talk to your GP. You can also contact Beat, the UK eating disorder charity, at beateatingdisorders.org.uk or on 0808 801 0677. You deserve proper support, and I\'ll back you all the way. Message me any time.']]}
+      ['When to get support','If binges happen often, feel out of your control, or leave you feeling really low or guilty, please talk to your GP. You can also contact Beat, the UK eating disorder charity, at beateatingdisorders.org.uk or on 0808 801 0677. You deserve proper support, and I\'ll back you all the way. Message me any time.']]}
   };
 
   function Mount(el,o){
@@ -93,7 +100,8 @@
       h+='<div class="cy-card" id="cyCal">'+cal(st)+(sel?dayInfo(sel):'')+'</div>';
       h+='<div class="cy-card"><div class="cy-k">How are you today?</div><div class="cy-chips">'+SYM.map(function(s){return '<button type="button" data-s="'+s[0]+'" class="'+(sy.indexOf(s[0])>-1?'on':'')+'">'+s[1]+'</button>'}).join('')+'</div>'+
         (x.period==='Yes'?'<div class="cy-k" style="margin-top:12px">Flow</div><div class="cy-chips">'+FLOW.map(function(f){return '<button type="button" data-f="'+f[0]+'" class="'+(x.flow===f[0]?'on':'')+'">'+f[1]+'</button>'}).join('')+'</div>':'')+
-        '<p class="lg-msg" id="cyMsg"></p>'+patterns(st)+(st.none?'':'<p class="cy-note">Average cycle '+st.cl+' days'+(st.lens.length?' (from your last '+Math.min(6,st.lens.length)+')':' (log a few periods and this gets more accurate)')+'. Predictions are estimates, so don\'t rely on them for contraception.</p>')+'</div>';
+        '<p class="lg-msg" id="cyMsg"></p>'+patterns(st)+(st.none?'':'<p class="cy-note">Average cycle '+st.cl+' days'+(st.lens.length?' (from your last '+Math.min(6,st.lens.length)+')':' (log a few periods and this gets more accurate)')+'. Predictions are estimates, so don\'t rely on them for contraception. Not medical advice: if anything feels off, speak to your GP.</p>')+'</div>';
+      h+='<button type="button" class="cy-off" data-off="1">No periods anymore (menopause or another reason)? Turn period tracking off</button>';
       h+='<div class="cy-k" style="margin:4px 2px 8px">Guides for you</div><div class="cy-guides">'+Object.keys(G).map(function(k){return '<button type="button" data-g="'+k+'"><span><i class="ti ti-'+G[k].i+'"></i></span><b>'+G[k].t+'</b><em>›</em></button>'}).join('')+'</div>';
       el.innerHTML=h;bind()}
     function save(patch,msg){var m=el.querySelector('#cyMsg');if(o.demo){days[today]=Object.assign({},days[today]||{},patch);draw();return}
@@ -106,9 +114,10 @@
       [].forEach.call(el.querySelectorAll('[data-s]'),function(b){b.onclick=function(){var k=b.getAttribute('data-s'),cur=String((days[today]||{}).sym||'').split(',').filter(Boolean),i=cur.indexOf(k);if(i>-1)cur.splice(i,1);else cur.push(k);save({sym:cur.join(',')})}});
       [].forEach.call(el.querySelectorAll('[data-f]'),function(b){b.onclick=function(){save({flow:b.getAttribute('data-f'),period:'Yes'})}});
       [].forEach.call(el.querySelectorAll('[data-start]'),function(b){b.onclick=function(){save({period:'Yes'},'Logged ✓ Day 1. Your predictions have updated.')}});
+      [].forEach.call(el.querySelectorAll('[data-off]'),function(b){b.onclick=function(){if(!confirm('Turn off period tracking? The period question and My cycle will be hidden. You can turn it back on in About me.'))return;if(window.__setNoPeriod)window.__setNoPeriod(true,true)}});
       [].forEach.call(el.querySelectorAll('[data-g]'),function(b){b.onclick=function(){guide(b.getAttribute('data-g'))}})}
     function guide(k){var g=G[k],m=document.createElement('div');m.className='cy-modal';
-      m.innerHTML='<div class="cy-sheet" role="dialog" aria-modal="true"><button type="button" class="cy-x" aria-label="Close">✕</button><div class="cy-gi"><i class="ti ti-'+g.i+'"></i></div><h3>'+esc(g.t)+'</h3>'+g.b.map(function(s){return '<h4>'+esc(s[0])+'</h4><p>'+esc(s[1])+'</p>'}).join('')+'<p class="cy-sig">Maria x</p></div>';
+      m.innerHTML='<div class="cy-sheet" role="dialog" aria-modal="true"><button type="button" class="cy-x" aria-label="Close">✕</button><div class="cy-gi"><i class="ti ti-'+g.i+'"></i></div><h3>'+esc(g.t)+'</h3>'+g.b.map(function(s){return '<h4>'+esc(s[0])+'</h4><p>'+esc(s[1])+'</p>'}).join('')+'<p class="cy-sig">Maria x</p><p class="cy-note">This guide is general information, not medical advice. If your periods are very painful, very heavy, irregular, or you\'re worried about anything, please speak to your GP.</p></div>';
       document.body.appendChild(m);document.body.style.overflow='hidden';var close=function(){m.remove();document.body.style.overflow=''};m.onclick=function(e){if(e.target===m||e.target.closest('.cy-x'))close()}}
     window.addEventListener('mpf-workout-saved',function(){if(!o.demo)setTimeout(load,700)});
     load();return {refresh:load}}
