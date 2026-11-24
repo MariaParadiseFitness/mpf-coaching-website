@@ -63,7 +63,7 @@
       if(f.t==='pick')return '<div class="lg-f lg-wide" data-k="'+f.k+'"'+(f.if?' data-if="'+f.if+'"':'')+'>'+lab.replace('<label for="'+id+'"','<label')+'<div class="lg-yn lg-pick" data-k="'+f.k+'">'+f.o.map(function(x){return '<button type="button" data-v="'+esc(x)+'">'+esc(x)+'</button>'}).join('')+'</div></div>';
       if(f.t==='area')return '<div class="lg-f lg-wide">'+lab+'<textarea id="'+id+'" name="'+f.k+'" rows="3" placeholder="'+esc(f.ph||'')+'"></textarea></div>';
       var type=f.t==='time'?'time':'text',im=f.t==='num'?' inputmode="decimal"':'';
-      return '<div class="lg-f"'+(f.if?' data-if="'+f.if+'"':'')+'>'+lab+'<input id="'+id+'" name="'+f.k+'" type="'+type+'"'+im+(f.dl?' list="'+id+'-dl"':'')+' placeholder="'+esc(f.ph||'')+'">'+(f.dl?'<datalist id="'+id+'-dl">'+f.dl.map(function(x){return '<option value="'+esc(x)+'">'}).join('')+'</datalist>':'')+(f.h?'<small>'+esc(f.h)+'</small>':'')+'<small class="tg" data-tk="'+f.k+'" hidden></small></div>';
+      return '<div class="lg-f"'+(f.if?' data-if="'+f.if+'"':'')+'>'+lab+'<input id="'+id+'" name="'+f.k+'" type="'+type+'"'+im+(f.dl?' data-dl="'+f.k+'" autocomplete="off"':'')+' placeholder="'+esc(f.ph||'')+'">'+(f.dl?'<div class="lg-sug" hidden></div>':'')+(f.h?'<small>'+esc(f.h)+'</small>':'')+'<small class="tg" data-tk="'+f.k+'" hidden></small></div>';
     }
     var keep=function(f){return !f.sex||f.sex===o.sex};
     form.innerHTML=GROUPS.map(function(g){return '<fieldset><legend>'+g.i+' '+esc(g.g)+'</legend><div class="lg-grid">'+g.f.filter(keep).map(field).join('')+'</div></fieldset>'}).join('');
@@ -71,6 +71,12 @@
     function setPick(k,v){vals[k]=v;[].forEach.call(form.querySelectorAll('[data-k="'+k+'"] button'),function(b){b.classList.toggle('on',b.getAttribute('data-v')===String(v))});showIf()}
     function cycleNote(){var n=form.querySelector('[data-k="period"]');if(!n)return;var c=cycleDay(days,cur,vals.period);var sm=n.querySelector('small')||n.appendChild(document.createElement('small'));sm.textContent=c?'Cycle day '+c:'Tap Yes on day 1 of your period and your cycle day counts automatically.'}
     function showIf(){cycleNote();[].forEach.call(form.querySelectorAll('[data-if]'),function(n){n.hidden=vals[n.getAttribute('data-if')]!=='Yes'})}
+    [].forEach.call(form.querySelectorAll('input[data-dl]'),function(inp){var L=LABEL[inp.getAttribute('data-dl')].dl,box=inp.parentNode.querySelector('.lg-sug');
+      var show=function(){var q=inp.value.trim().toLowerCase();if(!q){box.hidden=true;return}var m=L.filter(function(x){return x.toLowerCase().indexOf(q)===0}).concat(L.filter(function(x){var l=x.toLowerCase();return l.indexOf(q)>0})).filter(function(x){return x.toLowerCase()!==q}).slice(0,6);
+        box.innerHTML=m.map(function(x){return '<button type="button">'+esc(x)+'</button>'}).join('');box.hidden=!m.length};
+      inp.addEventListener('input',show);inp.addEventListener('focus',show);inp.addEventListener('blur',function(){setTimeout(function(){box.hidden=true},150)});
+      box.addEventListener('mousedown',function(e){e.preventDefault()});
+      box.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;inp.value=b.textContent;vals[inp.name]=inp.value;box.hidden=true;inp.dispatchEvent(new Event('input',{bubbles:true}));box.hidden=true;touch()})});
     [].forEach.call(form.querySelectorAll('.lg-scale button,.lg-yn button'),function(b){b.onclick=function(){var k=b.parentNode.getAttribute('data-k'),v=b.getAttribute('data-v');setPick(k,vals[k]===v?'':v);touch()}});
     form.addEventListener('input',function(e){if(e.target.name){vals[e.target.name]=e.target.value;touch();if(/^(carbs|protein|fat)$/.test(e.target.name))calHint();bars()}});
     function calHint(){var c=form.querySelector('[name=cals]');if(c&&!c.value){var k=kcal({carbs:vals.carbs,protein:vals.protein,fat:vals.fat});c.placeholder=k?Math.round(k)+' from macros':'Auto from macros'}}

@@ -534,3 +534,7 @@ i.ti.emo.ico-red{color:#f07b6e}i.ti.emo.ico-amb{color:#e8a34a}
 .pv-ch{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}.pv-ch em{font-style:normal;font-size:11px;color:#d8ccb0;background:rgba(255,255,255,.05);border-radius:6px;padding:2px 6px}
 .pv-sr{flex:0 0 auto;font-weight:700;font-size:15px;color:#E8C872;white-space:nowrap;margin-top:1px}
 .lg-pick{display:flex;flex-wrap:wrap;gap:6px}.lg-pick button{padding:8px 12px;flex:0 0 auto}
+.lg-f:has(.lg-sug){position:relative}
+.lg-sug{position:absolute;left:0;right:0;z-index:20;margin-top:4px;background:#151410;border:1px solid var(--gold);border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.6);overflow:hidden}
+.lg-sug button{display:block;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid rgba(201,166,75,.15);color:#fff;font:inherit;font-size:15px;padding:11px 12px;cursor:pointer}
+.lg-sug button:last-child{border-bottom:0}.lg-sug button:hover,.lg-sug button:active{background:rgba(201,166,75,.14)}
