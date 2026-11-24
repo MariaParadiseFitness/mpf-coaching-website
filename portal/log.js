@@ -51,7 +51,7 @@
   function Today(el,o){
     o=o||{};var demo=!!o.demo,today=o.today||londonToday(),cur=today,days={},dirty=false;
     el.innerHTML='<div class="lg-nav"><button type="button" class="lg-arr" data-d="-1" aria-label="Previous day">‹</button><div class="lg-date"><b></b><small></small></div><button type="button" class="lg-arr" data-d="1" aria-label="Next day">›</button></div>'+
-      '<div class="lg-strip"></div><form class="lg-form" autocomplete="off"></form>'+
+      '<div class="lg-strip"></div><div class="lg-bars" hidden></div><form class="lg-form" autocomplete="off"></form>'+
       '<div class="lg-save"><span class="lg-msg"></span><button class="btn" type="button">Save</button></div>';
     var form=el.querySelector('form'),msg=el.querySelector('.lg-msg'),saveBtn=el.querySelector('.lg-save .btn');
     function field(f){
@@ -69,13 +69,13 @@
     function cycleNote(){var n=form.querySelector('[data-k="period"]');if(!n)return;var c=cycleDay(days,cur,vals.period);var sm=n.querySelector('small')||n.appendChild(document.createElement('small'));sm.textContent=c?'Cycle day '+c:'Tap Yes on day 1 of your period and your cycle day counts automatically.'}
     function showIf(){cycleNote();[].forEach.call(form.querySelectorAll('[data-if]'),function(n){n.hidden=vals[n.getAttribute('data-if')]!=='Yes'})}
     [].forEach.call(form.querySelectorAll('.lg-scale button,.lg-yn button'),function(b){b.onclick=function(){var k=b.parentNode.getAttribute('data-k'),v=b.getAttribute('data-v');setPick(k,vals[k]===v?'':v);touch()}});
-    form.addEventListener('input',function(e){if(e.target.name){vals[e.target.name]=e.target.value;touch();if(/^(carbs|protein|fat)$/.test(e.target.name))calHint()}});
+    form.addEventListener('input',function(e){if(e.target.name){vals[e.target.name]=e.target.value;touch();if(/^(carbs|protein|fat)$/.test(e.target.name))calHint();bars()}});
     function calHint(){var c=form.querySelector('[name=cals]');if(c&&!c.value){var k=kcal({carbs:vals.carbs,protein:vals.protein,fat:vals.fat});c.placeholder=k?Math.round(k)+' from macros':'Auto from macros'}}
     function touch(){dirty=true;msg.textContent='Not saved yet';msg.className='lg-msg warn'}
     function fill(){
       var d=days[cur]||{};vals={};
       GROUPS.forEach(function(g){g.f.filter(keep).forEach(function(f){var v=d[f.k]||'';if(f.t==='scale'||f.t==='yn')setPick(f.k,v);else{var inp=form.querySelector('[name="'+f.k+'"]');inp.value=v;vals[f.k]=v}})});
-      showIf();calHint();dirty=false;
+      showIf();calHint();bars();dirty=false;
       msg.className='lg-msg';msg.textContent=d._at?'Saved ✓':'';
       el.querySelector('.lg-date b').textContent=cur===today?'Today':(cur===fromT(toT(today)-DAY)?'Yesterday':nice(cur,{weekday:'long'}));
       el.querySelector('.lg-date small').textContent=nice(cur,{weekday:'long',day:'numeric',month:'long',year:'numeric'});
@@ -102,10 +102,17 @@
     if(demo)load(o.demoDays||{});
     else api('/portal/api/log?from='+fromT(toT(today)-60*DAY)+'&to='+today).then(function(j){if(j.today&&j.today!==today){today=j.today;cur=today}load(j.days)}).catch(function(){load({})});
     var lastT=null;
+    function bars(){var box=el.querySelector('.lg-bars');if(!box)return;var t=dayTargets(lastT||{},cur),num=function(v){var n=parseFloat(String(v==null?'':v).replace(/,/g,''));return isFinite(n)?n:null};
+      var B=[['cals','Calories',' kcal',1],['protein','Protein','g',0],['carbs','Carbs','g',1],['fat','Fat','g',1],['steps','Steps','',0],['water','Water',' L',0],['cardio','Cardio',' mins',0]];
+      var rows=B.map(function(b){var tg=num(t[b[0]]);if(!tg||tg<=0)return '';var v=num(vals[b[0]]);if(b[0]==='cals'&&v==null){var k=kcal({carbs:vals.carbs,protein:vals.protein,fat:vals.fat});if(k)v=k}v=v||0;
+        var pc=v/tg,cls=pc>=1.1&&b[3]?'over':pc>=0.95?'hit':'',left=tg-v,fm=function(n){return b[0]==='water'?Math.round(n*10)/10:Math.round(n).toLocaleString('en-GB')};
+        var note=!v?'Not logged yet':cls==='over'?fm(-left)+b[2]+' over':left>0?fm(left)+b[2]+' to go':'Target hit ✓';
+        return '<div class="lb-r '+cls+'"><div class="lb-t"><b>'+b[1]+'</b><span>'+fm(v)+' / '+fm(tg)+b[2]+'</span></div><div class="lb-b"><i style="width:'+Math.min(100,pc*100).toFixed(1)+'%"></i></div><small>'+note+'</small></div>'}).join('');
+      box.hidden=!rows;box.innerHTML=rows?'<div class="lb-h">'+(cur===today?'Today':'This day')+' vs your targets</div>'+rows:''}
     function setTargets(t0){
       lastT=t0||{};var t=dayTargets(lastT,cur);var U={cals:' kcal',protein:' g',carbs:' g',fat:' g',water:' L',cardio:' mins',sleep:' hrs'};
       [].forEach.call(form.querySelectorAll('.tg'),function(n){var k=n.getAttribute('data-tk'),v=t[k];n.hidden=!v;if(v)n.textContent='🎯 Target: '+v+(/[a-z]/i.test(v)?'':(U[k]||''))});
-      var dt=el.querySelector('.lg-daytype');if(!dt){dt=document.createElement('div');dt.className='lg-daytype';var hd=el.querySelector('.lg-nav');if(hd)hd.parentNode.insertBefore(dt,hd.nextSibling)}dt.hidden=!t.dayType;if(t.dayType)dt.textContent=(t.dayType==='High day'?'🔼 ':'🔽 ')+t.dayType+': '+t.cals+' kcal · P '+t.protein+'g · C '+t.carbs+'g · F '+t.fat+'g';
+      bars();var dt=el.querySelector('.lg-daytype');if(!dt){dt=document.createElement('div');dt.className='lg-daytype';var hd=el.querySelector('.lg-nav');if(hd)hd.parentNode.insertBefore(dt,hd.nextSibling)}dt.hidden=!t.dayType;if(t.dayType)dt.textContent=(t.dayType==='High day'?'🔼 ':'🔽 ')+t.dayType+': '+t.cals+' kcal · P '+t.protein+'g · C '+t.carbs+'g · F '+t.fat+'g';
     }
     return {days:function(){return days},setTargets:setTargets};
   }
