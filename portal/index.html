@@ -353,6 +353,7 @@ body.gated #topTabs{visibility:hidden}
     </details>
     <div class="ph-hist" id="phCmp" hidden><h3>First vs <em style="color:var(--gold-l)">latest</em></h3><div class="cmp-t" id="cmpTabs"></div><div class="cmp-p" id="cmpPics"></div></div>
     <div class="ph-hist" id="phHist" hidden><h3>Your progress so far</h3><div id="phRows"></div></div>
+    <details class="ph-hist" id="phOld"><summary><b>📁 Add older photos</b></summary><p class="ph-note" style="margin:8px 0">Got photos from before you started or from a week you missed? Pick the week and add them here. Use Start for any before photos.</p><label style="display:block;margin-bottom:10px;font-size:14px">Which week? <select id="phOldWk"></select></label><div class="ph-week" id="phOldBox"></div><p class="ph-note" id="phOldMsg" style="margin-top:8px"></p></details>
   </section>
 
   <!-- TRAINING -->
@@ -664,7 +665,7 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
       var f=has[0],l=has[has.length-1];$('cmpPics').innerHTML=has.length?im(f)+im(f===l?null:l):'<p class="ci-note">No '+cmpAng+' photos yet.</p>';
       [].forEach.call($('cmpTabs').querySelectorAll('button'),function(b){b.onclick=function(){cmpAng=b.getAttribute('data-a');drawCmp()}})}
     function drawHist(){
-      drawCmp();
+      drawCmp();drawOld();
       var weeks={};photos.forEach(function(p){if(p.week!==curWeek)weeks[p.week]=1});
       var ws=Object.keys(weeks).map(Number).sort(function(a,b){return b-a});
       $('phHist').hidden=!ws.length;
@@ -680,11 +681,13 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
         }).catch(function(){res(file)});
       });
     }
-    function upload(file,angle,slot){
+    function drawOld(){var sel=$('phOldWk');if(!sel)return;var v=sel.value;sel.innerHTML='';for(var w=0;w<curWeek;w++){var o=document.createElement('option');o.value=w;o.textContent=w===0?'Start (before photos)':'Week '+w;sel.appendChild(o)}if(!curWeek){$('phOld').hidden=true;return}sel.value=v!==''&&+v<curWeek?v:'0';sel.onchange=drawOldBox;drawOldBox()}
+    function drawOldBox(){var w=+$('phOldWk').value,box=$('phOldBox');box.innerHTML='';ANG.forEach(function(a){var p=latest(w,a);var l=document.createElement('label');l.className='slot'+(p?' has':'');l.innerHTML=(p?'<span class="lbl">'+LBL[a]+'</span><img alt="'+LBL[a]+' photo" src="'+esc(src(p))+'"><span class="redo">Replace</span>':'<span class="pl">'+ICON[a]+'</span><b>'+LBL[a]+'</b><small>Tap to add</small>')+'<input type="file" accept="image/*">';l.querySelector('input').onchange=function(e){var f=e.target.files[0];if(f)upload(f,a,l,w)};box.appendChild(l)})}
+    function upload(file,angle,slot,wk){var useW=wk!=null?wk:curWeek;
       slot.classList.add('busy');
       shrink(file).then(function(f){
-        if(demo){photos.unshift({week:curWeek,angle:angle,local:URL.createObjectURL(f)});drawWeek();return}
-        var fd=new FormData();fd.append('photo',f);fd.append('angle',angle);fd.append('week',curWeek);
+        if(demo){photos.unshift({week:useW,angle:angle,local:URL.createObjectURL(f)});drawWeek();return}
+        var fd=new FormData();fd.append('photo',f);fd.append('angle',angle);fd.append('week',useW);
         return fetch('/portal/api/photos',{method:'POST',body:fd,credentials:'same-origin'}).then(function(r){return r.json().then(function(j){
           if(!r.ok)throw new Error(j.error||'upload');
           photos.unshift({key:j.key,week:j.week,angle:j.angle});drawWeek();

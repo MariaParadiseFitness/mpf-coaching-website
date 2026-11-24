@@ -435,7 +435,7 @@ async function handleApi(request, env, url, ctx) {
     const current = weekOf(client.start);
     let week = parseInt(form.get("week"), 10);
     if (!ANGLES.includes(angle)) return json({ error: "angle" }, 400);
-    if (!week || week < 0 || week > current) week = current;
+    if (isNaN(week) || week < 0 || week > current) week = current; // week 0 = Start, earlier weeks allowed for old photos
     if (!file || typeof file === "string") return json({ error: "file" }, 400);
     if (!/^image\/(jpeg|png|webp|heic|heif)$/.test(file.type)) return json({ error: "type" }, 400);
     if (file.size > MAX_BYTES) return json({ error: "size" }, 413);
