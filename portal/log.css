@@ -386,3 +386,5 @@ em.t-pt{background:#fff;box-shadow:0 0 0 1.5px #c9a64b}
 @keyframes cgF{to{transform:translateY(105vh) rotate(720deg);opacity:.9}}@keyframes cgIn{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
 .mg-pref{background:rgba(201,166,75,.1);border:1px solid var(--gold,#c9a64b);border-radius:10px;padding:10px 12px;margin-bottom:10px;font-size:14px}
 .am label{display:block;margin:0 0 10px;font-size:14px}.am label input,.am label select,.am label textarea{display:block;width:100%;margin-top:4px}.am h4{margin:14px 0 8px;color:var(--gold-l,#e8c872)}.am small{color:var(--mute,#888)}
+.ci-hist{margin-top:18px;background:var(--card,#141414);border:1px solid var(--gold,#c9a64b);border-radius:14px;padding:14px}.ci-hist h4{margin:0 0 4px;color:var(--gold-l,#e8c872)}.ci-hist h4 span{color:var(--mute,#888);font-weight:400}
+.ci-fbh{border-top:1px solid var(--line,#2a2a2a);padding:10px 0}.ci-fbh summary{cursor:pointer;display:flex;justify-content:space-between;gap:8px}.ci-fbh summary span{font-size:12px;color:var(--mute,#888)}.ci-fbh p{margin:8px 0 0;line-height:1.55;white-space:normal}
