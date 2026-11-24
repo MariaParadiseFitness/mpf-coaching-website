@@ -620,7 +620,8 @@ section[id],header[id]{scroll-margin-top:84px}
 .oc-isl{position:absolute;top:7px;left:50%;width:54px;height:15px;margin-left:-27px;border-radius:10px;background:#000;z-index:2}
 @media(max-width:860px){.oc-links{grid-template-columns:1fr;max-width:none}.oc-phone{left:-10px!important;width:130px!important;bottom:-24px!important;border-radius:24px!important}}
 </style>
-<style>/*mob-fix*/html,body{overflow-x:clip}</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>/*mob-fix*/i.ti.emo{color:#E8C872;font-size:1.1em;line-height:1;vertical-align:-.14em;font-style:normal}.btn i.ti.emo,.on>i.ti.emo{color:inherit}html,body{overflow-x:clip}</style>
 </head>
 <body>
 
@@ -660,7 +661,7 @@ section[id],header[id]{scroll-margin-top:84px}
   </div>
   <div class="oc-pic">
     <img class="oc-me" src="img/maria-flex.jpg" alt="Maria Paradise, your online coach, flexing in the gym">
-    <div class="oc-phone"><span class="oc-isl"></span><img src="img/app/meals.jpg" alt="The MPF app's meal plan builder" loading="lazy"></div>
+    <div class="oc-phone"><span class="oc-isl"></span><img src="img/app/meals.jpg?v=1124c" alt="The MPF app's meal plan builder" loading="lazy"></div>
   </div>
 </div></section>
 <section class="dark" id="coaching">
@@ -821,5 +822,6 @@ section[id],header[id]{scroll-margin-top:84px}
 <script>document.querySelectorAll('#coaching .card').forEach(function(c){c.addEventListener('click',function(){ if(innerWidth<760) c.classList.toggle('open'); });});</script>
 <script src="bf.js" defer></script>
 <script src="js/fx.js" defer></script>
+<script src="/portal/icons.js" defer></script>
 </body>
 </html>

@@ -115,7 +115,8 @@ footer{background:#0b0b0a;color:#6f6754;text-align:center;font-size:11px;letter-
 .empty{text-align:center;color:var(--muted);margin:40px 0}.foot-cta{background:#111;color:#fff;border-radius:18px;padding:26px;text-align:center;margin:10px 0 50px}.foot-cta h3{color:#fff;margin:0 0 6px}.foot-cta a{display:inline-block;margin-top:12px;background:var(--grad);color:#111;padding:11px 20px;border-radius:24px;font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase;text-decoration:none}
 footer{text-align:center;padding:30px 0;font-size:12px;color:#a89a78;background:#111}
 </style>
-<style>/*mob-fix*/html,body{overflow-x:clip}</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>/*mob-fix*/i.ti.emo{color:#E8C872;font-size:1.1em;line-height:1;vertical-align:-.14em;font-style:normal}.btn i.ti.emo,.on>i.ti.emo{color:inherit}html,body{overflow-x:clip}</style>
 </head>
 <body>
 <div class="top"><div class="wrap"><a href="index.html">← MPF Coaching</a><a class="cta" href="/portal/">Client portal</a></div></div>
@@ -138,5 +139,6 @@ footer{text-align:center;padding:30px 0;font-size:12px;color:#a89a78;background:
 fetch('/api/recs',{cache:'no-store'}).then(function(r){return r.json()}).then(function(j){var it=j.items||[];if(!it.length){el.innerHTML='<p class="empty">Recommendations coming soon.</p>';return}
 el.innerHTML=it.map(function(x){var amz=/amazon\./.test(x.link||''),inner=(x.img?'<img class="rcov" src="'+esc(x.img)+'" alt="" loading="lazy">':'<span class="ri">'+(ic[x.type]||'⭐')+'</span>')+'<span><b>'+esc(x.title)+'</b><small>'+esc(x.type)+(x.by?' · '+esc(x.by):'')+'</small>'+(x.why?'<p>'+esc(x.why)+'</p>':'')+(x.link?'<i>'+(amz?'Get it on Amazon →':'Have a look →')+'</i>':'')+'</span>';return x.link?'<a class="rec" href="'+esc(x.link)+'" target="_blank" rel="noopener">'+inner+'</a>':'<div class="rec">'+inner+'</div>'}).join('')}).catch(function(){el.innerHTML='<p class="empty">Could not load right now. Try again in a minute.</p>'})})();
 </script>
+<script src="/portal/icons.js" defer></script>
 </body>
 </html>
