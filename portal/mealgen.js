@@ -82,7 +82,7 @@
         {n:'Tandoori {p} with rice and raita',pick:0,note:'Marinate in yogurt, tandoori masala, garlic, ginger and lemon, then grill or air-fry.',s:[['chicken','prawns','paneer','tofu'],['rice'],['yog','syog'],['cuc']]},
         {n:'Chana masala with rice',note:'Cook the chickpeas with onion, tomato, garlic, ginger and garam masala.',s:[['chick'],['rice','chap'],['yog','syog'],['ghee','oil']]}],
       dinner:[
-        {n:'{p} curry with dal and sabzi',pick:0,note:'Cook with cumin, turmeric, garam masala and chilli. Soak soya chunks in hot water first.',s:[['chicken','turkey','cod','paneer','soya','tofu'],['dal'],['veg'],['ghee','oil'],['chap','rice']]}]},
+        {n:'{p} curry with dal and sabzi',pick:0,note:'Cook with cumin, turmeric, garam masala and chilli. If you use soya chunks, soak them in hot water first.',s:[['chicken','turkey','cod','paneer','soya','tofu'],['dal'],['veg'],['ghee','oil'],['chap','rice']]}]},
     mediterranean:{
       breakfast:[
         {n:'Yogurt bowl with fruit and nuts',s:[['yog','skyr','syog'],['berries'],['oats'],['honey'],['nuts']]},
