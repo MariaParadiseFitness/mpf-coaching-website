@@ -182,7 +182,7 @@ footer{text-align:center;color:#7d735c;font-size:12px;padding:20px}
 .bk-frame{border-radius:20px;overflow:hidden;border:1px solid rgba(214,184,100,.7);background:#fff;margin-top:12px}
 .bk-frame iframe{display:block;width:100%;height:1100px;border:0}
 .bnav a{font-size:9.5px}
-.ptonly[hidden]{display:none!important}.sess-h .sh-l button{font:inherit;font-size:12px;cursor:pointer;border:1px solid rgba(201,166,75,.25);background:rgba(255,255,255,.04);color:#ddd;border-radius:99px;padding:4px 10px}.sess-h .sh-l button.up{color:var(--gold-l,#e6cf8b);border-color:rgba(201,166,75,.5)}.sess-h .sh-l button.sel{background:var(--gold,#c9a64b);color:#111}.sh-pop{position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;padding:20px}.sh-pop[hidden]{display:none}.sh-card{position:relative;width:100%;max-width:360px;background:#111;border:1px solid rgba(201,166,75,.55);border-radius:18px;padding:22px 20px 18px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.6)}.sh-x{position:absolute;top:10px;right:12px;background:none;border:0;color:#bbb;font-size:18px;cursor:pointer}.sh-k{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-l,#e6cf8b);margin-bottom:6px}.sh-dt{font-size:20px;color:#fff;font-weight:600;margin-bottom:8px}.sh-tm,.sh-lc{font-size:14.5px;color:#ddd;margin:3px 0}.sh-mv,.sh-ok{display:block;width:100%;margin-top:14px;padding:11px;border-radius:999px;font:inherit;font-weight:600;cursor:pointer}.sh-mv{background:var(--gold,#c9a64b);color:#111;border:0;text-decoration:none;box-sizing:border-box}.sh-ok{background:none;color:#ddd;border:1px solid rgba(255,255,255,.2)}.sh-nt{font-size:12px;color:#aaa;margin:8px 0 0;line-height:1.4}#plSeg button{white-space:normal;line-height:1.2}
+.ptonly[hidden],.seg [hidden]{display:none!important}.sess-h .sh-l button{font:inherit;font-size:12px;cursor:pointer;border:1px solid rgba(201,166,75,.25);background:rgba(255,255,255,.04);color:#ddd;border-radius:99px;padding:4px 10px}.sess-h .sh-l button.up{color:var(--gold-l,#e6cf8b);border-color:rgba(201,166,75,.5)}.sess-h .sh-l button.sel{background:var(--gold,#c9a64b);color:#111}.sh-pop{position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;padding:20px}.sh-pop[hidden]{display:none}.sh-card{position:relative;width:100%;max-width:360px;background:#111;border:1px solid rgba(201,166,75,.55);border-radius:18px;padding:22px 20px 18px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.6)}.sh-x{position:absolute;top:10px;right:12px;background:none;border:0;color:#bbb;font-size:18px;cursor:pointer}.sh-k{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-l,#e6cf8b);margin-bottom:6px}.sh-dt{font-size:20px;color:#fff;font-weight:600;margin-bottom:8px}.sh-tm,.sh-lc{font-size:14.5px;color:#ddd;margin:3px 0}.sh-mv,.sh-ok{display:block;width:100%;margin-top:14px;padding:11px;border-radius:999px;font:inherit;font-weight:600;cursor:pointer}.sh-mv{background:var(--gold,#c9a64b);color:#111;border:0;text-decoration:none;box-sizing:border-box}.sh-ok{background:none;color:#ddd;border:1px solid rgba(255,255,255,.2)}.sh-nt{font-size:12px;color:#aaa;margin:8px 0 0;line-height:1.4}#plSeg button{white-space:normal;line-height:1.2}
 .step .opt{font-size:10px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--gold-l);border:1px solid var(--line);border-radius:20px;padding:2px 8px;vertical-align:middle;margin-left:4px}
 .step p.tip{color:var(--gold-l);font-size:13px;margin-top:6px}
 #app:not(.ready) [data-view]{display:none}
@@ -208,6 +208,29 @@ body.gated #topTabs{visibility:hidden}
 .av.big{width:96px;height:96px;flex-basis:96px}
 .due{display:flex;align-items:center;gap:12px;background:var(--grad);color:#111;text-decoration:none;border-radius:18px;padding:14px 16px;margin-bottom:26px;font-weight:700;font-size:14.5px;box-shadow:0 0 26px rgba(201,166,75,.35)}
 .due.late{background:linear-gradient(120deg,#8a2c22,#c4573f);color:#fff}
+.cy-today{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 16px;margin:-12px 0 26px;text-decoration:none;color:#fff}
+.cy-today:hover{border-color:var(--gold)}.cy-today .cy-dn{flex:0 0 auto;width:52px;height:52px;border-radius:50%;border:2px solid #E8C872;display:grid;place-content:center;text-align:center;font-weight:700;font-size:18px;line-height:1;color:#fff}
+.cy-today .cy-dn.p{border-color:#e0524a}.cy-today .cy-dn small{display:block;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);font-weight:600;margin-bottom:2px}
+.cy-today .cy-ti{font-size:26px;color:#E8C872;flex:0 0 auto}
+.cy-today .cy-tt{flex:1;min-width:0}.cy-today .cy-tt b{display:block;font-size:15px}.cy-today .cy-tt b span{color:#f09595;font-weight:600}.cy-today .cy-tt small{display:block;color:var(--soft);font-size:13px;line-height:1.4;margin-top:3px}
+.cy-today .cy-ar{color:#E8C872;font-size:24px;flex:0 0 auto}
+body.noperiod .cy-today{display:none}
+.cy-back{display:inline-flex;align-items:center;gap:4px;color:#E8C872;text-decoration:none;font-size:14px;font-weight:600;margin-bottom:10px}
+.due.ci-big{padding:18px;gap:14px;border-radius:20px;animation:ciPulse 2.4s ease-in-out infinite}
+.due.ci-big .ci-ic{flex:0 0 auto;width:46px;height:46px;border-radius:50%;background:rgba(0,0,0,.18);display:grid;place-items:center;font-size:24px;color:inherit}
+.due.ci-big .ci-tx{flex:1;min-width:0}.due.ci-big .ci-tx b{display:block;font-family:var(--serif);font-size:20px;line-height:1.15;margin-bottom:3px}.due.ci-big .ci-tx small{display:block;font-weight:500;font-size:13px;opacity:.85;line-height:1.35}
+.due.ci-big .ci-go{flex:0 0 auto;background:#111;color:#E8C872;border-radius:30px;padding:9px 14px;font-size:13px;white-space:nowrap}.due.ci-big.late .ci-go{background:#fff;color:#8a2c22}
+@keyframes ciPulse{0%,100%{box-shadow:0 0 18px rgba(201,166,75,.3)}50%{box-shadow:0 0 34px rgba(201,166,75,.65)}}
+.due.ci-big.late{animation-name:ciPulseR}@keyframes ciPulseR{0%,100%{box-shadow:0 0 18px rgba(196,87,63,.3)}50%{box-shadow:0 0 34px rgba(196,87,63,.7)}}
+@media(max-width:520px){.due.ci-big{flex-wrap:wrap}.due.ci-big .ci-go{width:100%;text-align:center}}
+@media(prefers-reduced-motion:reduce){.due.ci-big{animation:none}}
+.ci-pop{position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.72);display:flex;align-items:flex-end;justify-content:center;animation:ciFade .25s}
+.ci-sheet{width:100%;max-width:440px;background:#151410;border:1px solid rgba(201,166,75,.45);border-bottom:0;border-radius:24px 24px 0 0;padding:26px 22px calc(22px + env(safe-area-inset-bottom));text-align:center;animation:ciUp .3s ease-out}
+@media(min-width:600px){.ci-pop{align-items:center}.ci-sheet{border-radius:24px;border-bottom:1px solid rgba(201,166,75,.45)}}
+.ci-pic{width:64px;height:64px;margin:0 auto 12px;border-radius:50%;background:var(--grad);display:grid;place-items:center;color:#111;font-size:32px}.ci-pop.late .ci-pic{background:linear-gradient(120deg,#8a2c22,#c4573f);color:#fff}
+.ci-sheet h3{font-family:var(--serif);font-size:24px;margin:0 0 8px;color:#fff}.ci-sheet p{color:var(--soft);font-size:14.5px;line-height:1.5;margin:0 0 18px}
+.ci-sheet .btn{display:block;width:100%;box-sizing:border-box;text-align:center}.ci-later{background:none;border:0;color:var(--mute);font:inherit;font-size:14px;margin-top:12px;padding:8px;cursor:pointer;text-decoration:underline}
+@keyframes ciFade{from{opacity:0}}@keyframes ciUp{from{transform:translateY(40px);opacity:0}}
 .due span{margin-left:auto;font-size:20px}
 .acc{display:flex;gap:18px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:20px 18px}
 .acc-t b{display:block;color:#fff;font-size:18px}
@@ -249,7 +272,8 @@ body.gated #topTabs{visibility:hidden}
 <main class="wrap" id="app" hidden>
   <div class="preview" id="previewBar" hidden>👀 Test client (Sam): this is exactly what your clients see. Nothing here is saved or sent anywhere, so tap around freely. Add <b>?setup</b> to the link to see the first-login checklist.</div>
 
-  <div class="hello" data-view="today">
+  <div class="seg vseg" data-view="today" id="tdSeg"><a href="#log" data-s="main"><i class="ti ti-notebook" aria-hidden="true"></i> Today</a><a href="#planner" data-s="wk"><i class="ti ti-calendar-week" aria-hidden="true"></i> My week</a><a href="#cycle" data-s="cyc" id="cySeg"><i class="ti ti-moon" aria-hidden="true"></i> My cycle</a></div>
+  <div class="hello" data-view="today" data-sub="main">
     <label class="av" id="avBox" title="Add your photo"><img id="avImg" alt="" hidden><span class="av-ph" id="avPh">📷</span><span class="av-edit">Edit</span><input type="file" accept="image/*" id="avIn"></label>
     <div class="hello-t">
       <div class="kick" id="hDate">Today</div>
@@ -258,7 +282,7 @@ body.gated #topTabs{visibility:hidden}
       <span id="stStart" hidden></span>
     </div>
   </div>
-  <div class="due consent" id="consentBox" data-view="today" hidden>
+  <div class="due consent" id="consentBox" data-view="today" data-sub="main" hidden>
     <b>🔒 Your privacy and my terms</b>
     <p style="margin:6px 0 10px">Before you carry on, please read and agree to these. It takes a minute.</p>
     <label class="ob-check"><input type="checkbox" id="cnHealth"> I agree to MPF Coaching storing my health information (health questions, medical history, measurements, logs and progress photos) so Maria can coach me safely. I can ask for it to be deleted at any time.</label>
@@ -269,9 +293,10 @@ body.gated #topTabs{visibility:hidden}
       <small>Your photos are only ever posted if you say yes. You can change this any time in My account.</small></div>
     <button class="btn" type="button" id="cnSave">Save</button> <span class="lg-msg" id="cnMsg"></span>
   </div>
-  <a class="due" id="dueBanner" href="#checkin" data-view="today" hidden></a>
-  <div class="due plan" id="planBanner" data-view="today" hidden></div>
-  <div class="due" id="welcome" data-view="today" hidden>🎉 You're all set up! Start with today's log below. Your weight goes in first thing each morning.</div>
+  <a class="due" id="dueBanner" href="#checkin" data-view="today" data-sub="main" hidden></a>
+  <div class="due plan" id="planBanner" data-view="today" data-sub="main" hidden></div>
+  <a class="cy-today" id="cyTab" href="#cycle" data-view="today" data-sub="main" hidden></a>
+  <div class="due" id="welcome" data-view="today" data-sub="main" hidden>🎉 You're all set up! Start with today's log below. Your weight goes in first thing each morning.</div>
   <a class="due back" id="backSetup" href="#start" hidden>← Back to my checklist</a>
 
 <section data-view="onboard" id="onboard">
@@ -310,17 +335,26 @@ body.gated #topTabs{visibility:hidden}
   </section>
 
   <!-- DAILY LOG -->
-  <section data-view="today" id="log">
+  <section data-view="today" data-sub="main" id="log">
     <h2>My daily <em>log.</em></h2>
     <div class="sub">Fill this in every day. Your weight first thing, then the rest by bedtime. Tap a day in the row to go back and fill it in.</div>
     <div class="lg" id="logBox"><div class="wc-empty">Loading…</div></div>
   </section>
 
   <!-- CHECK-IN -->
-  <div class="seg vseg" data-view="progress" id="prSeg"><a href="#progress" data-s="prog"><i class="ti ti-chart-line" aria-hidden="true"></i> Progress</a><a href="#checkin" data-s="ci"><i class="ti ti-circle-check" aria-hidden="true"></i> Check-in<em class="dot" id="ciDot3" hidden></em></a><a href="#cycle" data-s="cyc" id="cyTab"><i class="ti ti-moon" aria-hidden="true"></i> My cycle</a></div>
-  <section data-view="progress" data-sub="cyc" id="cycle">
+  <div class="seg vseg" data-view="progress" id="prSeg"><a href="#progress" data-s="prog"><i class="ti ti-chart-line" aria-hidden="true"></i> Progress</a><a href="#checkin" data-s="ci"><i class="ti ti-circle-check" aria-hidden="true"></i> Check-in<em class="dot" id="ciDot3" hidden></em></a></div>
+  <section data-view="today" data-sub="cyc" id="cycle">
+    <a class="cy-back" href="#log"><i class="ti ti-chevron-left" aria-hidden="true"></i> Today</a>
     <h2>My <em>cycle.</em></h2>
     <div id="cyBox"><div class="wc-empty">Loading…</div></div>
+  </section>
+  <section data-view="today" data-sub="wk" id="planner">
+    <div id="plMine">
+    <a class="cy-back" href="#log"><i class="ti ti-chevron-left" aria-hidden="true"></i> Today</a>
+    <h2>My <em>planner.</em></h2>
+    <div class="sub">Plan your week: training, cardio, meal prep, walks, anything. Turn on calendar sync and it all shows in your Google Calendar.</div>
+    <div class="pl-box" id="plBox"><div class="pg-empty">Loading…</div></div>
+    </div>
   </section>
   <section data-view="progress" data-sub="ci" id="checkin">
     <h2>Weekly <em>check-in.</em></h2>
@@ -383,7 +417,7 @@ body.gated #topTabs{visibility:hidden}
   </section>
 
   <!-- TRAINING -->
-  <div class="seg vseg tr4" data-view="training" id="trSeg"><button type="button" data-t="pg" class="on"><i class="ti ti-clipboard-list" aria-hidden="true"></i> My plan</button><button type="button" data-t="lb"><i class="ti ti-barbell" aria-hidden="true"></i> Workout</button><button type="button" data-t="hist"><i class="ti ti-book" aria-hidden="true"></i> Logbook</button><button type="button" data-t="pl"><i class="ti ti-calendar" aria-hidden="true"></i> Planner</button></div>
+  <div class="seg vseg tr4" data-view="training" id="trSeg"><button type="button" data-t="pg" class="on"><i class="ti ti-clipboard-list" aria-hidden="true"></i> My plan</button><button type="button" data-t="lb"><i class="ti ti-barbell" aria-hidden="true"></i> Workout</button><button type="button" data-t="hist"><i class="ti ti-book" aria-hidden="true"></i> Logbook</button><button type="button" data-t="pl" class="ptonly" hidden><i class="ti ti-calendar-event" aria-hidden="true"></i> Sessions</button></div>
   <section data-view="training" data-sub="train" id="folder">
     <h2>My <em>training.</em></h2>
     <div class="pg-box lb-box" id="lbBox" hidden><div class="pg-empty">Loading…</div></div>
@@ -397,12 +431,7 @@ body.gated #topTabs{visibility:hidden}
 
   <!-- PLAN -->
   <section data-view="training" data-sub="plan" id="plan">
-    <div class="seg ptonly" hidden id="plSeg"><button type="button" data-p="mine" class="on">📅 My planner</button><button type="button" data-p="book">🏋️ Book &amp; manage sessions</button></div>
-    <div id="plMine">
-    <h2>My <em>planner.</em></h2>
-    <div class="sub">Plan your week: training, cardio, meal prep, walks, anything. Turn on calendar sync and it all shows in your Google Calendar.</div>
-    <div class="pl-box" id="plBox"><div class="pg-empty">Loading…</div></div>
-    </div>
+    <div class="seg ptonly" hidden id="plSeg" style="display:none!important"><button type="button" data-p="mine" class="on">📅 My planner</button><button type="button" data-p="book">🏋️ Book &amp; manage sessions</button></div>
   </section>
 
   <!-- SESSIONS (PT clients, shown on the Plan page) -->
@@ -552,18 +581,20 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
   function go(id,noScroll){
     if(window.__gated&&['start','photos','support','onboard'].indexOf(id)<0)id='start';
     if(id==='sessions'&&$('sessions').classList.contains('gone'))id='plan';
+    if(id==='plan'&&$('sessions').classList.contains('gone'))id='planner';
     $('app').classList.add('ready');
-    var t=document.getElementById(id)||document.getElementById('log'),host=t.closest('[data-view]'),v=host?host.getAttribute('data-view'):'today',sub=host&&host.getAttribute('data-sub')||({progress:'prog',training:'train'})[v]||'';
+    var t=document.getElementById(id)||document.getElementById('log'),host=t.closest('[data-view]'),v=host?host.getAttribute('data-view'):'today',sub=host&&host.getAttribute('data-sub')||({progress:'prog',training:'train',today:'main'})[v]||'';
     [].forEach.call(document.querySelectorAll('[data-sub]'),function(e){e.classList.toggle('sv',e.getAttribute('data-view')===v&&e.getAttribute('data-sub')!==sub)});
+    [].forEach.call(document.querySelectorAll('#tdSeg a'),function(a){a.classList.toggle('on',v==='today'&&a.getAttribute('data-s')===sub)});
     [].forEach.call(document.querySelectorAll('#prSeg a'),function(a){a.classList.toggle('on',a.getAttribute('data-s')===sub)});
     if(v==='training'&&window.__trOn)window.__trOn(sub==='plan'?'pl':null);
     [].forEach.call(document.querySelectorAll('[data-view]'),function(e){e.classList.toggle('vh',e.getAttribute('data-view')!==v)});
     [].forEach.call(document.querySelectorAll('#topTabs a,#bnav a'),function(a){a.classList.toggle('on',a.getAttribute('data-v')===v)});
     $('backSetup').hidden=!(window.__gated&&v!=='setup');
     if(sub==='plan'&&!$('sessions').classList.contains('gone')){var f=$('acuity');if(f&&!f.src)f.src=f.getAttribute('data-src')}
-    if(sub==='plan'&&!$('sessions').classList.contains('gone'))plTab(id==='sessions'||id==='bookNow'||(id!=='plan'&&$('sessions').contains(t))?'book':'mine');
+    if(sub==='plan'&&!$('sessions').classList.contains('gone'))plTab('book');
     if(noScroll)return;
-    if(['log','targets','checkin','progress','cycle','folder','plan','account','start'].indexOf(id)>=0||(t===host&&host===firstOf(v)))window.scrollTo(0,0);else t.scrollIntoView({block:'start'});
+    if(['log','targets','checkin','progress','cycle','planner','folder','plan','account','start'].indexOf(id)>=0||(t===host&&host===firstOf(v)))window.scrollTo(0,0);else t.scrollIntoView({block:'start'});
   }
   var sessLoaded=false;function loadSess(){if(sessLoaded)return;sessLoaded=true;fetch('/portal/api/sessions',{cache:'no-store'}).then(function(r){return r.json()}).then(function(j){try{if(j&&window.MPFPlanner&&MPFPlanner.current)MPFPlanner.current.setSessions(j)}catch(e){}var b=$('sessHist');if(!b||!j||((!j.past||!j.past.length)&&(!j.upcoming||!j.upcoming.length)))return;var nd=function(d){return MPFLog.nice(d,{weekday:'short'})};var T=j.times||{};window.__shT=T;var ch=function(d,c){return '<button type="button" class="'+(c||'')+'" data-d="'+d+'">'+nd(d)+'</button>'};var p=j.pkg,h='';
     if(p&&p.left!=null)h+='<div class="sh-pk"><b>'+p.left+'</b><span>sessions left in your package<br><small>'+p.used+' of '+p.size+' used'+(p.booked?' · '+p.booked+' booked':'')+'</small></span></div>';
@@ -575,7 +606,7 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
       var tt=t?t.split(', ').map(function(s){var q=s.split('–'),f=function(v){var h=+v.slice(0,2),m=v.slice(3);return (h%12||12)+(m!=='00'?':'+m:'')+(h<12?'am':'pm')};return f(q[0])+(q[1]?' to '+f(q[1]):'')}).join(' and '):'';
       var m=$('shPop');if(!m){m=document.createElement('div');m.id='shPop';m.className='sh-pop';document.body.appendChild(m);m.onclick=function(e){if(e.target===m||e.target.closest('[data-x]'))m.hidden=true;if(e.target.closest('[data-mv]'))m.hidden=true}}
       m.innerHTML='<div class="sh-card" role="dialog" aria-modal="true"><button type="button" class="sh-x" data-x aria-label="Close">✕</button><div class="sh-k">'+(fut?'📅 Coming up':'✅ Done')+'</div><div class="sh-dt">'+esc(MPFLog.nice(d,{weekday:'long',month:'long'}))+'</div>'+(tt?'<div class="sh-tm">🕘 '+esc(tt)+'</div>':'')+'<div class="sh-lc">📍 PureGym Charlton</div>'+(fut?'<a class="sh-mv" data-mv href="https://app.acuityscheduling.com/schedule.php?owner=38832646&appointmentType=90953993" target="_blank" rel="noopener">Move or cancel this session</a><p class="sh-nt">Opens the booking page. Tap <b>Log in</b> at the top right with your email to see and change your bookings, or use the Change/Cancel link in your confirmation email.</p>':'')+'<button type="button" class="sh-ok" data-x>Close</button></div>';m.hidden=false}}).catch(function(){})}
-  function plTab(w){if(w==='book')loadSess();$('plMine').hidden=w==='book';$('sessions').style.display=w==='book'?'':'none';[].forEach.call(document.querySelectorAll('#plSeg button'),function(b){b.classList.toggle('on',b.getAttribute('data-p')===w)})}
+  function plTab(w){if(w==='book')loadSess();$('sessions').style.display=w==='book'?'':'none';[].forEach.call(document.querySelectorAll('#plSeg button'),function(b){b.classList.toggle('on',b.getAttribute('data-p')===w)})}
   document.addEventListener('click',function(e){var b=e.target.closest('#plSeg button');if(!b)return;plTab(b.getAttribute('data-p'));window.scrollTo(0,0)});
   function route(){go((location.hash||'#log').slice(1))}
   window.addEventListener('hashchange',route);
@@ -755,10 +786,30 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
       $('phStatus').textContent='Let me know when your check-in is done.';
     }
 
+    function cyToday(st,tp,dn){var a=$('cyTab');if(!a||document.body.classList.contains('noperiod'))return;a.hidden=false;
+      if(!st||st.none){a.innerHTML='<i class="ti ti-moon cy-ti" aria-hidden="true"></i><div class="cy-tt"><b>My cycle</b><small>Track your period to see your phase, predictions and tips.</small></div><span class="cy-ar">›</span>';return}
+      var due=dn==null?'':dn<=0?'Period due today':dn===1?'Period due tomorrow':'Period in '+dn+' days';
+      a.innerHTML='<span class="cy-dn'+(st.phase==='period'?' p':'')+'"><small>Day</small>'+st.cd+'</span><div class="cy-tt"><b>'+tp.n+(st.phase==='period'?'':' · <span>'+due+'</span>')+'</b><small>'+tp.f.split('. ').slice(0,2).join('. ').replace(/\.?$/,'.')+'</small></div><span class="cy-ar">›</span>'}
     function dueState(st){
       var b=$('dueBanner'),show=!st.done&&st.diff<=0;
       b.hidden=!show;$('ciDot').hidden=!show;$('ciDot2').hidden=!show;$('ciDot3').hidden=!show;b.classList.toggle('late',st.diff<0);
-      b.innerHTML=st.diff<0?'⏰ Your check-in is late. Send it now, with your photos.<span>→</span>':'📸 It\'s check-in day! Upload your photos and send your check-in.<span>→</span>';
+      var late=st.diff<0,n=-st.diff,ttl=late?'Your check-in is '+(n===1?'1 day':n+' days')+' overdue':'It\'s check-in day!',sub=late?'Send it now with your photos so Maria can review your week.':'Upload your front, side and back photos and answer a few quick questions.';
+      b.classList.add('ci-big');b.innerHTML='<i class="ti '+(late?'ti-alarm':'ti-camera')+' ci-ic" aria-hidden="true"></i><div class="ci-tx"><b>'+ttl+'</b><small>'+sub+'</small></div><span class="ci-go">'+(late?'Do it now':'Start')+' →</span>';
+      if(show)ciPop(late,ttl,sub);
+    }
+    function ciPop(late,ttl,sub){
+      var k='mpf_ci_pop_'+((window.MPFLog&&MPFLog.londonToday&&MPFLog.londonToday())||new Date().toISOString().slice(0,10));try{if(localStorage.getItem(k))return}catch(e){}
+      var open=function(){
+        if(document.body.classList.contains('touring')||document.querySelector('.ob-wrap:not([hidden]),#setupView:not([hidden])')){setTimeout(open,2500);return}
+        if(document.getElementById('ciPop'))return;
+        var d=document.createElement('div');d.id='ciPop';d.className='ci-pop'+(late?' late':'');
+        d.innerHTML='<div class="ci-sheet" role="dialog" aria-modal="true" aria-label="'+ttl+'"><div class="ci-pic"><i class="ti '+(late?'ti-alarm':'ti-camera')+'" aria-hidden="true"></i></div><h3>'+ttl+'</h3><p>'+sub+'</p><a class="btn g" href="#checkin" data-go>'+(late?'Do my check-in now':'Do my check-in')+'</a><button type="button" class="ci-later" data-x>'+(late?'Remind me later':'Later today')+'</button></div>';
+        document.body.appendChild(d);
+        var close=function(){try{localStorage.setItem(k,'1')}catch(e){}d.remove()};
+        d.querySelector('[data-x]').onclick=close;d.querySelector('[data-go]').addEventListener('click',close);
+        d.addEventListener('click',function(e){if(e.target===d)close()});
+      };
+      setTimeout(open,2000);
     }
     // profile photo
     function avShow(url){[['avImg','avPh'],['avImg2','avPh2']].forEach(function(x){var im=$(x[0]);if(!url){im.hidden=true;$(x[1]).hidden=false;return}im.onload=function(){im.hidden=false;$(x[1]).hidden=true;$('avDel').hidden=false};im.onerror=function(){im.hidden=true;$(x[1]).hidden=false};im.src=url});$('avDel').hidden=true}
@@ -784,7 +835,7 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
       weightsAll=Object.keys(m).sort().map(function(d){return {date:d,kg:m[d]}});redrawChart();
     }
     var today=meta.today||MPFLog.londonToday(),demoDays=demo?MPFLog.demoDays(today,70):null,ci;
-    if(c.sex==='m'){var np0=document.querySelector('.am-np');if(np0)np0.remove();$('cyTab').remove();$('cycle').classList.add('gone');$('cycle').hidden=true}else MPFCycle.Mount($('cyBox'),{today:today,demo:demo,demoDays:demoDays});
+    if(c.sex==='m'){var np0=document.querySelector('.am-np');if(np0)np0.remove();$('cyTab').remove();$('cySeg').remove();$('cycle').classList.add('gone');$('cycle').hidden=true}else MPFCycle.Mount($('cyBox'),{today:today,demo:demo,demoDays:demoDays,onStats:cyToday});
     var log=MPFLog.Today($('logBox'),{demo:demo,demoDays:demoDays,today:today,sex:c.sex,onSaved:function(days){mergeDays(days);if(ci)ci.refresh();if(window.__WK)window.__WK.refresh()}});
     ci=MPFLog.CheckIn($('ciBox'),{onState:dueState,start:c.start,demo:demo,today:today,day:day,email:email,getDays:log.days,photoCount:function(){return window.__phN==null?null:window.__phN},
       demoQuestions:["What were this week's biggest wins/achievements?","Any comments on stress levels and management techniques?","How was gym performance this week?","How was recovery in general this week?","Number of weeks on current training set-up.","Number of weeks since deload.","Number of weeks in current phase (cut/bulk/maintenance).","Is there anything you struggled with this week?","Are there any areas you want to improve next week?","Is there anything you would like me to run through for you?"]});
@@ -853,7 +904,7 @@ function autoPlan(food,m){if(!window.MPFMealGen||!MPFMealGen.conflicts)return;va
     var o={targets:t,style:food.style||'standard',diet:food.diet||'all',meals:want||nm.length||4,ban:food.ban||[],dislike:String(food.dislike||'').split(','),love:String(food.love||'').split(',')};var np=MPFMealGen.generate(o);if(!np)return;
     np.title='My '+t.cals+' kcal plan · updated to fit About me';np.notes=(bad.length?'Made for you because your last plan had '+bad.slice(0,3).join(', ')+(bad.length>3?' and more':'')+' in it. ':'Made for you with '+o.meals+' meals a day. ')+'Hits your '+t.cals+' kcal and '+t.protein+'g protein. Your old plan is still saved under My meal plans.';
     return fetch('/portal/api/mealplans',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({plan:np})}).then(function(r){if(!r.ok)throw 0;m.innerHTML='Saved ✓ Your meal plan has been updated to match. <a href="#meals" style="color:#e8c872">See it</a>';m.className='lg-msg ok';try{window.dispatchEvent(new Event('mpf-plan-updated'))}catch(e){}})}).catch(function(){})}
-window.__setNoPeriod=function(v,save){document.body.classList.toggle('noperiod',!!v);var t=document.getElementById('cyTab'),sec=document.getElementById('cycle');if(t)t.hidden=!!v;if(sec&&!sec.classList.contains('gone'))sec.hidden=!!v;var cb=box.querySelector('[name=noperiod]');if(cb)cb.checked=!!v;if(v&&/#cycle/.test(location.hash)){history.replaceState(null,'','#progress');window.dispatchEvent(new HashChangeEvent('hashchange'))}
+window.__setNoPeriod=function(v,save){document.body.classList.toggle('noperiod',!!v);var t=document.getElementById('cyTab'),sg=document.getElementById('cySeg'),sec=document.getElementById('cycle');if(t)t.hidden=!!v;if(sg)sg.hidden=!!v;if(sec&&!sec.classList.contains('gone'))sec.hidden=!!v;var cb=box.querySelector('[name=noperiod]');if(cb)cb.checked=!!v;if(v&&/#cycle/.test(location.hash)){history.replaceState(null,'','#log');window.dispatchEvent(new HashChangeEvent('hashchange'))}
   if(save&&!demo)fetch('/portal/api/prefs',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({noperiod:!!v})}).catch(function(){})};
 document.getElementById('amSave').onclick=function(){var m=document.getElementById('amMsg'),np=box.querySelector('[name=noperiod]'),b={phone:q('phone').value,about:q('about').value,noperiod:!!(np&&np.checked),food:{style:q('style').value,diet:q('diet').value,meals:q('meals').value,ban:[].map.call(box.querySelectorAll('[name=ban]:checked'),function(x){return x.value}),dislike:q('dislike').value,love:q('love').value}};
   if(demo){m.textContent='Saved ✓';m.className='lg-msg ok';return}m.textContent='Saving…';fetch('/portal/api/prefs',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify(b)}).then(function(r){if(!r.ok)throw 0;m.textContent='Saved ✓';m.className='lg-msg ok';if(window.__tick)window.__tick('about',true);if(window.__setNoPeriod)window.__setNoPeriod(b.noperiod,false);autoPlan(b.food,m)}).catch(function(){m.textContent='Not saved. Try again.';m.className='lg-msg warn'})}})();</script>
@@ -863,9 +914,9 @@ document.getElementById('amSave').onclick=function(){var m=document.getElementBy
 (function(){
   var KEY='mpf_tour_v1',T=[
     {ic:'🖤',t:'Welcome to your MPF app',p:'A quick 30-second tour so you know where everything lives. Skip for now and it pops up again next time you open the app.'},
-    {v:'today',ic:'📝',t:'Today',p:'Log your day here: your weight first thing, then food, steps, water and cardio. The bars fill up and turn green when you hit your targets 🔥'},
+    {v:'today',ic:'📝',t:'Today',p:'Log your day here: your weight first thing, then food, steps, water and cardio. Up top: My week to plan your week (it syncs to Google Calendar) and My cycle. 🔥'},
     {v:'nutrition',ic:'🥗',t:'Food',p:'Your targets and your meal plan. Tap Generate to build a new day of food in 15 cuisines, and swap any meal you fancy.'},
-    {v:'training',ic:'🏋️',t:'Training',p:'Your programme, your workout logbook (it tells you when to go up in weight) and your Planner, which syncs to Google Calendar.'},
+    {v:'training',ic:'🏋️',t:'Training',p:'Your programme and your workout logbook. It tells you when to go up in weight.'},
     {v:'progress',ic:'📈',t:'Progress',p:'Your weight trend, personal bests and photos. Your weekly check-in lives here too, with all my feedback saved.'},
     {v:'more',ic:'☰',t:'More',p:'Your account, About me and your sessions. Fill in About me so your meal plans fit you even better.'},
     {ic:'💪',t:"You're all set!",p:'Start with today\'s log. Any questions, message me. Maria x'}

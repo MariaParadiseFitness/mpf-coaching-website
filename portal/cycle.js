@@ -103,7 +103,7 @@
         '<p class="lg-msg" id="cyMsg"></p>'+patterns(st)+(st.none?'':'<p class="cy-note">Average cycle '+st.cl+' days'+(st.lens.length?' (from your last '+Math.min(6,st.lens.length)+')':' (log a few periods and this gets more accurate)')+'. Predictions are estimates, so don\'t rely on them for contraception. Not medical advice: if anything feels off, speak to your GP.</p>')+'</div>';
       h+='<button type="button" class="cy-off" data-off="1">No periods anymore (menopause or another reason)? Turn period tracking off</button>';
       h+='<div class="cy-k" style="margin:4px 2px 8px">Guides for you</div><div class="cy-guides">'+Object.keys(G).map(function(k){return '<button type="button" data-g="'+k+'"><span><i class="ti ti-'+G[k].i+'"></i></span><b>'+G[k].t+'</b><em>›</em></button>'}).join('')+'</div>';
-      el.innerHTML=h;bind()}
+      el.innerHTML=h;bind();if(o.onStats)try{o.onStats(st,st.none?null:TIPS[st.phase],st.none?null:diff(st.next,today))}catch(e){}}
     function save(patch,msg){var m=el.querySelector('#cyMsg');if(o.demo){days[today]=Object.assign({},days[today]||{},patch);draw();return}
       if(m)m.textContent='Saving…';
       fetch('/portal/api/log?from='+today+'&to='+today,{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){var d=Object.assign({},(j.days&&j.days[today])||{},patch);delete d._at;Object.keys(d).forEach(function(k){if(d[k]==='')delete d[k]});
