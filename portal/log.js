@@ -108,11 +108,14 @@
         var pc=v/tg,cls=pc>=1.1&&b[3]?'over':pc>=0.95?'hit':'',left=tg-v,fm=function(n){return b[0]==='water'?Math.round(n*10)/10:Math.round(n).toLocaleString('en-GB')};
         var note=!v?'Not logged yet':cls==='over'?fm(-left)+b[2]+' over':left>0?fm(left)+b[2]+' to go':'Target hit ✓';
         return '<div class="lb-r '+cls+'"><div class="lb-t"><b>'+b[1]+'</b><span>'+fm(v)+' / '+fm(tg)+b[2]+'</span></div><div class="lb-b"><i style="width:'+Math.min(100,pc*100).toFixed(1)+'%"></i></div><small>'+note+'</small></div>'}).join('');
-      var n=0,ok=0,miss=[];B.forEach(function(b){var tg=num(t[b[0]]);if(!tg||tg<=0)return;n++;var v=num(vals[b[0]]);if(b[0]==='cals'&&v==null){var k=kcal({carbs:vals.carbs,protein:vals.protein,fat:vals.fat});if(k)v=k}v=v||0;var pc=v/tg;if(pc>=0.95&&!(pc>=1.1&&b[3]))ok++;else miss.push(b[1])});bars.state={n:n,ok:ok,all:n>=2&&ok===n};
+      var st={},need=0,got=0;[['protein',0.95],['steps',0.95],['cardio',0.95]].forEach(function(q){var tg=num(t[q[0]]);if(!tg)return;need++;if((num(vals[q[0]])||0)>=tg*q[1])got++});
+      var tc=num(t.cals);if(tc){need++;var cv=num(vals.cals);if(cv==null)cv=kcal({carbs:vals.carbs,protein:vals.protein,fat:vals.fat});if(cv&&Math.abs(cv-tc)<=tc*0.1)got++}
+      need++;if(vals.trained==='Yes'||vals.trained==='No')got++;
+      bars.state={all:need>=3&&got===need,rest:vals.trained==='No'};
       box.hidden=!rows;box.innerHTML=rows?'<div class="lb-h">'+(cur===today?'Today':'This day')+' vs your targets</div>'+rows:''}
     function congrats(d){var k='mpfAll:'+d;try{if(localStorage.getItem(k))return;localStorage.setItem(k,'1')}catch(e){}
-      var L=['You hit every single target today. That\'s how results happen 🔥','Every target smashed. So proud of you 🖤','All targets hit. Consistency like this changes everything 💪','Perfect day. Calories, protein, steps, the lot. Keep stacking these 🏆'];
-      var m=document.createElement('div');m.className='cg';m.innerHTML='<div class="cg-c"><div class="cg-b">🏆</div><h3>'+(d===today?'You did it!':'Target day!')+'</h3><p>'+L[Math.floor(Math.random()*L.length)]+'</p><button type="button" class="btn">Yes I did 🙌</button></div>';
+      var L=['Protein, steps, cardio and training all done, and calories on point. That\'s how results happen 🔥','You ticked off everything that matters today. So proud of you 🖤','Protein hit, steps hit, calories bang on. Consistency like this changes everything 💪','Perfect day. Keep stacking these and the results take care of themselves 🏆'];
+      var m=document.createElement('div');m.className='cg';m.innerHTML='<div class="cg-c"><div class="cg-b">🏆</div><h3>'+(d===today?'You did it!':'Target day!')+'</h3>'+(bars.state&&bars.state.rest?'':'')+'<p>'+L[Math.floor(Math.random()*L.length)]+'</p><button type="button" class="btn">Yes I did 🙌</button></div>';
       for(var i=0;i<40;i++){var c=document.createElement('i');c.className='cg-f';c.style.left=Math.random()*100+'%';c.style.animationDelay=(Math.random()*0.8)+'s';c.style.background=['#c9a64b','#e8c872','#fff','#8a6d2b'][i%4];m.appendChild(c)}
       document.body.appendChild(m);var x=function(){m.remove()};m.querySelector('button').onclick=x;m.onclick=function(e){if(e.target===m)x()};try{navigator.vibrate&&navigator.vibrate([60,40,60])}catch(e){}}
     function setTargets(t0){
