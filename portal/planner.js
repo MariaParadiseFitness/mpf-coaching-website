@@ -30,7 +30,7 @@
     function sessOn(d){return sess[d]||[]}
     function itemBtn(x){var ty=TM[x.type];return '<button type="button" class="pl-it t-'+x.type+'" data-id="'+esc(x.id)+'"><i>'+ty[1]+'</i><span><b>'+esc(x.title)+'</b><small>'+x.time+' to '+endT(x.time,x.dur)+(x.days&&x.days.length?' · repeats':'')+'</small></span></button>'}
     var LG={};try{LG=JSON.parse(localStorage.getItem('mpfPlLogged')||'{}')}catch(e){}
-    function logBtn(x,d){var k=x.id+'|'+d,done=LG[k];return '<button type="button" class="pl-log'+(done?' done':'')+'" data-log="'+esc(x.id)+'" data-ld="'+d+'" data-lm="'+(+x.dur||30)+'">'+(done?'✓ Logged '+done+' mins of cardio':'🏃 Log '+(+x.dur||30)+' mins of cardio')+'</button>'}
+    function logBtn(x,d){var k=x.id+'|'+d,done=LG[k];return '<button type="button" class="pl-log'+(done?' done':'')+'" data-log="'+esc(x.id)+'" data-ld="'+d+'" data-lm="'+(+x.dur||30)+'">'+(done?'✓ Logged '+done+' mins of cardio':'🏃 Log this cardio')+'</button>'}
     function sessBtn(t){return '<div class="pl-it t-pt"><i>💪</i><span><b>PT session with Maria</b><small>'+(t?esc(t.replace('–',' to ')):'Booked')+' · PureGym Charlton</small></span></div>'}
     function dayBody(d){var l=dayList(d),ss=sessOn(d);return (ss.length||l.length)?ss.map(sessBtn).join('')+l.map(function(x){return itemBtn(x)+(x.type==='cardio'&&d<=today()?logBtn(x,d):'')}).join(''):'<div class="pl-free">Nothing planned</div>'}
     function toggle(){return '<div class="seg pl-vw"><button type="button" data-v="week" class="'+(view==='week'?'on':'')+'">📋 Week</button><button type="button" data-v="month" class="'+(view==='month'?'on':'')+'">🗓️ Month</button></div>'}
@@ -62,11 +62,16 @@
       [].forEach.call(el.querySelectorAll('[data-day]'),function(b){b.onclick=function(){sel=b.getAttribute('data-day');if(sel.slice(0,7)!==mo.slice(0,7))mo=sel.slice(0,8)+'01';edit=null;draw();var s=el.querySelector('.pl-sel');if(s&&s.scrollIntoView)s.scrollIntoView({block:'nearest',behavior:'smooth'})}});
       [].forEach.call(el.querySelectorAll('.pl-vw [data-v]'),function(b){b.onclick=function(){var v=b.getAttribute('data-v');if(v===view)return;if(v==='month'){var t=today();sel=(t>=wk&&t<=add(wk,6))?t:wk;mo=sel.slice(0,8)+'01'}else wk=monday(sel);view=v;try{localStorage.setItem('mpfPlView',v)}catch(e){}edit=null;draw()}});
       [].forEach.call(el.querySelectorAll('.pl-it'),function(b){b.onclick=function(){var x=items.filter(function(i){return i.id===b.getAttribute('data-id')})[0];if(x){edit=JSON.parse(JSON.stringify(x));form(edit);$f().scrollIntoView({block:'center',behavior:'smooth'})}}});
-      [].forEach.call(el.querySelectorAll('[data-log]'),function(b){b.onclick=function(){if(b.classList.contains('done')||b.disabled)return;var id=b.getAttribute('data-log'),d=b.getAttribute('data-ld'),mins=+b.getAttribute('data-lm');
-        var mark=function(){LG[id+'|'+d]=mins;try{localStorage.setItem('mpfPlLogged',JSON.stringify(LG))}catch(e){}draw();try{window.dispatchEvent(new Event('mpf-workout-saved'))}catch(e){}};
-        if(o&&o.demo){mark();return}b.disabled=true;b.textContent='Logging…';
-        fetch('/portal/api/log?from='+d+'&to='+d,{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){var day=Object.assign({},(j.days&&j.days[d])||{});delete day._at;day.cardio=String((parseFloat(day.cardio)||0)+mins);
-          return fetch('/portal/api/log',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({date:d,data:day})})}).then(function(r){if(!r.ok)throw 0;mark()}).catch(function(){b.disabled=false;b.textContent='Not logged. Tap to try again'})}});
+      [].forEach.call(el.querySelectorAll('[data-log]'),function(b){b.onclick=function(){if(b.classList.contains('done')||b.disabled)return;var id=b.getAttribute('data-log'),d=b.getAttribute('data-ld'),plan=+b.getAttribute('data-lm')||30;
+        var f=document.createElement('div');f.className='pl-logf';f.innerHTML='<span>How many minutes did you do?</span><div class="pl-lrow"><button type="button" data-st="-5" aria-label="5 minutes less">−</button><input type="number" inputmode="numeric" min="1" max="300" value="'+plan+'"><button type="button" data-st="5" aria-label="5 minutes more">+</button><em>mins</em></div><div class="pl-lrow"><button type="button" class="pl-lgo">✓ Log it</button><button type="button" class="pl-lx">Cancel</button></div>';
+        b.replaceWith(f);var inp=f.querySelector('input');inp.focus();inp.select();
+        [].forEach.call(f.querySelectorAll('[data-st]'),function(x){x.onclick=function(){inp.value=Math.max(1,Math.min(300,(+inp.value||0)+(+x.getAttribute('data-st'))))}});
+        f.querySelector('.pl-lx').onclick=function(){draw()};
+        f.querySelector('.pl-lgo').onclick=function(){var mins=Math.round(+inp.value);if(!(mins>0&&mins<=300)){inp.focus();return}var go=f.querySelector('.pl-lgo');
+          var mark=function(){LG[id+'|'+d]=mins;try{localStorage.setItem('mpfPlLogged',JSON.stringify(LG))}catch(e){}draw();try{window.dispatchEvent(new Event('mpf-workout-saved'))}catch(e){}};
+          if(o&&o.demo){mark();return}go.disabled=true;go.textContent='Logging…';
+          fetch('/portal/api/log?from='+d+'&to='+d,{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){var day=Object.assign({},(j.days&&j.days[d])||{});delete day._at;day.cardio=String((parseFloat(day.cardio)||0)+mins);
+            return fetch('/portal/api/log',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({date:d,data:day})})}).then(function(r){if(!r.ok)throw 0;mark()}).catch(function(){go.disabled=false;go.textContent='Not logged. Try again'})}}});
       var a=function(n,f){var b=el.querySelector('[data-a="'+n+'"]');if(b)b.onclick=f};
       a('new',function(){var d=view==='month'?sel:wk===monday(today())?today():wk;edit={id:'',type:'training',title:'',date:d,time:'07:00',dur:60,days:[],until:'',notes:''};form(edit)});
       var msg=function(t){var m=el.querySelector('#plMsg');if(m)m.textContent=t};
