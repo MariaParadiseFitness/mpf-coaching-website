@@ -216,6 +216,7 @@ body.gated #topTabs{visibility:hidden}
 .cy-now .cy-ar{color:#E8C872;font-size:24px;flex:0 0 auto}
 body.noperiod .cy-now{display:none}
 .cy-back{display:inline-flex;align-items:center;gap:4px;color:#E8C872;text-decoration:none;font-size:14px;font-weight:600;margin-bottom:10px}
+.ci-nobook{white-space:normal;margin:0 0 14px}.ci-nobook a{color:var(--gold);font-weight:700}
 .due.ci-big{padding:18px;gap:14px;border-radius:20px;animation:ciPulse 2.4s ease-in-out infinite}
 .due.ci-big .ci-ic{flex:0 0 auto;width:46px;height:46px;border-radius:50%;background:rgba(0,0,0,.18);display:grid;place-items:center;font-size:24px;color:inherit}
 .due.ci-big .ci-tx{flex:1;min-width:0}.due.ci-big .ci-tx b{display:block;font-family:var(--serif);font-size:20px;line-height:1.15;margin-bottom:3px}.due.ci-big .ci-tx small{display:block;font-weight:500;font-size:13px;opacity:.85;line-height:1.35}
@@ -357,6 +358,7 @@ body.noperiod .cy-now{display:none}
   <section data-view="progress" data-sub="ci" id="checkin">
     <h2>Weekly <em>check-in.</em></h2>
     <div class="sub" id="ciSub">Every week on your check-in day: answer the questions, upload your photos and send.</div>
+    <div class="pg-note ci-nobook" id="ciNoBook" hidden><b>No sessions booked right now</b><br>While you haven't got any sessions booked, I won't be reviewing or replying to check-ins. You can still fill it in to keep track of your own progress. Book in and we're straight back on it. <a href="#sessions">Book a session →</a></div>
     <div class="wk" id="wkBox" hidden></div>
     <div class="ci" id="ciBox"><div class="wc-empty">Loading…</div></div>
   </section>
@@ -794,6 +796,7 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
       if(c&&c.type==='pt'&&!meta.demo){
         if(window.__ptUp===undefined){window.__ptUp=null;fetch('/portal/api/sessions',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){window.__ptUp=!!(j&&j.upcoming&&j.upcoming.length)}).catch(function(){window.__ptUp=true}).then(function(){dueState(st)});return}
         if(window.__ptUp===null)return;
+        var nb=$('ciNoBook');if(nb)nb.hidden=!!window.__ptUp;
         if(!window.__ptUp)st={done:true,diff:st.diff,due:st.due};
       }
       var b=$('dueBanner'),show=!st.done&&st.diff<=0;
