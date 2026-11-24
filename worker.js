@@ -1583,6 +1583,7 @@ async function stripeWebhook(request, env) {
   if (o.customer && email) db.customers[o.customer] = email;
   const day = new Date(((o.created || ev.created || Date.now() / 1000)) * 1000).toISOString().slice(0, 10);
   const rec = email ? (db.byEmail[email] = db.byEmail[email] || { history: [] }) : null;
+  const prevStatus = rec ? rec.status : "";
   const amt = (n) => (typeof n === "number" ? Math.round(n) / 100 : null);
   const add = (h) => { rec.history = [h, ...rec.history.filter((x) => x.id !== h.id)].slice(0, 30); };
   if (rec) {
@@ -1609,6 +1610,12 @@ async function stripeWebhook(request, env) {
     rec.updated = new Date().toISOString();
   }
   await putJSON(env, key, db);
+  if (email && prevStatus === "cancelled" && ev.type === "checkout.session.completed" && o.payment_status !== "unpaid") {
+    const nm = (o.customer_details && o.customer_details.name) || email;
+    await sendMail(env, { subject: `🎉 ${nm} has restarted coaching`, heading: `<em style="color:#e6cf8b">${escH(nm)}</em> is back!`,
+      lines: [`${nm} (${email}) just restarted their online coaching and paid £${amt(o.amount_total)}.`, "", "Their portal has reopened automatically, with all their old logs, photos and check-ins still there.", "", "Worth sending them a welcome back message, and checking their programme, targets and meal plan are still right."],
+      button: { text: "Open Coach View", url: "https://mpfcoaching.co.uk/portal/coach/" } }).catch(() => {});
+  }
   if (email && ev.type === "checkout.session.completed" && o.payment_status !== "unpaid" && o.mode === "subscription") {
     await autoEnrol(env, email, (o.customer_details && o.customer_details.name) || "").catch(() => {});
   }
