@@ -919,12 +919,21 @@ async function handleApi(request, env, url, ctx) {
     }
     return json({ ok: true, sessions: n });
   }
+  if (path === "/portal/api/coach/orders") {
+    if (!coach) return json({ error: "forbidden" }, 403);
+    if (request.method !== "POST") return json({ error: "method" }, 405);
+    const b = await request.json().catch(() => ({})); const ids = new Set(Object.values(r).map((x) => x.id)); const done = {};
+    for (const [id, list] of Object.entries(b.byId || {})) { if (!ids.has(id) || !Array.isArray(list)) continue;
+      const orders = list.slice(0, 200).map((o) => ({ date: isDate(o.date) ? o.date : "", size: Math.max(0, Math.min(200, Math.round(Number(o.size) || 0))), name: String(o.name || "").slice(0, 80) })).filter((o) => o.date && o.size);
+      await putJSON(env, `${dkey(id)}/orders.json`, { orders, at: new Date().toISOString() }); done[id] = orders.length; }
+    return json({ ok: true, done });
+  }
   if (path === "/portal/api/coach/package") {
     if (!coach) return json({ error: "forbidden" }, 403);
     const id = (url.searchParams.get("id") || "").toLowerCase().replace(/[^a-z0-9_-]/g, "");
     if (!Object.values(r).some((x) => x.id === id)) return json({ error: "unknown" }, 404);
     const key = `${dkey(id)}/package.json`;
-    if (request.method === "POST") { const b = await request.json().catch(() => ({})); const size = Math.max(0, Math.min(200, Math.round(Number(b.size) || 0))); if (!size) { await env.PHOTOS.delete(key); return json({ ok: true, pkg: null }); } const d = { size, start: isDate(b.start) ? b.start : londonToday(), set: new Date().toISOString() }; await putJSON(env, key, d); return json({ ok: true, pkg: d }); }
+    if (request.method === "POST") { const b = await request.json().catch(() => ({})); const size = Math.max(0, Math.min(200, Math.round(Number(b.size) || 0))); if (!size) { await env.PHOTOS.delete(key); return json({ ok: true, pkg: null }); } const d = { size, start: isDate(b.start) ? b.start : londonToday(), set: new Date().toISOString() }; if (b.code) d.code = String(b.code).toUpperCase().slice(0, 20); await putJSON(env, key, d); return json({ ok: true, pkg: d }); }
     return json(await getJSON(env, key, null));
   }
   if (path === "/portal/api/coach/automation") {
@@ -1079,7 +1088,7 @@ async function handleApi(request, env, url, ctx) {
     const codes = a.codes || {}; const ks = Object.keys(codes).sort((x, y) => (codes[y].last).localeCompare(codes[x].last) || (codes[y].first).localeCompare(codes[x].first));
     const pk = await getJSON(env, `${dkey(client.id)}/package.json`, null), bs = await getJSON(env, "_data/_biz-settings.json", {});
     let pkg = null;
-    if (ks.length) { const q = codes[ks[0]]; const size = (pk && pk.size) || q.size || bs.pkgSize || 0; pkg = { size, used: q.used, booked: q.booked, left: size ? Math.max(0, size - q.used) : null, start: q.first }; }
+    if (ks.length) { const q = codes[ks[0]]; const ord = (await getJSON(env, `${dkey(client.id)}/orders.json`, {})).orders; const size = pkgSize(pk, ord, ks[0], q.first, q, bs).size; pkg = { size, used: q.used, booked: q.booked, left: size ? Math.max(0, size - q.used) : null, start: q.first }; }
     const dates = [...new Set(a.dates || [])].sort();
     return json({ today, past: dates.filter((d) => d <= today).reverse(), upcoming: dates.filter((d) => d > today), times: a.slots || {}, pkg });
   }
@@ -1129,7 +1138,7 @@ async function handleApi(request, env, url, ctx) {
         dob: c.onboarded === true ? ((await getJSON(env, `${dkey(c.id)}/onboarding.json`, {})).answers || {}).dob || "" : ((await getJSON(env, `${dkey(c.id)}/onboarding.json`, {})).answers || {}).dob || "",
         pkg: await (async () => { const a = acu && acu.byId && acu.byId[c.id]; const codes = (a && a.codes) || {}; const ks = Object.keys(codes).sort((x, y) => (codes[y].last).localeCompare(codes[x].last) || (codes[y].first).localeCompare(codes[x].first)); const pk = await getJSON(env, `${dkey(c.id)}/package.json`, null);
           const size = (pk && pk.size) || (bizSet && bizSet.pkgSize) || 0;
-          if (ks.length) { const k = ks[0], q = codes[k]; return { auto: true, code: k, size: (pk && pk.size) || q.size || (bizSet && bizSet.pkgSize) || 0, name: q.name || "", used: q.used, booked: q.booked, start: q.first, packages: ks.length }; }
+          if (ks.length) { const k = ks[0], q = codes[k]; const ord = (await getJSON(env, `${dkey(c.id)}/orders.json`, {})).orders; const ps = pkgSize(pk, ord, k, q.first, q, bizSet); return { auto: true, code: k, size: ps.size, src: ps.src, name: ps.name || q.name || "", used: q.used, booked: q.booked, start: q.first, packages: ks.length }; }
           if (!pk || !pk.size) return null; const ds = (a && a.dates) || []; return { size: pk.size, start: pk.start, used: ds.filter((d) => d >= pk.start && d <= today).length, booked: ds.filter((d) => d > today).length }; })(),
         startWeight: wts.length ? wts[0] : null, needsReply: (() => { const ks = Object.keys(sm.checkins || {}).sort(); const k = ks[ks.length - 1]; return !!k && !((sm.replied || {})[k]); })(),
         photosThisWeek: [...new Set(thisWeek)], lastUpload: photos.reduce((m, p) => (p.uploaded > m ? p.uploaded : m), ""),
@@ -1483,6 +1492,19 @@ async function acuityFromIcal(env, r) {
   }
   acuityLast.events = events; acuityLast.matched = matched; acuityLast.packageLabels = [...labels].slice(0, 40);
   return { byId: out, months, weeks, done, next7 };
+}
+// package size from Acuity orders: the package bought most recently on/before the code was first used
+function orderFor(orders, first) {
+  const os = (orders || []).filter((o) => o && o.size && o.date).sort((a, b) => a.date.localeCompare(b.date));
+  if (!os.length) return null;
+  let pick = null; for (const o of os) if (o.date <= first) pick = o;
+  return pick || os[0];
+}
+function pkgSize(pk, orders, code, first, q, bs) {
+  if (pk && pk.size && pk.code && pk.code === code) return { size: pk.size, src: "you" };
+  const o = orderFor(orders, first);
+  if (o) return { size: o.size, src: "acuity", name: o.name };
+  return { size: (pk && pk.size) || q.size || (bs && bs.pkgSize) || 0, src: pk && pk.size ? "you" : "" };
 }
 async function acuityBookings(env, r) {
   if (env.ACUITY_ICAL) {
