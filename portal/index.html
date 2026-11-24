@@ -419,7 +419,7 @@ body.gated #topTabs{visibility:hidden}
     <div class="acc">
       <label class="av big" id="avBox2"><img id="avImg2" alt="" hidden><span class="av-ph" id="avPh2">📷</span><span class="av-edit">Change</span><input type="file" accept="image/*" id="avIn2"></label>
       <div class="acc-t"><b id="accName">Name</b><span id="accEmail"></span><span id="accType"></span>
-        <div class="acc-btns"><button class="linkbtn" type="button" id="avDel" hidden>Remove my photo</button><button class="linkbtn" type="button" id="openSteps">My setup checklist</button><a class="linkbtn" href="/cdn-cgi/access/logout">Log out</a></div></div>
+        <div class="acc-btns"><button class="linkbtn" type="button" id="avDel" hidden>Remove my photo</button><button class="linkbtn" type="button" id="openSteps">My setup checklist</button><button class="linkbtn" type="button" onclick="window.__tour&&window.__tour(false,true)">Show me around the app</button><a class="linkbtn" href="/cdn-cgi/access/logout">Log out</a></div></div>
     </div>
   </section>
 
@@ -664,7 +664,7 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
     $('finishBtn').onclick=function(){
       if(!allDone())return;window.__gated=false;setGate(false);
       if(!meta.demo)fetch('/portal/api/setup',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({complete:true})}).catch(function(){});
-      history.pushState(null,'','#log');go('log');$('welcome').hidden=false;
+      history.pushState(null,'','#log');go('log');$('welcome').hidden=false;setTimeout(function(){window.__tour&&window.__tour()},900);
     };
     $('openSteps').onclick=function(){go('start')};
     function setGate(on){
@@ -674,6 +674,7 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
     function startSetup(st){
       done={};Object.keys((st&&st.done)||{}).forEach(function(k){done[k]=1});
       setGate(!(st&&(st.completed||st.skip)));
+      if(!window.__gated)setTimeout(function(){window.__tour&&window.__tour(true)},1400);
       /* once set up, the checklist stays out of the way: only 'My setup checklist' in Account opens it */
       route();
     }
@@ -838,5 +839,54 @@ if(!demo)fetch('/portal/api/prefs',{credentials:'same-origin',cache:'no-store'})
 box.addEventListener('input',function(){var m=document.getElementById('amMsg');m.textContent='Not saved yet';m.className='lg-msg warn'});
 document.getElementById('amSave').onclick=function(){var m=document.getElementById('amMsg'),b={phone:q('phone').value,about:q('about').value,food:{style:q('style').value,diet:q('diet').value,meals:q('meals').value,ban:[].map.call(box.querySelectorAll('[name=ban]:checked'),function(x){return x.value}),dislike:q('dislike').value,love:q('love').value}};
   if(demo){m.textContent='Saved ✓';m.className='lg-msg ok';return}m.textContent='Saving…';fetch('/portal/api/prefs',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify(b)}).then(function(r){if(!r.ok)throw 0;m.textContent='Saved ✓';m.className='lg-msg ok';if(window.__tick)window.__tick('about',true)}).catch(function(){m.textContent='Not saved. Try again.';m.className='lg-msg warn'})}})();</script>
+
+<div id="tour" class="tour" hidden><div class="tour-card" role="dialog" aria-modal="true" aria-labelledby="tourT"><div class="tour-dots" id="tourDots"></div><div class="tour-ic" id="tourIc"></div><h3 id="tourT"></h3><p id="tourP"></p><div class="tour-btns"><button type="button" class="tour-skip" id="tourSkip">Skip</button><button type="button" class="btn" id="tourNext">Next</button></div></div></div>
+<script>
+(function(){
+  var KEY='mpf_tour_v1',T=[
+    {ic:'🖤',t:'Welcome to your MPF app',p:'A quick 30-second tour so you know where everything lives. Tap Next.'},
+    {v:'today',ic:'📝',t:'Today',p:'Log your day here: your weight first thing, then food, steps, water and cardio. The bars fill up and turn green when you hit your targets 🔥'},
+    {v:'nutrition',ic:'🥗',t:'Food',p:'Your targets and your meal plan. Tap Generate to build a new day of food in 15 cuisines, and swap any meal you fancy.'},
+    {v:'training',ic:'🏋️',t:'Training',p:'Your programme, your workout logbook (it tells you when to go up in weight) and your Planner, which syncs to Google Calendar.'},
+    {v:'progress',ic:'📈',t:'Progress',p:'Your weight trend, personal bests and photos. Your weekly check-in lives here too, with all my feedback saved.'},
+    {v:'more',ic:'☰',t:'More',p:'Your account, About me and your sessions. Fill in About me so your meal plans fit you even better.'},
+    {ic:'💪',t:"You're all set!",p:'Start with today\'s log. Any questions, message me. Maria x'}
+  ],i=0,box=document.getElementById('tour');
+  function tabs(v){return [].slice.call(document.querySelectorAll('#bnav a[data-v="'+v+'"],#topTabs a[data-v="'+v+'"]'))}
+  function clear(){[].forEach.call(document.querySelectorAll('.tour-on'),function(e){e.classList.remove('tour-on')})}
+  function show(){var s=T[i];clear();if(s.v)tabs(s.v).forEach(function(e){e.classList.add('tour-on')});
+    document.getElementById('tourIc').textContent=s.ic;document.getElementById('tourT').textContent=s.t;document.getElementById('tourP').textContent=s.p;
+    document.getElementById('tourDots').innerHTML=T.map(function(_,k){return '<i'+(k===i?' class="on"':'')+'></i>'}).join('');
+    document.getElementById('tourNext').textContent=i===0?'Show me':i===T.length-1?"Let's go":'Next';
+    document.getElementById('tourSkip').hidden=i===T.length-1;box.classList.toggle('tour-mid',!s.v)}
+  function end(){clear();box.hidden=true;document.body.classList.remove('touring');try{localStorage.setItem(KEY,'1')}catch(e){}}
+  document.getElementById('tourNext').onclick=function(){if(i>=T.length-1)return end();i++;show()};
+  document.getElementById('tourSkip').onclick=end;
+  window.__tour=function(auto,force){
+    if(window.__gated)return;
+    if(!force){if(/[?&]as=/.test(location.search))return;try{if(localStorage.getItem(KEY))return}catch(e){return}
+      if(/[?&]preview\b/.test(location.search)&&!/[?&]tour\b/.test(location.search))return}
+    i=0;box.hidden=false;document.body.classList.add('touring');show()};
+})();
+</script>
+<style>
+.tour{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.62);display:flex;align-items:flex-end;justify-content:center;padding:0 14px calc(96px + env(safe-area-inset-bottom))}
+.tour.tour-mid{align-items:center;padding-bottom:0}
+.tour-card{width:100%;max-width:380px;background:#14120e;border:1px solid #C9A64B;border-radius:20px;padding:20px 20px 16px;color:#fff;box-shadow:0 20px 60px rgba(0,0,0,.6);text-align:center;animation:tourIn .25s ease}
+@keyframes tourIn{from{transform:translateY(14px);opacity:0}to{transform:none;opacity:1}}
+.tour-ic{font-size:30px;line-height:1;margin:6px 0 8px}
+.tour-card h3{font-family:var(--serif);font-size:22px;margin:0 0 6px;color:#fff}
+.tour-card p{color:#d8ccb0;font-size:14.5px;line-height:1.5;margin:0 0 16px}
+.tour-dots{display:flex;gap:5px;justify-content:center}.tour-dots i{width:6px;height:6px;border-radius:50%;background:#4a4130}.tour-dots i.on{background:#E8C872;width:16px;border-radius:4px}
+.tour-btns{display:flex;gap:10px;justify-content:center;align-items:center}
+.tour-skip{background:none;border:0;color:#a89a78;font:inherit;font-size:14px;padding:10px 14px;cursor:pointer}
+.tour-btns .btn{min-width:130px}
+body.touring .bnav{z-index:70}
+.bnav a.tour-on,#topTabs a.tour-on{color:#E8C872!important;background:rgba(201,166,75,.18);box-shadow:0 0 0 2px #C9A64B,0 0 22px rgba(201,166,75,.55);animation:tourPulse 1.4s ease-in-out infinite;position:relative;z-index:71}
+.bnav a.tour-on i{filter:none!important;opacity:1!important}
+@keyframes tourPulse{50%{box-shadow:0 0 0 2px #C9A64B,0 0 34px rgba(201,166,75,.9)}}
+@media(min-width:821px){.tour{align-items:flex-start;padding-top:120px;padding-bottom:0}body.touring .top{z-index:70;position:sticky}}
+@media(prefers-reduced-motion:reduce){.tour-card,.bnav a.tour-on,#topTabs a.tour-on{animation:none}}
+</style>
 </body>
 </html>
