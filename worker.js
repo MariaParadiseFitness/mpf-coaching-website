@@ -1655,7 +1655,13 @@ How Maria writes check-in feedback:
 - Low intake: if their calories or protein look too low (against their targets, or simply low for an adult who trains, e.g. under about 1400 kcal or under about 100g protein when no targets are set), say so clearly in the reply as normal coaching. Explain they need to eat more to fuel their training, recover and hold on to muscle, that under-eating backfires, and give simple ways to get more in (protein at every meal, bigger portions, easy snacks). If no targets are set, say Maria will set their targets for them. ALSO mention it in the note so Maria can keep an eye on it.
 - Never diagnose or give medical advice. If they mention pain, injury, illness or a medical issue, acknowledge it kindly in the reply and put the detail in the note for Maria. If anything suggests they're struggling with food or their mood (guilt about eating, skipping meals on purpose, restricting, bingeing, feeling low), keep the reply warm and supportive without lecturing about numbers, and flag it clearly in the note.
 
-Return ONLY JSON, no other text: {"reply": "the message to the client", "note": "a short private heads-up for Maria about anything she should personally check before sending, or an empty string"}`;
+Reply in exactly this format and nothing else:
+<reply>
+the message to the client
+</reply>
+<note>
+a short private heads-up for Maria about anything she should personally check before sending, or leave it empty
+</note>`;
 
 async function aiDraft(env, r, c, due) {
   if (!env.ANTHROPIC_API_KEY) return { error: "no-key" };
@@ -1704,7 +1710,15 @@ async function aiDraft(env, r, c, due) {
   const j = await res.json().catch(() => null);
   const raw = ((j && j.content) || []).filter((b) => b.type === "text").map((b) => b.text).join("").trim();
   let reply = "", note = "";
-  try { const m = raw.match(/\{[\s\S]*\}/); const o = JSON.parse(m ? m[0] : raw); reply = String(o.reply || ""); note = String(o.note || ""); } catch (e) { reply = raw; }
+  const tag = (n) => { const m = raw.match(new RegExp("<" + n + ">([\\s\\S]*?)(?:</" + n + ">|$)")); return m ? m[1].trim() : null; };
+  reply = tag("reply"); note = tag("note") || "";
+  if (reply == null) {
+    // fallbacks: JSON-shaped output, or plain text
+    try { const m = raw.match(/\{[\s\S]*\}/); const o = JSON.parse(m ? m[0] : raw); reply = String(o.reply || ""); note = String(o.note || ""); }
+    catch (e) { const m = raw.match(/"reply"\s*:\s*"([\s\S]*?)"\s*,\s*"note"\s*:\s*"([\s\S]*?)"\s*\}?\s*$/); if (m) { reply = m[1]; note = m[2]; } else reply = raw.replace(/^\s*\{\s*"reply"\s*:\s*"?/, ""); }
+    reply = reply.replace(/\\n/g, "\n").replace(/\\"/g, '"');
+  }
+  if (/^\s*<note>/.test(reply)) reply = "";
   const clean = (t) => t.replace(/\s*[—–]\s*/g, ", ").replace(/,\s*,/g, ",").trim();
   reply = clean(reply).slice(0, 5000); note = clean(note).slice(0, 600);
   if (!reply) return { error: "empty" };
