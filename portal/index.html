@@ -925,11 +925,11 @@ document.getElementById('amSave').onclick=function(){var m=document.getElementBy
   ],i=0,box=document.getElementById('tour');
   function tabs(v){return [].slice.call(document.querySelectorAll('#bnav a[data-v="'+v+'"],#topTabs a[data-v="'+v+'"]'))}
   function clear(){[].forEach.call(document.querySelectorAll('.tour-on'),function(e){e.classList.remove('tour-on')})}
-  function show(){var s=T[i];clear();if(s.el){var el=document.querySelector(s.el);if(!el||el.hidden||!el.offsetParent&&!document.querySelector('#tdSeg')){i++;return show()}if(typeof window.__tourGo==='function')window.__tourGo('log');window.scrollTo(0,0);el.classList.add('tour-on')}else if(s.v)tabs(s.v).forEach(function(e){e.classList.add('tour-on')});
+  function show(){var s=T[i];clear();if(s.el){var el=document.querySelector(s.el);if(!el||el.hidden){i++;return show()}if(typeof window.__tourGo==='function')window.__tourGo('log');window.scrollTo(0,0);el.classList.add('tour-on')}else if(s.v)tabs(s.v).forEach(function(e){e.classList.add('tour-on')});
     document.getElementById('tourIc').textContent=s.ic;document.getElementById('tourT').textContent=s.t;document.getElementById('tourP').textContent=s.p;
     document.getElementById('tourDots').innerHTML=T.map(function(_,k){return '<i'+(k===i?' class="on"':'')+'></i>'}).join('');
     document.getElementById('tourNext').textContent=i===0?'Show me':i===T.length-1?"Let's go":'Next';
-    document.getElementById('tourSkip').hidden=i===T.length-1;box.classList.toggle('tour-mid',!s.v)}
+    document.getElementById('tourSkip').hidden=i===T.length-1;box.classList.toggle('tour-mid',!s.v);box.classList.toggle('tour-low',!!s.el)}
   function end(finished){clear();box.hidden=true;document.body.classList.remove('touring');try{if(finished)localStorage.setItem(KEY,'1');else sessionStorage.setItem(KEY,'later')}catch(e){}}
   document.getElementById('tourNext').onclick=function(){if(i>=T.length-1)return end(true);i++;show()};
   document.getElementById('tourSkip').onclick=function(){end(false)};
@@ -958,6 +958,7 @@ body.touring #tdSeg{position:relative;z-index:70}#tdSeg a.tour-on{color:#E8C872!
 .bnav a.tour-on i{filter:none!important;opacity:1!important}
 @keyframes tourPulse{50%{box-shadow:0 0 0 2px #C9A64B,0 0 34px rgba(201,166,75,.9)}}
 @media(min-width:821px){.tour{align-items:flex-start;padding-top:120px;padding-bottom:0}body.touring .top{z-index:70;position:sticky}}
+@media(min-width:821px){.tour.tour-low{align-items:flex-end;padding-top:0;padding-bottom:40px}}
 @media(prefers-reduced-motion:reduce){.tour-card,.bnav a.tour-on,#topTabs a.tour-on{animation:none}}
 </style>
 <script src="/portal/icons.js"></script>
