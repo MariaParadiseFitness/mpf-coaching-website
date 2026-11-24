@@ -568,28 +568,57 @@ section[id],header[id]{scroll-margin-top:84px}
 @media(max-width:420px){.tb-login .tl-full{display:none}.tb-cta{padding:9px 12px;font-size:10px}}
 .lockg{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px;margin:20px 0}.lk{position:relative;background:#141210;border:1px solid rgba(201,166,75,.35);border-radius:12px;padding:14px 14px 14px 48px}.lk span{position:absolute;left:14px;top:13px;font-size:20px}.lk b{display:block;color:#fff;font-size:15px}.lk small{display:block;color:#b8ad93;font-size:13px;margin-top:3px;line-height:1.4}.lock-cta{display:flex;gap:10px;flex-wrap:wrap}
 
-/* hero: the MPF app on two phones */
-.hero-app{display:flex;gap:10px;justify-content:center;align-items:flex-end;flex-wrap:wrap;margin:26px auto 0;text-decoration:none;color:#fff;max-width:none!important}
-.ph{width:134px;height:304px;border-radius:24px;background:#050505;border:2px solid #C9A64B;padding:6px;box-shadow:0 18px 40px rgba(0,0,0,.6),0 0 0 1px rgba(232,200,114,.15) inset;position:relative;text-align:left;flex:0 0 auto}
-.ph:before{content:"";position:absolute;top:8px;left:50%;transform:translateX(-50%);width:40px;height:5px;border-radius:5px;background:#1d1d1d;z-index:2}
-.ph2{transform:translateY(-14px)}
-.ph-scr{height:100%;border-radius:18px;background:#0f0e0c;overflow:hidden;padding:18px 7px 7px;font-size:7px;line-height:1.3;color:#ddd}
-.ph-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}.ph-top b{color:#E8C872;font-size:8.5px}.ph-top span{font-size:7px;background:#1d1a14;border:1px solid #6b5a2c;border-radius:10px;padding:1px 5px;color:#E8C872}
-.ph-h{font-family:var(--serif,Georgia);font-size:11px;font-weight:700;color:#fff;margin-bottom:5px}.ph-h em{color:#C9A64B}
-.ph-card{background:#17150f;border:1px solid rgba(201,166,75,.3);border-radius:8px;padding:6px;margin-bottom:5px}.ph-card small{display:block;font-size:5.5px;letter-spacing:.1em;color:#C9A64B;margin-bottom:4px;font-weight:700}
-.ph-bar{display:grid;grid-template-columns:1fr auto;margin-bottom:4px}.ph-bar span{font-weight:600}.ph-bar em{font-style:normal;color:#aaa;font-size:6px}.ph-bar i{grid-column:1/3;grid-row:2;height:3px;border-radius:3px;background:linear-gradient(90deg,#C9A64B,#E8C872);margin-top:2px}.ph-bar.ok i{background:#5fbf7f}.ph-bar.ok em{color:#8fe0a6}
-.ph-pop{background:linear-gradient(135deg,#C9A64B,#E8C872);color:#111;border-radius:8px;padding:6px;font-size:7px;text-align:center}.ph-pop b{display:block;font-size:9px}
-.ph-ex{display:block;color:#fff;font-size:9px;margin-bottom:3px}.ph-next{background:rgba(95,191,127,.15);border:1px solid rgba(95,191,127,.4);color:#8fe0a6;border-radius:5px;padding:3px 4px;margin-bottom:4px;font-size:6.5px}
-.ph-set{display:grid;grid-template-columns:12px 1fr 1fr 10px;gap:4px;align-items:center;padding:2px 0;border-top:1px solid #222}.ph-set i{font-style:normal;text-align:center;background:#2a2620;border-radius:3px;color:#E8C872;font-weight:700}.ph-set.w i{background:#333;color:#bbb}.ph-set.d i{background:#6b3fa0;color:#fff}.ph-set u{text-decoration:none;color:#5fbf7f;font-weight:700}
-.ph-meal{display:flex;justify-content:space-between;gap:4px;padding:2px 0}.ph-meal b{color:#fff;font-weight:600}.ph-meal em{font-style:normal;color:#aaa;white-space:nowrap}
-.ph-pb{margin-top:4px;background:rgba(201,166,75,.15);border:1px solid rgba(201,166,75,.5);color:#E8C872;border-radius:5px;padding:2px 4px;font-weight:700;text-align:center}.ph-swap{margin-top:3px;color:#E8C872;font-size:6.2px;text-align:center;border-top:1px solid #2a2620;padding-top:3px}.ph-wk .ph-meal em{color:#8fe0a6}
-.ph-cap{flex:0 0 100%;text-align:center;margin-top:10px;text-shadow:0 2px 10px rgba(0,0,0,.95),0 0 4px rgba(0,0,0,.9)}.ph-cap b{display:block;color:#E8C872;font-size:13px;letter-spacing:.12em;text-transform:uppercase}.ph-cap span{font-size:13px;color:#d8ccb0}
-@media(min-width:760px){
-  .hero-app{position:relative;margin-top:26px;justify-content:flex-start;max-width:none;width:auto}
-  .hero-in>.hero-app{max-width:none}
-  .ph-cap{text-align:left}
+
+/* ---- the MPF app showcase ---- */
+.appshow{background:radial-gradient(70% 90% at 75% 50%,rgba(201,166,75,.16),rgba(17,17,17,0) 60%),#0c0b0a;color:#fff;padding:70px 0;overflow:hidden;position:relative;border-top:1px solid rgba(201,166,75,.18);border-bottom:1px solid rgba(201,166,75,.18)}
+.as-grid{display:grid;gap:30px;align-items:center}
+@media(min-width:900px){.as-grid{grid-template-columns:1fr 1fr;gap:20px}}
+.appshow .eyebrow{color:var(--gold-l)}
+.appshow h2{color:#fff}.appshow h2 em{color:var(--gold)}
+.as-lead{color:#d8ccb0;font-size:17px;max-width:460px;margin:10px 0 22px}
+.as-list{list-style:none;margin:0 0 26px;padding:0;display:grid;gap:14px;max-width:470px}
+.as-list li{display:flex;gap:14px;align-items:flex-start}.as-list li>span{flex:0 0 42px;height:42px;border-radius:12px;background:linear-gradient(145deg,#2a2418,#151310);border:1px solid rgba(201,166,75,.45);display:grid;place-items:center;font-size:19px}
+.as-list b{display:block;color:#fff;font-size:15.5px}.as-list div{color:#b8ad93;font-size:14px;line-height:1.45}
+.as-cta{display:flex;gap:18px;align-items:center;flex-wrap:wrap}.as-link{color:var(--gold-l);font-weight:600;text-decoration:none;letter-spacing:.04em}
+.as-stage{position:relative;height:600px;display:flex;justify-content:center;align-items:center}
+.as-glow{position:absolute;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle,rgba(232,200,114,.35),rgba(201,166,75,.08) 45%,transparent 70%);filter:blur(10px)}
+.as-scale{position:relative;width:470px;height:600px}
+.pz{position:absolute;width:262px;height:540px;border-radius:46px;padding:9px;background:linear-gradient(145deg,#e8c872,#8a6d2b 30%,#3a2f17 55%,#c9a64b 80%,#f0d88e);box-shadow:0 40px 80px rgba(0,0,0,.65),0 10px 25px rgba(0,0,0,.5)}
+.pz:after{content:"";position:absolute;inset:9px;border-radius:38px;background:linear-gradient(115deg,rgba(255,255,255,.12) 0%,rgba(255,255,255,0) 32%,rgba(255,255,255,0) 70%,rgba(255,255,255,.05) 100%);pointer-events:none}
+.pz-btn{position:absolute;width:4px;border-radius:2px;background:#a8893f}.pz-b1{left:-3px;top:120px;height:50px}.pz-b2{right:-3px;top:150px;height:80px}
+.pz-scr{position:relative;height:100%;border-radius:38px;background:#0d0c0a;overflow:hidden;padding:12px 13px 0;color:#e8e2d4;font-family:inherit;font-size:11px;line-height:1.35;border:4px solid #000}
+.pz-back{left:0;top:40px;transform:rotate(-7deg);z-index:1;filter:brightness(.88)}
+.pz-front{right:0;top:20px;transform:rotate(5deg);z-index:2}
+.pz-sb{display:flex;justify-content:space-between;align-items:center;font-size:11px;margin:0 6px 10px}.pz-sb i{font-style:normal;font-size:8px;letter-spacing:1px;color:#ccc}.pz-isl{width:78px;height:22px;border-radius:14px;background:#000}
+.pz-app{display:flex;align-items:center;gap:7px;margin-bottom:10px}.pz-app img{width:22px;height:22px;border-radius:6px}.pz-app b{color:#E8C872;font-size:15px;flex:1}.pz-streak{font-size:10.5px;background:#1d1a14;border:1px solid #6b5a2c;border-radius:12px;padding:2px 8px;color:#E8C872}
+.pz-hi{font-family:var(--serif,Georgia);font-size:19px;font-weight:700;margin-bottom:9px;color:#fff}.pz-hi em{color:#C9A64B}
+.pz-c{background:#17150f;border:1px solid rgba(201,166,75,.28);border-radius:14px;padding:10px;margin-bottom:9px}.pz-c small{display:block;font-size:8.5px;letter-spacing:.12em;color:#C9A64B;font-weight:700;margin-bottom:7px}
+.pz-bar{display:grid;grid-template-columns:1fr auto;margin-bottom:7px}.pz-bar span{font-weight:600}.pz-bar em{font-style:normal;color:#a8a090;font-size:9.5px}.pz-bar i{grid-column:1/3;height:5px;border-radius:5px;background:linear-gradient(90deg,#C9A64B,#E8C872);margin-top:3px}.pz-bar.ok i{background:linear-gradient(90deg,#4fae6f,#7fd99a)}.pz-bar.ok em{color:#8fe0a6}
+.pz-toast{display:flex;gap:9px;align-items:center;background:linear-gradient(135deg,#C9A64B,#F0D88E);color:#1a1405;border-radius:14px;padding:9px 11px;margin-bottom:9px;box-shadow:0 8px 20px rgba(201,166,75,.3)}.pz-toast span{font-size:22px}.pz-toast b{display:block;font-size:13px}.pz-toast div{font-size:10px;line-height:1.3}
+.pz-row{display:flex;justify-content:space-between;text-align:center}.pz-row small{font-size:7.5px;margin-bottom:3px}.pz-row b{font-size:14px;color:#fff}.pz-row b.g{color:#8fe0a6}
+.pz-ex{display:block;font-size:15px;color:#fff;margin-bottom:6px}.pz-next{background:rgba(95,191,127,.14);border:1px solid rgba(95,191,127,.45);color:#8fe0a6;border-radius:9px;padding:6px 8px;font-size:10.5px;margin-bottom:8px;font-weight:600}
+.pz-set{display:grid;grid-template-columns:22px 1fr 1fr 16px;gap:8px;align-items:center;padding:5px 0;border-top:1px solid #24211b;font-size:11.5px}.pz-set i{font-style:normal;text-align:center;border-radius:6px;background:#2a2620;color:#E8C872;font-weight:800;padding:2px 0}.pz-set.w i{background:#333;color:#bbb}.pz-set.d i{background:#6b3fa0;color:#fff}.pz-set u{text-decoration:none;color:#5fbf7f;font-weight:800}
+.pz-pb{margin-top:7px;text-align:center;font-weight:700;color:#1a1405;background:linear-gradient(135deg,#C9A64B,#F0D88E);border-radius:9px;padding:5px}
+.pz-meal{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #24211b}.pz-meal b{color:#fff;font-weight:600}.pz-meal em{font-style:normal;color:#a8a090}
+.pz-chips{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap}.pz-chips span{font-size:9px;padding:3px 7px;border-radius:12px;border:1px solid rgba(201,166,75,.45);color:#E8C872}
+.pz-tabs{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:space-around;padding:8px 6px 16px;background:rgba(13,12,10,.96);border-top:1px solid rgba(201,166,75,.2);font-size:8.5px;text-align:center;color:#8a8170;line-height:1.5}.pz-tabs .on{color:#E8C872}
+@media(max-width:899px){.appshow{padding:50px 0 30px}.as-stage{height:440px}.as-scale{transform:scale(.72);transform-origin:center}}
+@media(max-width:420px){.as-stage{height:400px}.as-scale{transform:scale(.64)}}
+
+/* hero: text left, Maria in the middle, app phones right (big screens) */
+.hero-phones{display:none}
+@media(min-width:1100px){
+  .hero-img{left:27%!important;right:auto!important;width:46%!important;object-position:50% 0%}
+  .hero-shade{background:linear-gradient(90deg,#111 0%,#111 26%,rgba(17,17,17,.2) 36%,rgba(17,17,17,0) 42%,rgba(17,17,17,0) 60%,rgba(17,17,17,.35) 66%,#111 76%),linear-gradient(180deg,#111 0,#111 96px,rgba(17,17,17,0) 220px,rgba(17,17,17,0) 80%,#111 100%)!important}
+  .hero-in{margin:0 0 0 max(40px,calc(50% - 640px))!important;max-width:440px!important}
+  .hero-in>*{max-width:430px}
+  .hero-phones{display:block;position:absolute;z-index:2;right:max(10px,calc(50% - 700px));top:50%;width:330px;height:470px;transform:translateY(-44%)}
+  .hero-phones a{display:block;position:relative;width:330px;height:420px}
+  .hero-phones .as-glow{left:-40px;top:-10px}
+  .hero-phones .as-scale{position:absolute;left:-70px;top:-90px;transform:scale(.7);transform-origin:center}
+  .hp-cap{position:absolute;bottom:-8px;left:0;right:0;text-align:center;text-shadow:0 2px 10px #000}.hp-cap b{display:block;color:#E8C872;font-size:13px;letter-spacing:.16em;text-transform:uppercase}.hp-cap span{color:#d8ccb0;font-size:13px}
+  .appshow .as-stage{display:none}.appshow .as-grid{grid-template-columns:1fr}.appshow .as-copy{max-width:760px;margin:0 auto;text-align:center}.appshow .as-list{grid-template-columns:1fr 1fr;max-width:none;text-align:left}.appshow .as-lead{margin-left:auto;margin-right:auto}.appshow .as-cta{justify-content:center}
 }
-@media(min-width:1300px){.hero-app{position:absolute;z-index:2;left:452px;bottom:70px;margin:0;width:284px;justify-content:center}.ph-cap{text-align:center}}
 </style>
 </head>
 <body>
@@ -616,6 +645,36 @@ section[id],header[id]{scroll-margin-top:84px}
 <header class="hero" id="top">
   <img class="hero-img" src="img/maria-hero-pro.jpg" alt="Maria Paradise, MPF Coaching">
   <div class="hero-shade"></div>
+  <div class="hero-phones" aria-hidden="true"><a href="#app-showcase" tabindex="-1"><div class="as-glow"></div><div class="as-scale">
+        <div class="pz pz-back"><div class="pz-btn pz-b1"></div><div class="pz-btn pz-b2"></div><div class="pz-scr">
+          <div class="pz-sb"><b>9:41</b><span class="pz-isl"></span><i>●●● ▮</i></div>
+          <div class="pz-app"><img src="img/app-192.png" alt=""><b>Workout</b><span class="pz-streak">24:10</span></div>
+          <div class="pz-c"><b class="pz-ex">Hip Thrust</b><div class="pz-next">📈 Go up to 62.5kg today 💪</div>
+            <div class="pz-set w"><i>W</i><span>40 kg</span><span>12</span><u>✓</u></div>
+            <div class="pz-set"><i>1</i><span>62.5 kg</span><span>12</span><u>✓</u></div>
+            <div class="pz-set"><i>2</i><span>62.5 kg</span><span>11</span><u>✓</u></div>
+            <div class="pz-set d"><i>D</i><span>50 kg</span><span>10</span><u>✓</u></div>
+            <div class="pz-pb">🏆 New personal best</div></div>
+          <div class="pz-c"><small>✨ MEAL PLAN BUILDER</small>
+            <div class="pz-meal"><b>Chicken burrito bowl</b><em>520 kcal</em></div>
+            <div class="pz-meal"><b>Salmon teriyaki</b><em>610 kcal</em></div>
+            <div class="pz-chips"><span>🔄 Swap</span><span>🌍 15 cuisines</span><span>🌱 Vegan</span></div></div>
+          <div class="pz-tabs"><span>🏠<br>Today</span><span>🍽<br>Food</span><span class="on">🏋️<br>Train</span><span>📈<br>Progress</span></div>
+        </div></div>
+        <div class="pz pz-front"><div class="pz-btn pz-b1"></div><div class="pz-btn pz-b2"></div><div class="pz-scr">
+          <div class="pz-sb"><b>9:41</b><span class="pz-isl"></span><i>●●● ▮</i></div>
+          <div class="pz-app"><img src="img/app-192.png" alt=""><b>Today</b><span class="pz-streak">🔥 7</span></div>
+          <div class="pz-hi">Good morning, <em>Jade.</em></div>
+          <div class="pz-c"><small>TODAY VS YOUR TARGETS</small>
+            <div class="pz-bar"><span>Calories</span><em>1,476 / 1,800</em><i style="width:82%"></i></div>
+            <div class="pz-bar ok"><span>Protein</span><em>152 / 150g ✓</em><i style="width:100%"></i></div>
+            <div class="pz-bar"><span>Steps</span><em>8,420 / 10,000</em><i style="width:84%"></i></div>
+            <div class="pz-bar ok"><span>Water</span><em>2.5 / 2.5L ✓</em><i style="width:100%"></i></div></div>
+          <div class="pz-toast"><span>🏆</span><div><b>Target day!</b>7 days in a row. Every target smashed 🖤</div></div>
+          <div class="pz-c pz-row"><div><small>THIS WEEK</small><b class="g">−0.6 kg</b></div><div><small>WORKOUTS</small><b>4 / 4</b></div><div><small>PROTEIN</small><b>6 / 7</b></div></div>
+          <div class="pz-tabs"><span class="on">🏠<br>Today</span><span>🍽<br>Food</span><span>🏋️<br>Train</span><span>📈<br>Progress</span></div>
+        </div></div>
+    </div></a><div class="hp-cap"><b>🔒 Use my app</b><span>Become a member to unlock it</span></div></div>
   <div class="hero-in wrap">
     <div class="tag">MPF Online Coaching · Maria Paradise</div>
     <h1>Want to work <em>with me?</em></h1>
@@ -629,33 +688,57 @@ section[id],header[id]{scroll-margin-top:84px}
       <div>Muscle building</div>
     </div>
 
-  <a class="hero-app" href="online-coaching.html#app" aria-label="See everything inside the MPF app">
-    <div class="ph ph1"><div class="ph-scr">
-      <div class="ph-top"><b>Today</b><span>🔥 7</span></div>
-      <div class="ph-h">Good morning, <em>Jade.</em></div>
-      <div class="ph-card"><small>TODAY VS YOUR TARGETS</small>
-        <div class="ph-bar"><span>Calories</span><i style="width:82%"></i><em>1,476 / 1,800</em></div>
-        <div class="ph-bar ok"><span>Protein</span><i style="width:100%"></i><em>152 / 150g ✓</em></div>
-        <div class="ph-bar"><span>Steps</span><i style="width:64%"></i><em>6,420 / 10,000</em></div>
-        <div class="ph-bar ok"><span>Water</span><i style="width:100%"></i><em>2.5 / 2.5L ✓</em></div></div>
-      <div class="ph-pop">🔥 <b>7 days in a row!</b> Target day, every target smashed 🖤</div>
-      <div class="ph-card ph-wk"><small>📊 YOUR WEEK</small><div class="ph-meal"><b>Weight</b><em>−0.6 kg</em></div><div class="ph-meal"><b>Workouts</b><em>4 ✓</em></div></div>
-    </div></div>
-    <div class="ph ph2"><div class="ph-scr">
-      <div class="ph-top"><b>Workout</b><span>24:10</span></div>
-      <div class="ph-card"><b class="ph-ex">Hip Thrust</b>
-        <div class="ph-next">📈 Go up to 62.5kg today 💪</div>
-        <div class="ph-set w"><i>W</i><span>40kg</span><span>12</span><u>✓</u></div>
-        <div class="ph-set"><i>1</i><span>62.5kg</span><span>12</span><u>✓</u></div>
-        <div class="ph-set"><i>2</i><span>62.5kg</span><span>11</span><u>✓</u></div>
-        <div class="ph-set d"><i>D</i><span>50kg</span><span>10</span><u>✓</u></div>
-        <div class="ph-pb">🏆 New PB: 62.5kg × 12</div></div>
-      <div class="ph-card"><small>✨ MEAL PLAN BUILDER · 15 CUISINES</small><div class="ph-meal"><b>Chicken burrito bowl</b><em>520 kcal</em></div><div class="ph-meal"><b>Salmon teriyaki</b><em>610 kcal</em></div><div class="ph-swap">🔄 Swap meal · 🌱 Make it vegan</div></div>
-    </div></div>
-    <div class="ph-cap"><b>🔒 Use my app</b><span>Become a member to unlock it →</span></div>
-  </a>
+
   </div>
 </header>
+
+<!-- THE MPF APP -->
+<section class="appshow" id="app-showcase">
+  <div class="wrap as-grid">
+    <div class="as-copy">
+      <div class="eyebrow">The MPF app · members only</div>
+      <h2>Your coach, <em>in your pocket.</em></h2>
+      <p class="as-lead">Every client gets my MPF app. Your training, your food and your progress in one place, built around you.</p>
+      <ul class="as-list">
+        <li><span>📈</span><div><b>Smart workout logbook</b>Tells you when to go up in weight and tracks every PB</div></li>
+        <li><span>✨</span><div><b>Meal plan builder</b>Full days that hit your macros, 15 cuisines, swap anything in a tap</div></li>
+        <li><span>🎯</span><div><b>Daily targets that fill up</b>Calories, protein, steps and water, with streaks and celebrations</div></li>
+        <li><span>💬</span><div><b>Weekly check-ins with me</b>Detailed feedback every week, all saved to look back on</div></li>
+      </ul>
+      <div class="as-cta"><a class="btn" href="online-coaching.html#pricing">🔒 Become a member</a><a class="as-link" href="online-coaching.html#app">See everything inside →</a></div>
+    </div>
+    <div class="as-stage" aria-hidden="true"><div class="as-glow"></div><div class="as-scale">
+        <div class="pz pz-back"><div class="pz-btn pz-b1"></div><div class="pz-btn pz-b2"></div><div class="pz-scr">
+          <div class="pz-sb"><b>9:41</b><span class="pz-isl"></span><i>●●● ▮</i></div>
+          <div class="pz-app"><img src="img/app-192.png" alt=""><b>Workout</b><span class="pz-streak">24:10</span></div>
+          <div class="pz-c"><b class="pz-ex">Hip Thrust</b><div class="pz-next">📈 Go up to 62.5kg today 💪</div>
+            <div class="pz-set w"><i>W</i><span>40 kg</span><span>12</span><u>✓</u></div>
+            <div class="pz-set"><i>1</i><span>62.5 kg</span><span>12</span><u>✓</u></div>
+            <div class="pz-set"><i>2</i><span>62.5 kg</span><span>11</span><u>✓</u></div>
+            <div class="pz-set d"><i>D</i><span>50 kg</span><span>10</span><u>✓</u></div>
+            <div class="pz-pb">🏆 New personal best</div></div>
+          <div class="pz-c"><small>✨ MEAL PLAN BUILDER</small>
+            <div class="pz-meal"><b>Chicken burrito bowl</b><em>520 kcal</em></div>
+            <div class="pz-meal"><b>Salmon teriyaki</b><em>610 kcal</em></div>
+            <div class="pz-chips"><span>🔄 Swap</span><span>🌍 15 cuisines</span><span>🌱 Vegan</span></div></div>
+          <div class="pz-tabs"><span>🏠<br>Today</span><span>🍽<br>Food</span><span class="on">🏋️<br>Train</span><span>📈<br>Progress</span></div>
+        </div></div>
+        <div class="pz pz-front"><div class="pz-btn pz-b1"></div><div class="pz-btn pz-b2"></div><div class="pz-scr">
+          <div class="pz-sb"><b>9:41</b><span class="pz-isl"></span><i>●●● ▮</i></div>
+          <div class="pz-app"><img src="img/app-192.png" alt=""><b>Today</b><span class="pz-streak">🔥 7</span></div>
+          <div class="pz-hi">Good morning, <em>Jade.</em></div>
+          <div class="pz-c"><small>TODAY VS YOUR TARGETS</small>
+            <div class="pz-bar"><span>Calories</span><em>1,476 / 1,800</em><i style="width:82%"></i></div>
+            <div class="pz-bar ok"><span>Protein</span><em>152 / 150g ✓</em><i style="width:100%"></i></div>
+            <div class="pz-bar"><span>Steps</span><em>8,420 / 10,000</em><i style="width:84%"></i></div>
+            <div class="pz-bar ok"><span>Water</span><em>2.5 / 2.5L ✓</em><i style="width:100%"></i></div></div>
+          <div class="pz-toast"><span>🏆</span><div><b>Target day!</b>7 days in a row. Every target smashed 🖤</div></div>
+          <div class="pz-c pz-row"><div><small>THIS WEEK</small><b class="g">−0.6 kg</b></div><div><small>WORKOUTS</small><b>4 / 4</b></div><div><small>PROTEIN</small><b>6 / 7</b></div></div>
+          <div class="pz-tabs"><span class="on">🏠<br>Today</span><span>🍽<br>Food</span><span>🏋️<br>Train</span><span>📈<br>Progress</span></div>
+        </div></div>
+    </div></div>
+  </div>
+</section>
 
 <!-- ABOUT -->
 <section class="about light-about" id="about">
@@ -825,14 +908,7 @@ section[id],header[id]{scroll-margin-top:84px}
   </div>
 </section>
 
-<section id="appteaser">
-  <div class="wrap">
-    <div class="eyebrow">The MPF app</div>
-    <h2>Your coach, <em>in your pocket.</em></h2>
-    <p>Every client gets my MPF app: your programme, a workout logbook that tracks your PBs and tells you when to go up in weight, meal plans in 15 cuisines that you can swap and rebuild in a tap, cooking instructions, target bars that fill up as you go, streak celebrations, progress photos, weekly check-ins and Google Calendar sync. All in one place on your phone. 🔥</p>
-    <a class="btn" href="online-coaching.html#app">See everything inside</a>
-  </div>
-</section>
+
 
 <section class="dark" id="members">
   <div class="wrap">
