@@ -499,3 +499,9 @@ input[type=date],input[type=time]{color-scheme:dark}
 .cy-sheet h4{color:#E8C872;font-size:15px;margin:18px 0 4px}
 .cy-sheet p{color:#d8ccb0;font-size:15px;line-height:1.6;margin:0}
 .cy-sig{font-family:var(--serif);font-style:italic;color:#E8C872!important;margin-top:18px!important}
+/* shared icon style: app + coach portal */
+i.ti.emo{color:#E8C872;font-size:1.12em;line-height:1;vertical-align:-.14em;font-style:normal}
+.ico-only i.ti.emo{margin:0}
+.btn.g i.ti.emo,.on>i.ti.emo,.pill i.ti.emo,a.on i.ti.emo{color:inherit}
+i.ti.emo.ico-red{color:#f07b6e}i.ti.emo.ico-amb{color:#e8a34a}
+.pill.off i.ti.emo{color:#f4a59e}.pill.ok i.ti.emo{color:inherit}
