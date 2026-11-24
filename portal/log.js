@@ -93,7 +93,7 @@
     saveBtn.onclick=function(){
       var data={};Object.keys(vals).forEach(function(k){if(vals[k]!==''&&vals[k]!=null)data[k]=vals[k]});
       saveBtn.disabled=true;msg.textContent='Saving…';msg.className='lg-msg';
-      var done=function(day){days[cur]=day;if(!day)delete days[cur];dirty=false;saveBtn.disabled=false;msg.textContent='Saved ✓';msg.className='lg-msg ok';strip();if(o.onSaved)o.onSaved(days);bars();if(bars.state&&bars.state.all)congrats(cur)};
+      var done=function(day){days[cur]=day;if(!day)delete days[cur];dirty=false;saveBtn.disabled=false;msg.textContent='Saved ✓';msg.className='lg-msg ok';strip();if(o.onSaved)o.onSaved(days);bars();var sk=streak(cur);if(sk>=7&&sk%7===0&&cur===today)streakPop(sk);else if(bars.state&&bars.state.all)congrats(cur)};
       if(demo){setTimeout(function(){done(Object.keys(data).length?Object.assign({_at:new Date().toISOString()},data):null)},300);return}
       api('/portal/api/log',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({date:cur,data:data})}).then(function(j){done(j.day)}).catch(function(){saveBtn.disabled=false;msg.textContent='Not saved. Check your signal and try again.';msg.className='lg-msg warn'});
     };
@@ -113,6 +113,13 @@
       need++;if(vals.trained==='Yes'||vals.trained==='No')got++;
       bars.state={all:need>=3&&got===need,rest:vals.trained==='No'};
       box.hidden=!rows;box.innerHTML=rows?'<div class="lb-h">'+(cur===today?'Today':'This day')+' vs your targets</div>'+rows:''}
+    function logged(d){var x=days[d];return !!(x&&Object.keys(x).some(function(k){return k[0]!=='_'&&x[k]!==''}))}
+    function streak(d){var n=0;while(n<400&&logged(fromT(toT(d)-n*DAY)))n++;return n}
+    function pop(icon,title,text,btn){var m=document.createElement('div');m.className='cg';m.innerHTML='<div class="cg-c"><div class="cg-b">'+icon+'</div><h3>'+title+'</h3><p>'+text+'</p><button type="button" class="btn">'+btn+'</button></div>';
+      for(var i=0;i<40;i++){var c=document.createElement('i');c.className='cg-f';c.style.left=Math.random()*100+'%';c.style.animationDelay=(Math.random()*0.8)+'s';c.style.background=['#c9a64b','#e8c872','#fff','#8a6d2b'][i%4];m.appendChild(c)}
+      document.body.appendChild(m);var x=function(){m.remove()};m.querySelector('button').onclick=x;m.onclick=function(e){if(e.target===m)x()};try{navigator.vibrate&&navigator.vibrate([60,40,60])}catch(e){}}
+    function streakPop(n){var k='mpfStreak:'+today+':'+n;try{if(localStorage.getItem(k))return;localStorage.setItem(k,'1')}catch(e){}
+      var w=n/7;pop('🔥',n+' days in a row!',w===1?'You\'ve logged every single day this week. That\'s the habit that gets results. Keep the streak going 🖤':w+' weeks without missing a day. Honestly, I\'m so proud of you. This is what consistency looks like 💪','Keep it going 🔥')}
     function congrats(d){var k='mpfAll:'+d;try{if(localStorage.getItem(k))return;localStorage.setItem(k,'1')}catch(e){}
       var L=['Protein, steps, cardio and training all done, and calories on point. That\'s how results happen 🔥','You ticked off everything that matters today. So proud of you 🖤','Protein hit, steps hit, calories bang on. Consistency like this changes everything 💪','Perfect day. Keep stacking these and the results take care of themselves 🏆'];
       var m=document.createElement('div');m.className='cg';m.innerHTML='<div class="cg-c"><div class="cg-b">🏆</div><h3>'+(d===today?'You did it!':'Target day!')+'</h3>'+(bars.state&&bars.state.rest?'':'')+'<p>'+L[Math.floor(Math.random()*L.length)]+'</p><button type="button" class="btn">Yes I did 🙌</button></div>';
