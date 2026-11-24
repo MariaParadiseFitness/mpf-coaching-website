@@ -411,7 +411,7 @@
       var row=function(l,v){return '<div><small>'+l+'</small><b>'+v+'</b></div>'};
       el.innerHTML='<div class="lg-stats mp-tot">'+row('Phase',esc(b.phase||'Not set'))+row('Goal',esc(b.goal||'Not set')+(b.goalweight?' · '+esc(b.goalweight)+' kg':''))+row('Weight',b.weight?esc(b.weight)+' kg':'Log your weight')+row('Body fat',b.bf?esc(b.bf)+'%':'Add below')+'</div>'+
         (m?'<div class="pg-note"><b>Your maintenance: about '+m+' kcal a day.</b> That\'s what keeps your weight the same, worked out from your latest weight ('+esc(b.weight)+' kg) and body fat ('+esc(b.bf)+'%): '+esc(b.lean)+' kg of lean mass burns about '+esc(b.bmr)+' kcal at rest, then your training and steps on top.'+(vs?'<br>Your target of '+kcal+' kcal is '+vs+'.':'')+'</div>'
-          :'<div class="pg-note">Add your body fat % (and log your weight in your daily log) to see your maintenance calories.</div>')+
+          :'<div class="pg-note">Add your body fat % (and log your weight in your daily log) to see your maintenance calories. Don\'t know it? Step on a Tanita body fat scale (lots of gyms have one), or ask Maria at your next session or check-in.</div>')+
         '<div class="mg-act"><label style="flex:1">Update my body fat %<input name="bf" type="number" step="0.1" min="3" max="60" placeholder="e.g. 22" value="'+esc(b.bf||'')+'"></label><button type="button" class="btn" data-b="save">Save</button></div><p class="lg-msg"></p>'+
         '<p class="pg-key">It updates every time you log a new weight or body fat. It\'s an estimate: your coach will fine-tune your calories from your weekly check-ins.</p>';
       el.querySelector('[data-b=save]').onclick=function(){var v=el.querySelector('[name=bf]').value,msg=el.querySelector('.lg-msg');msg.textContent='Saving…';
