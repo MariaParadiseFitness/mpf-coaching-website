@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Free 1RM Calculator | MPF Coaching</title>
+<link rel="canonical" href="https://mpfcoaching.co.uk/1rm.html">
+<meta name="description" content="Free one-rep max calculator: estimate your 1RM from any heavy set, see your training percentages, and find out when it is actually worth testing a max.">
+<link rel="icon" type="image/png" href="img/favicon.png">
+<meta property="og:title" content="Free 1RM Calculator | MPF Coaching"><meta property="og:description" content="Free one-rep max calculator: estimate your 1RM from any heavy set, see your training percentages, and find out when it is actually worth testing a max.">
+<meta property="og:image" content="https://mpfcoaching.co.uk/img/og.jpg"><meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
+<style>
+@font-face{font-family:"PlayfairL";src:url(fonts/pf400.woff2);font-weight:400}
+@font-face{font-family:"PlayfairL";src:url(fonts/pf400i.woff2);font-weight:400;font-style:italic}
+@font-face{font-family:"PlayfairL";src:url(fonts/pf700.woff2);font-weight:700}
+@font-face{font-family:"PlayfairL";src:url(fonts/pf900.woff2);font-weight:900}
+@font-face{font-family:"MontL";src:url(fonts/m400.woff2);font-weight:400}
+@font-face{font-family:"MontL";src:url(fonts/m600.woff2);font-weight:600}
+@font-face{font-family:"MontL";src:url(fonts/m700.woff2);font-weight:700}
+:root{--gold:#C9A64B;--gold-l:#E4CF8A;--gold-d:#9C7A2C;--ink:#111;--cream:#FBF7EE;--muted:#5b5547;
+--grad:linear-gradient(120deg,#9C7A2C 0%,#C9A64B 45%,#E8D79A 100%);
+--serif:"Playfair Display","PlayfairL",Georgia,serif;--sans:"Montserrat","MontL",system-ui,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);font-size:16px;line-height:1.65;color:#1b1a17;background:var(--cream);-webkit-font-smoothing:antialiased}
+.wrap{max-width:680px;margin:0 auto;padding:0 22px}
+a{color:var(--gold-d)}
+.top{position:sticky;top:0;z-index:5;background:rgba(17,17,17,.95);padding:10px 0}
+.top .wrap{display:flex;justify-content:space-between;align-items:center}
+.top a{color:var(--gold-l);text-decoration:none;font-size:13px;font-weight:600;letter-spacing:.06em}
+.top .cta{background:var(--grad);color:var(--ink);padding:8px 14px;border-radius:20px;font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+
+.cover{background:#111;color:#fff;text-align:center;padding:56px 0 60px;position:relative}
+.cover:before{content:"";position:absolute;inset:14px;border:1px solid rgba(201,166,75,.4);pointer-events:none}
+.cover img{width:150px;margin:0 auto 26px;display:block}
+.cover .kick{font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--gold-l);margin-bottom:14px}
+.cover h1{font-family:var(--serif);font-weight:900;font-size:clamp(34px,9vw,54px);line-height:1.05}
+.cover h1 em{display:block;font-style:italic;font-weight:400;color:var(--gold)}
+.cover .sub{font-family:var(--serif);font-style:italic;font-size:19px;color:#d8ccb0;margin-top:16px}
+.cover .by{margin-top:26px;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:#a89a78}
+
+.tldr{background:#fff;border:1.5px solid var(--gold);border-radius:12px;padding:24px 22px;margin:34px 0 10px}
+.tldr h2{font-family:var(--serif);font-size:22px;margin-bottom:12px}
+.tldr ol{padding-left:20px}
+.tldr li{margin-bottom:7px}
+.toc{margin:22px 0 0;font-size:14px;columns:2;column-gap:20px}
+.toc a{display:block;text-decoration:none;color:#3a362e;padding:4px 0;break-inside:avoid}
+.toc a b{color:var(--gold-d);margin-right:6px}
+
+section.ch{padding:42px 0 6px;break-inside:auto}
+.num{font-family:var(--serif);font-weight:900;font-size:15px;color:var(--gold-d);letter-spacing:.12em}
+h2.t{font-family:var(--serif);font-weight:900;font-size:clamp(26px,6.5vw,34px);line-height:1.12;margin:4px 0 16px;break-after:avoid}
+h3{font-family:var(--serif);font-weight:700;font-size:20px;margin:22px 0 6px;break-after:avoid}
+p{margin-bottom:12px}
+ul.b{list-style:none;margin:4px 0 14px}
+ul.b li{position:relative;padding-left:24px;margin-bottom:8px}
+ul.b li:before{content:"";position:absolute;left:0;top:8px;width:11px;height:11px;border-radius:50%;background:var(--grad)}
+.lol{font-family:var(--serif);font-style:italic;color:var(--gold-d)}
+sup{font-size:10px;color:var(--gold-d)}
+.note{background:#111;color:#e9e0c9;border-radius:10px;padding:18px 20px;margin:18px 0;font-size:15px;break-inside:avoid}
+.note b{color:var(--gold);letter-spacing:.14em;font-size:11px;display:block;margin-bottom:6px}
+.key{background:#f1e8cf;border-left:4px solid var(--gold);padding:14px 18px;border-radius:0 8px 8px 0;margin:16px 0;font-size:15px;break-inside:avoid}
+.key b{font-family:var(--serif)}
+table{width:100%;border-collapse:collapse;margin:14px 0 18px;font-size:14px;background:#fff;border-radius:10px;overflow:hidden;break-inside:avoid}
+th{background:#111;color:var(--gold-l);text-align:left;padding:10px 12px;font-size:12px;letter-spacing:.06em}
+td{padding:10px 12px;border-top:1px solid rgba(156,122,44,.2);vertical-align:top}
+td:first-child{font-weight:600}
+
+.cheat{background:#111;color:#f3ecdc;padding:44px 0;margin-top:40px}
+.cheat h2{font-family:var(--serif);font-size:30px;color:#fff;margin-bottom:6px}
+.cheat h2 em{color:var(--gold);font-weight:400}
+.cgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+.cgrid div{border:1px solid rgba(201,166,75,.4);border-radius:10px;padding:14px}
+.cgrid small{display:block;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+.cgrid b{font-family:var(--serif);font-size:22px;color:#fff;display:block;margin:2px 0}
+.cgrid span{font-size:13px;color:#cfc4aa}
+
+.cta-box{background:#111;color:#fff;text-align:center;border-radius:14px;padding:32px 24px;margin:36px 0;break-inside:avoid}
+.cta-box h2{font-family:var(--serif);font-size:26px;margin-bottom:10px}
+.cta-box p{color:#d8ccb0}
+.cta-box ul{list-style:none;margin:14px 0 20px;color:#e9e0c9;font-size:15px}
+.cta-box li{padding:4px 0}
+.cta-box li:before{content:"✓ ";color:var(--gold)}
+.btn{display:inline-block;background:var(--grad);color:var(--ink);font-weight:700;font-size:13px;letter-spacing:.16em;text-transform:uppercase;text-decoration:none;padding:16px 26px;border-radius:40px}
+.cta-box .small{font-size:12px;color:#a89a78;margin-top:14px}
+.refs{font-size:12px;color:#5b5547;line-height:1.5}
+.refs li{margin:0 0 6px 18px}
+.disc{font-size:12px;color:#5b5547;border-top:1px solid rgba(156,122,44,.3);padding-top:14px;margin-top:20px}
+footer{background:#0b0b0a;color:#6f6754;text-align:center;font-size:11px;letter-spacing:.2em;text-transform:uppercase;padding:22px 0}
+
+@media print{
+  @page{size:A4;margin:16mm 16mm 18mm}
+  body{font-size:10.6pt;background:#fff}
+  .top{display:none}
+  .wrap{max-width:none;padding:0}
+  .cover{height:265mm;display:flex;flex-direction:column;justify-content:center;margin:-16mm -16mm 0;page-break-after:always;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .cover img{width:58mm}
+  .tldr{margin-top:0}
+  .toc{columns:2}
+  section.ch{padding-top:20px}
+  .cheat{page-break-before:always;margin:0 -16mm;padding:16mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .note,.cheat,.cta-box,th,.btn,.key{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .cta-box{page-break-inside:avoid}
+  footer{display:none}
+  #refs{page-break-before:always}
+}
+.tool{background:#111;color:#efe6cf;border-radius:14px;padding:20px;margin:18px 0;border:1px solid rgba(201,166,75,.4)}
+.tl{font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+input[type=range]{width:100%;accent-color:#C9A64B;margin:8px 0}
+.rir-out b{display:block;font-family:var(--serif);font-size:24px;color:#fff}
+.rir-out span{display:block;color:#d8ccb0}
+.rir-out em{display:block;font-style:normal;margin-top:8px;font-weight:600;color:var(--gold-l)}
+.vrow{display:flex;gap:10px;align-items:center}
+.vrow select{flex:1;padding:12px;border-radius:10px;background:#1d1c19;color:#fff;border:1px solid rgba(201,166,75,.45);font-size:16px;font-family:var(--sans)}
+.step{display:flex;align-items:center;gap:10px}
+.step button{width:44px;height:44px;border-radius:50%;border:1.5px solid var(--gold);background:none;color:var(--gold);font-size:22px;cursor:pointer}
+.step b{font-family:var(--serif);font-size:26px;color:#fff;min-width:34px;text-align:center}
+.vbar{position:relative;height:12px;border-radius:8px;background:#2a2722;margin:16px 0 4px;overflow:hidden}
+.vbar i{position:absolute;left:0;top:0;bottom:0;background:var(--grad);transition:width .2s}
+.vbar span{position:absolute;top:0;bottom:0;width:2px;background:#111}
+.vscale{display:flex;justify-content:space-between;font-size:11px;color:#a89a78}
+.vmsg{margin:10px 0 0;font-weight:600;color:var(--gold-l)}
+@media print{.tool{display:none}}
+.rm-g{display:grid;grid-template-columns:1fr 1fr;gap:10px}.rm-g label{font-size:12px;color:#cfc4aa;display:grid;gap:4px}.rm-g label:last-child{grid-column:1/-1}.rm-g input,.rm-g select{width:100%;min-width:0;padding:12px;border-radius:10px;background:#1d1c19;color:#fff;border:1px solid rgba(201,166,75,.45);font-size:16px;font-family:var(--sans)}
+</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>/*mob-fix*/i.ti.emo{color:#E8C872;font-size:1.1em;line-height:1;vertical-align:-.14em;font-style:normal}.btn i.ti.emo,.on>i.ti.emo{color:inherit}html,body{overflow-x:clip}</style>
+</head>
+<body data-gate="1RM calculator">
+
+<div class="top"><div class="wrap"><a href="index.html">← MPF Coaching</a><a class="cta" href="book.html#online">Work with me</a></div></div>
+
+<header class="cover"><div class="wrap">
+  <img src="img/logo.png" alt="MPF Coaching">
+  <div class="kick">Free tool · MPF Coaching</div>
+  <h1>1RM <em>Calculator</em></h1>
+  <div class="sub">Find your one-rep max without ever having to test it</div>
+  <div class="by">By Maria Paradise · mpfcoaching.co.uk</div>
+</div></header>
+
+<main class="wrap">
+
+<div class="tool" style="margin-top:30px">
+  <div class="tl">Your estimated 1RM</div>
+  <p style="margin:0 0 10px">Enter a recent heavy set: the weight, how many reps you did, and how many more good reps you had left.</p>
+  <div class="rm-g">
+    <label>Weight (kg)<input id="kg" type="number" inputmode="decimal" value="60" step="0.5" min="0"></label>
+    <label>Reps done<input id="reps" type="number" inputmode="numeric" value="6" min="1" max="12"></label>
+    <label>Reps left in the tank<select id="rir"><option value="0">0 (failure)</option><option value="1">1</option><option value="2" selected>2</option><option value="3">3</option></select></label>
+  </div>
+  <div class="rir-out" style="margin-top:14px"><b id="out">~74kg</b><span id="outS">estimated one-rep max</span><em id="warn"></em></div>
+  <table id="tab" style="margin-top:14px;background:#1d1c19;color:#efe6cf"></table>
+</div>
+
+<section class="ch" id="what">
+  <div class="num">01</div><h2 class="t">What is a 1RM?</h2>
+  <p>Your <b>one-rep max (1RM)</b> is the heaviest weight you can lift once with good form. It's a handy reference point for planning heavy training, but you don't need to actually test it to know roughly what it is.</p>
+  <p>This calculator estimates it from a set you've already done, using a standard formula (weight × (1 + reps ÷ 30)).<sup>1</sup> Because most people don't train to failure, it adds the reps you had left in the tank, so the estimate reflects what you could really have done.<sup>2</sup></p>
+  <div class="key"><b>Most accurate</b> from sets of 2–10 reps taken close to failure. Above about 10 reps the estimate gets wobbly, so use a heavier set if you can.</div>
+</section>
+
+<section class="ch" id="use">
+  <div class="num">02</div><h2 class="t">How to use the numbers</h2>
+  <ul class="b">
+    <li><b>Strength sets</b> (1–5 reps, like 3×3 or 3×5) usually sit around <b>80–90%</b> of your 1RM, stopping 1–3 reps short of failure. Never grind to failure on heavy lifts</li>
+    <li><b>Hypertrophy sets</b> (6–30 reps) don't need percentages at all. Pick a weight for the rep range and take it to 0–3 reps from failure</li>
+    <li><b>Track it over time.</b> Work it out from your best heavy set every few weeks. If the number's going up, you're getting stronger, no max test needed</li>
+  </ul>
+</section>
+
+<section class="ch" id="when">
+  <div class="num">03</div><h2 class="t">Should you actually test a 1RM?</h2>
+  <p>For most people, most of the time: <b>no</b>. An estimate tells you almost as much with a fraction of the risk and fatigue. <span class="lol">"I just wanted to see" is how most gym injuries start.</span></p>
+  <h3>A real max test makes sense when</h3>
+  <ul class="b">
+    <li>You've been lifting consistently for <b>at least 6 months</b> and your technique on that lift is solid and repeatable</li>
+    <li>It's planned at the <b>end of a strength block</b>, after a lighter few days, not dropped into a random Tuesday</li>
+    <li>You're <b>well slept, well fed and healthy</b>, ideally at maintenance or in a surplus, not deep in a fat loss phase</li>
+    <li>You've got <b>safety bars or a spotter</b></li>
+  </ul>
+  <h3>Don't test a max if</h3>
+  <ul class="b">
+    <li>You're a beginner. You're still learning the lift, and your strength is going up every week anyway</li>
+    <li>You're injured, ill, run down or in a hard fat loss phase</li>
+    <li>It's on a lift that isn't safe to max: single-leg work, isolation exercises, anything wobbly</li>
+    <li>You tested one less than about 8–12 weeks ago</li>
+  </ul>
+  <div class="note"><b>COACH'S NOTE</b>My clients only test a 1RM when it's built into their plan. Everyone else gets their estimated max worked out in the MPF app from their logged sets, automatically.</div>
+</section>
+
+<div class="cta-box">
+  <h2>Want a programme that makes the <span style="color:var(--gold);font-style:italic;font-weight:400">number go up?</span></h2>
+  <p>Strength and muscle, built around your body, your goals and your life, with every set logged in the MPF app.</p>
+  <a class="btn" href="book.html#online">Book your free call</a>
+  <div class="small">Free, no obligation, no hard sell. info@mpfcoaching.co.uk · <a href="https://www.instagram.com/mariaparadisefitness" style="color:var(--gold-l)">@mariaparadisefitness</a></div>
+</div>
+
+<section id="refs" style="padding-bottom:30px">
+  <h3>References</h3>
+  <ol class="refs">
+    <li>Epley, B. Poundage Chart. Boyd Epley Workout, 1985.</li>
+    <li>Helms et al., Strength Cond J 2016. Application of the repetitions in reserve-based rating of perceived exertion scale for resistance training.</li>
+  </ol>
+  <p class="disc">This tool gives an estimate for general education and isn't medical advice. Always use safe technique and safety equipment on heavy lifts, and check with your GP before heavy lifting if you have any health conditions, injuries or concerns.</p>
+</section>
+</main>
+<footer>MPF Coaching · Maria Paradise · <a href="privacy.html" style="color:#a89a78">Privacy</a></footer>
+<script>
+(function(){
+var $=function(i){return document.getElementById(i)},rd=function(x){return Math.round(x*2)/2};
+function go(){var kg=parseFloat($('kg').value)||0,r=Math.max(1,parseInt($('reps').value,10)||1),rir=+$('rir').value,t=r+rir,m=t<=1?kg:kg*(1+t/30);
+ $('out').textContent=kg?'~'+rd(m)+'kg':'–';
+ $('warn').textContent=t>10?'Heads up: that\'s more than 10 reps in total, so this estimate is rough. A heavier set will give you a better number.':'';
+ $('tab').innerHTML=kg?'<tr><th>% of 1RM</th><th>Weight</th><th>Roughly good for</th></tr>'+[[95,'Heavy singles'],[90,'Doubles & triples'],[85,'Sets of 3–5'],[80,'Sets of 5'],[75,'Sets of 6–8'],[70,'Sets of 8–10']].map(function(p){return '<tr><td>'+p[0]+'%</td><td>'+rd(m*p[0]/100)+'kg</td><td>'+p[1]+'</td></tr>'}).join(''):'';}
+['kg','reps','rir'].forEach(function(i){$(i).addEventListener('input',go);$(i).addEventListener('change',go)});go();
+})();
+</script>
+<script src="js/gate.js"></script>
+</body>
+</html>
