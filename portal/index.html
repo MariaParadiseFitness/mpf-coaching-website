@@ -380,7 +380,7 @@ body.trk-alc .lg-f[data-k="alcohol"]{border:1px solid #E8C872;border-radius:12px
         <ul class="list">
           <li><b>Every day:</b> fill in your <a href="#log">daily log</a>: weight, steps, cardio, food, sleep and how you feel.</li>
           <li><b>Every session:</b> log your weights and reps in your Logbook.</li>
-          <li><b>Track your food</b> in MyFitnessPal or your favourite calorie counter, using what you learned in your nutrition lesson.</li>
+          <li><b>Track your food</b> in MyFitnessPal or your favourite calorie counter, using what you've learned from me.</li>
           <li><b>On <span class="dayname">Wednesday</span>:</b> upload your photos and send your <a href="#checkin">weekly check-in</a> here in the portal.</li>
           <li><b>Any time:</b> send me videos of your lifts on WhatsApp for quick form feedback, and tell me how you're feeling so I can adjust.</li>
         </ul>
@@ -689,7 +689,10 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
     })();
     // first-login setup checklist (saved to their account)
     var pt=c.type==='pt';if(pt){STEPS=STEPS.filter(function(x){return !x.online});$('lNutri').hidden=true}
-    if(pt&&c.onboarded!==true)$('ptFirst').hidden=false;
+    /* nutrition lessons are only for brand new clients (joined after 25 Nov 2026, or tagged New client) */
+    var isNewC=(c.tags||[]).some(function(x){return /new client/i.test(x)})||String(c.start||'')>'2026-11-25';window.__mpfNewClient=isNewC;
+    if(!isNewC){STEPS=STEPS.filter(function(x){return x.key!=='nutrition'});$('lNutri').hidden=true}
+    if(pt&&c.onboarded!==true&&isNewC)$('ptFirst').hidden=false;
     $('sessions').classList.remove('gone');[].forEach.call(document.querySelectorAll('.ptonly'),function(a){a.hidden=false});
     if(pt){var so=document.createElement('div');so.className='due';so.setAttribute('data-view','sessions');so.innerHTML='<b>💻 Prefer to train on your own?</b><p style="margin:6px 0 8px">Can\'t get to the gym with me as often? Keep your progress going with online coaching: your programme, check-ins and support, all in this portal.</p><div class="pay-opts"><a class="go" target="_blank" rel="noopener" href="https://buy.stripe.com/14AcN48jBebn27H5DY1ZS07">Monthly: £75 set-up + £175 a month →</a><a class="go" target="_blank" rel="noopener" href="https://buy.stripe.com/3cIeVc9nF3wJdQp3vQ1ZS0a">3 months: £75 set-up + £495 every 3 months →</a><a class="go" target="_blank" rel="noopener" href="https://buy.stripe.com/9B6eVcbvN5ER9A98Qa1ZS0b">6 months: £75 set-up + £900 every 6 months →</a><small>Once you\'ve paid, message me and I\'ll switch your portal over. All your history stays.</small></div>';var ss=$('sessions');if(ss)ss.appendChild(so)}
     if(pt&&!meta.demo)loadSess();
@@ -870,7 +873,7 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
     MPFOnboard.Form($('obBox'),{demo:demo,sex:c.sex,type:c.type,onSubmit:function(ans){if(!demo&&ans){var pc=String(ans.photoconsent||'');fetch('/portal/api/consent',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({health:ans.healthconsent==='Yes',terms:ans.terms==='Yes',photos:/^Yes/.test(pc)?'yes':(pc?'no':'')})}).then(function(r){return r.json()}).then(function(j){window.__cn&&window.__cn(j)}).catch(function(){})}if(window.__tick)window.__tick('form',true);setTimeout(function(){history.pushState(null,'','#start');go('start')},900)}});
     var showPlan=function(p){var b=$('planBanner');if(!p||p.ready===undefined){b.hidden=true;return}
       if(!p.ready){b.hidden=false;b.innerHTML='✨ Maria is building your plan: your calories, macros, meal plan and training. You will see a banner here when it is ready. Keep logging your days in the meantime.'}
-      else if(p.at&&Date.now()-Date.parse(p.at)<14*864e5){b.hidden=false;b.innerHTML='🎉 Your plan is ready! Your targets and meal plan are below, and your training is under Training. Book your nutrition lesson so I can talk you through it.'}
+      else if(p.at&&Date.now()-Date.parse(p.at)<14*864e5){b.hidden=false;b.innerHTML='🎉 Your plan is ready! Your targets and meal plan are below, and your training is under Training.'+(window.__mpfNewClient?' Book your nutrition lesson so I can talk you through it.':'')}
       else b.hidden=true};
     if(demo){showPlan({ready:true,at:new Date().toISOString()});MPFMeal.View($('mpBox'),{current:'d',plans:[{id:'d',title:'Fat loss plan',notes:'Drink 3L of water a day.',updated:new Date().toISOString(),days:[{name:'Every day',meals:[{name:'Breakfast',foods:[{food:'Egg Whites',amount:'200',unit:'g',kcal:'86',p:'21.6',c:'0',f:'0'},{food:'Oats',amount:'40',unit:'g',kcal:'150',p:'5',c:'26',f:'3'}]},{name:'Lunch',foods:[{food:'Chicken Breast (Cooked)',amount:'150',unit:'g',kcal:'218',p:'48',c:'0',f:'2.9'},{food:'Jasmine Rice (dry)',amount:'60',unit:'g',kcal:'210',p:'4.6',c:'46.8',f:'0.5'}]}]}]}]})}
     else{fetch('/portal/api/plan',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(showPlan).catch(function(){});
