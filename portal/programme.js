@@ -67,7 +67,7 @@
         '<label class="pe-full">Focus<input name="wfocus" value="'+esc(w.focus||'')+'" placeholder="e.g. Quads, chest, shoulders, triceps"></label>'+
         '<label class="pe-full">Workout notes<textarea name="wnotes" rows="2" placeholder="Optional">'+esc(w.notes)+'</textarea></label>'+
         '<div class="pg-wrap"><table class="pg pe"><thead><tr><th>#</th>'+COLS.map(function(c){return '<th class="'+c.w+'">'+c.l+'</th>'}).join('')+'<th></th></tr></thead><tbody>'+
-        w.exercises.map(function(e,i){return '<tr data-r="'+i+'"><td class="n">'+(i+1)+'</td>'+COLS.map(function(c){return '<td class="'+c.w+'"><input data-k="'+c.k+'" value="'+esc(e[c.k]||'')+'"'+(c.k==='name'?' placeholder="Exercise"':c.k==='ss'?' placeholder="A1"':'')+'></td>'}).join('')+'<td class="act"><button type="button" data-a="up" data-r="'+i+'" title="Move up">↑</button><button type="button" data-a="down" data-r="'+i+'" title="Move down">↓</button><button type="button" data-a="delr" data-r="'+i+'" title="Delete row" class="del">✕</button></td></tr>'}).join('')+
+        w.exercises.map(function(e,i){return '<tr data-r="'+i+'"><td class="n">'+(i+1)+'</td>'+COLS.map(function(c){return '<td class="'+c.w+'"><input data-k="'+c.k+'" value="'+esc(e[c.k]||'')+'"'+(c.k==='name'?' placeholder="Exercise" list="mpfExList"':c.k==='ss'?' placeholder="A1"':'')+'></td>'}).join('')+'<td class="act"><button type="button" data-a="up" data-r="'+i+'" title="Move up">↑</button><button type="button" data-a="down" data-r="'+i+'" title="Move down">↓</button><button type="button" data-a="delr" data-r="'+i+'" title="Delete row" class="del">✕</button></td></tr>'}).join('')+
         '</tbody></table></div><div class="pe-mini" style="margin-top:8px"><button type="button" data-a="addr">+ Add exercise</button></div>'+
         '<div class="lg-save"><span class="lg-msg">'+(prog.updated?'Last saved '+esc(upd(prog)):'Not saved yet')+'</span><button class="btn" type="button" data-a="save">Save '+(tpl?'template':'programme')+'</button></div>';
       el.innerHTML=tpl?'<div class="tpl-lay">'+side+'<div class="tpl-main">'+h+'</div></div>':h;
@@ -195,3 +195,6 @@
   }
   window.MPFProgramme={historyHTML:historyHTML,View:View,Editor:Editor,demo:{current:'p2',programmes:[DEMO1,DEMO2]}};
 })();
+
+/* exercise name suggestions for the coach editor, from the shared library */
+(function(){function mk(){if(!window.MPFEX||document.getElementById('mpfExList'))return;var d=document.createElement('datalist');d.id='mpfExList';var seen={};Object.keys(MPFEX).forEach(function(g){MPFEX[g].forEach(function(n){if(seen[n])return;seen[n]=1;var o=document.createElement('option');o.value=n;d.appendChild(o)})});document.body.appendChild(d)}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mk);else mk()})();
