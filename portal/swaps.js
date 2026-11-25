@@ -124,5 +124,19 @@
     rear:'No straps or wraps needed.'
   };
   function wraps(name){var p=of(name);return p&&WR[p.key]?WR[p.key]:''}
-  window.MPFSWAP={of:of,suggest:suggest,bias:bias,pre:pre,brace:brace,wraps:wraps};
+  // grip: where a loose, thumbless "hook" grip keeps the work on the target muscle
+  var HOOK='Hands are just hooks. Try a thumbless grip (thumb on the same side as your fingers) and hold the handle loosely. ';
+  var GR={
+    vpull:HOOK+'Drive your elbows down to your sides. Squeezing hard just pumps your forearms and takes the work off your lats.',
+    hpull:HOOK+'Pull with your elbows, not your hands. A death grip makes your forearms and biceps take over from your back.',
+    straight:HOOK+'Push down through your palms. If your forearms are burning, you\'re gripping too hard.',
+    rear:'Loose grip, or open hands on the pec deck handles. Lead with your elbows so your rear delts do the work, not your forearms.',
+    lat:'Loose grip, think of your hands as hooks and lead with your elbows. Gripping hard makes your traps and forearms take over.',
+    fly:'Loose grip, or open palms on the pec deck pads. Squeeze your chest, not the handles.',
+    kneeext:'Hold the side handles just enough to keep your hips down. No white knuckles, the work is in your quads.',
+    kneeflex:'Hold the handles just enough to keep your hips down. No white knuckles, the work is in your hamstrings.',
+    pushdown:'Relaxed grip and push through your palms. A death grip pumps your forearms before your triceps are done.'
+  };
+  function grip(name){var p=of(name);return p&&GR[p.key]?GR[p.key]:''}
+  window.MPFSWAP={of:of,suggest:suggest,bias:bias,pre:pre,brace:brace,wraps:wraps,grip:grip};
 })();
