@@ -85,7 +85,7 @@
       var d=days[cur]||{};vals={};
       GROUPS.forEach(function(g){g.f.filter(keep).forEach(function(f){var v=d[f.k]||'';if(f.t==='scale'||f.t==='yn'||f.t==='pick')setPick(f.k,v);else{var inp=form.querySelector('[name="'+f.k+'"]');inp.value=v;vals[f.k]=v}})});
       showIf();calHint();bars();dirty=false;
-      msg.className='lg-msg';msg.textContent=d._at?'Saved ✓':'';
+      msg.className='lg-msg';msg.textContent=d._at?'Saved ✓':'Nothing logged yet';
       el.querySelector('.lg-date b').textContent=cur===today?'Today':(cur===fromT(toT(today)-DAY)?'Yesterday':nice(cur,{weekday:'long'}));
       el.querySelector('.lg-date small').textContent=nice(cur,{weekday:'long',day:'numeric',month:'long',year:'numeric'});
       el.querySelector('[data-d="1"]').disabled=cur>=today;

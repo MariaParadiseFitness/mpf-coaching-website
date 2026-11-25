@@ -584,3 +584,4 @@ i.ti.emo.ico-red{color:#f07b6e}i.ti.emo.ico-amb{color:#e8a34a}
 .lb-brs button.on{background:var(--grad);color:#111;border-color:transparent}
 button.lb-pkt{display:flex;justify-content:space-between;align-items:center;width:100%;background:none;border:0;border-bottom:1px solid var(--line);color:#E8C872;font:inherit;cursor:pointer;text-align:left}
 button.lb-pkt span{color:var(--mute);font-size:12px;font-weight:600}
+.lg-save:has(.lg-msg:empty){justify-content:center;padding:8px}.lg-save:has(.lg-msg:empty) .lg-msg{display:none}.lg-save:has(.lg-msg:empty) .btn{flex:1}
