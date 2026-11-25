@@ -46,14 +46,20 @@
     return null;
   }
   // like-for-like swaps for `name`, from the client's own exercises first, then the library
-  function suggest(name,mine,lib,max){
+  // men: lower body push movements should bias the quads, not the glutes
+  var GLUTEY=/glute|long[- ]?stride|curtsy|sumo|wide[- ]?stance|frog|kas\b/i;
+  var QUAD={
+    lunge:'🦵 Quad focus: keep your torso tall and upright, use a shorter stance and let your front knee travel forward over your toes. Drive through your whole front foot. You should feel it mostly in the front of your thigh, not your glutes.',
+    squat:'🦵 Quad focus: stay upright, keep your feet about hip-width and let your knees travel forward over your toes with your heels down. On the leg press or hack squat, place your feet lower and closer together. You should feel it mostly in the front of your thighs, not your glutes.'};
+  function bias(name,sex){if(sex!=='m')return '';var p=of(name);return p&&QUAD[p.key]?QUAD[p.key]:''}
+  function suggest(name,mine,lib,max,sex){
     var p=of(name);if(!p)return {label:'',list:[]};
     var k=function(s){return String(s).toLowerCase().replace(/\(.*?\)/g,'').replace(/[^a-z0-9]/g,'')},seen={},out=[];
     seen[k(name)]=1;
-    var add=function(n){var kk=k(n);if(seen[kk])return;var q=of(n);if(q&&q.key===p.key){seen[kk]=1;out.push(n)}};
+    var add=function(n){var kk=k(n);if(seen[kk])return;if(sex==='m'&&QUAD[p.key]&&GLUTEY.test(n))return;var q=of(n);if(q&&q.key===p.key){seen[kk]=1;out.push(n)}};
     (mine||[]).forEach(add);
     Object.keys(lib||{}).forEach(function(g){(lib[g]||[]).forEach(add)});
     return {label:p.label,list:out.slice(0,max||30)};
   }
-  window.MPFSWAP={of:of,suggest:suggest};
+  window.MPFSWAP={of:of,suggest:suggest,bias:bias};
 })();

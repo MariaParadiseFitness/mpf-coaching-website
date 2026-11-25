@@ -636,7 +636,7 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
 
   function linkOr(el,url){if(!el)return;if(url){el.href=url;el.classList.remove('off')}else{el.removeAttribute('href');el.classList.add('off')}}
 
-  function render(c,email,meta){
+  function render(c,email,meta){window.__mpfSex=c&&c.sex==='m'?'m':'f';
     meta=meta||{};
     $('app').hidden=false;$('bnav').hidden=false;
     $('nm').textContent=(c.name||'friend').split(' ')[0]+'.';
