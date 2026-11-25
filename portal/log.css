@@ -610,3 +610,5 @@ button.lb-pkt span{color:var(--mute);font-size:12px;font-weight:600}
 .lb-brace{font-size:12.5px;line-height:1.45;margin:6px 0 2px;color:var(--soft,#cfc6b0)}.lb-brace b{color:var(--gold-l,#e8c872)}
 .lb-sci{background:rgba(201,166,75,.1);border:1px solid rgba(201,166,75,.45);color:var(--gold-l,#e8c872);font:inherit;font-size:12px;font-weight:700;padding:3px 9px;border-radius:20px;cursor:pointer}
 .lb-nl{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute,#8d8371);margin-top:10px}.lb-nl+.lb-note{margin-top:4px;resize:vertical}
+.lb-rest2{padding:8px 8px 8px 14px;font-size:13px;max-width:calc(100vw - 24px)}.lb-rest2 b{font-size:13px}.lb-rest2 .lb-i{margin:0 2px}
+.lb-rest button.lb-i{background:transparent;padding:0;width:20px;height:20px;color:var(--gold,#c9a64b);border:1px solid var(--gold,#c9a64b)}
