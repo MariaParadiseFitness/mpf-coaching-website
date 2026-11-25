@@ -123,7 +123,7 @@ input[type=range]{width:100%;accent-color:#C9A64B;margin:8px 0}
 .vscale{display:flex;justify-content:space-between;font-size:11px;color:#a89a78}
 .vmsg{margin:10px 0 0;font-weight:600;color:var(--gold-l)}
 @media print{.tool{display:none}}
-.rm-g{display:grid;grid-template-columns:1fr 1fr;gap:10px}.rm-g label{font-size:12px;color:#cfc4aa;display:grid;gap:4px}.rm-g label:last-child{grid-column:1/-1}.rm-g input,.rm-g select{width:100%;min-width:0;padding:12px;border-radius:10px;background:#1d1c19;color:#fff;border:1px solid rgba(201,166,75,.45);font-size:16px;font-family:var(--sans)}
+.rm-g{display:grid;grid-template-columns:1fr 1fr;gap:10px}.rm-g label{font-size:12px;color:#cfc4aa;display:grid;gap:4px}.rm-g .rm-full{grid-column:1/-1}.rm-safe{margin:12px 0 0;font-size:13.5px;color:#cfc4aa;line-height:1.5}.rm-safe b{color:var(--gold-l)}.rm-g input,.rm-g select{width:100%;min-width:0;padding:12px;border-radius:10px;background:#1d1c19;color:#fff;border:1px solid rgba(201,166,75,.45);font-size:16px;font-family:var(--sans)}
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
 <style>/*mob-fix*/i.ti.emo{color:#E8C872;font-size:1.1em;line-height:1;vertical-align:-.14em;font-style:normal}.btn i.ti.emo,.on>i.ti.emo{color:inherit}html,body{overflow-x:clip}</style>
@@ -144,13 +144,31 @@ input[type=range]{width:100%;accent-color:#C9A64B;margin:8px 0}
 
 <div class="tool" style="margin-top:30px">
   <div class="tl">Your estimated 1RM</div>
-  <p style="margin:0 0 10px">Enter a recent heavy set: the weight, how many reps you did, and how many more good reps you had left.</p>
+  <p style="margin:0 0 10px">Pick the lift, then enter a recent heavy set: the weight, how many reps you did, and how many more good reps you had left.</p>
   <div class="rm-g">
+    <label class="rm-full">Exercise<select id="ex">
+      <optgroup label="Squat">
+        <option value="sq">Barbell back squat</option>
+        <option value="fsq">Barbell front squat</option>
+        <option value="lp">Leg press</option>
+      </optgroup>
+      <optgroup label="Hinge">
+        <option value="dl">Conventional deadlift</option>
+        <option value="sdl">Sumo deadlift</option>
+        <option value="tb">Trap bar deadlift</option>
+        <option value="ht">Barbell hip thrust</option>
+      </optgroup>
+      <optgroup label="Press">
+        <option value="bp" selected>Barbell bench press</option>
+        <option value="ohp">Barbell overhead press</option>
+      </optgroup>
+    </select></label>
     <label>Weight (kg)<input id="kg" type="number" inputmode="decimal" value="60" step="0.5" min="0"></label>
     <label>Reps done<input id="reps" type="number" inputmode="numeric" value="6" min="1" max="12"></label>
-    <label>Reps left in the tank<select id="rir"><option value="0">0 (failure)</option><option value="1">1</option><option value="2" selected>2</option><option value="3">3</option></select></label>
+    <label class="rm-full">Reps left in the tank<select id="rir"><option value="0">0 (failure)</option><option value="1">1</option><option value="2" selected>2</option><option value="3">3</option></select></label>
   </div>
   <div class="rir-out" style="margin-top:14px"><b id="out">~74kg</b><span id="outS">estimated one-rep max</span><em id="warn"></em></div>
+  <p id="safe" class="rm-safe"></p>
   <table id="tab" style="margin-top:14px;background:#1d1c19;color:#efe6cf"></table>
 </div>
 
@@ -158,6 +176,7 @@ input[type=range]{width:100%;accent-color:#C9A64B;margin:8px 0}
   <div class="num">01</div><h2 class="t">What is a 1RM?</h2>
   <p>Your <b>one-rep max (1RM)</b> is the heaviest weight you can lift once with good form. It's a handy reference point for planning heavy training, but you don't need to actually test it to know roughly what it is.</p>
   <p>This calculator estimates it from a set you've already done, using a standard formula (weight × (1 + reps ÷ 30)).<sup>1</sup> Because most people don't train to failure, it adds the reps you had left in the tank, so the estimate reflects what you could really have done.<sup>2</sup></p>
+  <p>Only lifts that are sensible to max are in the list: big, stable barbell and machine lifts. Single-leg work, isolation exercises and anything wobbly aren't, because they're not safe or useful to test at one rep.</p>
   <div class="key"><b>Most accurate</b> from sets of 2–10 reps taken close to failure. Above about 10 reps the estimate gets wobbly, so use a heavier set if you can.</div>
 </section>
 
@@ -210,11 +229,20 @@ input[type=range]{width:100%;accent-color:#C9A64B;margin:8px 0}
 <script>
 (function(){
 var $=function(i){return document.getElementById(i)},rd=function(x){return Math.round(x*2)/2};
-function go(){var kg=parseFloat($('kg').value)||0,r=Math.max(1,parseInt($('reps').value,10)||1),rir=+$('rir').value,t=r+rir,m=t<=1?kg:kg*(1+t/30);
- $('out').textContent=kg?'~'+rd(m)+'kg':'–';
+var EX={sq:['Barbell back squat',2.5,'Squat inside a rack with the safety bars set just below your bottom position. A failed rep is just a sit-down onto the safeties.'],
+fsq:['Barbell front squat',2.5,'Use the safety bars. If you lose it, push the bar forward off your shoulders and step back.'],
+lp:['Leg press',5,'Set the safety stops, keep your lower back on the pad and never lock your knees out hard at the top.'],
+dl:['Conventional deadlift',2.5,'No spotter needed, but stop the second your back starts to round. A max with a rounded back doesn\'t count.'],
+sdl:['Sumo deadlift',2.5,'Stop as soon as your hips shoot up or your back rounds. Lock it out with your glutes, not by leaning back.'],
+tb:['Trap bar deadlift',2.5,'Handles in the middle of your hands, flat back, push the floor away. Stop if your back rounds.'],
+ht:['Barbell hip thrust',2.5,'Use a thick pad, set the bench just below your shoulder blades, and keep your chin tucked and ribs down at the top.'],
+bp:['Barbell bench press',1.25,'Always use a spotter or the safety arms set just above your chest. Never test a bench max alone without safeties.'],
+ohp:['Barbell overhead press',1.25,'Press from a rack with the safeties set at about chest height. Squeeze your glutes and keep your ribs down so your back doesn\'t arch.']};
+function go(){var ex=EX[$('ex').value],step=ex[1],rs=function(x){return Math.round(x/step)*step},kg=parseFloat($('kg').value)||0,r=Math.max(1,parseInt($('reps').value,10)||1),rir=+$('rir').value,t=r+rir,m=t<=1?kg:kg*(1+t/30);
+ $('out').textContent=kg?'~'+rd(m)+'kg':'–';$('outS').textContent='estimated '+ex[0].toLowerCase()+' 1RM';$('safe').innerHTML='<b>If you ever test it for real:</b> '+ex[2];
  $('warn').textContent=t>10?'Heads up: that\'s more than 10 reps in total, so this estimate is rough. A heavier set will give you a better number.':'';
- $('tab').innerHTML=kg?'<tr><th>% of 1RM</th><th>Weight</th><th>Roughly good for</th></tr>'+[[95,'Heavy singles'],[90,'Doubles & triples'],[85,'Sets of 3–5'],[80,'Sets of 5'],[75,'Sets of 6–8'],[70,'Sets of 8–10']].map(function(p){return '<tr><td>'+p[0]+'%</td><td>'+rd(m*p[0]/100)+'kg</td><td>'+p[1]+'</td></tr>'}).join(''):'';}
-['kg','reps','rir'].forEach(function(i){$(i).addEventListener('input',go);$(i).addEventListener('change',go)});go();
+ $('tab').innerHTML=kg?'<tr><th>% of 1RM</th><th>Weight</th><th>Roughly good for</th></tr>'+[[95,'Heavy singles'],[90,'Doubles & triples'],[85,'Sets of 3–5'],[80,'Sets of 5'],[75,'Sets of 6–8'],[70,'Sets of 8–10']].map(function(p){return '<tr><td>'+p[0]+'%</td><td>'+rs(m*p[0]/100)+'kg</td><td>'+p[1]+'</td></tr>'}).join(''):'';}
+['ex','kg','reps','rir'].forEach(function(i){$(i).addEventListener('input',go);$(i).addEventListener('change',go)});go();
 })();
 </script>
 <script src="js/gate.js"></script>
