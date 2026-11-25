@@ -508,19 +508,17 @@ html,body{overflow-x:hidden}
     A.forEach(function(c){var f=c.name.split(' ')[0];
       if(c.deleteReq)add('💳 Money','del:'+c.id,c,f+' asked for their data to be deleted','Delete them from their profile (bottom of the page) within a month');
       if(c.dob&&/^\d{4}-\d{2}-\d{2}$/.test(c.dob)){var md=c.dob.slice(5),tm=MPFLog.fromT(MPFLog.toT(todayStr)+864e5).slice(5);if(md===todayStr.slice(5))add('🎂 Birthdays','bday:'+c.id,c,'🎂 It\'s '+f+'\'s birthday today','Send a birthday message');else if(md===tm)add('🎂 Birthdays','bday1:'+c.id,c,f+'\'s birthday is tomorrow','Plan a message or a little treat')}
-      if(c.pkg&&c.pkg.size){var left=c.pkg.size-c.pkg.used;if(left<=2)add('📦 Packages','pkg:'+c.id+':'+c.pkg.start,c,(left<=0?f+'\'s PT package is used up':f+' has '+left+' PT session'+(left===1?'':'s')+' left'),c.pkg.used+' of '+c.pkg.size+' used'+(c.pkg.booked?', '+c.pkg.booked+' booked ahead':'')+'. Time for the renewal chat')}
+      /* PT packages and sessions live in Google Calendar, not the to-do list */
     });
     A.forEach(function(c){var f=c.name.split(' ')[0],p=c.payment||{};if(lapsed(c))return;
       if(c.needsReply)add('💬 Reply to check-ins','rep:'+c.id+':'+(c.lastCheckin||''),c,'Reply to '+f+'\'s check-in','Sent '+MPFLog.nice(c.lastCheckin,{weekday:'short'}));
       if(c.form===true&&!c.planReady)add('📝 Build plans','plan:'+c.id,c,'Build '+f+'\'s plan','Onboarding form is in');
       var H=c.has;if(H){if(!H.macros)add('🛠️ To set up','sm:'+c.id,c,'Set '+f+'\'s macros','No calorie or protein targets yet','tg');if(!H.prog)add('🛠️ To set up','sp:'+c.id,c,'Write '+f+'\'s training programme','No programme in their portal yet','pg');if(!H.meal)add('🛠️ To set up','sd:'+c.id,c,'Write '+f+'\'s meal plan','No meal plan in their portal yet','mp')}
-      if(c.pt&&c.pt.next===todayStr)add('🏋️ PT today','pt:'+c.id,c,f+' has PT today','');
       if(p.status==='failed')add('💳 Money','fail:'+c.id,c,f+'\'s payment failed','Message them to update their card');
       if(c.cancelReq)add('💳 Money','canc:'+c.id,c,f+' asked to cancel','Cancel in Stripe at the end of their period, then message them');
       if(p.next&&!p.endsOn&&p.status!=='failed'&&days(p.next)<=0&&days(p.next)>=-7)add('🔁 Renewals','ren:'+c.id+':'+p.next,c,f+' renews '+MPFLog.nice(p.next,{weekday:'short'}),'Good time for a "how\'s it going?" message');
       if(p.endsOn&&days(p.endsOn)<=0&&days(p.endsOn)>=-21)add('🔁 Renewals','end:'+c.id+':'+p.endsOn,c,f+'\'s plan ends '+MPFLog.nice(p.endsOn,{weekday:'short'}),'Talk to them about staying on');
-      if(c.type==='pt'&&c.pt&&!c.pt.next&&c.pt.last&&days(c.pt.last)>=21)add('👀 Check on','nopt:'+c.id,c,'No PT for '+f+' in '+days(c.pt.last)+' days','Nothing booked. Offer a session or online coaching');
-      else if(quiet(c))add('👀 Check on','quiet:'+c.id,c,f+' has gone quiet','No log or check-in for 3+ weeks');
+      if(quiet(c))add('👀 Check on','quiet:'+c.id,c,f+' has gone quiet','No log or check-in for 3+ weeks');
       else if(!ciOff(c)&&c.check&&c.check.late)add('👀 Check on','late:'+c.id,c,f+'\'s check-in is late','Due '+MPFLog.nice(c.check.due,{weekday:'short'}));
       // milestones
       var sw=c.startWeight,lw=c.lastWeight,surplus=(c.tags||[]).indexOf('Surplus')>-1;

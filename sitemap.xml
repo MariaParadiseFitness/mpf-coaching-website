@@ -13,4 +13,5 @@
   <url><loc>https://mpfcoaching.co.uk/recommended.html</loc></url>
   <url><loc>https://mpfcoaching.co.uk/app.html</loc></url>
   <url><loc>https://mpfcoaching.co.uk/faq.html</loc></url>
+  <url><loc>https://mpfcoaching.co.uk/guides.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
 </urlset>
