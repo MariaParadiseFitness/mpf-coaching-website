@@ -223,9 +223,11 @@
   }
 
     function stK(v){if(/^\s*[\d.]+\s*k\s*$/i.test(String(v)))return String(v).replace(/\s/g,'').toUpperCase();var n=parseFloat(String(v==null?'':v).replace(/,/g,''));if(!isFinite(n)||/[a-z]/i.test(String(v).replace(/k$/i,'')))return v;if(n<1000)return String(Math.round(n));var k=Math.round(n/100)/10;return (k%1?k.toFixed(1):String(k))+'K'}
-  function targetsHTML(t){
+  function targetsHTML(t,only){
     if(!t||!Object.keys(t).some(function(k){return k!=='updated'}))return '<div class="pg-empty">Your coach will assign you your calories and macros. They will appear here as soon as they are set.</div>';
     var L=[['cals','Calories','kcal'],['protein','Protein','g'],['carbs','Carbs','g'],['fat','Fat','g'],['steps','Steps',''],['water','Water','L'],['cardio','Cardio','mins'],['sleep','Sleep','hrs']];
+    if(only==='move'){var mv=L.slice(4).filter(function(x){return t[x[0]]&&!/^(none|no|n\/a|-|0)$/i.test(String(t[x[0]]).trim())});return mv.length?'<div class="lg-stats tgt">'+mv.map(function(x){var v=x[0]==='steps'?stK(t[x[0]]):t[x[0]];return '<div><small>'+x[1]+'</small><b>'+esc(v)+'</b>'+(x[2]&&!/[a-z]/i.test(v)?'<span>'+x[2]+'</span>':'')+'</div>'}).join('')+'</div>':''}
+    if(only==='food')L=L.slice(0,4);
     if(t.hlOn==='1'){var tt=dayTargets(t,londonToday()),hd=String(t.hiDays||'').split(',').filter(Boolean),row=function(lbl,p,on){return '<div class="hl-row'+(on?' on':'')+'"><b>'+lbl+(on?' <span class="pill ok">Today</span>':'')+'</b><span>'+esc(t[p+'Cals']||'–')+' kcal</span><span>P '+esc(t[p+'P']||'–')+'g</span><span>C '+esc(t[p+'C']||'–')+'g</span><span>F '+esc(t[p+'F']||'–')+'g</span></div>'};
       var rest=L.slice(4).filter(function(x){return t[x[0]]});
       return '<div class="hl-box">'+row('🔼 High day'+(hd.length?' ('+hd.join(', ')+')':''),'hi',tt.dayType==='High day')+row('🔽 Low day','lo',tt.dayType==='Low day')+'</div>'+(rest.length?'<div class="lg-stats tgt">'+rest.map(function(x){var v=x[0]==='steps'?stK(t[x[0]]):t[x[0]];return '<div><small>'+x[1]+'</small><b>'+esc(v)+'</b>'+(x[2]&&!/[a-z]/i.test(v)?'<span>'+x[2]+'</span>':'')+'</div>'}).join('')+'</div>':'')+(t.notes?'<div class="pg-note" style="margin-top:10px">'+esc(t.notes)+'</div>':'')}

@@ -585,3 +585,5 @@ i.ti.emo.ico-red{color:#f07b6e}i.ti.emo.ico-amb{color:#e8a34a}
 button.lb-pkt{display:flex;justify-content:space-between;align-items:center;width:100%;background:none;border:0;border-bottom:1px solid var(--line);color:#E8C872;font:inherit;cursor:pointer;text-align:left}
 button.lb-pkt span{color:var(--mute);font-size:12px;font-weight:600}
 .lg-save:has(.lg-msg:empty){justify-content:center;padding:8px}.lg-save:has(.lg-msg:empty) .lg-msg{display:none}.lg-save:has(.lg-msg:empty) .btn{flex:1}
+#tgBox2{padding:10px}#tgBox2 .lg-stats{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:0}
+#tgBox2 .lg-stats>div{padding:9px 8px;min-height:0}#tgBox2 .lg-stats b{font-size:16px;line-height:1.2;word-break:break-word}#tgBox2 .lg-stats small{font-size:9.5px}#tgBox2 .lg-stats span{font-size:10.5px}
