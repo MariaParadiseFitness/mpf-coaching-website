@@ -339,8 +339,8 @@ body.trk-alc .lg-f[data-k="alcohol"]{border:1px solid #E8C872;border-radius:12px
 
   <!-- DAILY LOG -->
   <section data-view="today" data-sub="main" id="dayTg" hidden>
-    <h2>My daily <em>targets.</em></h2>
-    <div class="sub">Steps, water, cardio and sleep to aim for. Your food targets are under Food.</div>
+    <h2>My <em>targets.</em></h2>
+    <div class="sub">What to aim for every day and every week. Your full macros are under Food.</div>
     <div class="pg-box" id="tgBox2"></div>
   </section>
   <section data-view="today" data-sub="main" id="log">
@@ -874,7 +874,7 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
       demoQuestions:["What were this week's biggest wins/achievements?","Any comments on stress levels and management techniques?","How was gym performance this week?","How was recovery in general this week?","Number of weeks on current training set-up.","Number of weeks since deload.","Number of weeks in current phase (cut/bulk/maintenance).","Is there anything you struggled with this week?","Are there any areas you want to improve next week?","Is there anything you would like me to run through for you?"]});
     window.__ci=ci;
     MPFOnboard.Form($('obBox'),{demo:demo,sex:c.sex,type:c.type,onSubmit:function(ans){if(!demo&&ans){var pc=String(ans.photoconsent||'');fetch('/portal/api/consent',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({health:ans.healthconsent==='Yes',terms:ans.terms==='Yes',photos:/^Yes/.test(pc)?'yes':(pc?'no':'')})}).then(function(r){return r.json()}).then(function(j){window.__cn&&window.__cn(j)}).catch(function(){})}if(window.__tick)window.__tick('form',true);setTimeout(function(){history.pushState(null,'','#start');go('start')},900)}});
-    window.__tg2=function(tg){var h=tg?MPFLog.targetsHTML(tg,'move'):'';$('tgBox2').innerHTML=h;$('dayTg').hidden=!h};
+    window.__tg2=function(tg){var h=tg?MPFLog.targetsHTML(tg,'move',{checkinDay:c.checkin||''}):'';$('tgBox2').innerHTML=h;$('dayTg').hidden=!h};
     var showPlan=function(p){var b=$('planBanner');if(!p||p.ready===undefined){b.hidden=true;return}
       if(!p.ready){b.hidden=false;b.innerHTML='✨ Maria is building your plan: your calories, macros, meal plan and training. You will see a banner here when it is ready. Keep logging your days in the meantime.'}
       else if(p.at&&Date.now()-Date.parse(p.at)<14*864e5){b.hidden=false;b.innerHTML='🎉 Your plan is ready! Your targets and meal plan are below, and your training is under Training.'+(window.__mpfNewClient?' Book your nutrition lesson so I can talk you through it.':'')}

@@ -226,7 +226,12 @@
   function targetsHTML(t,only){
     if(!t||!Object.keys(t).some(function(k){return k!=='updated'}))return '<div class="pg-empty">Your coach will assign you your calories and macros. They will appear here as soon as they are set.</div>';
     var L=[['cals','Calories','kcal'],['protein','Protein','g'],['carbs','Carbs','g'],['fat','Fat','g'],['steps','Steps',''],['water','Water','L'],['cardio','Cardio','mins'],['sleep','Sleep','hrs']];
-    if(only==='move'){var mv=L.slice(4).filter(function(x){return t[x[0]]&&!/^(none|no|n\/a|-|0)$/i.test(String(t[x[0]]).trim())});return mv.length?'<div class="lg-stats tgt">'+mv.map(function(x){var v=x[0]==='steps'?stK(t[x[0]]):t[x[0]];return '<div><small>'+x[1]+'</small><b>'+esc(v)+'</b>'+(x[2]&&!/[a-z]/i.test(v)?'<span>'+x[2]+'</span>':'')+'</div>'}).join('')+'</div>':''}
+    if(only==='move'){var okv=function(v){return v&&!/^(none|no|n\/a|-|0)$/i.test(String(v).trim())};var tile=function(l,v,u){return '<div><small>'+l+'</small><b>'+esc(v)+'</b>'+(u?'<span>'+u+'</span>':'')+'</div>'};
+      var dd=[];if(okv(t.cals))dd.push(tile('Calories',t.cals,/[a-z]/i.test(t.cals)?'':'kcal'));if(okv(t.protein))dd.push(tile('Protein',t.protein,/[a-z]/i.test(t.protein)?'':'g'));if(okv(t.steps))dd.push(tile('Steps',stK(t.steps),''));if(okv(t.water))dd.push(tile('Water',t.water,/[a-z]/i.test(t.water)?'':'litres'));if(okv(t.sleep))dd.push(tile('Sleep',t.sleep,/[a-z]/i.test(t.sleep)?'':'hours'));
+      var ww=[],ct=cardioT(t.cardio);if(okv(t.cardio)){if(ct&&ct.perWeek)ww.push(tile('Cardio',ct.perWeek+' × '+ct.mins,'mins sessions'));else ww.push(tile('Cardio',String(t.cardio).replace(/\s*a week/i,''),''))}
+      var ex=arguments[2]||{};if(ex.checkinDay)ww.push(tile('Check-in',ex.checkinDay,'every week'));
+      if(!dd.length&&!ww.length)return '';
+      return (dd.length?'<div class="tg-k">Every day</div><div class="lg-stats tgt">'+dd.join('')+'</div>':'')+(ww.length?'<div class="tg-k">Every week</div><div class="lg-stats tgt">'+ww.join('')+'</div>':'')}
     if(only==='food')L=L.slice(0,4);
     if(t.hlOn==='1'){var tt=dayTargets(t,londonToday()),hd=String(t.hiDays||'').split(',').filter(Boolean),row=function(lbl,p,on){return '<div class="hl-row'+(on?' on':'')+'"><b>'+lbl+(on?' <span class="pill ok">Today</span>':'')+'</b><span>'+esc(t[p+'Cals']||'–')+' kcal</span><span>P '+esc(t[p+'P']||'–')+'g</span><span>C '+esc(t[p+'C']||'–')+'g</span><span>F '+esc(t[p+'F']||'–')+'g</span></div>'};
       var rest=L.slice(4).filter(function(x){return t[x[0]]});

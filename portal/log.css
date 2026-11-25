@@ -589,3 +589,5 @@ button.lb-pkt span{color:var(--mute);font-size:12px;font-weight:600}
 #tgBox2 .lg-stats>div{padding:9px 8px;min-height:0}#tgBox2 .lg-stats b{font-size:16px;line-height:1.2;word-break:break-word}#tgBox2 .lg-stats small{font-size:9.5px}#tgBox2 .lg-stats span{font-size:10.5px}
 .gd-h{font-family:var(--serif);font-size:22px;color:#fff;margin:22px 0 10px}.gd-h em{color:#E8C872}
 .gd-list .ic i{color:#E8C872;font-size:20px}
+#tgBox2 .tg-k{font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#E8C872;margin:2px 2px 6px}#tgBox2 .tg-k:not(:first-child){margin-top:12px}
+#tgBox2 .lg-stats{grid-template-columns:repeat(3,minmax(0,1fr))}
