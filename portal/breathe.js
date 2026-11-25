@@ -57,7 +57,7 @@
   }
   window.MPFBreathe={Mount:Mount};
   // stress guide, added to the shared guides
-  var add=function(){if(!window.MPFGuides||!MPFGuides.add)return setTimeout(add,300);MPFGuides.add('stress',{i:'brain',t:'Stress, sleep and fat loss',b:[
+  var add=function(){if(!window.MPFGuides||!MPFGuides.add)return setTimeout(add,300);MPFGuides.add('stress',{i:'brain',t:'Stress, sleep and fat loss',s:'Why your head affects your results',b:[
     ['Why I added this','You can have the perfect plan and still feel stuck if your head is all over the place. Stress, rubbish sleep and constantly being "on" make everything harder: hunger, cravings, motivation, recovery. So looking after your mind is part of your results, not a nice extra.'],
     ['What stress does to your body','When you\'re stressed for a long time, your body is in fight or flight mode. You hold more water (hello scale jumps), you crave quick energy like sugar and carbs, you sleep worse and you recover slower from training. It\'s not you being weak. It\'s biology.'],
     ['Sleep is your secret weapon','One bad night can make you eat a few hundred calories more the next day without even noticing. Aim for 7 to 9 hours. Same bedtime most nights, phone away 30 minutes before bed, and try the Wind down breathing when your head won\'t switch off.'],

@@ -510,11 +510,6 @@ body.trk-alc .lg-f[data-k="alcohol"]{border:1px solid #E8C872;border-radius:12px
       <button class="btn g" type="button" id="delReq" style="margin-top:8px">Ask Maria to delete my data</button><small id="delMsg" style="display:block;margin-top:6px"></small></details>
   </section>
 
-  <section data-view="more" id="guides">
-    <h2>My <em>guides.</em></h2>
-    <div class="sub">Short reads from me on the stuff that actually makes a difference.</div>
-    <div class="acts" style="margin-bottom:16px"><a class="act" href="#" data-guide="alcohol"><span class="ic">🍷</span><span><b>Alcohol, fat loss and training</b><span>How to drink and still get results</span></span></a></div>
-  </section>
   <section data-view="more" id="support">
     <h2>Support.</h2>
     <div class="sub">You're never left to figure it out on your own.</div>
@@ -548,6 +543,8 @@ body.trk-alc .lg-f[data-k="alcohol"]{border:1px solid #E8C872;border-radius:12px
       <a class="tile" href="/diet.html#calc"><img src="/img/maria-gym.jpg" alt=""><span><b>Calorie &amp; macro calculator</b><i>Check your numbers →</i></span></a>
       <a class="tile" href="/recipes.html"><img src="/img/maria-smile.jpg" alt=""><span><b>High-protein recipes</b><i>31 recipes under 500 kcal →</i></span></a>
     </div>
+    <h3 class="gd-h">Short reads <em>from me.</em></h3>
+    <div class="acts gd-list" id="gdList"></div>
   </section>
 
   <p class="app-disc" data-view="more" style="font-size:12px;line-height:1.5;color:#8a8170;text-align:center;max-width:560px;margin:0 auto 20px">My coaching and the guides in this app are fitness and nutrition advice, not medical advice. Always check with your GP or a healthcare professional if you have a medical condition, are pregnant, take medication, or something doesn't feel right.</p>
@@ -816,6 +813,7 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
       var due=dn==null?'':dn<=0?'Period due today':dn===1?'Period due tomorrow':'Period in '+dn+' days';
       a.innerHTML='<span class="cy-dn'+(st.phase==='period'?' p':'')+'"><small>Day</small>'+st.cd+'</span><div class="cy-tt"><b>'+tp.n+(st.phase==='period'?'':' · <span>'+due+'</span>')+'</b><small>'+tp.f.split('. ').slice(0,2).join('. ').replace(/\.?$/,'.')+'</small></div><span class="cy-ar">›</span>'}
     if(c&&(c.tags||[]).some(function(x){return /alcohol/i.test(x)}))document.body.classList.add('trk-alc');
+    try{var gdDraw=function(){var L=$('gdList');if(!L||!window.MPFGuides)return;var fem=c.sex!=='m'&&!document.body.classList.contains('noperiod');L.innerHTML=MPFGuides.list().filter(function(g){return !g.cyc||fem}).map(function(g){return '<a class="act" href="#" data-guide="'+g.k+'"><span class="ic"><i class="ti ti-'+g.i+'"></i></span><span><b>'+g.t+'</b>'+(g.s?'<span>'+g.s+'</span>':'')+'</span></a>'}).join('')};gdDraw();setTimeout(gdDraw,1200);window.__gdDraw=gdDraw}catch(e){}
     try{if(window.MPFBreathe&&$('brBox'))MPFBreathe.Mount($('brBox'),{today:(window.MPFLog&&MPFLog.londonToday&&MPFLog.londonToday())||new Date().toISOString().slice(0,10),demo:!!(meta&&meta.demo)})}catch(e){}
     function dueState(st){
       // in-person clients with no sessions booked: no check-in nagging (they can still check in from Progress)

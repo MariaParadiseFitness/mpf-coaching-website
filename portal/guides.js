@@ -1,7 +1,7 @@
 /* MPF guides for everyone (not just the cycle ones). MPFGuides.open('alcohol') */
 (function(){
   var G={
-    alcohol:{i:'glass-full',t:'Alcohol, fat loss and training',b:[
+    alcohol:{i:'glass-full',t:'Alcohol, fat loss and training',s:'How to drink and still get results',b:[
       ['Let\'s be real','I\'m not here to tell you to never drink again. I like a night out as much as anyone. But if your progress has stalled and you\'re drinking most weekends (or most nights), this is probably the bit that\'s holding you back. So let\'s talk about it properly, no judgement.'],
       ['Why it slows fat loss','Alcohol has 7 calories per gram, nearly as much as fat. A pint is around 200 to 250 calories, a large glass of wine about 180 to 230, a cocktail can be 250 to 500. Five drinks on a Saturday can wipe out most of the deficit you built all week. On top of that, your body stops to burn off the alcohol first, so it pauses burning fat while it deals with it.'],
       ['The hidden damage','It\'s not just the drinks. It\'s the 2am chips, the hangover McDonald\'s, the sofa day where you do 2,000 steps, and the "fuck it, I\'ll start again Monday" that comes with it. Most of the damage happens the day after.'],
@@ -15,7 +15,7 @@
   function open(k){var g=G[k];if(!g)return;var m=document.createElement('div');m.className='cy-modal';
     m.innerHTML='<div class="cy-sheet" role="dialog" aria-modal="true"><button type="button" class="cy-x" aria-label="Close">✕</button><div class="cy-gi"><i class="ti ti-'+g.i+'"></i></div><h3>'+esc(g.t)+'</h3>'+g.b.map(function(s){return '<h4>'+esc(s[0])+'</h4><p>'+esc(s[1])+'</p>'}).join('')+'<p class="cy-sig">Maria x</p><p class="cy-note">This guide is general information, not medical advice. If you\'re worried about your drinking, please speak to your GP.</p></div>';
     document.body.appendChild(m);document.body.style.overflow='hidden';var close=function(){m.remove();document.body.style.overflow=''};m.onclick=function(e){if(e.target===m||e.target.closest('.cy-x'))close()}}
-  function list(){return Object.keys(G).map(function(k){return {k:k,t:G[k].t,i:G[k].i}})}
+  function list(){var o=['alcohol','stress','binge','hormones','training','eating','cravings'];return Object.keys(G).sort(function(a,b){var x=o.indexOf(a),y=o.indexOf(b);return (x<0?99:x)-(y<0?99:y)}).map(function(k){return {k:k,t:G[k].t,i:G[k].i,s:G[k].s||'',cyc:!!G[k].cyc}})}
   document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('[data-guide]');if(!a)return;e.preventDefault();open(a.getAttribute('data-guide'))});
   window.MPFGuides={open:open,list:list,add:function(k,g){G[k]=g}};
 })();

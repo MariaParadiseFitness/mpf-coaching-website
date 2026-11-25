@@ -54,6 +54,7 @@
       ['When to get support','If binges happen often, feel out of your control, or leave you feeling really low or guilty, please talk to your GP. You can also contact Beat, the UK eating disorder charity, at beateatingdisorders.org.uk or on 0808 801 0677. You deserve proper support, and I\'ll back you all the way. Message me any time.']]}
   };
 
+  window.__MPFCycleG=G;
   function Mount(el,o){
     o=o||{};var today=o.today||iso(Date.now()),days={},sel=null,mo=today.slice(0,8)+'01',edit=null;
     function load(){
@@ -141,3 +142,6 @@
     load();return {refresh:load}}
   window.MPFCycle={Mount:Mount,guides:G};
 })();
+/* share the cycle guides with My guides in More (binge eating is for everyone) */
+(function reg(){if(!window.MPFGuides||!MPFGuides.add)return setTimeout(reg,300);var S={hormones:'Why we feel irrational, and my mum\'s advice',training:'What to do in each phase',eating:'Hunger, carbs and the scale',cravings:'Why they happen and what helps',binge:'What helps when it happens'};
+  try{var GG=window.__MPFCycleG;if(!GG)return;Object.keys(GG).forEach(function(k){var g=GG[k];MPFGuides.add(k,{i:g.i,t:g.t,s:S[k]||'',cyc:k!=='binge',b:g.b})});if(window.__gdDraw)window.__gdDraw()}catch(e){}})();
