@@ -64,5 +64,43 @@
   // pre-exhaust: isolation exercises for the same muscle, done before a compound
   var PRE={squat:['kneeext'],lunge:['kneeext'],hinge:['kneeflex'],uhinge:['kneeflex'],thrust:['gkick','abd'],hpush:['fly'],incline:['fly'],decline:['fly'],dip:['fly'],vpush:['lat'],vpull:['straight'],hpull:['straight','rear']};
   function pre(name,lib,max,picks){var p=of(name);if(!p||!PRE[p.key])return [];var out=[],seen={},src=[].concat.apply([],Object.keys(picks||{}).map(function(g){return picks[g]})).concat([].concat.apply([],Object.keys(lib||{}).map(function(g){return lib[g]})));PRE[p.key].forEach(function(key){var n=0;[src].forEach(function(arr){arr.forEach(function(x){var q=of(x),kk=x.toLowerCase().replace(/[^a-z0-9]/g,'').replace(/s$/,'');if(n<(max||6)&&q&&q.key===key&&!seen[kk]){seen[kk]=1;n++;out.push(x)}})})});return out}
-  window.MPFSWAP={of:of,suggest:suggest,bias:bias,pre:pre};
+  // bracing cue for every exercise, by movement pattern
+  var FULL='Before each rep: big breath into your belly, then brace like someone is about to punch you in the stomach. ';
+  var BR={
+    squat:FULL+'Hold it all the way down and back up. Breathe out at the top, then re-brace before the next rep.',
+    lunge:FULL+'Keep your ribs stacked over your hips and hold it through the whole rep. Breathe out at the top.',
+    hinge:FULL+'Brace before you start to hinge, keep your back flat and hold it as you lower and stand up. Breathe out at the top, re-brace every rep.',
+    uhinge:FULL+'Keep your hips square and your back flat as you lower. Hold the brace until you are standing tall again.',
+    thrust:'Brace before you push: ribs down, chin tucked, abs tight. Lift with your hips, not by arching your lower back. Breathe out at the top squeeze.',
+    hpush:'Before you lower the weight: feet planted, shoulder blades back and down, breathe in and brace. Hold it through the press, breathe out at the top.',
+    incline:'Before you lower the weight: feet planted, shoulder blades back and down, breathe in and brace. Hold it through the press, breathe out at the top.',
+    decline:'Before you lower the weight: shoulder blades back and down, breathe in and brace. Hold it through the press, breathe out at the top.',
+    dip:'Brace your abs and keep your ribs down so you don\'t swing. Breathe in on the way down, out as you push up.',
+    vpush:'Before you press: squeeze your glutes, brace your abs and pull your ribs down so your lower back doesn\'t arch. Breathe out at the top.',
+    hpull:'Brace before each rep so your body stays still and your back does the pulling, not momentum. On bent-over rows, brace hard to protect your lower back.',
+    vpull:'Ribs down and abs braced before you pull, so you don\'t lean back or swing. Breathe out as you pull down or up.',
+    straight:'Ribs down and abs tight the whole time so your lower back doesn\'t arch as you pull.',
+    kneeflex:'Light brace: hold the handles and keep your hips pinned to the pad. Breathe out as you curl.',
+    kneeext:'Light brace: hold the handles, sit back into the seat and keep your hips down. Breathe out as you lift.',
+    abd:'Light brace: sit tall, ribs down, no rocking. Breathe out as you push out.',
+    add:'Light brace: sit tall, ribs down, no rocking. Breathe out as you squeeze in.',
+    gkick:'Brace your abs so your lower back stays still. Only your leg moves, your back doesn\'t arch.',
+    calf:'Light brace and stand tall so you don\'t bounce or lean. Breathe out as you rise.',
+    calfs:'Light brace, sit tall and keep it controlled.',
+    lat:'Light brace: stand tall, ribs down, no swinging or leaning back to lift the weight.',
+    front:'Light brace: stand tall, ribs down, no leaning back to lift the weight.',
+    rear:'Light brace: keep your body still so your rear delts do the work, not a swing.',
+    fly:'Light brace: chest up, ribs down, keep your back still. Breathe in as you open, out as you squeeze.',
+    curl:'Brace your abs and squeeze your glutes so you don\'t swing. Only your elbows move.',
+    ohtri:'Brace hard and keep your ribs down so your lower back doesn\'t arch as your arms go overhead.',
+    lytri:'Light brace, keep your back flat on the bench. Only your elbows move.',
+    pushdown:'Light brace: stand tall, ribs down, no leaning over the weight. Only your elbows move.',
+    tkick:'Brace your abs to keep your back flat and still. Only your elbow moves.',
+    shrug:'Stand tall and brace so you lift straight up with no rocking.',
+    coreext:'The brace IS the exercise: ribs down, belly tight, glutes squeezed. Keep breathing in small breaths, don\'t hold your breath.',
+    coreflex:'Breathe out hard as you crunch and pull your ribs towards your hips. Keep your lower back controlled.',
+    corerot:'Brace your whole middle and keep your hips still. Breathe out as you twist or resist.'
+  };
+  function brace(name){var p=of(name);return p&&BR[p.key]?BR[p.key]:'Breathe in and brace your abs before each rep, keep your ribs down, and breathe out as you finish the rep.'}
+  window.MPFSWAP={of:of,suggest:suggest,bias:bias,pre:pre,brace:brace};
 })();
