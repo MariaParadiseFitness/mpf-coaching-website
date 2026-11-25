@@ -197,6 +197,7 @@ html,body{overflow-x:hidden}
  #panel #pKick{font-size:10px;letter-spacing:.12em;line-height:1.5}
  #pTabs{position:sticky;top:0;z-index:6;background:#0e0e0e;margin:0 -14px 12px;padding:10px 14px;border-bottom:1px solid rgba(201,166,75,.2)}}
 .cqt{margin-top:10px}.cqnote{display:inline-block;margin-top:8px;max-width:100%}.cqnote summary{list-style:none;display:inline-flex;align-items:center;gap:6px;cursor:pointer;border:1px solid rgba(232,163,74,.55);color:#e8a34a;border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600}.cqnote summary::-webkit-details-marker{display:none}.cqnote[open] summary{background:rgba(232,163,74,.12)}.cqnote .mini{color:#e8a34a;margin-top:8px;line-height:1.5}
+.cqemo{padding:8px 11px!important;font-size:16px!important;line-height:1}.cqemo-p{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;padding:8px;background:#101010;border:1px solid rgba(201,166,75,.35);border-radius:12px}.cqemo-p[hidden]{display:none}.cqemo-p button{background:none;border:0;font-size:22px;line-height:1;padding:5px;border-radius:8px;cursor:pointer;color:#fff;font-family:inherit}.cqemo-p button:hover{background:rgba(201,166,75,.15)}
 .vnav a{flex:0 0 auto;border:1px solid rgba(201,166,75,.4);color:#e6cf8b;border-radius:30px;padding:9px 14px;font-size:13px;text-decoration:none;background:#121212}.vnav a.on{background:var(--grad);color:#111;font-weight:700;border-color:transparent}
 #tplPanel{position:static;inset:auto;z-index:auto;margin:0;border:1px solid rgba(201,166,75,.45);border-radius:22px;padding:20px 18px;background:var(--card);overflow:visible}
 .gp{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:14px;margin-bottom:18px;align-items:stretch}@media(max-width:760px){.gp{grid-template-columns:1fr}}
@@ -717,6 +718,7 @@ html,body{overflow-x:hidden}
       if(c.latest)c.latest.draft=d;if(force||!ta.value.trim()){ta.value=d.text;cqDraft(id,due,null)}m.textContent='🤖 Claude\'s draft. Edit it, then send.';
       var box=ta.closest('.cqr'),nt=box.querySelector('.cqnote');if(nt)nt.remove();if(d.note)cqNote(box,d.note)})
     .catch(function(){ta.disabled=false;m.textContent='Couldn\'t draft this one. Write it yourself or tap ✨ to try again.'})}
+  var EMO=['🔥','💪🏼','👏','🙌','😂','💀','🫡','🖤','❤️‍🔥','🍑','👀','👇','✅','🎉','✨','🥹','🫶','😍','😴','💧','🥗','🍕','🏋️‍♀️','👟','📸','📈','💯','🤍','💛','😘','xx'];
   function cqNote(box,note){var d=document.createElement('details');d.className='cqnote';d.innerHTML='<summary>⚠️ Heads up</summary><div class="mini">'+esc(note)+'</div>';box.appendChild(d)}
   function cqEnhance(){cqQ=[];if(!AUTO&&!preview&&!cqEnhance.loading){cqEnhance.loading=1;fetch('/portal/api/coach/automation',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){AUTO=j;if(document.querySelector('#cqBody .cqt'))cqEnhance()}).catch(function(){})}
     [].forEach.call($('cqBody').querySelectorAll('.cqr'),function(box){var send=box.querySelector('[data-rep]');if(!send)return;var id=send.getAttribute('data-rep'),due=send.getAttribute('data-due'),c=(CQ.clients||[]).filter(function(x){return x.id===id})[0];if(!c)return;
@@ -730,6 +732,12 @@ html,body{overflow-x:hidden}
       box.appendChild(bar);var nn=box.querySelector('.cqnote');if(nn)box.appendChild(nn);
       var om=box.querySelector('.cqmic');if(om)om.remove();var mb=document.createElement('button');mb.type='button';mb.className='btn cqmic';mb.title='Speak your reply';mb.textContent='🎤';send.insertAdjacentElement('afterend',mb);
       mb.onmousedown=function(ev){ev.preventDefault()};mb.onclick=function(){cqMic(mb,ta,m)};
+      var oe=box.querySelector('.cqemo');if(oe)oe.remove();var oep=box.querySelector('.cqemo-p');if(oep)oep.remove();
+      var eb=document.createElement('button');eb.type='button';eb.className='btn g cqemo noico';eb.title='Add an emoji';eb.textContent='😊';mb.insertAdjacentElement('afterend',eb);
+      var ep=document.createElement('div');ep.className='cqemo-p noico';ep.hidden=true;ep.innerHTML=EMO.map(function(e){return '<button type="button">'+e+'</button>'}).join('');ta.insertAdjacentElement('afterend',ep);
+      eb.onmousedown=function(ev){ev.preventDefault()};eb.onclick=function(){ep.hidden=!ep.hidden};
+      ep.onmousedown=function(ev){ev.preventDefault()};
+      ep.onclick=function(ev){var b2=ev.target.closest('button');if(!b2)return;var e=b2.textContent,s=ta.selectionStart==null?ta.value.length:ta.selectionStart,en=ta.selectionEnd==null?s:ta.selectionEnd;ta.value=ta.value.slice(0,s)+e+ta.value.slice(en);ta.focus();ta.selectionStart=ta.selectionEnd=s+e.length;ta.dispatchEvent(new Event('input'))};
       bar.querySelector('[data-smart]').onclick=function(){if(ta.value.trim()&&!confirm('Replace what\'s in the box with a fresh draft?'))return;
         if(!CQ.ai){ta.value=cqSmart(c);ta.dispatchEvent(new Event('input'));m.textContent='Draft ready. Edit or 🎤 add your own bit, then send.';return}
         cqAI(c,id,due,ta,m,true)};
