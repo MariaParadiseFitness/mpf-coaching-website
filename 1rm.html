@@ -162,8 +162,12 @@ input[type=range]{width:100%;accent-color:#C9A64B;margin:8px 0}
         <option value="bp" selected>Barbell bench press</option>
         <option value="ohp">Barbell overhead press</option>
       </optgroup>
+      <optgroup label="Pull">
+        <option value="pu">Weighted pull-up / chin-up</option>
+      </optgroup>
     </select></label>
-    <label>Weight (kg)<input id="kg" type="number" inputmode="decimal" value="60" step="0.5" min="0"></label>
+    <label class="rm-full" id="bwL" hidden>Your bodyweight (kg)<input id="bw" type="number" inputmode="decimal" value="65" step="0.5" min="30"></label>
+    <label><span id="kgL">Weight (kg)</span><input id="kg" type="number" inputmode="decimal" value="60" step="0.5" min="0"></label>
     <label>Reps done<input id="reps" type="number" inputmode="numeric" value="6" min="1" max="12"></label>
     <label class="rm-full">Reps left in the tank<select id="rir"><option value="0">0 (failure)</option><option value="1">1</option><option value="2" selected>2</option><option value="3">3</option></select></label>
   </div>
@@ -183,8 +187,8 @@ input[type=range]{width:100%;accent-color:#C9A64B;margin:8px 0}
 <section class="ch" id="use">
   <div class="num">02</div><h2 class="t">How to use the numbers</h2>
   <ul class="b">
-    <li><b>Strength sets</b> (1–5 reps, like 3×3 or 3×5) usually sit around <b>80–90%</b> of your 1RM, stopping 1–3 reps short of failure. Never grind to failure on heavy lifts</li>
-    <li><b>Hypertrophy sets</b> (6–30 reps) don't need percentages at all. Pick a weight for the rep range and take it to 0–3 reps from failure</li>
+    <li><b>Strength sets</b> (1–5 reps, like 3×3 or 3×5) usually sit around <b>80–90%</b> of your 1RM at 0–3 reps in reserve. Only go to failure when it's safe (safety bars, a spotter or a machine), and never on deadlifts</li>
+    <li><b>Hypertrophy sets</b> (6–30 reps) don't need percentages at all. Warm up at about RPE 6, then do 2 working sets in your rep range, as close to failure as possible (0–3 reps left)</li>
     <li><b>Track it over time.</b> Work it out from your best heavy set every few weeks. If the number's going up, you're getting stronger, no max test needed</li>
   </ul>
 </section>
@@ -237,12 +241,13 @@ sdl:['Sumo deadlift',2.5,'Stop as soon as your hips shoot up or your back rounds
 tb:['Trap bar deadlift',2.5,'Handles in the middle of your hands, flat back, push the floor away. Stop if your back rounds.'],
 ht:['Barbell hip thrust',2.5,'Use a thick pad, set the bench just below your shoulder blades, and keep your chin tucked and ribs down at the top.'],
 bp:['Barbell bench press',1.25,'Always use a spotter or the safety arms set just above your chest. Never test a bench max alone without safeties.'],
+pu:['Weighted pull-up',1.25,'Strict reps only: dead hang, chin over the bar, no kipping. Step down onto a box under control and never drop off the bar with a heavy belt on.'],
 ohp:['Barbell overhead press',1.25,'Press from a rack with the safeties set at about chest height. Squeeze your glutes and keep your ribs down so your back doesn\'t arch.']};
-function go(){var ex=EX[$('ex').value],step=ex[1],rs=function(x){return Math.round(x/step)*step},kg=parseFloat($('kg').value)||0,r=Math.max(1,parseInt($('reps').value,10)||1),rir=+$('rir').value,t=r+rir,m=t<=1?kg:kg*(1+t/30);
- $('out').textContent=kg?'~'+rd(m)+'kg':'–';$('outS').textContent='estimated '+ex[0].toLowerCase()+' 1RM';$('safe').innerHTML='<b>If you ever test it for real:</b> '+ex[2];
+function go(){var pu=$('ex').value==='pu',bw=pu?(parseFloat($('bw').value)||0):0;$('bwL').hidden=!pu;$('kgL').textContent=pu?'Added weight (kg)':'Weight (kg)';var ex=EX[$('ex').value],step=ex[1],rs=function(x){return Math.round(x/step)*step},kg=(parseFloat($('kg').value)||0)+bw,r=Math.max(1,parseInt($('reps').value,10)||1),rir=+$('rir').value,t=r+rir,m=t<=1?kg:kg*(1+t/30);
+ $('out').textContent=kg?(pu?'~'+rd(m)+'kg total':'~'+rd(m)+'kg'):'–';$('outS').textContent=pu?'estimated pull-up 1RM: bodyweight + '+Math.max(0,rd(m-bw))+'kg on the belt':'estimated '+ex[0].toLowerCase()+' 1RM';$('safe').innerHTML='<b>If you ever test it for real:</b> '+ex[2];
  $('warn').textContent=t>10?'Heads up: that\'s more than 10 reps in total, so this estimate is rough. A heavier set will give you a better number.':'';
- $('tab').innerHTML=kg?'<tr><th>% of 1RM</th><th>Weight</th><th>Roughly good for</th></tr>'+[[95,'Heavy singles'],[90,'Doubles & triples'],[85,'Sets of 3–5'],[80,'Sets of 5'],[75,'Sets of 6–8'],[70,'Sets of 8–10']].map(function(p){return '<tr><td>'+p[0]+'%</td><td>'+rs(m*p[0]/100)+'kg</td><td>'+p[1]+'</td></tr>'}).join(''):'';}
-['ex','kg','reps','rir'].forEach(function(i){$(i).addEventListener('input',go);$(i).addEventListener('change',go)});go();
+ $('tab').innerHTML=kg?'<tr><th>% of 1RM</th><th>Weight</th><th>Roughly good for</th></tr>'+[[95,'Heavy singles'],[90,'Doubles & triples'],[85,'Sets of 3–5'],[80,'Sets of 5'],[75,'Sets of 6–8'],[70,'Sets of 8–10']].map(function(p){return '<tr><td>'+p[0]+'%</td><td>'+(pu?(function(a){return a>0?'+'+a+'kg':'Bodyweight'})(rs(m*p[0]/100-bw)):rs(m*p[0]/100)+'kg')+'</td><td>'+p[1]+'</td></tr>'}).join(''):'';}
+['ex','bw','kg','reps','rir'].forEach(function(i){$(i).addEventListener('input',go);$(i).addEventListener('change',go)});go();
 })();
 </script>
 <script src="js/gate.js"></script>

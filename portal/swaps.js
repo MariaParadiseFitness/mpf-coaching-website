@@ -103,21 +103,21 @@
   };
   function brace(name){var p=of(name);return p&&BR[p.key]?BR[p.key]:'Breathe in and brace your abs before each rep, keep your ribs down, and breathe out as you finish the rep.'}
   // when to use lifting straps / wrist wraps, by movement pattern (only where it matters)
-  var PULL='Use them on your heavier working sets if your grip gives out before ';
-  var NOWU=' Skip them on warm-ups and lighter sets so your grip still gets stronger.';
+  var PULL='Only when you genuinely need them: if your grip is giving out before ';
+  var NOWU=' Otherwise go without, so your grip gets stronger. Feeling weak, tired or not 100% today? Using them is fine, as long as it\'s a conscious choice.';
   var WR={
     hinge:'Lifting straps or figure-of-eights (these help your GRIP): '+PULL+'your hamstrings and glutes do.'+NOWU,
     uhinge:'Lifting straps or figure-of-eights (these help your GRIP): '+PULL+'your hamstrings and glutes do.'+NOWU,
     hpull:'Lifting straps or figure-of-eights (these help your GRIP): '+PULL+'your back does, so your back gets the work, not your forearms.'+NOWU,
     vpull:'Lifting straps or figure-of-eights (these help your GRIP): '+PULL+'your lats do.'+NOWU+' Not needed on assisted or bodyweight pull-ups for most people.',
     straight:'Lifting straps or figure-of-eights (these help your GRIP): optional if your grip slips before your lats tire. Not needed for most people.',
-    shrug:'Lifting straps or figure-of-eights (these help your GRIP): yes on heavy sets, your grip will fail way before your traps do.'+NOWU,
+    shrug:'Lifting straps or figure-of-eights (these help your GRIP): only on your heaviest sets, when your grip is genuinely failing before your traps.'+NOWU,
     lunge:'Lifting straps or figure-of-eights (these help your GRIP): only if you\'re holding heavy dumbbells and your grip goes before your legs do. Not needed with a barbell or on machines.',
-    hpush:'Wrist wraps (these SUPPORT your wrist joint, not your grip): optional on your heaviest pressing sets if your wrists bend back or ache. Not needed on warm-ups or machines. Keep your wrists stacked over your elbows either way.',
-    incline:'Wrist wraps (these SUPPORT your wrist joint, not your grip): optional on your heaviest pressing sets if your wrists bend back or ache. Not needed on warm-ups or machines. Keep your wrists stacked over your elbows either way.',
-    decline:'Wrist wraps (these SUPPORT your wrist joint, not your grip): optional on your heaviest pressing sets if your wrists bend back or ache. Not needed on warm-ups or machines.',
-    vpush:'Wrist wraps (these SUPPORT your wrist joint, not your grip): optional on heavy barbell or dumbbell pressing if your wrists bend back or ache. Not needed on warm-ups or machines.',
-    dip:'Wrist wraps (these SUPPORT your wrist joint, not your grip): optional on weighted dips if your wrists ache. Not needed for bodyweight dips.',
+    hpush:'Wrist wraps (these SUPPORT your wrist joint, not your grip): only when you genuinely need them: your heaviest pressing sets if your wrists bend back or ache, or a day you\'re not feeling 100%. Not on warm-ups or machines. Keep your wrists stacked over your elbows either way.',
+    incline:'Wrist wraps (these SUPPORT your wrist joint, not your grip): only when you genuinely need them: your heaviest pressing sets if your wrists bend back or ache, or a day you\'re not feeling 100%. Not on warm-ups or machines. Keep your wrists stacked over your elbows either way.',
+    decline:'Wrist wraps (these SUPPORT your wrist joint, not your grip): only when you genuinely need them: your heaviest pressing sets if your wrists bend back or ache, or a day you\'re not feeling 100%. Not on warm-ups or machines.',
+    vpush:'Wrist wraps (these SUPPORT your wrist joint, not your grip): only when you genuinely need them: heavy barbell or dumbbell pressing if your wrists bend back or ache. Not on warm-ups or machines.',
+    dip:'Wrist wraps (these SUPPORT your wrist joint, not your grip): only on weighted dips if your wrists genuinely ache. Not for bodyweight dips.',
     curl:'No lifting straps or wrist wraps: your grip and forearms are part of the exercise.',
     lat:'No lifting straps or wrist wraps needed: if you\'re gripping the weight hard, it\'s probably too heavy.',
     front:'No lifting straps or wrist wraps needed: keep it light and controlled.',
