@@ -275,7 +275,7 @@ body.trk-alc .lg-f[data-k="alcohol"]{border:1px solid #E8C872;border-radius:12px
 <main class="wrap" id="app" hidden>
   <div class="preview" id="previewBar" hidden>👀 Test client (Sam): this is exactly what your clients see. Nothing here is saved or sent anywhere, so tap around freely. Add <b>?setup</b> to the link to see the first-login checklist.</div>
 
-  <div class="seg vseg" data-view="today" id="tdSeg"><a href="#log" data-s="main"><i class="ti ti-notebook" aria-hidden="true"></i> Today</a><a href="#planner" data-s="wk"><i class="ti ti-calendar-week" aria-hidden="true"></i> My week</a><a href="#breathe" data-s="br"><i class="ti ti-wind" aria-hidden="true"></i> Breathe</a><a href="#cycle" data-s="cyc" id="cySeg"><i class="ti ti-moon" aria-hidden="true"></i> My cycle</a></div>
+  <div class="seg vseg" data-view="today" id="tdSeg"><a href="#log" data-s="main"><i class="ti ti-notebook" aria-hidden="true"></i> Today</a><a href="#planner" data-s="wk"><i class="ti ti-calendar-week" aria-hidden="true"></i> My week</a><a href="#breathe" data-s="br"><i class="ti ti-wind" aria-hidden="true"></i> Breathe</a><a href="#cycle" data-s="cyc" id="cySeg"><i class="ti ti-droplet" aria-hidden="true"></i> Cycle</a></div>
   <div class="hello" data-view="today" data-sub="main">
     <label class="av" id="avBox" title="Add your photo"><img id="avImg" alt="" hidden><span class="av-ph" id="avPh">📷</span><span class="av-edit">Edit</span><input type="file" accept="image/*" id="avIn"></label>
     <div class="hello-t">
@@ -803,7 +803,7 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
     }
 
     function cyToday(st,tp,dn){var a=$('cyTab');if(!a||document.body.classList.contains('noperiod'))return;a.hidden=false;
-      if(!st||st.none){a.innerHTML='<i class="ti ti-moon cy-ti" aria-hidden="true"></i><div class="cy-tt"><b>My cycle</b><small>Track your period to see your phase, predictions and tips.</small></div><span class="cy-ar">›</span>';return}
+      if(!st||st.none){a.innerHTML='<i class="ti ti-droplet cy-ti" aria-hidden="true"></i><div class="cy-tt"><b>My cycle</b><small>Track your period to see your phase, predictions and tips.</small></div><span class="cy-ar">›</span>';return}
       var due=dn==null?'':dn<=0?'Period due today':dn===1?'Period due tomorrow':'Period in '+dn+' days';
       a.innerHTML='<span class="cy-dn'+(st.phase==='period'?' p':'')+'"><small>Day</small>'+st.cd+'</span><div class="cy-tt"><b>'+tp.n+(st.phase==='period'?'':' · <span>'+due+'</span>')+'</b><small>'+tp.f.split('. ').slice(0,2).join('. ').replace(/\.?$/,'.')+'</small></div><span class="cy-ar">›</span>'}
     if(c&&(c.tags||[]).some(function(x){return /alcohol/i.test(x)}))document.body.classList.add('trk-alc');
@@ -943,7 +943,7 @@ document.getElementById('amSave').onclick=function(){var m=document.getElementBy
     {v:'today',ic:'📝',t:'Today',p:'Log your day here: your weight first thing, then food, steps, water and cardio. The bars fill up and turn green when you hit your targets 🔥'},
     {v:'today',el:'#tdSeg a[data-s="wk"]',ic:'🗓',t:'My week',p:'Plan your week here: training, cardio, meal prep, walks, bedtime. Turn on calendar sync and it all shows in your Google Calendar.'},
     {v:'today',el:'#tdSeg a[data-s="br"]',ic:'🧘',t:'Breathe',p:'A couple of minutes to calm your head: breathing for stress, sleep and before you lift, plus a craving pause for when the biscuits are calling.'},
-    {v:'today',el:'#cySeg',ic:'🌙',t:'My cycle',p:'Track your period and see your phase, when your next period is due, and tips for training and food that week. Plus my guides on hormones and cravings.'},
+    {v:'today',el:'#cySeg',ic:'🩸',t:'Cycle',p:'Track your period and see your phase, when your next period is due, and tips for training and food that week. Plus my guides on hormones and cravings.'},
     {v:'nutrition',ic:'🥗',t:'Food',p:'Your targets and your meal plan. Tap Generate to build a new day of food in 15 cuisines, and swap any meal you fancy.'},
     {v:'training',ic:'🏋️',t:'Training',p:'Your programme and your workout logbook. It tells you when to go up in weight. PT clients can book and manage sessions here too.'},
     {v:'progress',ic:'📈',t:'Progress',p:'Your weight trend, personal bests and photos. Your weekly check-in lives here too, with all my feedback saved. On check-in day it pops up on Today as well.'},
