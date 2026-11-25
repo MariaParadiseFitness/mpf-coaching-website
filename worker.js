@@ -175,6 +175,26 @@ const fromT = (t) => new Date(t).toISOString().slice(0, 10);
 function londonToday() {
   return new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/London", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
 }
+function londonHM() {
+  return new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/London", hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date());
+}
+// a PT session counts as done once its date has passed, or later today once its end time has passed
+function sessDone(d, slots, today, hm) {
+  if (d < today) return true;
+  if (d > today) return false;
+  const s = String((slots || {})[d] || "");
+  const ends = [...s.matchAll(/[–-]\s*(\d{2}:\d{2})/g)].map((m) => m[1]);
+  const starts = [...s.matchAll(/(\d{2}:\d{2})/g)].map((m) => m[1]);
+  const end = ends.length ? ends[ends.length - 1] : starts.length ? starts[starts.length - 1] : "";
+  return end ? end <= hm : true;
+}
+// last and next session from the dates, using today's times
+function ptLastNext(a, today, hm) {
+  if (!a || !a.dates) return a;
+  let last = "", next = "";
+  for (const d of a.dates) { if (sessDone(d, a.slots, today, hm)) { if (d > last) last = d; } else if (!next || d < next) next = d; }
+  return Object.assign({}, a, { last, next });
+}
 function checkinDay(c) {
   const d = c.checkin || (c.type === "pt" ? "Sunday" : "Wednesday");
   return DAYS.includes(d) ? d : "Sunday";
@@ -1110,7 +1130,8 @@ async function handleApi(request, env, url, ctx) {
     let pkg = null;
     if (ks.length) { const q = codes[ks[0]]; const ord = (await getJSON(env, `${dkey(client.id)}/orders.json`, {})).orders; const size = pkgSize(pk, ord, ks[0], q.first, q, bs).size; pkg = { size, used: q.used, booked: q.booked, left: size ? Math.max(0, size - q.used) : null, start: q.first }; }
     const dates = [...new Set(a.dates || [])].sort();
-    return json({ today, past: dates.filter((d) => d <= today).reverse(), upcoming: dates.filter((d) => d > today), times: a.slots || {}, pkg });
+    const hm = londonHM();
+    return json({ today, past: dates.filter((d) => sessDone(d, a.slots, today, hm)).reverse(), upcoming: dates.filter((d) => !sessDone(d, a.slots, today, hm)), times: a.slots || {}, pkg });
   }
   if (path === "/portal/api/coach/acuity-emails") {
     if (!coach) return json({ error: "forbidden" }, 403);
@@ -1167,7 +1188,7 @@ async function handleApi(request, env, url, ctx) {
         cancelReq: (await getJSON(env, `${dkey(c.id)}/cancel.json`, null)),
         deleteReq: (await getJSON(env, `${dkey(c.id)}/delete-request.json`, null)),
         payment: (() => { const recs = emailsOf(c.id).map((e) => pay[e]).filter(Boolean); if (!recs.length) return null; const r0 = recs.sort((a, b) => String(b.updated).localeCompare(String(a.updated)))[0]; return { status: r0.status || "", lastPaid: r0.lastPaid || "", next: r0.next || "", endsOn: r0.endsOn || "", last: (r0.history || [])[0] || null }; })(),
-        pt: acu && acu.byId ? (acu.byId[c.id] || { last: "", next: "" }) : acu ? emailsOf(c.id).reduce((m, e) => { const b = acu[e]; if (!b) return m; return { last: b.last > m.last ? b.last : m.last, next: !m.next || (b.next && b.next < m.next) ? b.next || m.next : m.next }; }, { last: "", next: "" }) : null,
+        pt: acu && acu.byId ? (acu.byId[c.id] ? ptLastNext(acu.byId[c.id], today, londonHM()) : { last: "", next: "" }) : acu ? emailsOf(c.id).reduce((m, e) => { const b = acu[e]; if (!b) return m; return { last: b.last > m.last ? b.last : m.last, next: !m.next || (b.next && b.next < m.next) ? b.next || m.next : m.next }; }, { last: "", next: "" }) : null,
         consent: await (async () => { const k = await getJSON(env, `${dkey(c.id)}/consent.json`, {}); return { health: !!k.health, terms: !!k.terms, photos: k.photos || "" }; })(),
       });
     };
