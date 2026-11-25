@@ -28,7 +28,7 @@ var MPF_GATE={action:"https://docs.google.com/forms/d/e/1FAIpQLSdA15cYhMQJkAxDUQ
   var d=document.createElement('div');d.className='mg';d.setAttribute('role','dialog');d.setAttribute('aria-modal','true');
   d.innerHTML='<form class="mg-b" novalidate><img src="img/logo.png" alt="MPF Coaching"><div class="mg-k">Free education hub</div>'+
   '<h3>Unlock everything free, <em>plus get 10% off.</em></h3><p>Pop in your name and email for instant access to all of my free education, <b style="color:#fff">plus 10% off your first month of coaching</b>.</p>'+
-  '<ul class="mg-l"><li><b style="color:#E4CF8A">10% off your first month of coaching</b> (use within 14 days)</li><li>The No-Nonsense Hypertrophy Guide</li><li>The Flexible Dieting Guide + macro calculator</li><li>The High-Protein Recipe Book (31 recipes)</li></ul>'+
+  '<ul class="mg-l"><li><b style="color:#E4CF8A">10% off your first month of coaching</b> (use within 14 days)</li><li>The No-Nonsense Hypertrophy Guide</li><li>The Flexible Dieting Guide + macro calculator</li><li>The High-Protein Recipe Book (37 recipes)</li></ul>'+
   '<input type="text" id="mgN" placeholder="First name" autocomplete="given-name"><input type="email" id="mgM" placeholder="Email address" autocomplete="email">'+
   '<label class="mg-ok"><input type="checkbox" id="mgO"> I\'m happy to get emails from MPF Coaching. I can unsubscribe any time. <a href="privacy.html">Privacy</a></label>'+
   '<div class="mg-e" id="mgE"></div><button class="mg-btn" type="submit">Unlock free access</button><a class="mg-back" href="index.html">← Back to the website</a></form>';
