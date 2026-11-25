@@ -1027,7 +1027,7 @@ async function handleApi(request, env, url, ctx) {
       const sm = await getJSON(env, `${dkey(c.id)}/summary.json`, {});
       const ks = Object.keys(all).sort(), k = ks[ks.length - 1], pk = ks[ks.length - 2];
       const extra = k ? await weekExtra(env, c, k, sm).catch(() => null) : null;
-      out.push({ id: c.id, name: c.name, type: c.type === "pt" ? "pt" : "online", sex: c.sex === "m" ? "m" : "f", extra, check: checkinStatus(c, sm, today), lastLog: (sm.logged || []).slice(-1)[0] || "",
+      out.push({ id: c.id, name: c.name, type: c.type === "pt" ? "pt" : "online", sex: c.sex === "m" ? "m" : "f", start: c.start || "", firstLog: (sm.logged || [])[0] || "", extra, check: checkinStatus(c, sm, today), lastLog: (sm.logged || []).slice(-1)[0] || "",
         latest: k ? { due: k, ...all[k] } : null, prev: pk ? { due: pk, stats: all[pk].stats || {}, answers: all[pk].answers || [] } : null, targets: await getJSON(env, `${dkey(c.id)}/targets.json`, null) });
     }));
     return json({ today, questions: QUESTIONS, clients: out, ai: !!env.ANTHROPIC_API_KEY });
@@ -1859,6 +1859,7 @@ async function aiDraft(env, r, c, due) {
     c.phase ? `Phase: ${c.phase}` : "",
     ex.isNew ? "NEW CLIENT: this is one of their first weeks with Maria, so welcome them." : "EXISTING CLIENT: they have been coached by Maria for a while and have only just moved onto her new portal. Do NOT welcome them, call them new, or treat this as their first week.",
     `Week ending: ${due}`,
+    (() => { const dl = Number((ci.stats || {}).daysLogged); const st = String(ex.startDate || c.start || ""); const recent = st && (Date.parse(due) - Date.parse(st)) / 864e5 <= 8; return (!pk || recent) && dl < 7 ? `JUST STARTED LOGGING: they only began logging on the portal ${st ? "on " + st : "this week"}, so only ${isNaN(dl) ? "a few" : dl} day${dl === 1 ? "" : "s"} showing is expected. Do NOT criticise or point out the low number of days logged. Say it's obviously only showing ${isNaN(dl) ? "a few days" : dl + " day" + (dl === 1 ? "" : "s")} because they've just started, and encourage them to keep putting everything in every day.` : ""; })(),
     `Their daily targets: ${tg}`,
     `This week's averages from their daily log (weight kg, daysLogged out of 7, cals, protein g, steps, sleep h, change = kg vs last week): ${fmt(ci.stats)}`,
     pk ? `Last week's averages: ${fmt(all[pk].stats)}` : "No previous check-in.",
