@@ -71,7 +71,7 @@
       var next=add(last,cl);while(diff(next,today)<0)next=add(next,cl);
       var cd=diff(today,last)+1;while(cd>cl+7&&cl)cd-=cl;
       var ov=add(next,-14),lastOv=add(last,cl-14);
-      var phase=cd<=plen?'period':(diff(today,lastOv)>=-1&&diff(today,lastOv)<=1)?'ovulation':diff(today,lastOv)<-1?'follicular':'luteal';
+      var lastEnd=last;while(isP(add(lastEnd,1)))lastEnd=add(lastEnd,1);var tNo=days[today]&&days[today].period&&days[today].period!=='Yes';var onP=isP(today)||(!tNo&&lastEnd===add(today,-1)&&cd<=plen);var phase=onP?'period':(diff(today,lastOv)>=-1&&diff(today,lastOv)<=1)?'ovulation':diff(today,lastOv)<-1?'follicular':'luteal';
       return {last:last,next:next,cl:cl,plen:plen,cd:cd,phase:phase,ov:ov,lastOv:lastOv,starts:starts,lens:lens}}
     function marks(st){var m={};if(st.none)return m;
       Object.keys(days).forEach(function(d){if(isP(d))m[d]='p'});
