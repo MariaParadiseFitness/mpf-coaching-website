@@ -217,6 +217,7 @@ body.gated #topTabs{visibility:hidden}
 body.noperiod .cy-now{display:none}
 .cy-back{display:inline-flex;align-items:center;gap:4px;color:#E8C872;text-decoration:none;font-size:14px;font-weight:600;margin-bottom:10px}
 .ci-nobook{white-space:normal;margin:0 0 14px}.ci-nobook a{color:var(--gold);font-weight:700}
+body.trk-alc .lg-f[data-k="alcohol"]{border:1px solid #E8C872;border-radius:12px;padding:10px;background:rgba(201,166,75,.08)}body.trk-alc .lg-f[data-k="alcohol"]>label::after{content:'Maria has asked you to log this every day';display:block;font-size:12px;font-weight:600;color:#E8C872;margin-top:2px}
 .trk-tip{display:flex;gap:10px;align-items:flex-start;border:1px solid rgba(201,166,75,.35);background:rgba(201,166,75,.07);border-radius:14px;padding:11px 13px;margin:-4px 0 16px;font-size:13.5px;line-height:1.45;color:var(--soft)}.trk-tip i{color:#E8C872;font-size:20px;flex:0 0 auto;margin-top:1px}.trk-tip b{color:#fff}
 .due.ci-big{padding:18px;gap:14px;border-radius:20px;animation:ciPulse 2.4s ease-in-out infinite}
 .due.ci-big .ci-ic{flex:0 0 auto;width:46px;height:46px;border-radius:50%;background:rgba(0,0,0,.18);display:grid;place-items:center;font-size:24px;color:inherit}
@@ -499,6 +500,11 @@ body.noperiod .cy-now{display:none}
       <button class="btn g" type="button" id="delReq" style="margin-top:8px">Ask Maria to delete my data</button><small id="delMsg" style="display:block;margin-top:6px"></small></details>
   </section>
 
+  <section data-view="more" id="guides">
+    <h2>My <em>guides.</em></h2>
+    <div class="sub">Short reads from me on the stuff that actually makes a difference.</div>
+    <div class="acts" style="margin-bottom:16px"><a class="act" href="#" data-guide="alcohol"><span class="ic">🍷</span><span><b>Alcohol, fat loss and training</b><span>How to drink and still get results</span></span></a></div>
+  </section>
   <section data-view="more" id="support">
     <h2>Support.</h2>
     <div class="sub">You're never left to figure it out on your own.</div>
@@ -556,6 +562,7 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
 <script src="/portal/mealplan.js"></script>
 <script src="/portal/week.js"></script>
 <script src="/portal/cycle.js"></script>
+<script src="/portal/guides.js"></script>
 <script src="/portal/mealgen.js"></script>
 <script>
 (function(){
@@ -793,6 +800,7 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
       if(!st||st.none){a.innerHTML='<i class="ti ti-moon cy-ti" aria-hidden="true"></i><div class="cy-tt"><b>My cycle</b><small>Track your period to see your phase, predictions and tips.</small></div><span class="cy-ar">›</span>';return}
       var due=dn==null?'':dn<=0?'Period due today':dn===1?'Period due tomorrow':'Period in '+dn+' days';
       a.innerHTML='<span class="cy-dn'+(st.phase==='period'?' p':'')+'"><small>Day</small>'+st.cd+'</span><div class="cy-tt"><b>'+tp.n+(st.phase==='period'?'':' · <span>'+due+'</span>')+'</b><small>'+tp.f.split('. ').slice(0,2).join('. ').replace(/\.?$/,'.')+'</small></div><span class="cy-ar">›</span>'}
+    if(c&&(c.tags||[]).some(function(x){return /alcohol/i.test(x)}))document.body.classList.add('trk-alc');
     function dueState(st){
       // in-person clients with no sessions booked: no check-in nagging (they can still check in from Progress)
       if(c&&c.type==='pt'&&!meta.demo){

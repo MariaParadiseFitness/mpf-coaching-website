@@ -538,3 +538,4 @@ i.ti.emo.ico-red{color:#f07b6e}i.ti.emo.ico-amb{color:#e8a34a}
 .lg-sug{position:absolute;left:0;right:0;z-index:20;margin-top:4px;background:#151410;border:1px solid var(--gold);border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.6);overflow:hidden}
 .lg-sug button{display:block;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid rgba(201,166,75,.15);color:#fff;font:inherit;font-size:15px;padding:11px 12px;cursor:pointer}
 .lg-sug button:last-child{border-bottom:0}.lg-sug button:hover,.lg-sug button:active{background:rgba(201,166,75,.14)}
+.lg-gl{display:inline-block;margin-top:6px;font-size:12.5px;font-weight:600;color:#E8C872;text-decoration:none}
