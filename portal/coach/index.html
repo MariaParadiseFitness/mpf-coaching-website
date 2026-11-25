@@ -165,6 +165,22 @@ html,body{overflow-x:hidden}
 @media(max-width:760px){.bswitch{display:flex}.board.two{display:block}.board.two[data-show=pt] .bcol[data-col=online],.board.two[data-show=online] .bcol[data-col=pt]{display:none}}
 
 .vnav{position:sticky;top:55px;z-index:15;display:flex;gap:6px;overflow-x:auto;padding:10px 0;margin:-6px 0 14px;background:linear-gradient(#0e0e0e 80%,transparent);scrollbar-width:none}.vnav::-webkit-scrollbar{display:none}
+.cbnav{display:none}.cbsheet[hidden]{display:none}.nb{display:inline-block;min-width:18px;height:18px;line-height:18px;border-radius:9px;background:#e0645a;color:#fff;font-size:11px;font-weight:700;text-align:center;margin-left:6px;padding:0 5px;box-sizing:border-box}
+.tsum{margin:0 0 14px}.tsum>div{cursor:pointer;transition:border-color .2s}.tsum>div:hover{border-color:var(--gold)}.tsum .wait.hot{border-color:#e0645a}.tsum .wait.hot b{color:#ff8b80}
+@media(max-width:820px){.vnav{display:none}body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
+ .cbnav{position:fixed;left:0;right:0;bottom:0;z-index:30;display:grid;grid-auto-flow:column;grid-auto-columns:1fr;background:rgba(14,14,14,.96);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid rgba(201,166,75,.25);padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
+ .cbnav a{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;color:#8d8670;font-size:10.5px;font-weight:600;padding:4px 0}.cbnav a i{font-size:22px;line-height:1.1}.cbnav a.on{color:#E8C872}
+ .cbnav .nb{position:absolute;top:0;left:calc(50% + 6px);margin:0}
+ .cbsheet{position:fixed;inset:0;z-index:35;background:rgba(0,0,0,.6);display:flex;align-items:flex-end}.cbs-in{width:100%;background:#141414;border-top:1px solid rgba(201,166,75,.4);border-radius:22px 22px 0 0;padding:14px 16px calc(84px + env(safe-area-inset-bottom))}
+ .cbs-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}.cbs-h b{color:#fff;font-size:17px}.cbs-h .x{background:none;border:0;color:#aaa;font-size:18px}
+ .cbsheet a{display:flex;gap:14px;align-items:center;padding:12px 4px;border-bottom:1px solid rgba(255,255,255,.06);text-decoration:none;color:#fff}.cbsheet a i{font-size:22px;color:#E8C872}.cbsheet a b{display:block;font-size:15px}.cbsheet a small{color:#8d8670;font-size:12px}
+ #fType{display:none}}
+@media(max-width:820px){.sum.tsum{grid-template-columns:1fr 1fr}}
+@media(max-width:820px){#panel .ph-head{position:static;flex-direction:column;align-items:stretch;gap:10px}
+ #panel .ph-head>div:last-child{flex-wrap:nowrap!important;justify-content:flex-start!important;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}#panel .ph-head>div:last-child::-webkit-scrollbar{display:none}
+ #panel .ph-head>div:last-child .btn{flex:0 0 auto;padding:8px 12px;font-size:11px;white-space:nowrap}
+ #panel #pKick{font-size:10px;letter-spacing:.12em;line-height:1.5}
+ #pTabs{position:sticky;top:0;z-index:6;background:#0e0e0e;margin:0 -14px 12px;padding:10px 14px;border-bottom:1px solid rgba(201,166,75,.2)}}
 .vnav a{flex:0 0 auto;border:1px solid rgba(201,166,75,.4);color:#e6cf8b;border-radius:30px;padding:9px 14px;font-size:13px;text-decoration:none;background:#121212}.vnav a.on{background:var(--grad);color:#111;font-weight:700;border-color:transparent}
 #tplPanel{position:static;inset:auto;z-index:auto;margin:0;border:1px solid rgba(201,166,75,.45);border-radius:22px;padding:20px 18px;background:var(--card);overflow:visible}
 .gp{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:14px;margin-bottom:18px;align-items:stretch}@media(max-width:760px){.gp{grid-template-columns:1fr}}
@@ -206,7 +222,14 @@ html,body{overflow-x:hidden}
 <body>
 <div class="top"><div class="in"><a href="/portal/coach/"><img src="/img/logo.png" alt="MPF Coaching"></a><a class="o" href="/cdn-cgi/access/logout">Log out</a></div></div>
 <main class="wrap" id="app" hidden>
-  <nav class="vnav" id="vnav"><a data-v="today" href="#v=today">✅ Today</a><a data-v="clients" href="#v=clients">👥 Clients</a><a data-v="checkins" href="#v=checkins">💬 Check-ins</a><a data-v="prog" href="#v=prog">📋 Programmes</a><a data-v="meal" href="#v=meal">🥗 Meal plans</a><a data-v="mkt" href="#v=mkt">📣 Marketing</a><a href="/portal/coach/business.html">💷 Business</a><a href="#" id="cvNav">👁 Client view</a><a data-v="settings" href="#v=settings">⚙️ Settings</a></nav>
+  <nav class="vnav" id="vnav"><a data-v="today" href="#v=today">✅ Today</a><a data-v="clients" href="#v=clients">👥 Clients</a><a data-v="checkins" href="#v=checkins">💬 Check-ins<span class="nb" id="nbCi" hidden></span></a><a data-v="prog" href="#v=prog">📋 Programmes</a><a data-v="meal" href="#v=meal">🥗 Meal plans</a><a data-v="mkt" href="#v=mkt">📣 Content</a><a href="/portal/coach/business.html">💷 Business</a><a href="#" id="cvNav">👁 Client view</a><a data-v="settings" href="#v=settings">⚙️ Settings</a></nav>
+  <nav class="cbnav" id="cbnav"><a data-v="today" href="#v=today"><i class="ti ti-circle-check"></i>Today</a><a data-v="clients" href="#v=clients"><i class="ti ti-users"></i>Clients</a><a data-v="checkins" href="#v=checkins"><i class="ti ti-message-circle"></i>Check-ins<span class="nb" id="nbCi2" hidden></span></a><a data-v="mkt" href="#v=mkt"><i class="ti ti-speakerphone"></i>Content</a><a href="#" id="cbMore"><i class="ti ti-dots"></i>More</a></nav>
+  <div class="cbsheet" id="cbSheet" hidden><div class="cbs-in"><div class="cbs-h"><b>More</b><button type="button" class="x" id="cbX">✕</button></div>
+    <a data-v="prog" href="#v=prog"><i class="ti ti-clipboard-list"></i><span><b>Programmes</b><small>Your training templates</small></span></a>
+    <a data-v="meal" href="#v=meal"><i class="ti ti-salad"></i><span><b>Meal plans</b><small>Your meal plan templates</small></span></a>
+    <a href="/portal/coach/business.html"><i class="ti ti-currency-pound"></i><span><b>Business</b><small>Money, sessions and goals</small></span></a>
+    <a href="#" data-cv="1"><i class="ti ti-eye"></i><span><b>Client view</b><small>See the app as a client sees it</small></span></a>
+    <a data-v="settings" href="#v=settings"><i class="ti ti-settings"></i><span><b>Settings</b><small>Reminders, templates, recommendations, backup</small></span></a></div></div>
   <div id="cvPick" style="position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.7);display:none;place-items:center;padding:16px"><div style="background:#141414;border:1px solid rgba(201,166,75,.4);border-radius:18px;padding:18px;max-width:380px;width:100%"><b style="color:#fff;font-size:17px">See a client's portal</b><div class="mini" style="margin:6px 0 12px">Opens their portal exactly as they see it. Read only, nothing you tap saves.</div><select id="cvSel" style="width:100%;background:#0e0e0e;color:#fff;border:1px solid rgba(201,166,75,.35);border-radius:10px;padding:10px;font:inherit"></select><div style="display:flex;gap:8px;margin-top:12px"><button class="btn" type="button" id="cvGo">Open their portal</button><button class="btn g" type="button" id="cvX">Cancel</button></div></div></div>
   <div class="preview" id="pv" hidden>👀 Preview with made-up clients. Real clients appear once the login is switched on.</div>
   <div class="mhero" id="mhero" data-view="today">
@@ -216,16 +239,16 @@ html,body{overflow-x:hidden}
     <div class="mq" id="mq"></div>
     <div class="mstats" id="mstats"></div>
   </div>
+  <div class="sum tsum" data-view="today">
+    <div data-go="clients"><small>Active clients</small><b id="sActive">0</b></div>
+    <div data-go="checkins"><small>Check-ins in</small><b id="sDone">0</b></div>
+    <div data-go="checkins" class="wait"><small>Check-ins waiting</small><b id="sWait">0</b></div>
+    <div data-go="clients"><small>Logged today</small><b id="sLog">0</b></div>
+  </div>
   <div class="card2" id="todo" data-view="today"><div class="t2h"><h2>Today's <em>to-do.</em></h2><span class="mini" id="todoN"></span></div><div id="todoBody"><p class="mini">Loading…</p></div>
     <div class="todo-add"><input id="todoIn" placeholder="+ Add your own task, e.g. film a reel, post a transformation" maxlength="200"><button class="btn" type="button" id="todoAdd">Add</button></div></div>
 <div data-view="clients">
   <h2 class="sec" id="clients">Your <em>clients.</em></h2>
-  <div class="sum">
-    <div><small>Active clients</small><b id="sActive">0</b></div>
-    <div><small>Check-ins in</small><b id="sDone">0</b></div>
-    <div><small>Check-ins waiting</small><b id="sWait">0</b></div>
-    <div><small>Logged today</small><b id="sLog">0</b></div>
-  </div>
   <div hidden><button class="btn g" type="button" id="tplBtn">📋 Programme templates</button> <button class="btn g" type="button" id="mtplBtn">🥗 Meal plan templates</button></div>
   <input id="cSearch" type="search" placeholder="🔍 Search clients by name" autocomplete="off" style="width:100%;box-sizing:border-box;background:#0e0e0e;border:1px solid rgba(201,166,75,.35);border-radius:12px;color:#fff;font:inherit;font-size:16px;padding:11px 14px;margin:0 0 10px;outline:none">
   <div class="filters" id="fType"><button class="on" data-t="all">Everyone</button><button data-t="online">Online</button><button data-t="pt">Face to face</button></div>
@@ -286,7 +309,7 @@ html,body{overflow-x:hidden}
     </div>
     <div class="gp"><div class="wc" id="wChart"></div><div class="fvl" id="fvl"></div></div>
     <div class="pmeta" id="pMeta"></div><div id="pExtra"></div>
-    <div class="filters" id="pTabs"><button data-p="ob">Onboarding</button><button class="on" data-p="ci">Check-ins</button><button data-p="log">Daily log</button><button data-p="tg">Targets</button><button data-p="mp">Meal plan</button><button data-p="pg">Programmes</button><button data-p="wk">Workouts</button><button data-p="ph">Photos</button></div>
+    <div class="filters" id="pTabs"><button class="on" data-p="ci">Check-ins</button><button data-p="log">Daily log</button><button data-p="tg">Targets</button><button data-p="mp">Meal plan</button><button data-p="pg">Programmes</button><button data-p="wk">Workouts</button><button data-p="ph">Photos</button><button data-p="ob">Onboarding</button></div>
     <div id="pCi"></div>
     <div id="pLog" hidden></div>
     <div id="pPg" hidden></div>
@@ -362,7 +385,7 @@ html,body{overflow-x:hidden}
     drawTagF();drawTodo();
     $('sActive').textContent=act.length;
     $('sDone').textContent=act.filter(function(c){return c.check&&c.check.done}).length;
-    $('sWait').textContent=act.filter(function(c){return !ciOff(c)&&c.check&&(c.check.dueToday||c.check.late)}).length;
+    var nW=act.filter(function(c){return !ciOff(c)&&c.check&&(c.check.dueToday||c.check.late)}).length;$('sWait').textContent=nW;$('sWait').parentNode.classList.toggle('hot',nW>0);['nbCi','nbCi2'].forEach(function(k){var e=$(k);if(e){e.textContent=nW;e.hidden=!nW}});
     $('sLog').textContent=act.filter(function(c){return c.lastLog===todayStr}).length;
     var list=pool.filter(function(c){return filter==='all'||(filter==='active'?c.active:!c.active)});
     $('groups').hidden=view!=='cards';$('tblView').hidden=view==='cards';if(view==='cards')drawGroups(list);
@@ -850,10 +873,14 @@ html,body{overflow-x:hidden}
   var curView='';
   function go(v,noPush){if(['today','clients','prog','meal','mkt','checkins','settings'].indexOf(v)<0)v='today';if(v==='mkt')drawMkt();if(v==='checkins')loadQueue();if(v==='settings')loadSettings();
     [].forEach.call(document.querySelectorAll('[data-view]'),function(el){var dv=el.getAttribute('data-view');el.hidden=dv==='tpl'?!(v==='prog'||v==='meal'):dv!==v});
-    [].forEach.call(document.querySelectorAll('#vnav a[data-v]'),function(a){a.classList.toggle('on',a.getAttribute('data-v')===v)});
+    [].forEach.call(document.querySelectorAll('#vnav a[data-v],#cbnav a[data-v]'),function(a){a.classList.toggle('on',a.getAttribute('data-v')===v)});var mo=$('cbMore');if(mo)mo.classList.toggle('on',['prog','meal','settings'].indexOf(v)>-1);if($('cbSheet'))$('cbSheet').hidden=true;
     if(v!==curView){if(v==='prog')$('tplBtn').click();if(v==='meal')$('mtplBtn').click();window.scrollTo(0,0)}curView=v;
     if(!noPush&&location.hash!=='#v='+v)history.pushState(null,'','#v='+v)}
-  [].forEach.call(document.querySelectorAll('#vnav a[data-v]'),function(a){a.onclick=function(e){e.preventDefault();go(a.getAttribute('data-v'))}});
+  [].forEach.call(document.querySelectorAll('#vnav a[data-v],#cbnav a[data-v],#cbSheet a[data-v]'),function(a){a.onclick=function(e){e.preventDefault();go(a.getAttribute('data-v'))}});
+  [].forEach.call(document.querySelectorAll('.tsum [data-go]'),function(d){d.onclick=function(){go(d.getAttribute('data-go'))}});
+  $('cbMore').onclick=function(e){e.preventDefault();$('cbSheet').hidden=false};$('cbX').onclick=function(){$('cbSheet').hidden=true};
+  $('cbSheet').onclick=function(e){if(e.target===this)this.hidden=true};
+  document.querySelector('#cbSheet [data-cv]').onclick=function(e){e.preventDefault();$('cbSheet').hidden=true;$('cvNav').click()};
   window.addEventListener('popstate',function(){var m=location.hash.match(/^#v=(\w+)/);if(m)go(m[1],true);else if(!location.hash)go('today',true)});
   setTimeout(function(){var m=location.hash.match(/^#v=(\w+)/);go(m?m[1]:'today',true)},0);
   function targetsEditor(id){
