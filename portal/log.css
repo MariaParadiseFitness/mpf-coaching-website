@@ -574,3 +574,9 @@ i.ti.emo.ico-red{color:#f07b6e}i.ti.emo.ico-amb{color:#e8a34a}
 .cy-fix-t{background:none;border:0;color:#E8C872;font:inherit;font-size:14px;font-weight:600;cursor:pointer;padding:0;text-align:left}
 .cy-fix-b{margin-top:12px}.cy-fix-b label{display:block;font-size:14px;font-weight:600;color:#fff;margin-bottom:12px}.cy-fix-b label small{display:block;font-weight:400;color:var(--mute);font-size:12px;margin-top:2px}
 .cy-fix-b input{display:block;box-sizing:border-box;width:100%;margin-top:6px;background:#0e0e0e;border:1px solid var(--line);border-radius:12px;color:#fff;font:inherit;font-size:16px;padding:11px 12px;outline:none}.cy-fix-b input:focus{border-color:var(--gold)}
+.lb-brand{margin:8px 0 4px}.lb-brand small{display:block;color:var(--mute);font-size:11.5px;margin-bottom:6px}
+.lb-brs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px}.lb-brs::-webkit-scrollbar{display:none}
+.lb-brs button{flex:0 0 auto;background:#121212;border:1px solid var(--line);color:#e6cf8b;border-radius:30px;padding:6px 11px;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;white-space:nowrap}
+.lb-brs button.on{background:var(--grad);color:#111;border-color:transparent}
+button.lb-pkt{display:flex;justify-content:space-between;align-items:center;width:100%;background:none;border:0;border-bottom:1px solid var(--line);color:#E8C872;font:inherit;cursor:pointer;text-align:left}
+button.lb-pkt span{color:var(--mute);font-size:12px;font-weight:600}
