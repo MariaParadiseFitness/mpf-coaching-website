@@ -200,7 +200,7 @@
   }
 
   /* ---------------- coach: tables ---------------- */
-  var COLS=['weight','steps','cals','protein','carbs','fat','water','sleep','cardio','trained','actType','actMins','energy','mood','stress','hunger','adherence','offPlan','offType','alcohol','drinks'];
+  var COLS=['weight','steps','cals','protein','carbs','fat','water','sleep','cardio','trained','actType','actMins','energy','mood','stress','hunger','adherence','offPlan','offType','alcohol','drinks','mindful'];
   var WD=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   function dayTargets(t,date){t=t||{};if(t.hlOn!=='1')return t;var wd=WD[new Date(toT(date)).getUTCDay()],hi=String(t.hiDays||'').split(',').indexOf(wd)>-1,o={};for(var k in t)o[k]=t[k];
     var p=hi?'hi':'lo';o.cals=t[p+'Cals']||t.cals;o.protein=t[p+'P']||t.protein;o.carbs=t[p+'C']||t.carbs;o.fat=t[p+'F']||t.fat;o.dayType=hi?'High day':'Low day';return o}
@@ -214,7 +214,7 @@
       if(!x){gap.push(d);continue}flush();
       rows+='<tr'+(isT?' class="today"':'')+'><td>'+(isT?'Today<small>'+nice(d,{month:undefined})+'</small>':nice(d,{month:undefined}))+'</td>'+COLS_.map(function(k){var v=x?(k==='cals'?(kcal(x)!=null?Math.round(kcal(x)):''):k==='cycle'?(cycleDay(days,d,x.period)||''):x[k]):'';return '<td>'+esc(v||'')+'</td>'}).join('')+'<td class="nt">'+esc(x&&x.notes||'')+'</td></tr>'}
     flush();
-    return '<div class="lt-wrap"><table class="lt"><thead><tr><th>Day</th>'+COLS_.map(function(k){var f=LABEL[k]||{l:'Cycle day'};return '<th>'+esc({cycle:'Cycle day',weight:'Weight kg',steps:'Steps',cals:'Kcal',protein:'Protein g',carbs:'Carbs g',fat:'Fat g',water:'Water L',offPlan:'Off-plan',sleep:'Sleep',cardio:'Cardio min',trained:'Trained',energy:'Energy',mood:'Mood',stress:'Stress',hunger:'Hunger',adherence:'Plan',actType:'Activity',actMins:'Activity min',offType:'Off-plan type',alcohol:'Alcohol',drinks:'Drinks'}[k]||f.l)+'</th>'}).join('')+'<th>Notes</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+    return '<div class="lt-wrap"><table class="lt"><thead><tr><th>Day</th>'+COLS_.map(function(k){var f=LABEL[k]||{l:'Cycle day'};return '<th>'+esc({cycle:'Cycle day',weight:'Weight kg',steps:'Steps',cals:'Kcal',protein:'Protein g',carbs:'Carbs g',fat:'Fat g',water:'Water L',offPlan:'Off-plan',sleep:'Sleep',cardio:'Cardio min',trained:'Trained',energy:'Energy',mood:'Mood',stress:'Stress',hunger:'Hunger',adherence:'Plan',actType:'Activity',actMins:'Activity min',offType:'Off-plan type',alcohol:'Alcohol',drinks:'Drinks',mindful:'Mindful min'}[k]||f.l)+'</th>'}).join('')+'<th>Notes</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
   }
   function checkinList(all,opt){
     opt=opt||{};var ds=Object.keys(all||{}).sort().reverse();

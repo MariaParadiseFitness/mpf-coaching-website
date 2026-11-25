@@ -275,7 +275,7 @@ body.trk-alc .lg-f[data-k="alcohol"]{border:1px solid #E8C872;border-radius:12px
 <main class="wrap" id="app" hidden>
   <div class="preview" id="previewBar" hidden>👀 Test client (Sam): this is exactly what your clients see. Nothing here is saved or sent anywhere, so tap around freely. Add <b>?setup</b> to the link to see the first-login checklist.</div>
 
-  <div class="seg vseg" data-view="today" id="tdSeg"><a href="#log" data-s="main"><i class="ti ti-notebook" aria-hidden="true"></i> Today</a><a href="#planner" data-s="wk"><i class="ti ti-calendar-week" aria-hidden="true"></i> My week</a><a href="#cycle" data-s="cyc" id="cySeg"><i class="ti ti-moon" aria-hidden="true"></i> My cycle</a></div>
+  <div class="seg vseg" data-view="today" id="tdSeg"><a href="#log" data-s="main"><i class="ti ti-notebook" aria-hidden="true"></i> Today</a><a href="#planner" data-s="wk"><i class="ti ti-calendar-week" aria-hidden="true"></i> My week</a><a href="#breathe" data-s="br"><i class="ti ti-wind" aria-hidden="true"></i> Breathe</a><a href="#cycle" data-s="cyc" id="cySeg"><i class="ti ti-moon" aria-hidden="true"></i> My cycle</a></div>
   <div class="hello" data-view="today" data-sub="main">
     <label class="av" id="avBox" title="Add your photo"><img id="avImg" alt="" hidden><span class="av-ph" id="avPh">📷</span><span class="av-edit">Edit</span><input type="file" accept="image/*" id="avIn"></label>
     <div class="hello-t">
@@ -350,6 +350,11 @@ body.trk-alc .lg-f[data-k="alcohol"]{border:1px solid #E8C872;border-radius:12px
   <section data-view="today" data-sub="cyc" id="cycle">
     <h2>My <em>cycle.</em></h2>
     <div id="cyBox"><div class="wc-empty">Loading…</div></div>
+  </section>
+  <section data-view="today" data-sub="br" id="breathe">
+    <h2>Take a <em>breath.</em></h2>
+    <div class="sub">A couple of minutes to calm your head, sleep better and get on top of cravings.</div>
+    <div id="brBox"></div>
   </section>
   <section data-view="today" data-sub="wk" id="planner">
     <div id="plMine">
@@ -563,6 +568,7 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
 <script src="/portal/week.js"></script>
 <script src="/portal/cycle.js"></script>
 <script src="/portal/guides.js"></script>
+<script src="/portal/breathe.js"></script>
 <script src="/portal/mealgen.js"></script>
 <script>
 (function(){
@@ -603,7 +609,7 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
     if(sub==='plan'&&!$('sessions').classList.contains('gone')){var f=$('acuity');if(f&&!f.src)f.src=f.getAttribute('data-src')}
     if(sub==='plan'&&!$('sessions').classList.contains('gone'))plTab('book');
     if(noScroll)return;
-    if(['log','targets','checkin','progress','cycle','planner','folder','plan','account','start'].indexOf(id)>=0||(t===host&&host===firstOf(v)))window.scrollTo(0,0);else t.scrollIntoView({block:'start'});
+    if(['log','targets','checkin','progress','cycle','planner','breathe','folder','plan','account','start'].indexOf(id)>=0||(t===host&&host===firstOf(v)))window.scrollTo(0,0);else t.scrollIntoView({block:'start'});
   }
   var sessLoaded=false;function loadSess(){if(sessLoaded)return;sessLoaded=true;fetch('/portal/api/sessions',{cache:'no-store'}).then(function(r){return r.json()}).then(function(j){try{if(j&&window.MPFPlanner&&MPFPlanner.current)MPFPlanner.current.setSessions(j)}catch(e){}var b=$('sessHist');if(!b||!j||((!j.past||!j.past.length)&&(!j.upcoming||!j.upcoming.length)))return;var nd=function(d){return MPFLog.nice(d,{weekday:'short'})};var T=j.times||{};window.__shT=T;var ch=function(d,c){return '<button type="button" class="'+(c||'')+'" data-d="'+d+'">'+nd(d)+'</button>'};var p=j.pkg,h='';
     if(p&&p.left!=null)h+='<div class="sh-pk"><b>'+p.left+'</b><span>sessions left in your package<br><small>'+p.used+' of '+p.size+' used'+(p.booked?' · '+p.booked+' booked':'')+'</small></span></div>';
@@ -801,6 +807,7 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
       var due=dn==null?'':dn<=0?'Period due today':dn===1?'Period due tomorrow':'Period in '+dn+' days';
       a.innerHTML='<span class="cy-dn'+(st.phase==='period'?' p':'')+'"><small>Day</small>'+st.cd+'</span><div class="cy-tt"><b>'+tp.n+(st.phase==='period'?'':' · <span>'+due+'</span>')+'</b><small>'+tp.f.split('. ').slice(0,2).join('. ').replace(/\.?$/,'.')+'</small></div><span class="cy-ar">›</span>'}
     if(c&&(c.tags||[]).some(function(x){return /alcohol/i.test(x)}))document.body.classList.add('trk-alc');
+    try{if(window.MPFBreathe&&$('brBox'))MPFBreathe.Mount($('brBox'),{today:(window.MPFLog&&MPFLog.londonToday&&MPFLog.londonToday())||new Date().toISOString().slice(0,10),demo:!!(meta&&meta.demo)})}catch(e){}
     function dueState(st){
       // in-person clients with no sessions booked: no check-in nagging (they can still check in from Progress)
       if(c&&c.type==='pt'&&!meta.demo){

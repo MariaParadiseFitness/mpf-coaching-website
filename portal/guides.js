@@ -17,5 +17,5 @@
     document.body.appendChild(m);document.body.style.overflow='hidden';var close=function(){m.remove();document.body.style.overflow=''};m.onclick=function(e){if(e.target===m||e.target.closest('.cy-x'))close()}}
   function list(){return Object.keys(G).map(function(k){return {k:k,t:G[k].t,i:G[k].i}})}
   document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('[data-guide]');if(!a)return;e.preventDefault();open(a.getAttribute('data-guide'))});
-  window.MPFGuides={open:open,list:list};
+  window.MPFGuides={open:open,list:list,add:function(k,g){G[k]=g}};
 })();

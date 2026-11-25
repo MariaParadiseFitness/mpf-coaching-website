@@ -33,6 +33,7 @@
         (tp?tile('Protein hit',pHit+' / 7 days','target '+fm(tp)+'g',pHit>=5):'')+
         (function(){var ct=window.MPFLog&&MPFLog.cardioT?MPFLog.cardioT(t.cardio):null;if(!ct)return '';var done=pick(cur,function(d){var c=num(d.cardio);return c&&c>=ct.mins*0.95?1:null}).length;return ct.perWeek?tile('Cardio',done+' / '+ct.perWeek+' sessions',ct.mins+' mins each',done>=ct.perWeek):tile('Cardio',done+' / 7 days',ct.mins+' mins a day',done>=6)})()+
         (function(){var ad=pick(cur,function(d){return d.alcohol==='Yes'?1:d.alcohol==='No'?0:null});if(!ad.length)return '';var dd=ad.filter(Boolean).length,dr=pick(cur,function(d){return d.alcohol==='Yes'?(num(d.drinks)||0):null}).reduce(function(a,b){return a+b},0);return tile('Alcohol',dd?dr+' drink'+(dr===1?'':'s'):'None',dd?'on '+dd+' day'+(dd===1?'':'s'):'alcohol-free week',!dd)})()+
+        (function(){var mm=pick(cur,function(d){return num(d.mindful)}).reduce(function(a,b){return a+b},0);return mm?tile('Mindful',Math.round(mm)+' mins','breathing and calm',mm>=10):''})()+
         tile('Avg sleep',sl!=null?Math.floor(sl)+'h '+String(Math.round((sl%1)*60)).padStart(2,'0')+'m':'–','',sl!=null&&sl>=7)+
         '</div>';
       var wins=[];if(logged>=6)wins.push('logged nearly every day');if(tp&&pHit>=5)wins.push('hit your protein '+pHit+' days');if(tr>=3)wins.push('trained '+tr+' times');if(ts&&st!=null&&st>=ts*0.95)wins.push('smashed your steps');
