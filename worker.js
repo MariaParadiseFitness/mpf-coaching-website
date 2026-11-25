@@ -286,15 +286,41 @@ async function saveDay(env, c, date, data) {
   await putJSON(env, sk, s);
   return doc[date] || null;
 }
-// Maintenance calories (Katch-McArdle): BMR = 370 + 21.6 x lean mass (kg), x activity (default 1.55: training 3-5x a week + steps)
+// Maintenance calories. Three ways, best first:
+// 1. Maria's own number for this client (body.maint)
+// 2. From their results: average calories logged + weight change over the last 3 to 5 weeks (7700 kcal per kg)
+// 3. Estimate (Katch-McArdle): BMR = 370 + 21.6 x lean mass (kg), x activity. Activity comes from Maria's setting, else their average steps
+function actFromSteps(st) { if (st == null) return 1.4; if (st < 5000) return 1.3; if (st < 7500) return 1.375; if (st < 10000) return 1.45; if (st < 12500) return 1.5; return 1.55; }
 async function bodyInfo(env, c, body) {
   const ws = summaryWeights(await getJSON(env, `${dkey(c.id)}/summary.json`, {})), last = ws[ws.length - 1];
   const ob = (await getJSON(env, `${dkey(c.id)}/onboarding.json`, { answers: {} })).answers || {};
   const tg = await getJSON(env, `${dkey(c.id)}/targets.json`, null);
-  const kg = last ? Number(last.kg) : Number(ob.weight || 0) || 0, bf = Number(body.bf) || 0, act = Number(body.activity) || 1.55;
+  const today = londonToday(), from35 = fromT(toT(today) - 35 * DAY_MS);
+  const days = await readLog(env, c.id, from35, today);
+  const kcalOf = (d) => { const k = num(d.cals); if (k) return k; const p = num(d.protein) || 0, cb = num(d.carbs) || 0, f = num(d.fat) || 0; return p || cb || f ? 4 * p + 4 * cb + 9 * f : null; };
+  const st14 = Object.entries(days).filter(([d]) => d > fromT(toT(today) - 14 * DAY_MS)).map(([, v]) => num(v.steps)).filter((x) => x && x > 300);
+  const avgSteps = st14.length >= 4 ? Math.round(st14.reduce((a, b) => a + b, 0) / st14.length) : null;
+  const kg = last ? Number(last.kg) : Number(ob.weight || 0) || 0, bf = Number(body.bf) || 0;
+  const actSet = Number(body.activity) || 0, act = actSet || actFromSteps(avgSteps);
   let maint = null, bmr = null, lean = null;
   if (kg > 0 && bf > 0) { lean = Math.round(kg * (1 - bf / 100) * 10) / 10; bmr = Math.round(370 + 21.6 * lean); maint = Math.round((bmr * act) / 10) * 10; }
-  return { weight: kg || null, weightDate: last ? last.date : "", bf: body.bf || "", bfAt: body.at || "", activity: String(act), lean, bmr, maintenance: maint,
+  // from results
+  let fromData = null;
+  const w35 = ws.filter((x) => x.date >= from35);
+  const cals = Object.values(days).map(kcalOf).filter((x) => x && x > 600 && x < 6000);
+  if (w35.length >= 8 && cals.length >= 10) {
+    const span = (toT(w35[w35.length - 1].date) - toT(w35[0].date)) / DAY_MS;
+    if (span >= 21) {
+      const a = w35.slice(0, 4), b = w35.slice(-4), av = (l) => l.reduce((s, x) => s + Number(x.kg), 0) / l.length;
+      const mid = (l) => l.reduce((s, x) => s + toT(x.date), 0) / l.length, dd = (mid(b) - mid(a)) / DAY_MS;
+      if (dd >= 14) { const per = (av(b) - av(a)) / dd, avgK = cals.reduce((s, x) => s + x, 0) / cals.length; const m = Math.round((avgK - per * 7700) / 10) * 10; if (m >= 1200 && m <= 4500) fromData = { maint: m, kcal: Math.round(avgK), perWeek: Math.round(per * 7 * 100) / 100, days: cals.length }; }
+    }
+  }
+  const coach = Number(body.maint) || 0;
+  const chosen = coach >= 1000 ? coach : fromData ? fromData.maint : maint;
+  const source = coach >= 1000 ? "coach" : fromData ? "results" : maint ? "estimate" : "";
+  return { weight: kg || null, weightDate: last ? last.date : "", bf: body.bf || "", bfAt: body.at || "", activity: String(act), activitySet: actSet ? String(actSet) : "", avgSteps, lean, bmr,
+    maintenance: chosen, source, estimate: maint, fromData, coachMaint: coach >= 1000 ? coach : null,
     goal: ob.goal || "", goalweight: ob.goalweight || "", phase: c.phase || "", cals: tg && tg.cals ? tg.cals : "", history: (body.history || []).slice(-12) };
 }
 const summaryWeights = (s) => Object.keys((s && s.weights) || {}).sort().map((d) => ({ date: d, kg: s.weights[d] }));
@@ -728,6 +754,7 @@ async function handleApi(request, env, url, ctx) {
       const next = { ...cur };
       if (b.bf !== undefined && b.bf !== "") { const bf = Math.round(Number(b.bf) * 10) / 10; if (bf >= 3 && bf <= 60) { next.bf = String(bf); next.at = new Date().toISOString(); next.history = [...(cur.history || []), { bf: String(bf), at: next.at }].slice(-60); } }
       if (b.activity !== undefined) { const a = Number(b.activity); next.activity = a >= 1.2 && a <= 2 ? String(a) : ""; }
+      if (b.maint !== undefined && coach) { const m = Math.round(Number(b.maint)); next.maint = m >= 1000 && m <= 5000 ? String(m) : ""; }
       await putJSON(env, key, next);
       return json(await bodyInfo(env, c, next));
     }
@@ -759,8 +786,8 @@ async function handleApi(request, env, url, ctx) {
       pre: (Array.isArray(b.pre) ? b.pre : []).slice(0, 10).map((x) => ({ n: str(x && x.n, 60), m: str(x && x.m, 6) })).filter((x) => x.n), post: (Array.isArray(b.post) ? b.post : []).slice(0, 10).map((x) => ({ n: str(x && x.n, 60), m: str(x && x.m, 6) })).filter((x) => x.n),
       cardio: (Array.isArray(b.cardio) ? b.cardio : []).slice(0, 6).map((x) => ({ type: str(x && x.type, 40), mins: str(x && x.mins, 5), hr: str(x && x.hr, 5), km: str(x && x.km, 6), lvl: str(x && x.lvl, 30) })).filter((x) => x.type),
       exercises: (Array.isArray(b.exercises) ? b.exercises : []).slice(0, 40).map((e) => ({
-        name: str(e.name, 80), ss: str(e.ss, 6), notes: str(e.notes, 600), ...(e.fin ? { fin: true } : {}),
-        sets: (Array.isArray(e.sets) ? e.sets : []).slice(0, 24).map((x) => ({ kg: str(x.kg, 10), reps: str(x.reps, 10), done: !!x.done, ...(["w", "d", "m", "f"].includes(x.t) ? { t: x.t } : {}) })),
+        name: str(e.name, 80), ss: str(e.ss, 6), notes: str(e.notes, 600), ...(e.fin ? { fin: true } : {}), ...(e.side === true || e.side === false ? { side: e.side } : {}),
+        sets: (Array.isArray(e.sets) ? e.sets : []).slice(0, 24).map((x) => ({ kg: str(x.kg, 10), reps: str(x.reps, 10), ...(x.repsR != null && String(x.repsR) !== "" ? { repsR: str(x.repsR, 10) } : {}), done: !!x.done, ...(["w", "d", "m", "f"].includes(x.t) ? { t: x.t } : {}) })),
       })),
     };
     const key = `${dkey(client.id)}/workouts/${b.date.slice(0, 7)}.json`;
