@@ -568,3 +568,9 @@ i.ti.emo.ico-red{color:#f07b6e}i.ti.emo.ico-amb{color:#e8a34a}
 .br-snd{background:none;border:1px solid var(--line);color:#E8C872;border-radius:30px;padding:8px 14px;font:inherit;font-size:13px;cursor:pointer}
 .br-done{text-align:center;padding:30px 10px}.br-done>i{font-size:54px;color:#E8C872}.br-done h3{font-family:var(--serif);font-size:26px;color:#fff;margin:8px 0}.br-done p{color:var(--soft);font-size:14.5px;line-height:1.5}
 #tdSeg a{font-size:12.5px}
+.cy-edit-day{margin-top:10px}.cy-edit-day button{background:none;border:1px solid #e0524a;color:#f09595;border-radius:30px;padding:8px 14px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.cy-edit-day button[data-pv="Yes"]{background:#e0524a;color:#fff;border-color:#e0524a}
+.cy-fut,.cy-hint{display:block;color:var(--mute);font-size:12.5px;margin:10px 0 0}
+.cy-fix-t{background:none;border:0;color:#E8C872;font:inherit;font-size:14px;font-weight:600;cursor:pointer;padding:0;text-align:left}
+.cy-fix-b{margin-top:12px}.cy-fix-b label{display:block;font-size:14px;font-weight:600;color:#fff;margin-bottom:12px}.cy-fix-b label small{display:block;font-weight:400;color:var(--mute);font-size:12px;margin-top:2px}
+.cy-fix-b input{display:block;box-sizing:border-box;width:100%;margin-top:6px;background:#0e0e0e;border:1px solid var(--line);border-radius:12px;color:#fff;font:inherit;font-size:16px;padding:11px 12px;outline:none}.cy-fix-b input:focus{border-color:var(--gold)}
