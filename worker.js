@@ -1137,7 +1137,7 @@ async function handleApi(request, env, url, ctx) {
     if (text && isNew && b.email !== false) {
       const to = Object.entries(r).filter(([, x]) => x.id === c.id).map(([e]) => e.toLowerCase())[0];
       const first = String(c.name || "").split(" ")[0];
-      if (to) await sendMail(env, { to, fromName: "Maria Paradise", subject: `${first}, I've replied to your check-in`, heading: `Your check-in <em style="color:#e6cf8b">feedback.</em>`, intro: `Hi ${first}, I've gone through your check-in and left you some feedback in your portal.`, lines: ["Have a read and message me if you have any questions.", "", "Maria x"], button: { text: "Read my feedback", url: SITE + "/portal/#checkin" } }).catch(() => {});
+      if (to) await sendMail(env, { to, fromName: "Maria Paradise", subject: `Your weekly check-in response, ${first}`, heading: `Your weekly check-in <em style="color:#e6cf8b">response.</em>`, intro: `Hi ${first}, I've gone through your check-in and left you some feedback in your portal.`, lines: ["Have a read and message me if you have any questions.", "", "Maria x"], button: { text: "Read my feedback", url: SITE + "/portal/#checkin" } }).catch(() => {});
     }
     return json({ ok: true, reply: all[b.due].reply || null });
   }
