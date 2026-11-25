@@ -102,5 +102,27 @@
     corerot:'Brace your whole middle and keep your hips still. Breathe out as you twist or resist.'
   };
   function brace(name){var p=of(name);return p&&BR[p.key]?BR[p.key]:'Breathe in and brace your abs before each rep, keep your ribs down, and breathe out as you finish the rep.'}
-  window.MPFSWAP={of:of,suggest:suggest,bias:bias,pre:pre,brace:brace};
+  // when to use lifting straps / wrist wraps, by movement pattern (only where it matters)
+  var PULL='Use them on your heavier working sets if your grip gives out before ';
+  var NOWU=' Skip them on warm-ups and lighter sets so your grip still gets stronger.';
+  var WR={
+    hinge:'Straps: '+PULL+'your hamstrings and glutes do.'+NOWU,
+    uhinge:'Straps: '+PULL+'your hamstrings and glutes do.'+NOWU,
+    hpull:'Straps: '+PULL+'your back does, so your back gets the work, not your forearms.'+NOWU,
+    vpull:'Straps: '+PULL+'your lats do.'+NOWU+' Not needed on assisted or bodyweight pull-ups for most people.',
+    straight:'Straps: optional if your grip slips before your lats tire. Not needed for most people.',
+    shrug:'Straps: yes on heavy sets, your grip will fail way before your traps do.'+NOWU,
+    lunge:'Straps: only if you\'re holding heavy dumbbells and your grip goes before your legs do. Not needed with a barbell or on machines.',
+    hpush:'Wrist wraps: optional on your heaviest pressing sets if your wrists bend back or ache. Not needed on warm-ups or machines. Keep your wrists stacked over your elbows either way.',
+    incline:'Wrist wraps: optional on your heaviest pressing sets if your wrists bend back or ache. Not needed on warm-ups or machines. Keep your wrists stacked over your elbows either way.',
+    decline:'Wrist wraps: optional on your heaviest pressing sets if your wrists bend back or ache. Not needed on warm-ups or machines.',
+    vpush:'Wrist wraps: optional on heavy barbell or dumbbell pressing if your wrists bend back or ache. Not needed on warm-ups or machines.',
+    dip:'Wrist wraps: optional on weighted dips if your wrists ache. Not needed for bodyweight dips.',
+    curl:'No straps or wraps: your grip and forearms are part of the exercise.',
+    lat:'No straps or wraps needed. If you\'re gripping the weight hard, it\'s probably too heavy.',
+    front:'No straps or wraps needed.',
+    rear:'No straps or wraps needed.'
+  };
+  function wraps(name){var p=of(name);return p&&WR[p.key]?WR[p.key]:''}
+  window.MPFSWAP={of:of,suggest:suggest,bias:bias,pre:pre,brace:brace,wraps:wraps};
 })();
