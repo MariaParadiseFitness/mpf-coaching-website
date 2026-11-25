@@ -1072,10 +1072,30 @@ async function handleApi(request, env, url, ctx) {
   if (path === "/portal/api/coach/todos") {
     if (!coach) return json({ error: "forbidden" }, 403);
     const key = "_data/_todos.json", db = await getJSON(env, key, { items: [], dismissed: {} });
+    // one-off: add the open items from the 25 Nov build session to Maria's priority list
+    if (!db.seed1125) {
+      const mk = (text, pri, list) => ({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7), text, done: false, at: londonToday(), client: "", list: list || "", due: "", pri });
+      db.items = [
+        mk("Review the MPF Education Review doc (every rule, hypertrophy vs strength)", "1"),
+        mk("Send Claude your Spotify playlist link + where it should go", "1"),
+        mk("Add more for men on the Recommended page (books, podcasts, tools)", "2"),
+        mk("Get an updated Hypertrophy guide PDF made to match the website", "2"),
+        mk("Film: Why my app has info buttons", "", "Content"),
+        mk("Film: No exercise is wrong", "", "Content"),
+        mk("Film: How do I get rid of this? (arms), get client OK first", "", "Content"),
+        mk("Film: My last 8 weeks, bare minimum (fill in the numbers)", "", "Content"),
+        mk("Film: Buns of steel & Tarzan chest (strength sets)", "", "Content"),
+        mk("Make carousel: Is it actually coaching?", "", "Content"),
+        ...(db.items || []),
+      ];
+      db.seed1125 = true;
+      await putJSON(env, key, db);
+    }
     if (request.method === "POST") {
       const b = await request.json().catch(() => ({}));
-      if (b.add) db.items.unshift({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 5), text: String(b.add).slice(0, 200), done: false, at: londonToday(), client: String(b.client || "").slice(0, 40), list: String(b.list || "").slice(0, 30), due: isDate(b.due) ? b.due : "" });
+      if (b.add) db.items.unshift({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 5), text: String(b.add).slice(0, 200), done: false, at: londonToday(), client: String(b.client || "").slice(0, 40), list: String(b.list || "").slice(0, 30), due: isDate(b.due) ? b.due : "", pri: ["1", "2", "3"].includes(String(b.pri)) ? String(b.pri) : "" });
       if (b.habits && Array.isArray(b.habits)) db.habits = b.habits.map((x) => String(x).slice(0, 120)).filter(Boolean).slice(0, 30);
+      if (b.setpri && b.setpri.id) db.items.forEach((x) => { if (x.id === b.setpri.id) x.pri = ["1", "2", "3"].includes(String(b.setpri.pri)) ? String(b.setpri.pri) : ""; });
       if (b.toggle) db.items.forEach((x) => { if (x.id === b.toggle) { x.done = !x.done; x.doneAt = x.done ? londonToday() : ""; } });
       if (b.remove) db.items = db.items.filter((x) => x.id !== b.remove);
       if (b.dismiss) db.dismissed[String(b.dismiss).slice(0, 120)] = londonToday();
