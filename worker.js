@@ -461,8 +461,22 @@ async function handleApi(request, env, url, ctx) {
     const { id, ...pub } = client;
     return json({
       configured: true, signedIn: true, known: true, coach, email,
-      client: { ...pub, checkin: checkinDay(client), type: client.type === "pt" ? "pt" : "online" }, paid: client.payOk === true || !!((await getJSON(env, "_data/_payments.json", { byEmail: {} })).byEmail || {})[email], week: weekOf(client.start), photos: !!env.PHOTOS, today: londonToday(), lock,
+      client: { ...pub, checkin: checkinDay(client), type: client.type === "pt" ? "pt" : "online", askSex: client.auto === true && client.sexSet !== true }, paid: client.payOk === true || !!((await getJSON(env, "_data/_payments.json", { byEmail: {} })).byEmail || {})[email], week: weekOf(client.start), photos: !!env.PHOTOS, today: londonToday(), lock,
     });
+  }
+
+  // ---- male or female (asked once, for clients who signed up and paid online) ----
+  if (path === "/portal/api/sex" && request.method === "POST") {
+    if (!client) return json({ error: "unknown" }, 403);
+    const b = await request.json().catch(() => ({}));
+    const sex = b && b.sex === "m" ? "m" : b && b.sex === "f" ? "f" : "";
+    if (!sex) return json({ error: "bad" }, 400);
+    const ro = (await getJSON(env, "_data/_roster.json", null)) || {};
+    if (!ro[email] || ro[email].deleted) return json({ error: "not editable" }, 400);
+    ro[email] = { ...ro[email], sex, sexSet: true };
+    await putJSON(env, "_data/_roster.json", ro);
+    rosterCache = null;
+    return json({ ok: true, sex });
   }
 
   // ---- client photos ----
@@ -1338,6 +1352,7 @@ async function handleApi(request, env, url, ctx) {
           folder: String(c.folder || "").replace(/[^A-Za-z0-9_-]/g, "").slice(0, 80),
           payOk: c.payOk === true, lock: c.lock === "on" || c.lock === "off" ? c.lock : "",
           source: String(c.source || "").slice(0, 40),
+          ...(c.auto === true ? { auto: true } : {}), ...(c.sexSet === true ? { sexSet: true } : {}),
           tags: (Array.isArray(c.tags) ? c.tags : []).map((x) => String(x).trim().slice(0, 24)).filter(Boolean).slice(0, 8),
         };
       }
@@ -1746,7 +1761,7 @@ async function autoEnrol(env, email, fullName) {
   const taken = new Set(Object.values(all).map((c) => c.id));
   let base = name.split(" ")[0].toLowerCase().replace(/[^a-z0-9]/g, "") || "client", id = base, n = 2;
   while (taken.has(id)) id = base + n++;
-  ro[email] = { id, name, checkin: "Wednesday", start: londonToday(), phase: "Fat loss", active: true, type: "online", sex: "f", onboarded: false, phone: "", folder: "", auto: true };
+  ro[email] = { id, name, checkin: "Wednesday", start: londonToday(), phase: "Fat loss", active: true, type: "online", sex: "f", sexSet: false, onboarded: false, phone: "", folder: "", auto: true };
   await putJSON(env, "_data/_roster.json", ro);
   rosterCache = null;
   let access = "not set up";

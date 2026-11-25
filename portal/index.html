@@ -564,6 +564,7 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
 <script src="/portal/log.js"></script>
 <script src="/portal/exlib.js"></script>
 <script src="/portal/swaps.js"></script>
+<script src="/portal/glossary.js"></script>
 <script src="/portal/programme.js"></script>
 <script src="/portal/logbook.js"></script>
 <script src="/portal/planner.js"></script>
@@ -914,6 +915,10 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
     sessionStorage.removeItem('payTries');
     (function(){var cb=document.getElementById('pfRem');if(!cb)return;fetch('/portal/api/prefs',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(p){cb.checked=p.reminders!==false}).catch(function(){});cb.onchange=function(){fetch('/portal/api/prefs',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({reminders:cb.checked})}).then(function(){document.getElementById('pfMsg').textContent=cb.checked?'✓ Reminders on':'✓ Reminders off'})};
       var dr=document.getElementById('delReq');if(dr)dr.onclick=function(){if(!confirm('Ask Maria to permanently delete your account and all your data?'))return;dr.disabled=true;fetch('/portal/api/delete-request',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({reason:document.getElementById('delWhy').value})}).then(function(r){if(!r.ok)throw 0;document.getElementById('delMsg').textContent='✓ Request sent. Maria will delete your data and confirm, normally within a month.'}).catch(function(){dr.disabled=false;document.getElementById('delMsg').textContent='Not sent. Please try again or email info@mpfcoaching.co.uk.'})}})();
+    if(j.client.askSex&&!j.coach&&!window.__mpfAs){var fn1=esc((j.client.name||'').split(' ')[0]);
+      message('One quick <em>question.</em>','Hi '+fn1+'! Are you male or female? This sets up your programme, exercise tips and check-ins properly for you.','<div class="pay-opts gate"><button class="btn" type="button" data-sx="f">Female</button><button class="btn" type="button" data-sx="m">Male</button></div><p id="sxMsg" style="margin-top:12px"></p>');
+      [].forEach.call(document.querySelectorAll('[data-sx]'),function(b){b.onclick=function(){[].forEach.call(document.querySelectorAll('[data-sx]'),function(x){x.disabled=true});fetch('/portal/api/sex',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({sex:b.getAttribute('data-sx')})}).then(function(r){if(!r.ok)throw 0;location.reload()}).catch(function(){[].forEach.call(document.querySelectorAll('[data-sx]'),function(x){x.disabled=false});document.getElementById('sxMsg').textContent='That didn\'t save. Please try again.'})}});
+      return}
     render(j.client,j.email,{week:j.week,photos:j.photos,today:j.today,paid:j.paid});
     var BF=Date.now()<Date.parse('2026-12-01T00:00:00Z');var pe=function(){[].forEach.call(document.querySelectorAll('a[href^="https://buy.stripe.com/"]'),function(l){if(l.href.indexOf('prefilled_email')<0)l.href+=(l.href.indexOf('?')<0?'?':'&')+'prefilled_email='+encodeURIComponent(j.email);if(BF&&l.href.indexOf('prefilled_promo_code')<0)l.href+='&prefilled_promo_code=BLACKFRIDAY'})};pe();setTimeout(pe,1500);
   }).catch(function(){message('Something went <em>wrong.</em>','Please refresh the page. If it keeps happening, message me.','<a class="btn" href="https://wa.me/447592791137">Message Maria</a>')});

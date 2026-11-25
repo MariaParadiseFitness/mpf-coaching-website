@@ -23,10 +23,10 @@
       if(w.notes)h+='<div class="pv-note">'+esc(w.notes)+'</div>';
       var hasSS=w.exercises.some(function(e){return e.ss});
       h+='<ol class="pv-list">'+w.exercises.map(function(e,i){
-        var ch=[];if(e.rir)ch.push('RIR '+esc(e.rir));if(e.tempo)ch.push('Tempo '+esc(e.tempo));if(e.rest)ch.push('Rest '+esc(e.rest));
+        var ch=[];if(e.rir)ch.push(['rir','RIR '+esc(e.rir)]);if(e.tempo)ch.push(['tempo','Tempo '+esc(e.tempo)]);if(e.rest)ch.push(['rest','Rest '+esc(e.rest)]);
         var sr=(e.sets?esc(e.sets):'')+(e.sets&&e.reps?' × ':'')+(e.reps?esc(e.reps):'');
-        return '<li class="pv-ex'+(e.ss?' ss':'')+'"><span class="pv-n">'+(e.ss?esc(e.ss):i+1)+'</span><div class="pv-b"><b>'+esc(e.name)+'</b>'+(e.opts?'<small class="pv-o">or: '+esc(e.opts)+'</small>':'')+(ch.length?'<div class="pv-ch">'+ch.map(function(c){return '<em>'+c+'</em>'}).join('')+'</div>':'')+(e.notes?'<small class="pv-nt">'+esc(e.notes)+'</small>':'')+'</div>'+(sr?'<span class="pv-sr">'+sr+'</span>':'')+'</li>'}).join('')+'</ol>';
-      h+='<details class="pv-key"><summary>What do '+(hasSS?'SS, ':'')+'RIR and tempo mean?</summary>'+(hasSS?'<p><b>SS</b> = superset: exercises with the same letter (A1, A2) are done back to back, then rest.</p>':'')+'<p><b>RIR</b> = reps in reserve: how many more good reps you could have done.</p><p><b>Tempo</b> e.g. 3-1-1-0 = 3 seconds down, 1 second pause, 1 second up, 0 at the top.</p></details>';
+        return '<li class="pv-ex'+(e.ss?' ss':'')+'"><span class="pv-n">'+(e.ss?esc(e.ss):i+1)+'</span><div class="pv-b"><b>'+esc(e.name)+'</b>'+(e.opts?'<small class="pv-o">or: '+esc(e.opts)+'</small>':'')+(ch.length?'<div class="pv-ch">'+ch.map(function(c){return '<em data-gl="'+c[0]+'" style="cursor:pointer">'+c[1]+(window.MPFGloss?' ⓘ':'')+'</em>'}).join('')+'</div>':'')+(e.notes?'<small class="pv-nt">'+esc(e.notes)+'</small>':'')+'</div>'+(sr?'<span class="pv-sr">'+sr+'</span>':'')+'</li>'}).join('')+'</ol>';
+      h+='<details class="pv-key"><summary>What do '+(hasSS?'SS, ':'')+'RIR and tempo mean?</summary>'+(hasSS?'<p><b>SS</b> = superset: exercises with the same letter (A1, A2) are done back to back, then rest.</p>':'')+'<p><b>RIR</b> = reps in reserve: how many more good reps you could have done.</p><p><b>Tempo</b> e.g. 3-1-1-0 = 3 seconds down, 1 second pause, 1 second up, 0 at the top.</p></details>'+(window.MPFGloss?'<button type="button" class="gl-open" data-gl="" style="margin-top:8px">📖 All training terms explained</button>':'');
       el.innerHTML=h;bind();
     }
     function bind(){

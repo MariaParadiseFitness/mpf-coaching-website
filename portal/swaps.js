@@ -54,12 +54,15 @@
   function bias(name,sex){if(sex!=='m')return '';var p=of(name);return p&&QUAD[p.key]?QUAD[p.key]:''}
   function suggest(name,mine,lib,max,sex){
     var p=of(name);if(!p)return {label:'',list:[]};
-    var k=function(s){return String(s).toLowerCase().replace(/\(.*?\)/g,'').replace(/[^a-z0-9]/g,'')},seen={},out=[];
+    var k=function(s){return String(s).toLowerCase().replace(/\(.*?\)/g,'').replace(/[^a-z0-9]/g,'').replace(/s$/,'')},seen={},out=[];
     seen[k(name)]=1;
     var add=function(n){var kk=k(n);if(seen[kk])return;if(sex==='m'&&QUAD[p.key]&&GLUTEY.test(n))return;var q=of(n);if(q&&q.key===p.key){seen[kk]=1;out.push(n)}};
     (mine||[]).forEach(add);
     Object.keys(lib||{}).forEach(function(g){(lib[g]||[]).forEach(add)});
     return {label:p.label,list:out.slice(0,max||30)};
   }
-  window.MPFSWAP={of:of,suggest:suggest,bias:bias};
+  // pre-exhaust: isolation exercises for the same muscle, done before a compound
+  var PRE={squat:['kneeext'],lunge:['kneeext'],hinge:['kneeflex'],uhinge:['kneeflex'],thrust:['gkick','abd'],hpush:['fly'],incline:['fly'],decline:['fly'],dip:['fly'],vpush:['lat'],vpull:['straight'],hpull:['straight','rear']};
+  function pre(name,lib,max,picks){var p=of(name);if(!p||!PRE[p.key])return [];var out=[],seen={},src=[].concat.apply([],Object.keys(picks||{}).map(function(g){return picks[g]})).concat([].concat.apply([],Object.keys(lib||{}).map(function(g){return lib[g]})));PRE[p.key].forEach(function(key){var n=0;[src].forEach(function(arr){arr.forEach(function(x){var q=of(x),kk=x.toLowerCase().replace(/[^a-z0-9]/g,'').replace(/s$/,'');if(n<(max||6)&&q&&q.key===key&&!seen[kk]){seen[kk]=1;n++;out.push(x)}})})});return out}
+  window.MPFSWAP={of:of,suggest:suggest,bias:bias,pre:pre};
 })();

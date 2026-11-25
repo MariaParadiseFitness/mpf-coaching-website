@@ -604,3 +604,6 @@ button.lb-pkt span{color:var(--mute);font-size:12px;font-weight:600}
 .lb-chips em.st-r{background:#1f8a8a;color:#fff}.lb-chips em.st-x{background:#8a5a1f;color:#fff}.lb-chips em.st-p{background:#a03f7a;color:#fff}.lb-chips em.st-h{background:#4a5a6b;color:#fff}.lb-chips em.st-b{background:#c9a64b;color:#000}
 .lb-sheet-c button.lb-px{display:flex;gap:10px;align-items:flex-start;padding:10px 12px}.lb-px>span{flex:none;min-width:26px;text-align:center;font-weight:800;font-size:12px;padding:3px 5px;border-radius:6px;background:#2a2a2a;color:var(--gold-l,#e8c872)}.lb-px div{display:grid;gap:2px}.lb-sheet-c .lb-px small{margin:0;font-weight:400;font-size:12.5px;line-height:1.35}
 .lb-bias{font-size:12.5px;line-height:1.45;margin:6px 0 2px;padding:7px 10px;border-radius:10px;background:rgba(201,166,75,.08);border:1px solid rgba(201,166,75,.35);color:var(--soft,#ddd)}
+.lb-adds .lb-add{font-size:13px;padding-left:4px;padding-right:4px}.lb-what{display:flex;align-items:center;justify-content:center;gap:4px;width:100%;background:none;border:0;color:var(--mute,#9a917d);font:inherit;font-size:12.5px;margin-top:6px;cursor:pointer}
+.prepill{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;background:#2f6fb0;color:#fff;vertical-align:middle;cursor:pointer}.finpill,.sspill,.sidepill{cursor:pointer}
+.lb-top .gl-open{margin-top:8px}
