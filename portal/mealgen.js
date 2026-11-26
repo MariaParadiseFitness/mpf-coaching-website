@@ -11,7 +11,7 @@
     pork:['Pork loin steak, fat trimmed (raw)','g',100,123,22,0,4,100,225,25,150,'meat pork'],
     salmon:['Salmon fillet (raw)','g',100,208,20,0,13.5,80,180,10,120,'fish'],
     cod:['Cod fillet (raw)','g',100,80,18,0,0.7,120,280,20,180,'fish'],
-    prawns:['Cooked prawns','g',100,65,15,0,0.8,100,250,25,150,'fish'],
+    prawns:['Cooked prawns','g',100,65,15,0,0.8,100,250,25,150,'fish shellfish'],
     tuna:['Tuna in spring water (drained)','g',100,110,25,0,1,80,200,20,120,'fish'],
     tofu:['Firm tofu','g',100,120,13,1.5,7,100,300,25,150,''],
     soya:['Soya chunks (dry)','g',100,345,52,33,0.5,20,80,5,40,''],
@@ -82,7 +82,11 @@
     stirveg:['Stir-fry veg (peppers, pak choi, beansprouts)','g',100,30,1.5,5,0.3,150,150,1,150,''],
     callaloo:['Callaloo or spinach','g',100,25,2.5,3,0.4,100,100,1,100,''],
     coconut:['Light coconut milk','ml',100,75,0.6,1.5,7,0,100,25,50,''],
-    sesoil:['Sesame or vegetable oil','ml',100,820,0,0,92,0,15,5,5,'']
+    sesoil:['Sesame or vegetable oil','ml',100,820,0,0,92,0,15,5,5,''],
+    steak:['Sirloin steak (raw)','g',100,180,23,0,9.5,150,300,25,200,'meat beef'],
+    bacon:['Back bacon rashers','rasher',1,65,7,0,4,0,4,1,2,'meat pork'],
+    cheddar:['Cheddar','g',100,416,25,0.1,35,0,60,10,30,'dairy'],
+    fyog:['Full-fat Greek yogurt','g',100,133,6,4,10,100,300,25,150,'dairy']
   };
   // A meal = name (with {p} for the protein) + slots. A slot lists alternatives; the first one the diet allows is
   // used, or one is picked at random when "pick" is set.
@@ -231,9 +235,16 @@
       {n:'Apple and peanut butter',s:[['apple'],['pb']]},
       {n:'Roasted chana',s:[['chana']]}]
   };
+  var CARN={ // carnivore: animal foods only
+    breakfast:[{n:'',s:[['egg'],['bacon'],['ghee']]},{n:'',s:[['egg'],['cheddar'],['ghee']]},{n:'',s:[['steak'],['egg'],['ghee']]},{n:'',s:[['fyog'],['whey']]}],
+    lunch:[{n:'',pick:0,s:[['chicken','turkey','beef'],['cheddar','feta'],['ghee']]},{n:'',pick:0,s:[['salmon','mack','tuna'],['egg'],['ghee']]},{n:'',pick:0,s:[['beef','lamb','steak'],['ghee']]}],
+    dinner:[{n:'',pick:0,s:[['steak','lamb','pork','beef'],['ghee']]},{n:'',pick:0,s:[['salmon','mack','cod'],['ghee']]},{n:'',pick:0,s:[['chicken','turkey'],['cheddar'],['ghee']]}]};
   var CUISINES=[['standard','Everyday British'],['indian','Indian'],['chinese','Chinese'],['thai','Thai'],['japanese','Japanese'],['korean','Korean'],['mexican','Mexican'],['caribbean','Caribbean'],['westafrican','West African'],['middleeastern','Middle Eastern'],['mediterranean','Mediterranean'],['italian','Italian'],['turkish','Turkish'],['bulgarian','Bulgarian'],['easterneuropean','Eastern European']];
-  var DIETS={all:'',nobp:'beef pork',pesc:'meat',veg:'meat fish',vegan:'meat fish dairy egg honey'};
-  function blocked(k,ban,dislike){var f=F[k],t=' '+f[11]+' ';if(ban.some(function(b){return t.indexOf(' '+b+' ')>=0}))return true;
+  var DIETS={all:'',nobp:'beef pork',pesc:'meat',veg:'meat fish',vegan:'meat fish dairy egg honey',carn:'!animal',halal:'pork',kosher:'pork shellfish !kosher'};
+  var DIETL=[['all','I eat everything'],['nobp','No beef or pork'],['pesc','Pescatarian (fish, no meat)'],['veg','Vegetarian'],['vegan','Vegan'],['carn','Carnivore (meat, fish, eggs, dairy)'],['halal','Halal'],['kosher','Kosher']];
+  var DIETN={halal:'Halal: buy halal-certified meat and check your stock cubes and sauces.',kosher:'Kosher: buy kosher-certified meat and fish, and meat and dairy are kept to separate meals.',carn:'Carnivore: animal foods only (meat, fish, eggs and dairy), so your carbs will be very low. Cook with butter or ghee.'};
+  window.MPFDiets=DIETL;
+  function blocked(k,ban,dislike){var f=F[k],t=' '+f[11]+' ';if(ban.indexOf('!animal')>-1&&k!=='ghee'&&!/ (meat|fish|egg|dairy) /.test(t))return true;if(ban.some(function(b){return t.indexOf(' '+b+' ')>=0}))return true;
     var n=f[0].toLowerCase();return dislike.some(function(w){return w&&n.indexOf(w)>=0})}
   function rnd(a){return a[Math.floor(Math.random()*a.length)]}
   var EGGN=/\begg|eggs\b|omelette|frittata|huevos|shakshuka|menemen|gyeran|kai jeow/i,DAIRYN=/cottage cheese|halloumi|feta|white cheese|sirene/i;
@@ -243,9 +254,11 @@
     var items=[],alts=[],prot='',tn=meal.n.replace('{p}','');
     if(ban.indexOf('egg')>-1&&EGGN.test(tn))return null;
     if(ban.indexOf('dairy')>-1&&DAIRYN.test(tn))return null;
-    for(var i=0;i<meal.s.length;i++){var ok=meal.s[i].filter(function(k){return !blocked(k,ban,dislike)});
+    var ksh=ban.indexOf('!kosher')>-1,has=function(tag){return items.some(function(x){return (' '+F[x][11]+' ').indexOf(' '+tag+' ')>=0})};
+    for(var i=0;i<meal.s.length;i++){var ok=meal.s[i].filter(function(k){if(blocked(k,ban,dislike))return false;if(ksh){var t=' '+F[k][11]+' ';if(has('meat')&&t.indexOf(' dairy ')>=0)return false;if(has('dairy')&&t.indexOf(' meat ')>=0)return false}return true});
       if(!ok.length){if(i===0)return null;continue}
       var k=force&&force[i]&&ok.indexOf(force[i])>-1?force[i]:meal.pick===i?rnd(ok):ok[0];if(items.indexOf(k)>=0)continue;items.push(k);alts.push(ok.filter(function(x){return x===k||items.indexOf(x)<0}));if(meal.pick===i)prot=pname(k)}
+    if(ban.indexOf('!animal')>-1&&items.length){if(items.indexOf('ghee')<0&&items.some(function(x){return / (meat|fish) /.test(' '+F[x][11]+' ')})){items.push('ghee');alts.push(['ghee'])}var nm=items.filter(function(x){return x!=='ghee'}).map(pname);nm=nm.length>1?nm.slice(0,-1).join(', ')+' and '+nm[nm.length-1]:nm[0]||'';return {name:nm.replace(/^./,function(c){return c.toUpperCase()}),note:'',items:items,alts:alts,tpl:{n:nm,s:meal.s}}}
     return {name:meal.n.replace('{p}',prot||'').replace(/^ +/,'').replace(/^./,function(c){return c.toUpperCase()}),note:meal.note||'',items:items,alts:alts,tpl:meal}}
   function rename(b){var m=b.tpl;if(m.pick==null)return b.name;var k=b.items[0];return m.n.replace('{p}',pname(k)).replace(/^./,function(c){return c.toUpperCase()})}
 
@@ -255,6 +268,8 @@
     turkey:'Brown the turkey mince in a non-stick pan for 8 to 10 mins, breaking it up as it cooks.',
     beef:'Brown the beef mince in a non-stick pan for 8 to 10 mins and drain off any fat.',
     pork:'Grill or pan-fry the pork for 4 to 5 mins each side until cooked through.',
+    steak:'Pat the steak dry, season, and sear in a hot pan for 2 to 4 mins each side depending on how you like it. Rest for 5 mins.',
+    bacon:'Grill or dry-fry the bacon for 3 to 4 mins each side.',
     lamb:'Grill or pan-fry the lamb for 3 to 4 mins each side, then rest it for 5 mins and slice.',
     salmon:'Bake the salmon at 200°C for 12 to 15 mins, or pan-fry skin side down for 4 mins then 2 mins on the other side.',
     cod:'Bake the cod at 200°C for 12 to 15 mins until it flakes easily.',
@@ -293,8 +308,8 @@
     salad:'Chop the salad.',cuc:'Grate or chop the cucumber.',nori:'Slice the cucumber and carrot and cut the nori into strips.',
     oats:'Cook the oats with the liquid for 3 to 4 mins, stirring, or soak overnight in the fridge.'
   };
-  var NOCOOK={yog:1,skyr:1,syog:1,whey:1,vprot:1,milk:1,oatm:1,banana:1,berries:1,apple:1,honey:1,pb:1,nuts:1,chana:1,ricecake:1,kis:1,cott:1,feta:1,peynir:1,mozz:1,parm:1,avo:1,hummus:1,salsa:1,kimchi:1,lyut:1,corn:1,coconut:1,oil:1,ghee:1,sesoil:1};
-  var ORDER=['onion','chicken','turkey','beef','pork','lamb','salmon','cod','mack','tofu','soya','paneer','halloumi','egg','ew','prawns','tuna','chick','beans','bbeans','dal','edam','rice','pasta','noodle','rnood','soba','pot','spot','cous','bulgur','yam','plant','oats','veg','stirveg','callaloo','tort','wrap','pitta','chap','bread','rye','sour','salad','cuc','nori'];
+  var NOCOOK={cheddar:1,fyog:1,yog:1,skyr:1,syog:1,whey:1,vprot:1,milk:1,oatm:1,banana:1,berries:1,apple:1,honey:1,pb:1,nuts:1,chana:1,ricecake:1,kis:1,cott:1,feta:1,peynir:1,mozz:1,parm:1,avo:1,hummus:1,salsa:1,kimchi:1,lyut:1,corn:1,coconut:1,oil:1,ghee:1,sesoil:1};
+  var ORDER=['onion','chicken','turkey','beef','steak','bacon','pork','lamb','salmon','cod','mack','tofu','soya','paneer','halloumi','egg','ew','prawns','tuna','chick','beans','bbeans','dal','edam','rice','pasta','noodle','rnood','soba','pot','spot','cous','bulgur','yam','plant','oats','veg','stirveg','callaloo','tort','wrap','pitta','chap','bread','rye','sour','salad','cuc','nori'];
   function howTo(items,note){
     var steps=[];ORDER.forEach(function(k){if(items.indexOf(k)>-1&&COOK[k])steps.push(COOK[k])});
     var oil=items.some(function(k){return k==='oil'||k==='ghee'||k==='sesoil'});
@@ -325,7 +340,7 @@
     var t=o.targets,cals=+t.cals||0;if(!cals)return null;
     var P=+t.protein||Math.round(cals*0.3/4),C=+t.carbs||Math.round(cals*0.4/4),Fa=+t.fat||Math.round(cals*0.3/9);
     var ban=(DIETS[o.diet]||'').split(' ').concat(o.ban||[]).filter(Boolean),dis=(o.dislike||[]).map(function(w){return w.trim().toLowerCase()}).filter(Boolean);
-    var S=M[o.style]||M.standard,plan=[];
+    var S=o.diet==='carn'?CARN:(M[o.style]||M.standard),plan=[];
     var b=choose(S.breakfast,ban,dis)||choose(M.standard.breakfast,ban,dis),l=choose(S.lunch,ban,dis)||choose(M.standard.lunch,ban,dis),d=choose(S.dinner,ban,dis)||choose(M.standard.dinner,ban,dis);
     if(!b||!l||!d)return null;
     plan.push(['Breakfast',b],['Lunch',l]);var ns=Math.max(0,(+o.meals||4)-3);
@@ -339,7 +354,7 @@
     var styleName={standard:'',indian:'Indian ',mediterranean:'Mediterranean ',turkish:'Turkish ',bulgarian:'Bulgarian ',chinese:'Chinese ',thai:'Thai ',japanese:'Japanese ',korean:'Korean ',mexican:'Mexican ',caribbean:'Caribbean ',westafrican:'West African ',middleeastern:'Middle Eastern ',italian:'Italian ',easterneuropean:'Eastern European '}[st.style]||'';
     var now=new Date().toISOString();
     return {id:'gen'+Date.now().toString(36),title:'My '+styleName+cals+' kcal plan · '+new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short'}),created:now,updated:now,
-      notes:'Made with "Generate me a meal plan" for your targets: '+cals+' kcal · '+P+'g protein · '+C+'g carbs · '+Fa+'g fat.\nWeigh meat, fish and potatoes raw and rice, pasta, oats and lentils dry. Swaps are fine if they fit your macros.',
+      notes:'Made with "Generate me a meal plan" for your targets: '+cals+' kcal · '+P+'g protein · '+C+'g carbs · '+Fa+'g fat.\nWeigh meat, fish and potatoes raw and rice, pasta, oats and lentils dry. Swaps are fine if they fit your macros.'+(DIETN[st.diet]?'\n'+DIETN[st.diet]:''),
       days:[{name:'Every day',notes:'',meals:meals}],_t:st.T,_st:st}}
   function listFor(st,label){var S=M[st.style]||M.standard;if(/^Snack/.test(label))return M.snack;var k=label.toLowerCase(),own=S[k]||[];return own.length>1||S===M.standard?own:own.concat(M.standard[k]||[])}
   function swapMeal(p,mi,style,diet){var st=p._st,cur=st.plan[mi],dt=diet||cur[3]||st.diet,mban=(DIETS[dt]||'').split(' ').concat(st.uban||[]).filter(Boolean),L=listFor(style?{style:style}:st,cur[0]),opts=L.map(function(t){return build(t,mban,st.dis)}).filter(function(b){return b&&b.name!==cur[1].name});if(!opts.length)return null;
@@ -362,7 +377,7 @@
         '<div class="mg-pref">📝 <b>Update your food preferences first.</b> Pick your food style, your diet, anything you don\'t eat and the foods you love, so your plan is built around you. They\'re saved in <b>About me</b> under More, where you can change them any time.</div>'+
         '<p>Pick what you like to eat and I\'ll build a day of food that hits your targets: <b>'+esc(targets.cals)+' kcal</b>'+(targets.protein?' · '+esc(targets.protein)+'g protein · '+esc(targets.carbs)+'g carbs · '+esc(targets.fat)+'g fat':'')+'.</p>'+
         '<label>Food style<select name="style"><option value="standard">Everyday British</option><option value="indian">Indian / Pakistani / Bangladeshi</option><option value="chinese">Chinese</option><option value="thai">Thai</option><option value="japanese">Japanese</option><option value="korean">Korean</option><option value="mexican">Mexican</option><option value="caribbean">Caribbean</option><option value="westafrican">West African (Nigerian, Ghanaian)</option><option value="middleeastern">Middle Eastern / Lebanese</option><option value="mediterranean">Mediterranean / Greek</option><option value="italian">Italian</option><option value="turkish">Turkish</option><option value="bulgarian">Bulgarian</option><option value="easterneuropean">Polish / Eastern European</option></select></label>'+
-        '<label>Diet<select name="diet"><option value="all">I eat everything</option><option value="nobp">No beef or pork</option><option value="pesc">Pescatarian (fish, no meat)</option><option value="veg">Vegetarian</option><option value="vegan">Vegan</option></select></label>'+
+        '<label>Diet<select name="diet">'+DIETL.map(function(d){return '<option value="'+d[0]+'">'+d[1]+'</option>'}).join('')+'</select></label>'+
         '<label>Meals a day<select name="meals"><option>3</option><option selected>4</option><option>5</option></select></label>'+
         '<div class="mg-cks"><small>I don\'t eat</small>'+ck('beef','Beef')+ck('pork','Pork')+ck('fish','Fish')+ck('dairy','Dairy')+ck('egg','Eggs')+ck('gluten','Gluten')+ck('nuts','Nuts')+'</div>'+
         '<label>Anything else you don\'t like? (optional)<input name="dislike" placeholder="e.g. salmon, tofu"></label>'+
@@ -379,7 +394,7 @@
       var out=body.querySelector('.mg-out'),d=p.days[0],t=mt([].concat.apply([],d.meals.map(function(m){return m.foods})));
       if(!quiet)gn++;
       out.innerHTML='<div class="mg-new"><b>✨ '+(quiet?'Plan updated':gn>1?'New plan generated (option '+gn+')':'Your new plan is ready')+'</b><span>'+esc(p.title)+'. Tap 🔄 Change meal to swap a whole meal, or change any food from its drop-down. Portions re-balance to keep you on your targets.</span></div><div class="lg-stats mp-tot"><div><small>Calories</small><b>'+Math.round(t.k)+'</b><span>target '+esc(targets.cals)+'</span></div><div><small>Protein</small><b>'+Math.round(t.p)+'g</b></div><div><small>Carbs</small><b>'+Math.round(t.c)+'g</b></div><div><small>Fat</small><b>'+Math.round(t.f)+'g</b></div></div>'+
-        d.meals.map(function(m,mi){var mt0=mt(m.foods),b=p._st.plan[mi][1];return '<div class="mp-meal"><div class="mp-mh"><b>'+esc(m.name)+'</b><span>'+Math.round(mt0.k)+' kcal · P '+Math.round(mt0.p)+'g · C '+Math.round(mt0.c)+'g · F '+Math.round(mt0.f)+'g</span></div><p class="mp-note">'+esc(m.notes)+'</p><ul>'+m.foods.map(function(f){var i=b.items.indexOf(f._k),al=i>-1?b.alts[i]:[];return '<li><span>'+(al&&al.length>1?'<select class="mg-sw" data-mi="'+mi+'" data-k="'+f._k+'">'+al.map(function(k){return '<option value="'+k+'"'+(k===f._k?' selected':'')+'>'+esc(F[k][0])+'</option>'}).join('')+'</select>':esc(f.food))+'</span><b>'+esc(f.amount)+' '+esc(f.unit)+'</b></li>'}).join('')+'</ul><div class="mg-mrow"><button type="button" class="btn g mg-chg" data-g="chg" data-mi="'+mi+'">🔄 Change meal</button>'+(/^Snack/.test(m.name)?'':'<label class="mg-cu">Cuisine <select data-cu="'+mi+'">'+CUISINES.map(function(c){return '<option value="'+c[0]+'"'+(c[0]===(p._st.plan[mi][2]||p._st.style)?' selected':'')+'>'+c[1]+'</option>'}).join('')+'</select></label>')+'<label class="mg-cu">Diet <select data-dt="'+mi+'">'+[['all','Everything'],['nobp','No beef or pork'],['pesc','Pescatarian'],['veg','Vegetarian'],['vegan','Vegan']].map(function(c){return '<option value="'+c[0]+'"'+(c[0]===(p._st.plan[mi][3]||p._st.diet)?' selected':'')+'>'+c[1]+'</option>'}).join('')+'</select></label></div></div>'}).join('')+
+        d.meals.map(function(m,mi){var mt0=mt(m.foods),b=p._st.plan[mi][1];return '<div class="mp-meal"><div class="mp-mh"><b>'+esc(m.name)+'</b><span>'+Math.round(mt0.k)+' kcal · P '+Math.round(mt0.p)+'g · C '+Math.round(mt0.c)+'g · F '+Math.round(mt0.f)+'g</span></div><p class="mp-note">'+esc(m.notes)+'</p><ul>'+m.foods.map(function(f){var i=b.items.indexOf(f._k),al=i>-1?b.alts[i]:[];return '<li><span>'+(al&&al.length>1?'<select class="mg-sw" data-mi="'+mi+'" data-k="'+f._k+'">'+al.map(function(k){return '<option value="'+k+'"'+(k===f._k?' selected':'')+'>'+esc(F[k][0])+'</option>'}).join('')+'</select>':esc(f.food))+'</span><b>'+esc(f.amount)+' '+esc(f.unit)+'</b></li>'}).join('')+'</ul><div class="mg-mrow"><button type="button" class="btn g mg-chg" data-g="chg" data-mi="'+mi+'">🔄 Change meal</button>'+(/^Snack/.test(m.name)?'':'<label class="mg-cu">Cuisine <select data-cu="'+mi+'">'+CUISINES.map(function(c){return '<option value="'+c[0]+'"'+(c[0]===(p._st.plan[mi][2]||p._st.style)?' selected':'')+'>'+c[1]+'</option>'}).join('')+'</select></label>')+'<label class="mg-cu">Diet <select data-dt="'+mi+'">'+[['all','Everything'],['nobp','No beef or pork'],['pesc','Pescatarian'],['veg','Vegetarian'],['vegan','Vegan'],['carn','Carnivore'],['halal','Halal'],['kosher','Kosher']].map(function(c){return '<option value="'+c[0]+'"'+(c[0]===(p._st.plan[mi][3]||p._st.diet)?' selected':'')+'>'+c[1]+'</option>'}).join('')+'</select></label></div></div>'}).join('')+
         '<div class="mg-act"><button type="button" class="btn" data-g="save">💾 Save to my meal plans</button><button type="button" class="btn g" data-g="go">🔄 Try another day</button></div><p class="lg-msg"></p>';
       [].forEach.call(out.querySelectorAll('[data-dt]'),function(s){s.onchange=function(){var i=+s.getAttribute('data-dt'),np=swapMeal(last,i,last._st.plan[i][2],s.value);if(np){last=np;show(last,true)}else{s.value=last._st.plan[i][3]||last._st.diet;alert('No options for this meal with that diet. Try another cuisine.')}}});
       [].forEach.call(out.querySelectorAll('[data-cu]'),function(s){s.onchange=function(){var i=+s.getAttribute('data-cu'),np=swapMeal(last,i,s.value,last._st.plan[i][3]);if(np){last=np;show(last,true)}else{s.value=last._st.plan[+s.getAttribute('data-cu')][2]||last._st.style;alert('That cuisine has no options for this meal with your food choices.')}}});
