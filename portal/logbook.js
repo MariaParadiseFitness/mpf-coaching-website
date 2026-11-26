@@ -73,7 +73,7 @@
       act('history',function(){show('history')});
     }
     function drawChoose(p){
-      var h='<div class="lb-row-h" style="margin-top:0"><h3 class="lb-h">Start new workout</h3><button type="button" class="lb-link" data-a="home">‹ Back</button></div>';
+      var h='<div class="lb-row-h" style="margin-top:0"><h3 class="lb-h">Start new workout</h3><button type="button" class="lb-link" data-a="home"><i class="ti ti-arrow-left" aria-hidden="true"></i> Back</button></div>';
       if(progs.length){
         if(progs.length>1)h+='<label class="lb-lbl">Workout programme</label><div class="lb-progs">'+progs.map(function(x,i){return '<button type="button" data-pi="'+i+'" class="'+(x===p?'on':'')+'">'+(x.id===doc.current?'★ ':'')+esc(x.title)+'</button>'}).join('')+'</div>';
         h+='<label class="lb-lbl">Choose your workout'+(p?' from <b>'+esc(p.title)+'</b>':'')+'</label>';
@@ -256,7 +256,7 @@
       return Object.keys(wk).sort().reverse().map(function(k,j){var end=new Date(k+'T12:00:00');end.setDate(end.getDate()+6);var e=end.toISOString().slice(0,10);
         return '<details class="lb-wk"'+(openFirst&&j===0?' open':'')+'><summary><b>Week of '+nice(k,{day:'numeric',month:'short'})+'</b><small>'+nice(k,{day:'numeric',month:'short'})+' to '+nice(e,{day:'numeric',month:'short'})+' · '+wk[k].length+' workout'+(wk[k].length===1?'':'s')+'</small><span class="lb-chev">›</span></summary><div class="lb-days">'+wk[k].map(sessCard).join('')+'</div></details>'}).join('')}
     function drawHistory(){
-      var h='<div class="lb-row-h"><h3 class="lb-h">My logbook</h3><button type="button" class="lb-link" data-a="home">‹ Back</button></div>';
+      var h='<div class="lb-row-h"><h3 class="lb-h">My logbook</h3><button type="button" class="lb-link" data-a="home"><i class="ti ti-arrow-left" aria-hidden="true"></i> Back</button></div>';
       if(!sessions.length){el.innerHTML=h+'<p class="ci-note">No workouts logged yet.</p>';act('home',function(){show('home')});return}
       var names=allNames().filter(function(n){return bestFor(n)>0});
       h+='<div class="lb-prog"><label>📈 Track an exercise <select id="lbEx"><option value="">Pick an exercise…</option>'+names.map(function(n){return '<option>'+esc(n)+'</option>'}).join('')+'</select></label><div id="lbExOut"></div></div>';
