@@ -616,3 +616,4 @@ button.lb-pkt span{color:var(--mute);font-size:12px;font-weight:600}
 .lb-n.st-z{background:#3f6f9a;color:#fff}.lb-n.st-o{background:#6b5a2a;color:#fff}.lb-n.st-c{background:#2f7a5a;color:#fff}.lb-chips em.st-z{background:#3f6f9a;color:#fff}.lb-chips em.st-o{background:#6b5a2a;color:#fff}.lb-chips em.st-c{background:#2f7a5a;color:#fff}
 .lb-n.st-e{background:#5a3f8a;color:#fff}.lb-chips em.st-e{background:#5a3f8a;color:#fff}
 .lb-pl{display:inline-block;text-decoration:none;margin-left:6px;margin-top:8px}
+.lb-ssn{font-size:12.5px;line-height:1.45;margin:6px 0 2px;padding:7px 10px;border-radius:10px;background:rgba(80,140,220,.08);border:1px solid rgba(80,140,220,.35);color:#dfe8f5}
