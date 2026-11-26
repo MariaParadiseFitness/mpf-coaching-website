@@ -120,7 +120,7 @@
     function sideOn(e){return e.side===true||(e.side!==false&&UNI.test(e.name||''))}
     function sideW(e){return LEGW.test(e.name||'')?'leg':'arm'}
     function drawActive(){
-      var h='<div class="lb-act"><div class="lb-top"><input class="lb-title" id="lbTitle" value="'+esc(W.workout)+'" aria-label="Workout name"><div class="lb-meta"><label>📅 <input type="date" id="lbDate" value="'+esc(W.date)+'" max="'+today()+'"></label>'+(W.id?'<span class="lb-tag">Editing</span>':'<span class="lb-time" id="lbTime">0:00</span>')+'</div>'+(window.MPFGloss?'<button type="button" class="gl-open" data-gl="">📖 Training terms explained</button>':'')+'</div>';
+      var h='<div class="lb-act"><div class="lb-top"><input class="lb-title" id="lbTitle" value="'+esc(W.workout)+'" aria-label="Workout name"><div class="lb-meta"><label>📅 <input type="date" id="lbDate" value="'+esc(W.date)+'" max="'+today()+'"></label>'+(W.id?'<span class="lb-tag">Editing</span>':'<span class="lb-time" id="lbTime">0:00</span>')+'</div>'+(window.MPFGloss?'<button type="button" class="gl-open" data-gl="">📖 Training terms explained</button>':'')+'<a class="gl-open lb-pl" href="https://open.spotify.com/playlist/4jsddU7SjaFRhYyK3O1470" target="_blank" rel="noopener">🎧 MPF ULTIMATE GYM ROCK</a>'+'</div>';
       if(!W.exercises.length)h+='<p class="ci-note" style="text-align:center;margin:18px 0">No exercises yet. Tap <b>＋ Add exercise</b> to choose some.</p>';
       h+=blockH('pre','🔥 Warm-up, activation & mobility','Anything you did before your first exercise. Optional.',PRE,W.pre);
       h+=W.exercises.map(function(e,i){var prev=prevFor(e.name,W.id);
