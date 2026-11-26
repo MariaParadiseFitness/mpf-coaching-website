@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Open in your browser | MPF Coaching</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="/img/favicon.png">
+<meta name="theme-color" content="#111111">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Playfair+Display:ital,wght@0,900;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#C9A64B;--gold-l:#E4CF8A;--grad:linear-gradient(120deg,#9C7A2C 0%,#C9A64B 45%,#E8D79A 100%);--serif:"Playfair Display",Georgia,serif;--sans:"Montserrat",system-ui,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);color:#efe6cf;background:radial-gradient(90% 50% at 50% 0%,#221f17 0%,#0e0e0e 65%) fixed,#0e0e0e;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:28px 22px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.card{max-width:420px;width:100%;text-align:center}
+.logo{width:110px;margin:0 auto 18px;display:block}
+.kick{font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:8px}
+h1{font-family:var(--serif);font-weight:900;font-size:32px;line-height:1.1;color:#fff;margin-bottom:12px}
+h1 em{font-style:italic;font-weight:400;color:var(--gold-l)}
+p.lead{color:#cfc4aa;font-size:15px;margin-bottom:22px}
+.btn{display:block;width:100%;background:var(--grad);color:#111;text-decoration:none;font-weight:700;font-size:12.5px;letter-spacing:.16em;text-transform:uppercase;padding:16px;border-radius:40px;border:0;cursor:pointer;font-family:inherit;box-shadow:0 0 24px rgba(201,166,75,.3)}
+.btn.g{background:transparent;color:var(--gold-l);border:1px solid rgba(201,166,75,.4);box-shadow:none;margin-top:10px}
+.how{background:#151410;border:1px solid rgba(201,166,75,.3);border-radius:18px;padding:16px 18px;margin:20px 0;text-align:left;font-size:14px;color:#cfc4aa}
+.how b{color:#fff}.how ol{padding-left:20px}.how li{margin:4px 0}
+.dots{display:inline-block;background:#2a2620;border-radius:6px;padding:0 6px;color:#fff;font-weight:700;letter-spacing:.1em}
+.stay{display:inline-block;margin-top:18px;color:#8a8170;font-size:13px;background:none;border:0;font-family:inherit;text-decoration:underline;cursor:pointer}
+.ok{color:var(--gold-l);font-size:13px;margin-top:8px;min-height:20px}
+</style>
+</head>
+<body>
+<div class="card">
+  <img class="logo" src="/img/logo.png" alt="MPF Coaching" onerror="this.remove()">
+  <div class="kick">MPF Coaching</div>
+  <h1>Open in your <em>browser.</em></h1>
+  <p class="lead">Instagram's browser doesn't work properly with my website, logins or the client app. Open it in <span id="bn">Safari</span> and everything will work.</p>
+  <a class="btn" id="go" href="#">Open in <span id="bn2">Safari</span></a>
+  <div class="how" id="how">
+    <b>Button not working?</b>
+    <ol>
+      <li>Tap <span class="dots">•••</span> in the top right corner</li>
+      <li>Tap <b>Open in external browser</b></li>
+    </ol>
+  </div>
+  <button class="btn g" id="copy" type="button">Copy the link</button>
+  <div class="ok" id="ok"></div>
+  <button class="stay" id="stay" type="button">Stay in Instagram anyway</button>
+</div>
+<script>
+(function(){
+  var q=new URLSearchParams(location.search),to=q.get('to')||'/';
+  if(to.charAt(0)!=='/'||to.charAt(1)==='/')to='/';
+  var url=location.origin+to,host=location.host,ua=navigator.userAgent||'',android=/Android/i.test(ua);
+  var go=document.getElementById('go');
+  if(android){
+    document.getElementById('bn').textContent='Chrome';document.getElementById('bn2').textContent='Chrome';
+    go.href='intent://'+host+to+'#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url='+encodeURIComponent(url)+';end';
+    if(/Instagram/i.test(ua))setTimeout(function(){location.href=go.href},300);
+  }else{
+    go.href='x-safari-'+url;
+  }
+  if(!/Instagram/i.test(ua))location.replace(to);
+  document.getElementById('copy').onclick=function(){var ok=document.getElementById('ok');
+    var done=function(){ok.textContent='Link copied. Paste it into '+(android?'Chrome':'Safari')+'.'};
+    if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(url).then(done,function(){ok.textContent=url});else ok.textContent=url};
+  document.getElementById('stay').onclick=function(){try{sessionStorage.setItem('mpf_stay_inapp','1')}catch(e){}location.replace(to)};
+})();
+</script>
+</body>
+</html>
