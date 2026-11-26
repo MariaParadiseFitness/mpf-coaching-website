@@ -279,6 +279,37 @@ body.trk-alc .lg-f[data-k="alcohol"]{border:1px solid #E8C872;border-radius:12px
 body.touring .top{z-index:70}
 .mnu.tour-on{box-shadow:0 0 0 2px #C9A64B,0 0 22px rgba(201,166,75,.55);position:relative;z-index:71}
 </style>
+<style id="mpf-anim">
+/* animations: page entrances, staggered cards, press feedback, tab pop. Off for anyone with reduced motion on. */
+@media(prefers-reduced-motion:no-preference){
+@keyframes mpfUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes mpfFade{from{opacity:0}to{opacity:1}}
+@keyframes mpfPop{0%{transform:scale(1)}40%{transform:scale(1.22) translateY(-2px)}70%{transform:scale(.95)}100%{transform:scale(1)}}
+@keyframes mpfGrow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes mpfShine{from{background-position:-200% 0}to{background-position:200% 0}}
+.pg-in>h2,.pg-in>h3,.pg-in>.sub,.pg-in>.mm-back,.pg-in>.kick{animation:mpfUp .45s cubic-bezier(.2,.7,.2,1) both}
+.pg-in>.sub{animation-delay:.05s}
+.pg-in>.pg-box,.pg-in>.lg,.pg-in>div:not(.sub),.pg-in>details{animation:mpfUp .5s cubic-bezier(.2,.7,.2,1) .08s both}
+.pg-in .mm-item,.pg-in .act,.pg-in .tile,.pg-in .rec,.pg-in .sq-c,.pg-in .sq-q,.pg-in .lb-hist,.pg-in .lb-start{animation:mpfUp .45s cubic-bezier(.2,.7,.2,1) both}
+.pg-in :is(.mm-item,.act,.tile,.rec,.sq-c,.sq-q,.lb-hist):nth-child(2){animation-delay:.05s}
+.pg-in :is(.mm-item,.act,.tile,.rec,.sq-c,.sq-q,.lb-hist):nth-child(3){animation-delay:.1s}
+.pg-in :is(.mm-item,.act,.tile,.rec,.sq-c,.sq-q,.lb-hist):nth-child(4){animation-delay:.15s}
+.pg-in :is(.mm-item,.act,.tile,.rec,.sq-c,.sq-q,.lb-hist):nth-child(5){animation-delay:.2s}
+.pg-in :is(.mm-item,.act,.tile,.rec,.sq-c,.sq-q,.lb-hist):nth-child(6){animation-delay:.25s}
+.pg-in :is(.mm-item,.act,.tile,.rec,.sq-c,.sq-q,.lb-hist):nth-child(7){animation-delay:.3s}
+.pg-in :is(.mm-item,.act,.tile,.rec,.sq-c,.sq-q,.lb-hist):nth-child(n+8){animation-delay:.35s}
+.pg-in .lg-bars .lb-b i,.pg-in .bar>*{transform-origin:left;animation:mpfGrow .8s cubic-bezier(.2,.7,.2,1) .2s both}
+.bnav a.on i{animation:mpfPop .45s ease}
+.mnu.on i{animation:mpfPop .45s ease}
+.btn,.act,.mm-item,.tile,.rec,.lb-start,.lb-tick,.lb-n,.ob-opts button,.lg-yn button,.lg-scale button,.seg a,.mm-back,.mnu,.bnav a,.sq-a,.go{transition:transform .12s ease,background .2s,color .2s,box-shadow .2s,border-color .2s}
+.btn:active,.act:active,.mm-item:active,.tile:active,.rec:active,.lb-start:active,.ob-opts button:active,.lg-yn button:active,.lg-scale button:active,.seg a:active,.mm-back:active,.mnu:active,.bnav a:active,.sq-a:active,.go:active{transform:scale(.96)}
+.lb-tick:active,.lb-n:active{transform:scale(.88)}
+.ob-opts button.on,.lg-yn button.on,.lg-scale button.on{animation:mpfPop .35s ease}
+.lb-set.done .lb-tick.pop{animation:mpfPop .4s ease}
+.appm-c,.sh-card{animation:mpfUp .35s cubic-bezier(.2,.7,.2,1) both}
+.appm,.sh-pop{animation:mpfFade .25s ease both}
+}
+</style>
 </head>
 <body>
 <div class="top"><div class="in">
@@ -666,6 +697,7 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
     $('backSetup').hidden=!(window.__gated&&v!=='setup');
     if(id==='sessions'){loadSess();var f=$('acuity');if(f&&!f.src)f.src=f.getAttribute('data-src')}
     if(v==='more'&&sub==='menu'&&window.__mmDraw)window.__mmDraw();
+    clearTimeout(window.__pgT);[].forEach.call(document.querySelectorAll('.pg-in'),function(e){e.classList.remove('pg-in')});requestAnimationFrame(function(){[].forEach.call(document.querySelectorAll('main [data-view]:not(.vh):not(.sv):not([hidden])'),function(e){if(e.tagName==='SECTION'){void e.offsetWidth;e.classList.add('pg-in')}});window.__pgT=setTimeout(function(){[].forEach.call(document.querySelectorAll('.pg-in'),function(e){e.classList.remove('pg-in')})},1100)});
     if(noScroll)return;
     if(v==='more'||['log','targets','checkin','progress','cycle','planner','breathe','folder','plan','account','start','supps'].indexOf(id)>=0||(t===host&&host===firstOf(v)))window.scrollTo(0,0);else t.scrollIntoView({block:'start'});
   }
@@ -1070,5 +1102,6 @@ body.touring #tdSeg{position:relative;z-index:70}#tdSeg a.tour-on{color:#E8C872!
   window.__mmDraw();
 })();
 </script>
+<script>document.addEventListener('click',function(e){var t=e.target.closest('[data-x="tick"]');if(!t)return;var all=[].slice.call(document.querySelectorAll('.lb-set')),i=all.indexOf(t.closest('.lb-set'));setTimeout(function(){var r=document.querySelectorAll('.lb-set')[i];r=r&&r.classList.contains('done')&&r.querySelector('.lb-tick');if(r){r.classList.add('pop');setTimeout(function(){r.classList.remove('pop')},450)}},30)},true)</script>
 </body>
 </html>
