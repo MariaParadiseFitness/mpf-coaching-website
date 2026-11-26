@@ -16,6 +16,9 @@
     {k:'med',l:'Do you take any medication or have a medical condition (for example kidney, heart, blood pressure or thyroid)?',o:[['no','No'],['yes','Yes']]}
   ];
 
+  // Amazon UK search links. Swap any of these for a specific product (or your affiliate link) later.
+  var AMZ={'Creatine':'creatine monohydrate powder','Whey':'whey protein powder','Vegan protein':'vegan protein powder pea rice','Dairy-free':'whey isolate protein powder','Vitamin D':'vitamin d3 10 micrograms','Vegan D':'vegan vitamin d3 lichen','Algae':'algae omega 3 epa dha','Omega-3':'omega 3 fish oil epa dha','Vitamin B12':'vitamin b12 tablets','Folic':'folic acid 400 micrograms'};
+  function amz(q){return 'https://www.amazon.co.uk/s?k='+encodeURIComponent(q)}
   function build(a){
     var buy=[],ask=[],skip=[],
       vegan=a.diet==='vegan',veg=a.diet==='veg',carn=a.diet==='carn',preg=a.preg==='preg'||a.preg==='bf',gp=a.med==='yes';
@@ -52,6 +55,7 @@
     skip.push({t:'Testosterone boosters',d:'No good evidence they do anything for muscle. Save your money.'});
     skip.push({t:'Mass gainers',d:'Mostly sugar and cheap calories. Real food plus a protein shake does the job better.'});
     if(a.goal!=='health')skip.push({t:'Collagen for muscle',d:'It\'s a poor protein for building muscle. Count it towards your protein if you like it, but it won\'t replace whey or food.'});
+    buy.forEach(function(x){var k=x.t;if(/^Vitamin D/.test(k)&&vegan)k='Vegan D';for(var p in AMZ)if(k.indexOf(p)===0){x.a=amz(AMZ[p]);break}});
     return {buy:buy,ask:ask,skip:skip};
   }
 
@@ -67,7 +71,7 @@
       h+='<button type="button" class="btn sq-go" data-go>Show my supplements</button><p class="sq-err" hidden>Please answer every question.</p>';
       el.innerHTML=h;
     }
-    function card(x,cls){return '<div class="sq-c '+cls+'"><div class="sq-ch"><span class="sq-i">'+(x.i||'')+'</span><b>'+esc(x.t)+'</b></div><p>'+esc(x.d)+'</p>'+(x.n?'<small>'+esc(x.n)+'</small>':'')+'</div>'}
+    function card(x,cls){return '<div class="sq-c '+cls+'"><div class="sq-ch"><span class="sq-i">'+(x.i||'')+'</span><b>'+esc(x.t)+'</b></div><p>'+esc(x.d)+'</p>'+(x.n?'<small>'+esc(x.n)+'</small>':'')+(x.a?'<a class="sq-a" href="'+esc(x.a)+'" target="_blank" rel="noopener">Find it on Amazon →</a>':'')+'</div>'}
     function show(r){
       var h='';
       h+='<h3 class="sq-h">Worth <em>buying.</em></h3><div class="sq-g">'+r.buy.map(function(x){return card(x,'buy')}).join('')+'</div>';
