@@ -26,6 +26,76 @@ const json = (body, status = 200) =>
     headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" },
   });
 
+// ---- White label: one app, many coaches ("tenants"). ----
+// Each coach is picked by the web address the request comes in on. MPF (Maria) is the default coach and keeps
+// every file exactly where it has always been, so nothing changes for MPF clients. Every other coach's files live
+// under "t/<coach id>/" in the same private bucket, and their requests only ever see that folder.
+// The coach list lives in the bucket at _platform/tenants.json:
+//   {"tenants":{"demo":{"name":"Demo Coaching","hosts":["demo.example.com"],"coachEmails":["coach@example.com"],
+//     "brand":{"name":"Demo Coaching","coach":"Jess","logo":"","gold":"#c9a24a","bg":"#0b0b0b"}}}}
+const MPF_TENANT = { id: "mpf", name: "MPF Coaching", prefix: "", brand: { name: "MPF Coaching", coach: "Maria", logo: "/img/logo.png", gold: "#c9a24a", bg: "#0b0b0b" } };
+// Settings other coaches share. Everything else (Maria's Stripe, Acuity, calendar, client list, emails and AI check-in
+// drafts, which are still written as Maria) stays MPF only until each coach has their own branding and settings.
+const SHARED_ENV = ["ASSETS", "ACCESS_TEAM", "ACCESS_AUD", "DEV_FAKE_EMAIL"];
+let tenantCache = { at: 0, data: null };
+async function loadTenants(env) {
+  if (tenantCache.data && Date.now() - tenantCache.at < 30000) return tenantCache.data;
+  let data = { tenants: {} };
+  try { const o = env.PHOTOS && await env.PHOTOS.get("_platform/tenants.json"); if (o) data = await o.json(); } catch (e) {}
+  tenantCache = { at: Date.now(), data };
+  return data;
+}
+const isLocal = (host) => host === "127.0.0.1" || host === "localhost";
+async function resolveTenant(request, env) {
+  const url = new URL(request.url), host = url.hostname.toLowerCase();
+  const { tenants } = await loadTenants(env);
+  let id = null;
+  // Local testing only: pick a coach with the x-dev-tenant header. Never honoured on the real website.
+  if (env.DEV_FAKE_EMAIL && isLocal(host)) id = request.headers.get("x-dev-tenant") || null;
+  if (!id) for (const [tid, t] of Object.entries(tenants || {})) if (t && !t.disabled && (t.hosts || []).map((h) => String(h).toLowerCase()).includes(host)) { id = tid; break; }
+  if (!id || id === "mpf") return MPF_TENANT;
+  const t = tenants && tenants[id];
+  if (!t || t.disabled || !/^[a-z0-9-]{2,40}$/.test(id)) return MPF_TENANT;
+  return { ...t, id, prefix: `t/${id}/`, brand: { ...MPF_TENANT.brand, logo: "", ...(t.brand || {}), name: (t.brand && t.brand.name) || t.name || id } };
+}
+// A view of the bucket that can only see one coach's folder.
+function scopedBucket(b, prefix) {
+  if (!prefix) {
+    // MPF: same keys as always, but never the platform or other coaches' folders.
+    const bad = (k) => /^(t\/|_platform\/)/.test(String(k));
+    const chk = (k) => { if (Array.isArray(k) ? k.some(bad) : bad(k)) throw new Error("scope"); return k; };
+    return {
+      get: (k, o) => b.get(chk(k), o), head: (k) => b.head(chk(k)), put: (k, v, o) => b.put(chk(k), v, o), delete: (k) => b.delete(chk(k)),
+      list: async (o = {}) => { const r = await b.list(o); return { ...r, objects: r.objects.filter((x) => !bad(x.key)), delimitedPrefixes: (r.delimitedPrefixes || []).filter((x) => !bad(x)) }; },
+    };
+  }
+  const k = (key) => prefix + String(key);
+  // Hide the folder name from the key, but keep the real object (its body and methods) intact.
+  const strip = (o) => (o && typeof o.key === "string" && o.key.startsWith(prefix)
+    ? new Proxy(o, { get: (t, n) => { if (n === "key") return t.key.slice(prefix.length); const v = t[n]; return typeof v === "function" ? v.bind(t) : v; } })
+    : o);
+  return {
+    get: async (key, o) => strip(await b.get(k(key), o)), head: async (key) => strip(await b.head(k(key))),
+    put: async (key, v, o) => strip(await b.put(k(key), v, o)),
+    delete: (key) => b.delete(Array.isArray(key) ? key.map(k) : k(key)),
+    list: async (o = {}) => {
+      const r = await b.list({ ...o, prefix: prefix + (o.prefix || "") });
+      return { ...r, objects: r.objects.map((x) => ({ ...x, key: x.key.slice(prefix.length) })), delimitedPrefixes: (r.delimitedPrefixes || []).map((x) => x.slice(prefix.length)) };
+    },
+  };
+}
+function tenantEnv(env, t) {
+  if (t.id === "mpf") return { ...env, PHOTOS: env.PHOTOS && scopedBucket(env.PHOTOS, ""), TENANT: t };
+  const e = {};
+  for (const n of SHARED_ENV) if (env[n] !== undefined) e[n] = env[n];
+  e.PHOTOS = scopedBucket(env.PHOTOS, t.prefix);
+  e.TENANT = t;
+  e.PORTAL_CLIENTS = "{}"; // their clients live in their own _data/_roster.json
+  e.COACH_EMAILS = (t.coachEmails || []).join(",");
+  e.NOTIFY_TO = (t.coachEmails || [])[0] || "";
+  return e;
+}
+
 let certCache = { at: 0, keys: null };
 
 function b64urlToBytes(s) {
@@ -50,7 +120,7 @@ async function verifyAccess(request, env) {
   // Local testing only: never honoured on the real website.
   const host = new URL(request.url).hostname;
   if (env.DEV_FAKE_EMAIL && (host === "127.0.0.1" || host === "localhost")) {
-    return env.DEV_FAKE_EMAIL.toLowerCase();
+    return (request.headers.get("x-dev-email") || env.DEV_FAKE_EMAIL).toLowerCase();
   }
   const token =
     request.headers.get("cf-access-jwt-assertion") ||
@@ -79,15 +149,17 @@ async function verifyAccess(request, env) {
 }
 
 // Client list: the PORTAL_CLIENTS secret plus the list kept in R2 (_data/_roster.json), which has no size limit.
-let rosterCache = { at: 0, data: null };
+const rosterCaches = {}; // one per coach, so coaches never share a cached client list
 async function loadRoster(env, fresh) {
+  const tid = (env.TENANT && env.TENANT.id) || "mpf";
+  let rosterCache = rosterCaches[tid];
   if (!fresh && rosterCache && rosterCache.data && Date.now() - rosterCache.at < 30000) return rosterCache.data;
   let extra = {};
   if (env.PHOTOS) {
     const o = await env.PHOTOS.get("_data/_roster.json");
     if (o) { try { extra = await o.json(); } catch (e) { extra = {}; } }
   }
-  rosterCache = { at: Date.now(), data: { ...JSON.parse(env.PORTAL_CLIENTS || "{}"), ...extra } };
+  rosterCache = rosterCaches[tid] = { at: Date.now(), data: { ...JSON.parse(env.PORTAL_CLIENTS || "{}"), ...extra } };
   return rosterCache.data;
 }
 function roster(env, raw) {
@@ -475,7 +547,7 @@ async function handleApi(request, env, url, ctx) {
     if (!ro[email] || ro[email].deleted) return json({ error: "not editable" }, 400);
     ro[email] = { ...ro[email], sex, sexSet: true };
     await putJSON(env, "_data/_roster.json", ro);
-    rosterCache = null;
+    delete rosterCaches[(env.TENANT && env.TENANT.id) || "mpf"];
     return json({ ok: true, sex });
   }
 
@@ -1062,7 +1134,7 @@ async function handleApi(request, env, url, ctx) {
     const emails = Object.entries(r).filter(([, x]) => x.id === id).map(([e]) => e.toLowerCase());
     let removed = 0;
     for (const prefix of [`${dkey(id)}/`, `${id}/`]) { let cursor; do { const page = await env.PHOTOS.list({ prefix, cursor }); const keys = page.objects.map((o) => o.key); if (keys.length) { await env.PHOTOS.delete(keys); removed += keys.length; } cursor = page.truncated ? page.cursor : null; } while (cursor); }
-    const ro = (await getJSON(env, "_data/_roster.json", null)) || {}; for (const e of emails) ro[e] = { deleted: true, id, name: "Deleted", at: new Date().toISOString() }; await putJSON(env, "_data/_roster.json", ro); rosterCache = null;
+    const ro = (await getJSON(env, "_data/_roster.json", null)) || {}; for (const e of emails) ro[e] = { deleted: true, id, name: "Deleted", at: new Date().toISOString() }; await putJSON(env, "_data/_roster.json", ro); delete rosterCaches[(env.TENANT && env.TENANT.id) || "mpf"];
     const pay = await getJSON(env, "_data/_payments.json", null); if (pay && pay.byEmail) { for (const e of emails) delete pay.byEmail[e]; for (const [cus, e] of Object.entries(pay.customers || {})) if (emails.includes(e)) delete pay.customers[cus]; await putJSON(env, "_data/_payments.json", pay); }
     let access = "not set up";
     if (env.CF_API_TOKEN && env.ACCESS_POLICY_ID && env.CF_ACCOUNT_ID) { try { const u = `https://api.cloudflare.com/client/v4/accounts/${env.CF_ACCOUNT_ID}/access/policies/${env.ACCESS_POLICY_ID}`, h = { authorization: "Bearer " + env.CF_API_TOKEN, "content-type": "application/json" }; const pol = (await (await fetch(u, { headers: h })).json()).result; const inc = (pol.include || []).filter((x) => !(x.email && emails.includes(String(x.email.email).toLowerCase()))); const body = { name: pol.name, decision: pol.decision, include: inc, exclude: pol.exclude || [], require: pol.require || [] }; if (pol.session_duration) body.session_duration = pol.session_duration; access = (await fetch(u, { method: "PUT", headers: h, body: JSON.stringify(body) })).ok ? "removed" : "failed"; } catch (e) { access = "failed"; } }
@@ -1073,7 +1145,7 @@ async function handleApi(request, env, url, ctx) {
     if (!coach) return json({ error: "forbidden" }, 403);
     const key = "_data/_todos.json", db = await getJSON(env, key, { items: [], dismissed: {} });
     // one-off: add the open items from the 25 Nov build session to Maria's priority list
-    if (!db.seed1125) {
+    if (!db.seed1125 && env.TENANT.id === "mpf") {
       const mk = (text, pri, list) => ({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7), text, done: false, at: londonToday(), client: "", list: list || "", due: "", pri });
       db.items = [
         mk("Review the MPF Education Review doc (every rule, hypertrophy vs strength)", "1"),
@@ -1091,24 +1163,24 @@ async function handleApi(request, env, url, ctx) {
       db.seed1125 = true;
       await putJSON(env, key, db);
     }
-    if (!db.seed1126a) {
+    if (!db.seed1126a && env.TENANT.id === "mpf") {
       db.items = [{ id: Date.now().toString(36) + "c1126", text: "Colleen's programme: back squat notes, first set empty bar x5 with 2-sec hold at the bottom, then 30kg for working sets", done: false, at: londonToday(), client: "", list: "", due: "", pri: "1" }, ...(db.items || [])];
       db.seed1126a = true;
       await putJSON(env, key, db);
     }
-    if (!db.seed1126b) {
+    if (!db.seed1126b && env.TENANT.id === "mpf") {
       db.items = [{ id: Date.now().toString(36) + "r1126", text: "Rebecca's programme, glute workout: end order should be single leg press, then kickbacks, then abductors", done: false, at: londonToday(), client: "", list: "", due: "", pri: "1" }, ...(db.items || [])];
       db.seed1126b = true;
       await putJSON(env, key, db);
     }
-    if (!db.seed1126c) {
+    if (!db.seed1126c && env.TENANT.id === "mpf") {
       const t = "Rebecca's programme, glute workout: move abductors to the START of the workout, then end with single leg press, then kickbacks";
       const it = (db.items || []).find((x) => String(x.text).startsWith("Rebecca's programme, glute workout"));
       if (it) { it.text = t; it.done = false; } else db.items = [{ id: Date.now().toString(36) + "r1126c", text: t, done: false, at: londonToday(), client: "", list: "", due: "", pri: "1" }, ...(db.items || [])];
       db.seed1126c = true;
       await putJSON(env, key, db);
     }
-    if (!db.seed1126d) {
+    if (!db.seed1126d && env.TENANT.id === "mpf") {
       const t = "Rebecca's programme, glute workout: move abductors to the START of the workout, then end with single leg press, then kickbacks (change to knee-supported kickbacks on a bench)";
       const it = (db.items || []).find((x) => String(x.text).startsWith("Rebecca's programme, glute workout"));
       if (it) { it.text = t; it.done = false; } else db.items = [{ id: Date.now().toString(36) + "r1126d", text: t, done: false, at: londonToday(), client: "", list: "", due: "", pri: "1" }, ...(db.items || [])];
@@ -1807,7 +1879,7 @@ async function autoEnrol(env, email, fullName) {
   while (taken.has(id)) id = base + n++;
   ro[email] = { id, name, checkin: "Wednesday", start: londonToday(), phase: "Fat loss", active: true, type: "online", sex: "f", sexSet: false, onboarded: false, phone: "", folder: "", auto: true };
   await putJSON(env, "_data/_roster.json", ro);
-  rosterCache = null;
+  delete rosterCaches[(env.TENANT && env.TENANT.id) || "mpf"];
   let access = "not set up";
   if (env.CF_API_TOKEN && env.ACCESS_POLICY_ID && env.CF_ACCOUNT_ID) {
     try {
@@ -1845,6 +1917,10 @@ async function notifyCancel(env, client, doc) {
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
+    // Pick the coach from the web address, and give this request a view of only that coach's data.
+    const tenant = await resolveTenant(request, env);
+    env = tenantEnv(env, tenant);
+    if (url.pathname === "/portal/api/brand" && request.method === "GET") return json({ id: tenant.id, ...tenant.brand });
     if (url.pathname === "/stripe/webhook" && request.method === "POST") return stripeWebhook(request, env).catch(() => new Response("error", { status: 500 }));
     if (url.pathname === "/api/recs" && request.method === "GET") return json(await getJSON(env, "_data/_recs.json", { items: [] }));
     if (url.pathname.startsWith("/cal/") && url.pathname.endsWith(".ics")) return calFeed(env, url).catch(() => new Response("error", { status: 500 }));
@@ -1858,7 +1934,16 @@ export default {
     return env.ASSETS.fetch(request);
   },
   async scheduled(event, env, ctx) {
-    ctx.waitUntil(runAutomations(env, {}).catch(() => {}));
+    // Run each coach's automations against their own data only.
+    ctx.waitUntil((async () => {
+      await runAutomations(tenantEnv(env, MPF_TENANT), {}).catch(() => {});
+      const { tenants } = await loadTenants(env);
+      for (const [id, t] of Object.entries(tenants || {})) {
+        if (!t || t.disabled || id === "mpf" || !/^[a-z0-9-]{2,40}$/.test(id)) continue;
+        const full = { ...t, id, prefix: `t/${id}/`, brand: { ...MPF_TENANT.brand, ...(t.brand || {}) } };
+        await runAutomations(tenantEnv(env, full), {}).catch(() => {});
+      }
+    })());
   },
 };
 
