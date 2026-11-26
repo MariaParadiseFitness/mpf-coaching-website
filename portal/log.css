@@ -637,3 +637,9 @@ button.lb-pkt span{color:var(--mute);font-size:12px;font-weight:600}
 .sq-disc{color:var(--mute);font-size:12px;line-height:1.5;margin:18px 0 12px}
 .sq-re{width:100%}
 .sq-a{display:inline-block;margin-top:10px;font-size:11.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-l);text-decoration:none;border:1px solid var(--line);padding:7px 12px;border-radius:30px}
+/* set label sits right next to the weight: Set | kg | reps | Previous | done */
+.lb-set>.lb-prev,.lb-set.lb-hd>span:nth-child(2){order:1;text-align:center}
+.lb-set>.lb-tick,.lb-set.lb-hd>span:last-child{order:2}
+.lb-set{grid-template-columns:34px 66px 58px minmax(0,1fr) 40px}
+.lb-side .lb-set{grid-template-columns:30px 54px 42px 42px minmax(0,1fr) 34px}
+@media(max-width:400px){.lb-set{grid-template-columns:30px 60px 52px minmax(0,1fr) 36px}.lb-side .lb-set{grid-template-columns:30px 52px 42px 42px minmax(0,1fr) 34px}}
