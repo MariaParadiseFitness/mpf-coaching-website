@@ -53,7 +53,7 @@
       {k:'cardio',l:'What cardio do you enjoy?',t:'text'}
     ]},
     {t:'Food',i:'🍽️',q:[
-      {k:'diet',l:'Any way of eating you follow?',t:'choice',o:['No','Vegetarian','Vegan','Pescatarian','Halal','Kosher','Other']},
+      {k:'diet',l:'Any way of eating you follow?',t:'choice',o:['No','Vegetarian','Vegan','Pescatarian','Carnivore','Halal','Kosher','Other']},
       {k:'foodslove',l:'Foods you love and want in your plan',t:'area'},
       {k:'foodsno',l:'Foods you will not eat',t:'area'},
       {k:'meals',l:'How many meals a day suits you?',t:'choice',o:['2','3','4','5','6']},
