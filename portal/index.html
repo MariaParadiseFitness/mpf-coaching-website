@@ -261,6 +261,7 @@ body.trk-alc .lg-f[data-k="alcohol"]{border:1px solid #E8C872;border-radius:12px
 .mm-ic{font-size:20px;width:28px;text-align:center;flex:none}
 .mm-t{flex:1;min-width:0;display:grid;gap:2px}.mm-t b{font-size:15px;font-weight:600}.mm-t small{font-size:12.5px;color:#a89a78}
 .mm-ar{color:var(--gold,#c9a64b);font-size:20px;flex:none}
+.mm-item.mm-hl{border-color:rgba(201,166,75,.6);background:linear-gradient(135deg,rgba(201,166,75,.12),#111)}
 .mm-back{display:inline-block;color:var(--gold-l,#e6cf8b);text-decoration:none;font-size:14px;font-weight:600;margin:0 0 10px}
 </style>
 </head>
@@ -439,7 +440,7 @@ body.trk-alc .lg-f[data-k="alcohol"]{border:1px solid #E8C872;border-radius:12px
   </section>
 
   <!-- TRAINING -->
-  <div class="seg vseg tr4" data-view="training" id="trSeg"><button type="button" data-t="pg" class="on"><i class="ti ti-clipboard-list" aria-hidden="true"></i> My plan</button><button type="button" data-t="lb"><i class="ti ti-barbell" aria-hidden="true"></i> Workout</button><button type="button" data-t="hist"><i class="ti ti-book" aria-hidden="true"></i> Logbook</button><button type="button" data-t="pl" class="ptonly" hidden><i class="ti ti-calendar-event" aria-hidden="true"></i> Book &amp; manage sessions</button></div>
+  <div class="seg vseg tr4" data-view="training" id="trSeg"><button type="button" data-t="pg" class="on"><i class="ti ti-clipboard-list" aria-hidden="true"></i> My plan</button><button type="button" data-t="lb"><i class="ti ti-barbell" aria-hidden="true"></i> Workout</button><button type="button" data-t="hist"><i class="ti ti-book" aria-hidden="true"></i> Logbook</button></div>
   <section data-view="training" data-sub="train" id="folder">
     <h2>My <em>training.</em></h2>
     <div class="pg-box lb-box" id="lbBox" hidden><div class="pg-empty">Loading…</div></div>
@@ -457,7 +458,8 @@ body.trk-alc .lg-f[data-k="alcohol"]{border:1px solid #E8C872;border-radius:12px
   </section>
 
   <!-- SESSIONS (PT clients, shown on the Plan page) -->
-  <section data-view="training" data-sub="plan" id="sessions" class="gone">
+  <section data-view="more" data-sub="sess" id="sessions" class="gone">
+    <a class="mm-back" href="#moreMenu">‹ More</a>
     <h2>My <em>sessions.</em></h2>
     <div class="sub" id="sessSub">Book, move or cancel your PT sessions with Maria at PureGym Charlton.</div>
     <div id="sessHist" class="sess-h" hidden></div>
@@ -627,8 +629,8 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
   function firstOf(v){return document.querySelector('[data-view="'+v+'"]:not(.gone):not([hidden])')}
   function go(id,noScroll){
     if(window.__gated&&['start','photos','support','onboard'].indexOf(id)<0)id='start';
-    if(id==='sessions'&&$('sessions').classList.contains('gone'))id='plan';
-    if(id==='plan'&&$('sessions').classList.contains('gone'))id='planner';
+    if(id==='sessions'&&$('sessions').classList.contains('gone'))id='moreMenu';
+    if(id==='plan')id=$('sessions').classList.contains('gone')?'planner':'sessions';
     $('app').classList.add('ready');
     var t=document.getElementById(id)||document.getElementById('log'),host=t.closest('[data-view]'),v=host?host.getAttribute('data-view'):'today',sub=host&&host.getAttribute('data-sub')||({progress:'prog',training:'train',today:'main',more:'menu'})[v]||'';
     [].forEach.call(document.querySelectorAll('[data-sub]'),function(e){e.classList.toggle('sv',e.getAttribute('data-view')===v&&e.getAttribute('data-sub')!==sub)});
@@ -638,13 +640,12 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
     [].forEach.call(document.querySelectorAll('[data-view]'),function(e){e.classList.toggle('vh',e.getAttribute('data-view')!==v)});
     [].forEach.call(document.querySelectorAll('#topTabs a,#bnav a'),function(a){a.classList.toggle('on',a.getAttribute('data-v')===v)});
     $('backSetup').hidden=!(window.__gated&&v!=='setup');
-    if(sub==='plan'&&!$('sessions').classList.contains('gone')){var f=$('acuity');if(f&&!f.src)f.src=f.getAttribute('data-src')}
-    if(sub==='plan'&&!$('sessions').classList.contains('gone'))plTab('book');
+    if(id==='sessions'){loadSess();var f=$('acuity');if(f&&!f.src)f.src=f.getAttribute('data-src')}
     if(v==='more'&&sub==='menu'&&window.__mmDraw)window.__mmDraw();
     if(noScroll)return;
     if(v==='more'||['log','targets','checkin','progress','cycle','planner','breathe','folder','plan','account','start'].indexOf(id)>=0||(t===host&&host===firstOf(v)))window.scrollTo(0,0);else t.scrollIntoView({block:'start'});
   }
-  var sessLoaded=false;function loadSess(){if(sessLoaded)return;sessLoaded=true;fetch('/portal/api/sessions',{cache:'no-store'}).then(function(r){return r.json()}).then(function(j){try{if(j&&window.MPFPlanner&&MPFPlanner.current)MPFPlanner.current.setSessions(j)}catch(e){}var b=$('sessHist');if(!b||!j||((!j.past||!j.past.length)&&(!j.upcoming||!j.upcoming.length)))return;var nd=function(d){return MPFLog.nice(d,{weekday:'short'})};var T=j.times||{};window.__shT=T;var ch=function(d,c){return '<button type="button" class="'+(c||'')+'" data-d="'+d+'">'+nd(d)+'</button>'};var p=j.pkg,h='';
+  var sessLoaded=false;function loadSess(){if(sessLoaded)return;sessLoaded=true;fetch('/portal/api/sessions',{cache:'no-store'}).then(function(r){return r.json()}).then(function(j){try{if(j&&window.MPFPlanner&&MPFPlanner.current)MPFPlanner.current.setSessions(j)}catch(e){}var b=$('sessHist');if(!b||!j||((!j.past||!j.past.length)&&(!j.upcoming||!j.upcoming.length)))return;var nd=function(d){return MPFLog.nice(d,{weekday:'short'})};var T=j.times||{};window.__shT=T;var ch=function(d,c){return '<button type="button" class="'+(c||'')+'" data-d="'+d+'">'+nd(d)+'</button>'};var p=j.pkg,h='';window.__mpfPkg=p||null;if(window.__mmDraw)window.__mmDraw();
     if(p&&p.left!=null)h+='<div class="sh-pk"><b>'+p.left+'</b><span>sessions left in your package<br><small>'+p.used+' of '+p.size+' used'+(p.booked?' · '+p.booked+' booked':'')+'</small></span></div>';
     else if(p)h+='<div class="sh-pk"><b>'+p.used+'</b><span>sessions used on your current package'+(p.booked?'<br><small>'+p.booked+' booked ahead</small>':'')+'</span></div>';
     if(j.upcoming&&j.upcoming.length)h+='<div class="sh-t">Coming up · '+j.upcoming.length+' booked</div><div class="sh-l" data-all="'+esc(j.upcoming.map(function(d){return ch(d,'up')}).join(''))+'">'+j.upcoming.slice(0,6).map(function(d){return ch(d,'up')}).join('')+(j.upcoming.length>6?'<button type="button" class="up" style="cursor:pointer;font:inherit" onclick="var l=this.parentNode;l.innerHTML=l.getAttribute(\'data-all\')">+'+(j.upcoming.length-6)+' more ▾</button>':'')+'</div>';
@@ -1039,8 +1040,8 @@ body.touring #tdSeg{position:relative;z-index:70}#tdSeg a.tour-on{color:#E8C872!
   var esc=function(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
   var ml=document.getElementById('musicList');
   if(ml)ml.innerHTML=PLAYLISTS.map(function(p){return '<a class="mm-item" href="'+esc(p.url)+'" target="_blank" rel="noopener"><span class="mm-ic">🎧</span><span class="mm-t"><b>'+esc(p.name)+'</b><small>Open in Spotify</small></span><span class="mm-ar">↗</span></a>'}).join('');
-  var M=[['account','👤','My account','Your details and login'],['aboutme','📝','About me','Your foods, injuries and preferences'],['billing','💳','Billing','Payments and your plan'],['perms','🔒','Privacy and permissions','Photos, data and consent'],['support','💬','Support','Get help from Maria'],['pbs','🏆','Personal bests','Your heaviest lifts and best sets'],['guides','📚','Your guides','Hypertrophy, strength, diet and more'],['recs','⭐','Recommended by Maria','Books, podcasts and tools I rate'],['music','🎧','Music','My Spotify playlists']];
-  window.__mmDraw=function(){var el=document.getElementById('mmList');if(!el)return;el.innerHTML=M.filter(function(m){var sec=document.getElementById(m[0]);return sec&&!sec.hidden&&!sec.classList.contains('gone')}).map(function(m){return '<a class="mm-item" href="#'+m[0]+'"><span class="mm-ic">'+m[1]+'</span><span class="mm-t"><b>'+m[2]+'</b><small>'+m[3]+'</small></span><span class="mm-ar">›</span></a>'}).join('')};
+  var M=[['sessions','📅','Sessions and bookings','Book, move or cancel your PT sessions'],['account','👤','My account','Your details and login'],['aboutme','📝','About me','Your foods, injuries and preferences'],['billing','💳','Billing','Payments and your plan'],['perms','🔒','Privacy and permissions','Photos, data and consent'],['support','💬','Support','Get help from Maria'],['pbs','🏆','Personal bests','Your heaviest lifts and best sets'],['guides','📚','Your guides','Hypertrophy, strength, diet and more'],['recs','⭐','Recommended by Maria','Books, podcasts and tools I rate'],['music','🎧','Music','My Spotify playlists']];
+  window.__mmDraw=function(){var el=document.getElementById('mmList');if(!el)return;el.innerHTML=M.filter(function(m){var sec=document.getElementById(m[0]);return sec&&!sec.hidden&&!sec.classList.contains('gone')}).map(function(m){var sub=m[3],pk=window.__mpfPkg;if(m[0]==='sessions'&&pk)sub=(pk.left!=null?pk.left+' session'+(pk.left===1?'':'s')+' left':pk.used+' used on this package')+(pk.booked?' · '+pk.booked+' booked':'')+' · book, move or cancel';return '<a class="mm-item'+(m[0]==='sessions'?' mm-hl':'')+'" href="#'+m[0]+'"><span class="mm-ic">'+m[1]+'</span><span class="mm-t"><b>'+m[2]+'</b><small>'+esc(sub)+'</small></span><span class="mm-ar">›</span></a>'}).join('')};
   window.__mmDraw();
 })();
 </script>
