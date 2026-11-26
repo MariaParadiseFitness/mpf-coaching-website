@@ -344,7 +344,7 @@ body.trk-alc .lg-f[data-k="alcohol"]{border:1px solid #E8C872;border-radius:12px
     <div class="sub">Built by your coach to hit your targets. Tap a day if you have more than one.</div>
     <div id="mgBox" style="margin-bottom:12px"></div>
     <div class="pg-box" id="mpBox"><div class="pg-empty">Loading…</div></div>
-    <div class="acts" style="margin-top:14px"><a class="act" href="/myfitnesspal.html" target="_blank" rel="noopener"><span class="ic">📱</span><span><b>How to use MyFitnessPal</b><span>Set it up, hit your targets, log properly</span></span></a><a class="act" href="#log"><span class="ic">📝</span><span><b>Add today's food to my log</b><span>Your daily totals go in your daily log</span></span></a></div>
+    <div class="acts" style="margin-top:14px"><a class="act" href="/myfitnesspal.html" target="_blank" rel="noopener"><span class="ic">📱</span><span><b>How to use MyFitnessPal</b><span>Set it up, hit your targets, log properly</span></span></a><a class="act" href="#supps"><span class="ic">💊</span><span><b>Supplement quiz</b><span>What's worth buying for you, and what to skip</span></span></a><a class="act" href="#log"><span class="ic">📝</span><span><b>Add today's food to my log</b><span>Your daily totals go in your daily log</span></span></a></div>
   </section>
 
   <!-- DAILY LOG -->
@@ -560,6 +560,12 @@ body.trk-alc .lg-f[data-k="alcohol"]{border:1px solid #E8C872;border-radius:12px
     <div class="sub">Books, podcasts and tools I genuinely rate. These have helped me and my clients.</div>
     <div class="recs" id="recList"></div>
   </section>
+  <section data-view="more" data-sub="supps" id="supps">
+    <a class="mm-back" href="#moreMenu">‹ More</a>
+    <h2>Supplement <em>quiz.</em></h2>
+    <div class="sub">What's actually worth buying for you, and what to skip.</div>
+    <div class="pg-box" id="sqBox"></div>
+  </section>
   <section data-view="more" data-sub="guides" id="guides">
     <a class="mm-back" href="#moreMenu">‹ More</a>
         <h2>Your <em>guides.</em></h2>
@@ -604,6 +610,8 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
 <script src="/portal/guides.js"></script>
 <script src="/portal/breathe.js"></script>
 <script src="/portal/mealgen.js"></script>
+<script src="/portal/supps.js"></script>
+<script>document.addEventListener('DOMContentLoaded',function(){MPFSupps.mount(document.getElementById('sqBox'))})</script>
 <script>
 (function(){
   var $=function(id){return document.getElementById(id)};
@@ -643,7 +651,7 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
     if(id==='sessions'){loadSess();var f=$('acuity');if(f&&!f.src)f.src=f.getAttribute('data-src')}
     if(v==='more'&&sub==='menu'&&window.__mmDraw)window.__mmDraw();
     if(noScroll)return;
-    if(v==='more'||['log','targets','checkin','progress','cycle','planner','breathe','folder','plan','account','start'].indexOf(id)>=0||(t===host&&host===firstOf(v)))window.scrollTo(0,0);else t.scrollIntoView({block:'start'});
+    if(v==='more'||['log','targets','checkin','progress','cycle','planner','breathe','folder','plan','account','start','supps'].indexOf(id)>=0||(t===host&&host===firstOf(v)))window.scrollTo(0,0);else t.scrollIntoView({block:'start'});
   }
   var sessLoaded=false;function loadSess(){if(sessLoaded)return;sessLoaded=true;fetch('/portal/api/sessions',{cache:'no-store'}).then(function(r){return r.json()}).then(function(j){try{if(j&&window.MPFPlanner&&MPFPlanner.current)MPFPlanner.current.setSessions(j)}catch(e){}var b=$('sessHist');if(!b||!j||((!j.past||!j.past.length)&&(!j.upcoming||!j.upcoming.length)))return;var nd=function(d){return MPFLog.nice(d,{weekday:'short'})};var T=j.times||{};window.__shT=T;var ch=function(d,c){return '<button type="button" class="'+(c||'')+'" data-d="'+d+'">'+nd(d)+'</button>'};var p=j.pkg,h='';window.__mpfPkg=p||null;if(window.__mmDraw)window.__mmDraw();
     if(p&&p.left!=null)h+='<div class="sh-pk"><b>'+p.left+'</b><span>sessions left in your package<br><small>'+p.used+' of '+p.size+' used'+(p.booked?' · '+p.booked+' booked':'')+'</small></span></div>';
@@ -899,6 +907,7 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
       weightsAll=Object.keys(m).sort().map(function(d){return {date:d,kg:m[d]}});redrawChart();
     }
     var today=meta.today||MPFLog.londonToday(),demoDays=demo?MPFLog.demoDays(today,70):null,ci;
+    window.__mpfSex=c.sex;
     if(c.sex==='m'){var np0=document.querySelector('.am-np');if(np0)np0.remove();$('cyTab').remove();$('cySeg').remove();$('cycle').classList.add('gone');$('cycle').hidden=true}else MPFCycle.Mount($('cyBox'),{today:today,demo:demo,demoDays:demoDays,onStats:cyToday});
     var log=MPFLog.Today($('logBox'),{demo:demo,demoDays:demoDays,today:today,sex:c.sex,onSaved:function(days){mergeDays(days);if(ci)ci.refresh();if(window.__WK)window.__WK.refresh()}});
     ci=MPFLog.CheckIn($('ciBox'),{onState:dueState,start:c.start,demo:demo,today:today,day:day,email:email,getDays:log.days,photoCount:function(){return window.__phN==null?null:window.__phN},
@@ -1040,7 +1049,7 @@ body.touring #tdSeg{position:relative;z-index:70}#tdSeg a.tour-on{color:#E8C872!
   var esc=function(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
   var ml=document.getElementById('musicList');
   if(ml)ml.innerHTML=PLAYLISTS.map(function(p){return '<a class="mm-item" href="'+esc(p.url)+'" target="_blank" rel="noopener"><span class="mm-ic">🎧</span><span class="mm-t"><b>'+esc(p.name)+'</b><small>Open in Spotify</small></span><span class="mm-ar">↗</span></a>'}).join('');
-  var M=[['sessions','📅','Sessions and bookings','Book, move or cancel your PT sessions'],['account','👤','My account','Your details and login'],['aboutme','📝','About me','Your foods, injuries and preferences'],['billing','💳','Billing','Payments and your plan'],['perms','🔒','Privacy and permissions','Photos, data and consent'],['support','💬','Support','Get help from Maria'],['pbs','🏆','Personal bests','Your heaviest lifts and best sets'],['guides','📚','Your guides','Hypertrophy, strength, diet and more'],['recs','⭐','Recommended by Maria','Books, podcasts and tools I rate'],['music','🎧','Music','My Spotify playlists']];
+  var M=[['sessions','📅','Sessions and bookings','Book, move or cancel your PT sessions'],['account','👤','My account','Your details and login'],['aboutme','📝','About me','Your foods, injuries and preferences'],['billing','💳','Billing','Payments and your plan'],['perms','🔒','Privacy and permissions','Photos, data and consent'],['support','💬','Support','Get help from Maria'],['pbs','🏆','Personal bests','Your heaviest lifts and best sets'],['guides','📚','Your guides','Hypertrophy, strength, diet and more'],['supps','💊','Supplement quiz','What to buy and what to skip'],['recs','⭐','Recommended by Maria','Books, podcasts and tools I rate'],['music','🎧','Music','My Spotify playlists']];
   window.__mmDraw=function(){var el=document.getElementById('mmList');if(!el)return;el.innerHTML=M.filter(function(m){var sec=document.getElementById(m[0]);return sec&&!sec.hidden&&!sec.classList.contains('gone')}).map(function(m){var sub=m[3],pk=window.__mpfPkg;if(m[0]==='sessions'&&pk)sub=(pk.left!=null?pk.left+' session'+(pk.left===1?'':'s')+' left':pk.used+' used on this package')+(pk.booked?' · '+pk.booked+' booked':'')+' · book, move or cancel';return '<a class="mm-item'+(m[0]==='sessions'?' mm-hl':'')+'" href="#'+m[0]+'"><span class="mm-ic">'+m[1]+'</span><span class="mm-t"><b>'+m[2]+'</b><small>'+esc(sub)+'</small></span><span class="mm-ar">›</span></a>'}).join('')};
   window.__mmDraw();
 })();
