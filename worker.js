@@ -826,7 +826,7 @@ async function handleApi(request, env, url, ctx) {
       await notifyForm(env, { name: "Test client", type: "online" }, { goal: "Fat loss", weight: "70", height: "165", job: "Test" });
       await sendMail(env, { fromName: "Maria Paradise", subject: "Welcome to MPF Coaching, Jade! Your portal is ready (sample)", heading: 'Welcome, <em style="color:#e6cf8b">Jade.</em>',
         intro: "Thank you for joining my online coaching. I'm so excited to get started with you. Your client portal is ready.",
-        lines: ["1. Tap the button below and log in with this email: jade@example.com", "2. You'll get a 6-digit code from Cloudflare (the secure login I use). Type it in and you're in.", "3. Follow the steps in your portal, starting with your onboarding form. It takes about 10 minutes and it's what I build your plan from.", "", "Any questions, just reply to this email or message me on WhatsApp.", "", "Maria x"],
+        lines: ["1. Tap the button below and log in with this email: jade@example.com", "2. You'll get a 6-digit code from Cloudflare (the secure login I use). Type it in and you're in.", "3. Set aside 10 to 15 minutes to set up your app. Follow the steps in your portal, starting with your onboarding form. It's what I build your plan from.", "", "Any questions, just reply to this email or message me on WhatsApp.", "", "Maria x"],
         button: { text: "Open my portal", url: SITE + "/login.html?paid=1" }, foot: "This is a sample of the welcome email new clients get after paying." });
       return json({ ok: true, configured: !!(env.RESEND_API_KEY || env.MAILER) });
     }
@@ -1832,7 +1832,7 @@ async function autoEnrol(env, email, fullName) {
   if (ok) await sendMail(env, { to: email, fromName: "Maria Paradise", subject: `Welcome to MPF Coaching, ${first}! Your portal is ready`,
     heading: `Welcome, <em style="color:#e6cf8b">${escH(first)}.</em>`,
     intro: "Thank you for joining my online coaching. I'm so excited to get started with you. Your client portal is ready.",
-    lines: [`1. Tap the button below and log in with this email: ${email}`, "2. You'll get a 6-digit code from Cloudflare (the secure login I use). Type it in and you're in.", "3. Follow the steps in your portal, starting with your onboarding form. It takes about 10 minutes and it's what I build your plan from.", "", "Any questions, just reply to this email or message me on WhatsApp.", "", "Maria x"],
+    lines: [`1. Tap the button below and log in with this email: ${email}`, "2. You'll get a 6-digit code from Cloudflare (the secure login I use). Type it in and you're in.", "3. Set aside 10 to 15 minutes to set up your app. Follow the steps in your portal, starting with your onboarding form. It's what I build your plan from.", "", "Any questions, just reply to this email or message me on WhatsApp.", "", "Maria x"],
     button: { text: "Open my portal", url: SITE + "/login.html?paid=1" }, foot: "You're getting this because you signed up for MPF online coaching." }).catch(() => {});
   return result;
 }
