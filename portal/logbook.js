@@ -35,10 +35,12 @@
     '<div class="lb-bchips">'+opts.map(function(o){return '<button type="button" data-badd="'+esc(o)+'">＋ '+esc(o)+'</button>'}).join('')+'<button type="button" data-badd="">＋ Other</button></div></div>'}
   function chip(x){var t=x.t&&ST[x.t]?'<em class="st-'+x.t+'">'+ST[x.t][0]+'</em> ':'';return t+esc((x.kg?x.kg+'kg':'')+(x.kg&&x.reps?' × ':'')+(x.reps||''))}
   var DEMO_LB=/[?&]demo/.test(location.search)||!!window.__mpfAs,rT=null,rLast='';
-  function rPush(v,now){if(DEMO_LB)return;clearTimeout(rT);var go=function(){var s=JSON.stringify(v);if(s===rLast)return;rLast=s;try{if(now&&navigator.sendBeacon){navigator.sendBeacon('/portal/api/workout-draft',new Blob([s],{type:'application/json'}));return}}catch(e){}fetch('/portal/api/workout-draft',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:s,keepalive:true}).catch(function(){rLast=''})};if(now)go();else rT=setTimeout(go,4000)}
+  function lbSv(t){var e=document.getElementById('lbSv');if(e)e.textContent=t}
+  function lbOk(){lbSv('✓ Saved '+new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}))}
+  function rPush(v,now){if(DEMO_LB){lbOk();return}clearTimeout(rT);lbSv('Saving…');var go=function(){var s=JSON.stringify(v);if(s===rLast){lbOk();return}rLast=s;try{if(now==='beacon'&&navigator.sendBeacon){navigator.sendBeacon('/portal/api/workout-draft',new Blob([s],{type:'application/json'}));return}}catch(e){}fetch('/portal/api/workout-draft',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:s,keepalive:true}).then(function(r){if(r.ok)lbOk();else{rLast='';lbSv('✓ Saved on this phone')}}).catch(function(){rLast='';lbSv('✓ Saved on this phone, will sync when you have signal')})};if(now)go();else rT=setTimeout(go,2500)}
   var store={get:function(){try{return JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){return null}},set:function(v){try{v._at=Date.now();localStorage.setItem(KEY,JSON.stringify(v))}catch(e){}rPush(v)},del:function(){try{localStorage.removeItem(KEY)}catch(e){}clearTimeout(rT);rLast='';if(!DEMO_LB)fetch('/portal/api/workout-draft',{method:'DELETE',credentials:'same-origin'}).catch(function(){})}};
-  document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden'){var d=store.get();if(d&&d.exercises&&d.exercises.length)rPush(d,true)}});
-  window.addEventListener('pagehide',function(){var d=store.get();if(d&&d.exercises&&d.exercises.length)rPush(d,true)});
+  document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden'){var d=store.get();if(d&&d.exercises&&d.exercises.length)rPush(d,'beacon')}});
+  window.addEventListener('pagehide',function(){var d=store.get();if(d&&d.exercises&&d.exercises.length)rPush(d,'beacon')});
   function restSecs(t){var s=String(t||'').toLowerCase(),m=s.match(/(\d+(?:\.\d+)?)/);if(!m)return 90;var n=parseFloat(m[1]);if(/min|m\b/.test(s)&&!/s\b|sec/.test(s))return Math.round(n*60);if(n<=5)return Math.round(n*60);return Math.round(n)}
   function setCount(e){var n=parseInt(e.sets,10);return n>0&&n<13?n:3}
   function e1rm(s){var kg=num(s.kg),r=num(s.reps);return kg&&r?kg*(1+Math.min(r,30)/30):0}
@@ -126,7 +128,7 @@
     function sideOn(e){return e.side===true||(e.side!==false&&UNI.test(e.name||''))}
     function sideW(e){return LEGW.test(e.name||'')?'leg':'arm'}
     function drawActive(){
-      var h='<div class="lb-act"><div class="lb-top"><input class="lb-title" id="lbTitle" value="'+esc(W.workout)+'" aria-label="Workout name"><div class="lb-meta"><label>📅 <input type="date" id="lbDate" value="'+esc(W.date)+'" max="'+today()+'"></label>'+(W.id?'<span class="lb-tag">Editing</span>':'<span class="lb-time" id="lbTime">0:00</span>')+'</div>'+(window.MPFGloss?'<button type="button" class="gl-open" data-gl="">📖 Training terms explained</button>':'')+'<a class="gl-open lb-pl" href="#music">🎧 Spotify playlists</a>'+'</div>';
+      var h='<div class="lb-act"><div class="lb-top"><input class="lb-title" id="lbTitle" value="'+esc(W.workout)+'" aria-label="Workout name"><div class="lb-meta"><label>📅 <input type="date" id="lbDate" value="'+esc(W.date)+'" max="'+today()+'"></label>'+(W.id?'<span class="lb-tag">Editing</span>':'<span class="lb-time" id="lbTime">0:00</span>')+'</div>'+(window.MPFGloss?'<button type="button" class="gl-open" data-gl="">📖 Training terms explained</button>':'')+'<a class="gl-open lb-pl" href="#music">🎧 Spotify playlists</a>'+'<div class="lb-bar"><span class="lb-sv" id="lbSv">'+(W.id?'Editing a saved workout':'☁️ Saves as you go')+'</span><button class="btn g" type="button" data-a="savenow">Save</button><button class="btn" type="button" data-a="finish">'+(W.id?'Save changes':'Finish workout ✓')+'</button></div><span class="lg-msg" id="lbMsg"></span>'+'</div>';
       if(!W.exercises.length)h+='<p class="ci-note" style="text-align:center;margin:18px 0">No exercises yet. Tap <b>＋ Add exercise</b> to choose some.</p>';
       h+=blockH('pre','🔥 Warm-up, activation & mobility','Anything you did before your first exercise. Optional.',PRE,W.pre);
       h+=W.exercises.map(function(e,i){var prev=prevFor(e.name,W.id);
@@ -145,7 +147,7 @@
       h+='<div class="lb-blk lb-cardio"><div class="lb-blk-h"><b>🏃 Cardio</b><small>Any cardio you did today. It counts towards your cardio target.</small></div>'+(W.cardio||[]).map(function(c,i){return '<div class="lb-cr" data-ci="'+i+'"><div class="lb-cr-h"><b>'+esc(c.type)+'</b><button type="button" class="lb-bx" data-cx="del" aria-label="Remove">✕</button></div><div class="lb-cr-g"><label>Minutes<input data-cf="mins" inputmode="numeric" value="'+esc(c.mins||'')+'" placeholder="30"></label><label>Avg heart rate<input data-cf="hr" inputmode="numeric" value="'+esc(c.hr||'')+'" placeholder="BPM"></label><label>Distance<input data-cf="km" inputmode="decimal" value="'+esc(c.km||'')+'" placeholder="km"></label><label>Level / incline<input data-cf="lvl" value="'+esc(c.lvl||'')+'" placeholder="e.g. 12% 5kph"></label></div></div>'}).join('')+'<button type="button" class="lb-add" data-a2="addcardio">＋ Add cardio</button></div>';
       h+=blockH('post','🧘 Stretching & cool-down','Anything you did after your workout. Optional.',POST,W.post);
       h+='<label class="pe-full">How did the session go?<textarea id="lbNotes" rows="2" placeholder="Energy, pumps, anything that felt off">'+esc(W.notes)+'</textarea></label>';
-      h+='<div class="lb-foot"><span class="lg-msg" id="lbMsg"></span><button class="btn g" type="button" data-a="discard">'+(W.id?'Cancel':'Discard')+'</button><button class="btn" type="button" data-a="finish">'+(W.id?'Save changes':'Finish workout ✓')+'</button></div></div>';
+      h+='<div class="lb-foot"><button class="btn g" type="button" data-a="discard">'+(W.id?'Cancel':'Discard workout')+'</button></div></div>';
       el.innerHTML=h;bindActive();clock();
       var ac=el.querySelector('[data-a2=addcardio]');if(ac)ac.onclick=function(){cardioSheet()};
       [].forEach.call(el.querySelectorAll('[data-ci]'),function(r){var i=+r.getAttribute('data-ci');[].forEach.call(r.querySelectorAll('[data-cf]'),function(inp){inp.oninput=function(){W.cardio[i][inp.getAttribute('data-cf')]=inp.value;save()}});r.querySelector('[data-cx=del]').onclick=function(){W.cardio.splice(i,1);save();drawActive()}});
@@ -182,6 +184,7 @@
       act('addex',function(){pickEx()});
       act('discard',function(){if(!W.id&&nSets(W.exercises)&&!confirm('Throw this workout away? Nothing will be saved.'))return;W=null;store.del();stopRest();show('home')});
       act('finish',finish);
+      act('savenow',function(){if(!W)return;store.set(W);rPush(W,true)});
     }
     // no countdown: rest until you're genuinely ready to give the next set everything
     function startRest(st){stopRest();rest={};var bar=document.createElement('div');bar.className='lb-rest lb-rest2';bar.id='lbRest';bar.innerHTML=(st?'<span>😮‍💨 Rest until fully recovered, usually <b>3–5 min</b>, so every rep is crisp</span>':'<span>😮‍💨 Rest until you\'re ready to <b>smash</b> the next set</span>')+(window.MPFGloss?window.MPFGloss.btn(st?'strrest':'rest','How long should I rest?'):'')+'<button type="button" data-r="0" aria-label="Close">✕</button>';document.body.appendChild(bar);
