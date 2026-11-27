@@ -17,7 +17,7 @@
 <link rel="manifest" href="/portal/manifest.webmanifest" id="mf">
 <script>if(/[?&]preview\b/.test(location.search)){document.getElementById("mf").href="/portal/preview.webmanifest";var t=document.querySelector('meta[name=apple-mobile-web-app-title]');if(t)t.content="MPF Test"}</script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
-<link rel="stylesheet" href="/portal/log.css?v=lb15">
+<link rel="stylesheet" href="/portal/log.css?v=lb16">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
@@ -660,7 +660,7 @@ body.touring .top{z-index:70}
 window.fetch=function(u,o){var s=typeof u==='string'?u:(u&&u.url)||'';if(s.indexOf('/portal/api/')===0||s.indexOf(location.origin+'/portal/api/')===0){o=Object.assign({},o||{});var h=new Headers(o.headers||{});h.set('x-mpf-as',id);o.headers=h}return of.call(this,u,o)};
 document.addEventListener('DOMContentLoaded',function(){var b=document.createElement('div');b.id='asBar';b.innerHTML='👁 Viewing <b>'+id+'</b>\'s portal exactly as they see it. Read only, nothing you click here saves. <a href="/portal/coach/#v=clients">Back to coach view</a>';b.style.cssText='position:sticky;top:0;z-index:9999;background:#c9a64b;color:#111;font:600 13px/1.4 Montserrat,Helvetica,sans-serif;padding:10px 14px;text-align:center';var a=b.querySelector('a');a.style.cssText='color:#111;margin-left:8px;text-decoration:underline';document.body.insertBefore(b,document.body.firstChild)})})();</script>
 <script src="/portal/chart.js"></script>
-<script src="/portal/log.js?v=ui1"></script>
+<script src="/portal/log.js?v=cy1"></script>
 <script src="/portal/exlib.js"></script>
 <script src="/portal/swaps.js"></script>
 <script src="/portal/glossary.js"></script>
