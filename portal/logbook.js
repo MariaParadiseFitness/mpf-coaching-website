@@ -128,7 +128,7 @@
     function sideOn(e){return e.side===true||(e.side!==false&&UNI.test(e.name||''))}
     function sideW(e){return LEGW.test(e.name||'')?'leg':'arm'}
     function drawActive(){
-      var h='<div class="lb-act"><div class="lb-top"><input class="lb-title" id="lbTitle" value="'+esc(W.workout)+'" aria-label="Workout name"><div class="lb-meta"><label>📅 <input type="date" id="lbDate" value="'+esc(W.date)+'" max="'+today()+'"></label>'+(W.id?'<span class="lb-tag">Editing</span>':'<span class="lb-time" id="lbTime">0:00</span>')+'</div>'+(window.MPFGloss?'<button type="button" class="gl-open" data-gl="">📖 Training terms explained</button>':'')+'<a class="gl-open lb-pl" href="#music">🎧 Spotify playlists</a>'+'<div class="lb-bar"><span class="lb-sv" id="lbSv">'+(W.id?'Editing a saved workout':'☁️ Saves as you go')+'</span><button class="btn g" type="button" data-a="savenow">Save</button><button class="btn" type="button" data-a="finish">'+(W.id?'Save changes':'Finish workout ✓')+'</button></div><span class="lg-msg" id="lbMsg"></span>'+'</div>';
+      var h='<div class="lb-act"><div class="lb-top"><input class="lb-title" id="lbTitle" value="'+esc(W.workout)+'" aria-label="Workout name"><div class="lb-meta"><label>📅 <input type="date" id="lbDate" value="'+esc(W.date)+'" max="'+today()+'"></label>'+(W.id?'<span class="lb-tag">Editing</span>':'<span class="lb-time" id="lbTime">0:00</span>')+'</div>'+(window.MPFGloss?'<button type="button" class="gl-open" data-gl="">📖 Training terms explained</button>':'')+'<a class="gl-open lb-pl" href="#music">🎧 Spotify playlists</a>'+'<div class="lb-bar"><button class="btn" type="button" data-a="finish">'+(W.id?'Save changes':'Finish workout ✓')+'</button></div><span class="lg-msg" id="lbMsg"></span>'+'</div>';
       if(!W.exercises.length)h+='<p class="ci-note" style="text-align:center;margin:18px 0">No exercises yet. Tap <b>＋ Add exercise</b> to choose some.</p>';
       h+=blockH('pre','🔥 Warm-up, activation & mobility','Anything you did before your first exercise. Optional.',PRE,W.pre);
       h+=W.exercises.map(function(e,i){var prev=prevFor(e.name,W.id);
@@ -184,7 +184,6 @@
       act('addex',function(){pickEx()});
       act('discard',function(){if(!W.id&&nSets(W.exercises)&&!confirm('Throw this workout away? Nothing will be saved.'))return;W=null;store.del();stopRest();show('home')});
       act('finish',finish);
-      act('savenow',function(){if(!W)return;store.set(W);rPush(W,true)});
     }
     // no countdown: rest until you're genuinely ready to give the next set everything
     function startRest(st){stopRest();rest={};var bar=document.createElement('div');bar.className='lb-rest lb-rest2';bar.id='lbRest';bar.innerHTML=(st?'<span>😮‍💨 Rest until fully recovered, usually <b>3–5 min</b>, so every rep is crisp</span>':'<span>😮‍💨 Rest until you\'re ready to <b>smash</b> the next set</span>')+(window.MPFGloss?window.MPFGloss.btn(st?'strrest':'rest','How long should I rest?'):'')+'<button type="button" data-r="0" aria-label="Close">✕</button>';document.body.appendChild(bar);

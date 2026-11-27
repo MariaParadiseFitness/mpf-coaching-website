@@ -650,5 +650,5 @@ button.lb-pkt span{color:var(--mute);font-size:12px;font-weight:600}
 .mm-back:active,.br-back:active,.lb-link[data-a="home"]:active{background:linear-gradient(120deg,#9C7A2C 0%,#C9A64B 45%,#E8D79A 100%)!important;color:#111!important}
 .mm-back:active i,.br-back:active i,.lb-link[data-a="home"]:active i{color:#111}
 
-.lb-bar{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap}.lb-bar .lb-sv{flex:1;min-width:120px;font-size:12px;color:var(--mute,#a9a39a)}.lb-bar .btn{padding:9px 14px;font-size:12px}
+.lb-bar{display:flex;justify-content:flex-end;margin-top:10px}.lb-bar .lb-sv{flex:1;min-width:120px;font-size:12px;color:var(--mute,#a9a39a)}.lb-bar .btn{padding:9px 14px;font-size:12px}
 .lb-top .lg-msg{display:block;font-size:12px;margin-top:4px;text-align:right}
