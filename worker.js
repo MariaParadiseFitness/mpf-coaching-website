@@ -1069,6 +1069,26 @@ async function handleApi(request, env, url, ctx) {
     const lg = await getJSON(env, "_data/_deletions.json", { items: [] }); lg.items.unshift({ id, at: new Date().toISOString(), files: removed, access, requested: !!b.requested }); await putJSON(env, "_data/_deletions.json", lg);
     return json({ ok: true, files: removed, access, note: "Stripe keeps its own payment records for tax purposes." });
   }
+  // Follow-up tracker for the "Follow up: sessions" list: messaged → waiting reply → their response + a date to follow up again.
+  if (path === "/portal/api/coach/followups") {
+    if (!coach) return json({ error: "forbidden" }, 403);
+    const key = "_data/_followups.json", db = await getJSON(env, key, {});
+    if (request.method === "POST") {
+      const b = await request.json().catch(() => null);
+      const id = b && String(b.id || "").toLowerCase().replace(/[^a-z0-9_-]/g, "").slice(0, 40);
+      if (!id) return json({ error: "bad" }, 400);
+      if (b.clear) delete db[id];
+      else {
+        const o = db[id] || {};
+        if (b.status === "waiting") { o.status = "waiting"; o.sent = londonToday(); o.response = ""; o.remind = ""; }
+        if (b.status === "replied") { o.status = "replied"; o.response = String(b.response || "").slice(0, 600); o.remind = isDate(b.remind) ? b.remind : ""; o.at = londonToday(); }
+        db[id] = o;
+      }
+      await putJSON(env, key, db);
+      return json({ ok: true, followups: db });
+    }
+    return json({ followups: db });
+  }
   if (path === "/portal/api/coach/todos") {
     if (!coach) return json({ error: "forbidden" }, 403);
     const key = "_data/_todos.json", db = await getJSON(env, key, { items: [], dismissed: {} });
