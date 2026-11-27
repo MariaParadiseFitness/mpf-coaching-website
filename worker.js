@@ -1271,6 +1271,30 @@ async function handleApi(request, env, url, ctx) {
     if (sc && !/^https:\/\/(www\.)?icloud\.com\/shortcuts\/[a-z0-9]+/i.test(sc)) return json({ error: "That doesn't look like an iCloud Shortcut link." });
     await putJSON(env, "_data/_hk-settings.json", { shortcut: sc }); return json({ ok: true, shortcut: sc });
   }
+  if (path === "/portal/api/coach/kit") {
+    if (!coach) return json({ error: "forbidden" }, 403);
+    if (!env.KIT_API_KEY) return json({ on: false });
+    if (request.method === "GET") return json(await kitOverview(env));
+    const b = await request.json().catch(() => ({}));
+    try {
+      if (b.action === "broadcast") {
+        const subject = String(b.subject || "").trim().slice(0, 200), text = String(b.text || "").trim().slice(0, 50000);
+        if (!subject || !text) return json({ error: "Add a subject and your email first." });
+        const body = { subject, content: kitHTML(text), description: "From the MPF portal", public: false, preview_text: String(b.preview || "").slice(0, 150) || null, send_at: b.send ? new Date(Date.now() + 2 * 60000).toISOString() : null };
+        if (b.tag) body.subscriber_filter = [{ all: [{ type: "tag", ids: [Number(b.tag)] }], any: null, none: null }];
+        const j = await kitReq(env, "POST", "/broadcasts", body);
+        return json({ ok: true, id: j.broadcast && j.broadcast.id, sent: !!b.send });
+      }
+      if (b.action === "subscribe") {
+        const email = String(b.email || "").trim().toLowerCase();
+        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return json({ error: "That email doesn't look right." });
+        await kitReq(env, "POST", "/subscribers", { email_address: email, first_name: String(b.name || "").slice(0, 60) || null });
+        if (b.tag) await kitReq(env, "POST", `/tags/${Number(b.tag)}/subscribers`, { email_address: email });
+        return json({ ok: true });
+      }
+    } catch (e) { return json({ error: String(e.message || e).slice(0, 200) }); }
+    return json({ error: "bad" }, 400);
+  }
   if (path === "/portal/api/coach/integrations") {
     if (!coach) return json({ error: "forbidden" }, 403);
     const gc = await getJSON(env, "_data/_gcal-cache.json", null);
@@ -1284,6 +1308,7 @@ async function handleApi(request, env, url, ctx) {
       { id: "loom", name: "Loom", icon: "🎥", on: true, what: "Record a video with Loom, copy its share link and paste it into a check-in reply. It plays right inside the client's app.", detail: "No key needed. Use the 🎥 Record a Loom button on any check-in reply", link: "https://www.loom.com/looms/videos", linkT: "Open Loom ↗", setup: "" },
       { id: "calendly", name: "Calendly", icon: "📞", on: !!env.CALENDLY_TOKEN, what: "New phone consult bookings land in your leads as Consult booked, with their number. Checks every morning, or press Sync now.", detail: calDb && calDb.at ? "Last synced " + calDb.at + (calDb.upcoming ? " · " + calDb.upcoming.length + " upcoming" : "") : env.CALENDLY_TOKEN ? "Connected, not synced yet" : "", sync: true, setup: "Calendly → Settings (Integrations & apps) → API and webhooks → Generate a personal access token. Add it in Cloudflare as the secret CALENDLY_TOKEN." },
       { id: "applehealth", name: "Apple Health", icon: "❤️", on: !!hkSet.shortcut, what: "Clients' steps, sleep and resting heart rate go straight into their daily log every evening from their iPhone.", detail: (hkSet.shortcut ? "Shortcut link added · " : "Add your Shortcut link below to switch it on · ") + hkN + " client" + (hkN === 1 ? "" : "s") + " syncing", hk: hkSet.shortcut || "", setup: "" },
+      { id: "kit", name: "Kit (email marketing)", icon: "📧", on: !!env.KIT_API_KEY, what: "Your email list, newsletters and broadcasts. Write and send them from the Email tab.", detail: env.KIT_API_KEY ? "API key added" : "", link: env.KIT_API_KEY ? "#v=email" : "", linkT: "Open Email tab", setup: "Make a free account at kit.com. Then Settings → Developer → Add a new V4 API key. Add it in Cloudflare as the secret KIT_API_KEY." },
       { id: "whatsapp", name: "WhatsApp", icon: "💬", on: true, what: "Message buttons open the WhatsApp app on your computer or phone.", detail: "Uses the phone number on each client's record", setup: "" },
       { id: "ai", name: "AI check-in drafts", icon: "✨", on: !!env.ANTHROPIC_API_KEY, what: "Drafts a reply to each check-in for you to edit before sending.", detail: env.ANTHROPIC_API_KEY ? "Model: " + (env.AI_MODEL || "default") : "", setup: "Create an API key at console.anthropic.com and add it in Cloudflare as ANTHROPIC_API_KEY (secret)." },
       { id: "access", name: "Client logins", icon: "🔐", on: !!(env.CF_API_TOKEN && env.ACCESS_POLICY_ID && env.ACCESS_TEAM), what: "Cloudflare Access sends clients a login code. Giving a client access adds their email automatically.", detail: env.CF_API_TOKEN && env.ACCESS_POLICY_ID ? "Auto-add emails on" : "Auto-add emails off, add them in Cloudflare yourself", setup: "Needs CF_API_TOKEN, CF_ACCOUNT_ID and ACCESS_POLICY_ID in Cloudflare." },
@@ -2022,6 +2047,35 @@ async function calendlySync(env) {
   const out = { ok: true, at: new Date().toISOString(), added, upcoming: upcoming.slice(0, 20) };
   await putJSON(env, "_data/_calendly.json", out);
   return out;
+}
+
+// ---- Kit (email marketing): subscribers, tags and broadcasts. Needs the secret KIT_API_KEY (a Kit v4 API key). ----
+async function kitReq(env, method, path, body) {
+  const res = await fetch("https://api.kit.com/v4" + path, { method, headers: { "X-Kit-Api-Key": env.KIT_API_KEY, accept: "application/json", "content-type": "application/json" }, body: body ? JSON.stringify(body) : undefined, signal: AbortSignal.timeout(20000) });
+  const j = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error((j.errors && j.errors.join(", ")) || "Kit " + res.status);
+  return j;
+}
+function kitHTML(text) {
+  return String(text || "").split(/\n{2,}/).map((p) => "<p>" + escH(p.trim()).replace(/\n/g, "<br>").replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1">$1</a>') + "</p>").filter((p) => p !== "<p></p>").join("\n");
+}
+async function kitOverview(env) {
+  const [acct, subs, bc, tags] = await Promise.all([
+    kitReq(env, "GET", "/account").catch((e) => ({ error: String(e.message) })),
+    kitReq(env, "GET", "/subscribers?per_page=15&include_total_count=true&sort_order=desc").catch(() => null),
+    kitReq(env, "GET", "/broadcasts?per_page=25").catch(() => null),
+    kitReq(env, "GET", "/tags?per_page=100").catch(() => null),
+  ]);
+  if (acct.error) return { on: true, ok: false, error: acct.error };
+  const now = Date.now();
+  return {
+    on: true, ok: true,
+    account: (acct.account && acct.account.name) || "",
+    total: subs && subs.pagination ? subs.pagination.total_count : null,
+    recent: subs ? (subs.subscribers || []).map((x) => ({ email: x.email_address, name: x.first_name || "", at: x.created_at, state: x.state })) : [],
+    broadcasts: bc ? (bc.broadcasts || []).map((b) => ({ id: b.id, subject: b.subject || "(no subject)", created: b.created_at, sendAt: b.send_at, status: !b.send_at ? "Draft" : new Date(b.send_at) > now ? "Scheduled" : "Sent" })) : [],
+    tags: tags ? (tags.tags || []).map((t) => ({ id: t.id, name: t.name })) : [],
+  };
 }
 // ---- AI check-in drafts: when a client checks in, Claude writes a draft reply for Maria to edit. Never sent automatically. ----
 // Needs the Cloudflare secret ANTHROPIC_API_KEY. Optional variable AI_MODEL to change the model.

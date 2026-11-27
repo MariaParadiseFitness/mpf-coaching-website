@@ -247,7 +247,7 @@ html,body{overflow-x:hidden}
 <body>
 <div class="top"><div class="in"><a href="/portal/coach/"><img src="/img/logo.png" alt="MPF Coaching"></a><a class="o" href="/cdn-cgi/access/logout">Log out</a></div></div>
 <main class="wrap" id="app" hidden>
-  <nav class="vnav" id="vnav"><a data-v="today" href="#v=today">✅ Today</a><a data-v="clients" href="#v=clients">👥 Clients</a><a data-v="checkins" href="#v=checkins">💬 Check-ins<span class="nb" id="nbCi" hidden></span></a><a data-v="prog" href="#v=prog">📋 Programmes</a><a data-v="meal" href="#v=meal">🥗 Meal plans</a><a data-v="mkt" href="#v=mkt">📣 Content</a><a href="/portal/coach/business.html">💷 Business</a><a href="#" id="cvNav">👁 Client view</a><a data-v="cal" href="#v=cal">📅 Calendar</a><a data-v="int" href="#v=int">🔌 Integrations</a><a data-v="settings" href="#v=settings">⚙️ Settings</a></nav>
+  <nav class="vnav" id="vnav"><a data-v="today" href="#v=today">✅ Today</a><a data-v="clients" href="#v=clients">👥 Clients</a><a data-v="checkins" href="#v=checkins">💬 Check-ins<span class="nb" id="nbCi" hidden></span></a><a data-v="prog" href="#v=prog">📋 Programmes</a><a data-v="meal" href="#v=meal">🥗 Meal plans</a><a data-v="mkt" href="#v=mkt">📣 Content</a><a href="/portal/coach/business.html">💷 Business</a><a href="#" id="cvNav">👁 Client view</a><a data-v="cal" href="#v=cal">📅 Calendar</a><a data-v="email" href="#v=email">📧 Email</a><a data-v="int" href="#v=int">🔌 Integrations</a><a data-v="settings" href="#v=settings">⚙️ Settings</a></nav>
   <nav class="cbnav" id="cbnav"><a data-v="today" href="#v=today"><i class="ti ti-circle-check"></i>Today</a><a data-v="clients" href="#v=clients"><i class="ti ti-users"></i>Clients</a><a data-v="checkins" href="#v=checkins"><i class="ti ti-message-circle"></i>Check-ins<span class="nb" id="nbCi2" hidden></span></a><a data-v="mkt" href="#v=mkt"><i class="ti ti-speakerphone"></i>Content</a><a href="#" id="cbMore"><i class="ti ti-dots"></i>More</a></nav>
   <div class="cbsheet" id="cbSheet" hidden><div class="cbs-in"><div class="cbs-h"><b>More</b><button type="button" class="x" id="cbX">✕</button></div>
     <a data-v="prog" href="#v=prog"><i class="ti ti-clipboard-list"></i><span><b>Programmes</b><small>Your training templates</small></span></a>
@@ -255,6 +255,7 @@ html,body{overflow-x:hidden}
     <a href="/portal/coach/business.html"><i class="ti ti-currency-pound"></i><span><b>Business</b><small>Money, sessions and goals</small></span></a>
     <a href="#" data-cv="1"><i class="ti ti-eye"></i><span><b>Client view</b><small>See the app as a client sees it</small></span></a>
     <a data-v="cal" href="#v=cal"><i class="ti ti-calendar"></i><span><b>Calendar</b><small>Your Google Calendar connection</small></span></a>
+    <a data-v="email" href="#v=email"><i class="ti ti-mail"></i><span><b>Email marketing</b><small>Your list and newsletters in Kit</small></span></a>
     <a data-v="int" href="#v=int"><i class="ti ti-plug-connected"></i><span><b>Integrations</b><small>Everything connected to your portal</small></span></a>
     <a data-v="settings" href="#v=settings"><i class="ti ti-settings"></i><span><b>Settings</b><small>Reminders, templates, recommendations, backup</small></span></a></div></div>
   <div id="cvPick" style="position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.7);display:none;place-items:center;padding:16px"><div style="background:#141414;border:1px solid rgba(201,166,75,.4);border-radius:18px;padding:18px;max-width:380px;width:100%"><b style="color:#fff;font-size:17px">See a client's portal</b><div class="mini" style="margin:6px 0 12px">Opens their portal exactly as they see it. Read only, nothing you tap saves.</div><select id="cvSel" style="width:100%;background:#0e0e0e;color:#fff;border:1px solid rgba(201,166,75,.35);border-radius:10px;padding:10px;font:inherit"></select><div style="display:flex;gap:8px;margin-top:12px"><button class="btn" type="button" id="cvGo">Open their portal</button><button class="btn g" type="button" id="cvX">Cancel</button></div></div></div>
@@ -305,6 +306,23 @@ html,body{overflow-x:hidden}
   </div>
   <div data-view="cal" id="calv">
     <div class="card2"><h2>Google <em>Calendar.</em></h2><div id="gcalSt"></div></div>
+  </div>
+  <div data-view="email" id="emv">
+    <div class="t2h" style="margin-bottom:10px"><h2 class="sec">Email <em>marketing.</em></h2><span class="mini" id="kitN"></span></div>
+    <div id="kitOff" hidden class="card2"><h2>Connect <em>Kit.</em></h2><div class="mini" style="line-height:1.7">1. Make a free account at <a href="https://kit.com" target="_blank" rel="noopener" style="color:#c9a64b">kit.com</a> and verify info@mpfcoaching.co.uk as your sender.<br>2. In Kit: Settings → Developer → <b>Add a new V4 API key</b>, copy it.<br>3. In Cloudflare → Workers &amp; Pages → mpf-coaching-website → Settings → + Add variable: name <b>KIT_API_KEY</b>, paste it, tick <b>Secret</b>, Deploy.<br>Then come back here and refresh.</div></div>
+    <div id="kitOn" hidden>
+      <div class="sum" id="kitSum" style="margin-bottom:12px"></div>
+      <div class="card2"><h2>Write an <em>email.</em></h2>
+        <input id="kSub" placeholder="Subject line" style="background:#0e0e0e;color:#fff;border:1px solid rgba(201,166,75,.35);border-radius:10px;padding:10px;font:inherit;font-size:14px;width:100%;box-sizing:border-box;margin-bottom:8px">
+        <input id="kPre" placeholder="Preview text (optional, shows next to the subject in their inbox)" style="background:#0e0e0e;color:#fff;border:1px solid rgba(201,166,75,.35);border-radius:10px;padding:10px;font:inherit;font-size:14px;width:100%;box-sizing:border-box;margin-bottom:8px">
+        <textarea id="kTxt" rows="10" placeholder="Write your email. Leave a blank line between paragraphs. Links work." style="background:#0e0e0e;color:#fff;border:1px solid rgba(201,166,75,.35);border-radius:10px;padding:10px;font:inherit;font-size:14px;width:100%;box-sizing:border-box;resize:vertical"></textarea>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px"><span class="mini">Send to</span><select id="kTag" style="background:#0e0e0e;color:#fff;border:1px solid rgba(201,166,75,.35);border-radius:10px;padding:10px;font:inherit;font-size:14px;width:100%;box-sizing:border-box;width:auto"><option value="">Everyone on my list</option></select></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="btn g" type="button" id="kDraft">Save as draft in Kit</button><button class="btn" type="button" id="kSend">Send now</button><span class="mini" id="kMsg"></span></div>
+        <div class="mini" style="margin-top:6px">Drafts wait in Kit so you can check the design and send a test to yourself first.</div></div>
+      <div class="card2"><div class="t2h"><h2>Your <em>emails.</em></h2><a class="mini" href="https://app.kit.com/campaigns" target="_blank" rel="noopener" style="color:#c9a64b">Open in Kit ↗</a></div><div id="kBc"></div></div>
+      <div class="card2"><div class="t2h"><h2>Newest <em>subscribers.</em></h2><a class="mini" href="https://app.kit.com/subscribers" target="_blank" rel="noopener" style="color:#c9a64b">All in Kit ↗</a></div><div id="kSubs"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><input id="kAddN" placeholder="First name" style="background:#0e0e0e;color:#fff;border:1px solid rgba(201,166,75,.35);border-radius:10px;padding:10px;font:inherit;font-size:14px;width:100%;box-sizing:border-box;width:auto;flex:1;min-width:120px"><input id="kAddE" type="email" placeholder="Email" style="background:#0e0e0e;color:#fff;border:1px solid rgba(201,166,75,.35);border-radius:10px;padding:10px;font:inherit;font-size:14px;width:100%;box-sizing:border-box;width:auto;flex:2;min-width:180px"><button class="btn g" type="button" id="kAdd">＋ Add</button></div><div class="mini" id="kAddM" style="margin-top:4px">Only add people who've said yes to your emails.</div></div>
+    </div>
   </div>
   <div data-view="int" id="intv">
     <div class="t2h" style="margin-bottom:10px"><h2 class="sec">Your <em>integrations.</em></h2><span class="mini" id="intN"></span></div>
@@ -839,7 +857,7 @@ html,body{overflow-x:hidden}
       '5. <b>Text</b>: tap it and paste anything, then long-press the Shortcut name → Settings → <b>Import Questions</b> → + → "Paste your sync link from the MPF app".<br>'+
       '6. <b>Get Contents of URL</b>: URL is that Text, Method <b>POST</b>, Request Body <b>JSON</b> with keys <b>steps</b> (Statistics from step 2), <b>rhr</b> (Health Samples from step 3), <b>sleepSecs</b> (Statistics from step 4).<br>'+
       '7. <b>Show Notification</b> with the Contents of URL.<br><br>Then Share → <b>Copy iCloud Link</b> and paste it above. Each client adds a daily <b>Automation</b> (Time of Day, 9pm, Run Immediately) when they install it. The app walks them through it.</div></details></div>':'')+
-(x.link?'<div style="margin-top:8px"><a class="btn g" href="'+intEsc(x.link)+'" target="_blank" rel="noopener">'+intEsc(x.linkT||'Open ↗')+'</a></div>':'')+
+(x.link?'<div style="margin-top:8px"><a class="btn g" href="'+intEsc(x.link)+'"'+(x.link.charAt(0)==='#'?'':' target="_blank" rel="noopener"')+'>'+intEsc(x.linkT||'Open ↗')+'</a></div>':'')+
       (!x.on&&x.setup?'<details style="margin-top:8px"><summary class="mini" style="cursor:pointer;color:#c9a64b">How to connect</summary><div class="mini" style="margin-top:6px;line-height:1.6">'+intEsc(x.setup)+'</div></details>':'')+'</div>'}).join('');
     var sy=document.querySelector('[data-isync]');if(sy)sy.onclick=function(){var o=$('isyncM');o.textContent='Syncing…';postJ('/portal/api/coach/calendly',{}).then(function(j){o.textContent=j.ok?'✅ '+j.added+' new booking'+(j.added===1?'':'s')+' added to leads · '+j.upcoming.length+' upcoming':'⚠️ '+(j.error||'Not working')}).catch(function(){o.textContent='⚠️ Could not reach Calendly'})};
     var hs=$('hkSave');if(hs)hs.onclick=function(){$('hkM').textContent='Saving…';postJ('/portal/api/coach/hk-settings',{shortcut:$('hkSc').value.trim()}).then(function(j){if(j.error){$('hkM').textContent='⚠️ '+j.error;return}$('hkM').textContent='✓ Saved. Clients can now connect Apple Health from More.';setTimeout(loadInt,1200)}).catch(function(){$('hkM').textContent='Not saved. Try again.'})};
@@ -847,6 +865,25 @@ html,body{overflow-x:hidden}
   function loadInt(){if(preview){INT={list:[{id:'gcal',name:'Google Calendar',icon:'📅',on:true,what:'Preview',detail:''}]};drawInt();return}
     fetch('/portal/api/coach/integrations',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){INT=j;drawInt()}).catch(function(){$('intBox').innerHTML='<p class="mini">Could not load your integrations.</p>'})}
   if($('intRe'))$('intRe').onclick=loadInt;
+
+  var KIT=null;
+  function kitDraw(){var j=KIT||{};$('kitOff').hidden=!!j.on;$('kitOn').hidden=!j.on;if(!j.on){$('kitN').textContent='Not connected';return}
+    if(!j.ok){$('kitN').textContent='⚠️ '+(j.error||'Kit is not responding');return}
+    $('kitN').textContent=j.account||'Connected to Kit';var sent=(j.broadcasts||[]).filter(function(b){return b.status==='Sent'}).length;
+    $('kitSum').innerHTML='<div><b>'+(j.total!=null?j.total:'–')+'</b><span>Subscribers</span></div><div><b>'+sent+'</b><span>Emails sent</span></div><div><b>'+(j.broadcasts||[]).filter(function(b){return b.status==='Draft'}).length+'</b><span>Drafts</span></div>';
+    var ts=$('kTag'),cur=ts.value;ts.innerHTML='<option value="">Everyone on my list</option>'+(j.tags||[]).map(function(t){return '<option value="'+t.id+'">Tagged: '+intEsc(t.name)+'</option>'}).join('');ts.value=cur;
+    var col={Draft:'#e0a050',Scheduled:'#c9a64b',Sent:'#7fd18b'};
+    $('kBc').innerHTML=(j.broadcasts||[]).map(function(b){var d=b.sendAt||b.created;return '<a href="https://app.kit.com/campaigns/'+b.id+'" target="_blank" rel="noopener" style="display:flex;justify-content:space-between;gap:8px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.06);color:#fff;text-decoration:none"><span>'+intEsc(b.subject)+'</span><span class="mini" style="white-space:nowrap;color:'+col[b.status]+'">'+b.status+(d?' · '+new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short'}):'')+'</span></a>'}).join('')||'<p class="mini">No emails yet. Write your first one above.</p>';
+    $('kSubs').innerHTML=(j.recent||[]).map(function(x){return '<div style="display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span>'+intEsc(x.name||x.email)+(x.name?' <span class="mini">'+intEsc(x.email)+'</span>':'')+'</span><span class="mini">'+(x.at?new Date(x.at).toLocaleDateString('en-GB',{day:'numeric',month:'short'}):'')+'</span></div>'}).join('')||'<p class="mini">No subscribers yet.</p>'}
+  function loadKit(){if(preview){KIT={on:false};kitDraw();return}fetch('/portal/api/coach/kit',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){KIT=j;kitDraw()}).catch(function(){$('kitN').textContent='Could not load'})}
+  function kitPost(send){var m=$('kMsg'),sub=$('kSub').value.trim(),txt=$('kTxt').value.trim();if(!sub||!txt){m.textContent='Add a subject and your email first.';return}
+    var tg=$('kTag'),who=tg.value?tg.options[tg.selectedIndex].text.replace('Tagged: ','everyone tagged '):'everyone on your list';
+    if(send&&!confirm('Send "'+sub+'" to '+who+' now? This can\'t be undone.'))return;
+    m.textContent=send?'Sending…':'Saving…';$('kDraft').disabled=$('kSend').disabled=true;
+    postJ('/portal/api/coach/kit',{action:'broadcast',subject:sub,preview:$('kPre').value.trim(),text:txt,tag:tg.value,send:send}).then(function(j){$('kDraft').disabled=$('kSend').disabled=false;if(j.error){m.textContent='⚠️ '+j.error;return}
+      m.textContent=send?'✅ Sending in about 2 minutes':'✅ Saved as a draft in Kit';$('kSub').value=$('kPre').value=$('kTxt').value='';loadKit()}).catch(function(){$('kDraft').disabled=$('kSend').disabled=false;m.textContent='Not saved. Try again.'})}
+  if($('kDraft')){$('kDraft').onclick=function(){kitPost(false)};$('kSend').onclick=function(){kitPost(true)};
+    $('kAdd').onclick=function(){var m=$('kAddM');m.textContent='Adding…';postJ('/portal/api/coach/kit',{action:'subscribe',name:$('kAddN').value.trim(),email:$('kAddE').value.trim()}).then(function(j){if(j.error){m.textContent='⚠️ '+j.error;return}m.textContent='✅ Added';$('kAddN').value=$('kAddE').value='';loadKit()}).catch(function(){m.textContent='Not added. Try again.'})}}
   function loadSettings(){recLoad();if(preview){AUTO={enabled:{},log:[]};drawSettings();return}fetch('/portal/api/coach/automation',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){AUTO=j;drawSettings()})}
   function drawSettings(){var E=AUTO.enabled||{};
     $('arules').innerHTML=Object.keys(RL).map(function(k){return '<div class="arule"><div><b>'+RL[k][0]+'</b><small>'+RL[k][1]+'</small><button type="button" class="mini" data-test="'+k+'" style="background:none;border:0;color:var(--gold-l);cursor:pointer;padding:4px 0">Send me a test</button></div><label class="sw"><input type="checkbox" data-k="'+k+'"'+(E[k]?' checked':'')+'><span></span></label></div>'}).join('');
@@ -1006,9 +1043,9 @@ html,body{overflow-x:hidden}
   $('closeBtn').onclick=function(){if(location.hash.indexOf('#c=')===0)history.back();else closeP()};
   window.addEventListener('popstate',function(){if(location.hash.indexOf('#c=')!==0)closeP()});
   var curView='';
-  function go(v,noPush){if(['today','clients','prog','meal','mkt','checkins','settings','cal','int'].indexOf(v)<0)v='today';if(v==='mkt')drawMkt();if(v==='checkins')loadQueue();if(v==='settings'||v==='cal')loadSettings();if(v==='int')loadInt();
+  function go(v,noPush){if(['today','clients','prog','meal','mkt','checkins','settings','cal','int','email'].indexOf(v)<0)v='today';if(v==='mkt')drawMkt();if(v==='checkins')loadQueue();if(v==='settings'||v==='cal')loadSettings();if(v==='int')loadInt();if(v==='email')loadKit();
     [].forEach.call(document.querySelectorAll('[data-view]'),function(el){var dv=el.getAttribute('data-view');el.hidden=dv==='tpl'?!(v==='prog'||v==='meal'):dv!==v});
-    [].forEach.call(document.querySelectorAll('#vnav a[data-v],#cbnav a[data-v]'),function(a){a.classList.toggle('on',a.getAttribute('data-v')===v)});var mo=$('cbMore');if(mo)mo.classList.toggle('on',['prog','meal','settings','cal','int'].indexOf(v)>-1);if($('cbSheet'))$('cbSheet').hidden=true;
+    [].forEach.call(document.querySelectorAll('#vnav a[data-v],#cbnav a[data-v]'),function(a){a.classList.toggle('on',a.getAttribute('data-v')===v)});var mo=$('cbMore');if(mo)mo.classList.toggle('on',['prog','meal','settings','cal','int','email'].indexOf(v)>-1);if($('cbSheet'))$('cbSheet').hidden=true;
     if(v!==curView){if(v==='prog')$('tplBtn').click();if(v==='meal')$('mtplBtn').click();window.scrollTo(0,0)}curView=v;
     if(!noPush&&location.hash!=='#v='+v)history.pushState(null,'','#v='+v)}
   [].forEach.call(document.querySelectorAll('#vnav a[data-v],#cbnav a[data-v],#cbSheet a[data-v]'),function(a){a.onclick=function(e){e.preventDefault();go(a.getAttribute('data-v'))}});
