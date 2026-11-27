@@ -242,13 +242,14 @@ html,body{overflow-x:hidden}
 <body>
 <div class="top"><div class="in"><a href="/portal/coach/"><img src="/img/logo.png" alt="MPF Coaching"></a><a class="o" href="/cdn-cgi/access/logout">Log out</a></div></div>
 <main class="wrap" id="app" hidden>
-  <nav class="vnav" id="vnav"><a data-v="today" href="#v=today">✅ Today</a><a data-v="clients" href="#v=clients">👥 Clients</a><a data-v="checkins" href="#v=checkins">💬 Check-ins<span class="nb" id="nbCi" hidden></span></a><a data-v="prog" href="#v=prog">📋 Programmes</a><a data-v="meal" href="#v=meal">🥗 Meal plans</a><a data-v="mkt" href="#v=mkt">📣 Content</a><a href="/portal/coach/business.html">💷 Business</a><a href="#" id="cvNav">👁 Client view</a><a data-v="settings" href="#v=settings">⚙️ Settings</a></nav>
+  <nav class="vnav" id="vnav"><a data-v="today" href="#v=today">✅ Today</a><a data-v="clients" href="#v=clients">👥 Clients</a><a data-v="checkins" href="#v=checkins">💬 Check-ins<span class="nb" id="nbCi" hidden></span></a><a data-v="prog" href="#v=prog">📋 Programmes</a><a data-v="meal" href="#v=meal">🥗 Meal plans</a><a data-v="mkt" href="#v=mkt">📣 Content</a><a href="/portal/coach/business.html">💷 Business</a><a href="#" id="cvNav">👁 Client view</a><a data-v="cal" href="#v=cal">📅 Calendar</a><a data-v="settings" href="#v=settings">⚙️ Settings</a></nav>
   <nav class="cbnav" id="cbnav"><a data-v="today" href="#v=today"><i class="ti ti-circle-check"></i>Today</a><a data-v="clients" href="#v=clients"><i class="ti ti-users"></i>Clients</a><a data-v="checkins" href="#v=checkins"><i class="ti ti-message-circle"></i>Check-ins<span class="nb" id="nbCi2" hidden></span></a><a data-v="mkt" href="#v=mkt"><i class="ti ti-speakerphone"></i>Content</a><a href="#" id="cbMore"><i class="ti ti-dots"></i>More</a></nav>
   <div class="cbsheet" id="cbSheet" hidden><div class="cbs-in"><div class="cbs-h"><b>More</b><button type="button" class="x" id="cbX">✕</button></div>
     <a data-v="prog" href="#v=prog"><i class="ti ti-clipboard-list"></i><span><b>Programmes</b><small>Your training templates</small></span></a>
     <a data-v="meal" href="#v=meal"><i class="ti ti-salad"></i><span><b>Meal plans</b><small>Your meal plan templates</small></span></a>
     <a href="/portal/coach/business.html"><i class="ti ti-currency-pound"></i><span><b>Business</b><small>Money, sessions and goals</small></span></a>
     <a href="#" data-cv="1"><i class="ti ti-eye"></i><span><b>Client view</b><small>See the app as a client sees it</small></span></a>
+    <a data-v="cal" href="#v=cal"><i class="ti ti-calendar"></i><span><b>Calendar</b><small>Your Google Calendar connection</small></span></a>
     <a data-v="settings" href="#v=settings"><i class="ti ti-settings"></i><span><b>Settings</b><small>Reminders, templates, recommendations, backup</small></span></a></div></div>
   <div id="cvPick" style="position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.7);display:none;place-items:center;padding:16px"><div style="background:#141414;border:1px solid rgba(201,166,75,.4);border-radius:18px;padding:18px;max-width:380px;width:100%"><b style="color:#fff;font-size:17px">See a client's portal</b><div class="mini" style="margin:6px 0 12px">Opens their portal exactly as they see it. Read only, nothing you tap saves.</div><select id="cvSel" style="width:100%;background:#0e0e0e;color:#fff;border:1px solid rgba(201,166,75,.35);border-radius:10px;padding:10px;font:inherit"></select><div style="display:flex;gap:8px;margin-top:12px"><button class="btn" type="button" id="cvGo">Open their portal</button><button class="btn g" type="button" id="cvX">Cancel</button></div></div></div>
   <div class="preview" id="pv" hidden>👀 Preview with made-up clients. Real clients appear once the login is switched on.</div>
@@ -294,8 +295,10 @@ html,body{overflow-x:hidden}
     <div class="card2"><div class="t2h"><h2>Reminder <em>log.</em></h2><span class="mini">last 80</span></div><div id="alog"></div></div>
     <div class="card2"><h2>Message <em>templates.</em></h2><div class="mini" style="margin-bottom:8px">Use {name} for the client's first name. These show on every client's page under 💬 Message, ready to open in WhatsApp.</div><div id="tplList"></div><button class="btn g" type="button" id="tplAdd">+ Add template</button> <button class="btn" type="button" id="tplSave">Save templates</button><span class="mini" id="tplMsg" style="margin-left:8px"></span></div>
     <div class="card2"><h2>Check-in <em>reply snippets.</em></h2><div class="mini" style="margin-bottom:8px">Buttons above every reply box in your check-in queue. Tap one to drop it in. Use {name}, {days}, {weight}, {change}, {protein}, {steps}, {cals} and {sleep} and they fill in with that client's numbers for the week.</div><div id="snList"></div><button class="btn g" type="button" id="snAdd">+ Add snippet</button> <button class="btn" type="button" id="snSave">Save snippets</button><span class="mini" id="snMsg" style="margin-left:8px"></span></div>
-    <div class="card2"><h2>Google <em>Calendar.</em></h2><div id="gcalSt"></div></div>
     <div class="card2"><h2>Backup <em>your data.</em></h2><div class="mini" style="margin-bottom:10px">Downloads every client record, check-in, log, programme, meal plan and setting as one file (photos not included). Keep it somewhere private, like a folder on your laptop. Do this once a month.</div><a class="btn" href="/portal/api/coach/backup">⬇ Download backup</a></div>
+  </div>
+  <div data-view="cal" id="calv">
+    <div class="card2"><h2>Google <em>Calendar.</em></h2><div id="gcalSt"></div></div>
   </div>
   <div data-view="mkt" id="mkt">
     <div class="mhero" style="padding:22px"><div class="kick">Grow MPF Coaching</div><h1>Your <em>marketing.</em></h1><div class="mq">"Post like your next client is watching. Because they are."</div></div>
@@ -921,9 +924,9 @@ html,body{overflow-x:hidden}
   $('closeBtn').onclick=function(){if(location.hash.indexOf('#c=')===0)history.back();else closeP()};
   window.addEventListener('popstate',function(){if(location.hash.indexOf('#c=')!==0)closeP()});
   var curView='';
-  function go(v,noPush){if(['today','clients','prog','meal','mkt','checkins','settings'].indexOf(v)<0)v='today';if(v==='mkt')drawMkt();if(v==='checkins')loadQueue();if(v==='settings')loadSettings();
+  function go(v,noPush){if(['today','clients','prog','meal','mkt','checkins','settings','cal'].indexOf(v)<0)v='today';if(v==='mkt')drawMkt();if(v==='checkins')loadQueue();if(v==='settings'||v==='cal')loadSettings();
     [].forEach.call(document.querySelectorAll('[data-view]'),function(el){var dv=el.getAttribute('data-view');el.hidden=dv==='tpl'?!(v==='prog'||v==='meal'):dv!==v});
-    [].forEach.call(document.querySelectorAll('#vnav a[data-v],#cbnav a[data-v]'),function(a){a.classList.toggle('on',a.getAttribute('data-v')===v)});var mo=$('cbMore');if(mo)mo.classList.toggle('on',['prog','meal','settings'].indexOf(v)>-1);if($('cbSheet'))$('cbSheet').hidden=true;
+    [].forEach.call(document.querySelectorAll('#vnav a[data-v],#cbnav a[data-v]'),function(a){a.classList.toggle('on',a.getAttribute('data-v')===v)});var mo=$('cbMore');if(mo)mo.classList.toggle('on',['prog','meal','settings','cal'].indexOf(v)>-1);if($('cbSheet'))$('cbSheet').hidden=true;
     if(v!==curView){if(v==='prog')$('tplBtn').click();if(v==='meal')$('mtplBtn').click();window.scrollTo(0,0)}curView=v;
     if(!noPush&&location.hash!=='#v='+v)history.pushState(null,'','#v='+v)}
   [].forEach.call(document.querySelectorAll('#vnav a[data-v],#cbnav a[data-v],#cbSheet a[data-v]'),function(a){a.onclick=function(e){e.preventDefault();go(a.getAttribute('data-v'))}});
