@@ -1241,7 +1241,7 @@ async function handleApi(request, env, url, ctx) {
     const codes = a.codes || {}; const ks = Object.keys(codes).sort((x, y) => (codes[y].last).localeCompare(codes[x].last) || (codes[y].first).localeCompare(codes[x].first));
     const pk = await getJSON(env, `${dkey(client.id)}/package.json`, null), bs = await getJSON(env, "_data/_biz-settings.json", {});
     let pkg = null;
-    if (ks.length) { const q = codes[ks[0]]; const ord = (await getJSON(env, `${dkey(client.id)}/orders.json`, {})).orders; const size = pkgSize(pk, ord, ks[0], q.first, q, bs).size; pkg = { size, used: q.used, booked: q.booked, left: size ? Math.max(0, size - q.used) : null, start: q.first }; }
+    if (ks.length) { const ord = (await getJSON(env, `${dkey(client.id)}/orders.json`, {})).orders; const t = pkgTotal(codes, pk, ord, bs); pkg = { size: t.size, used: t.used, booked: t.booked, left: t.size ? Math.max(0, t.size - t.used) : null, start: t.start }; }
     const dates = [...new Set(a.dates || [])].sort();
     const hm = londonHM();
     return json({ today, past: dates.filter((d) => sessDone(d, a.slots, today, hm)).reverse(), upcoming: dates.filter((d) => !sessDone(d, a.slots, today, hm)), times: a.slots || {}, pkg });
@@ -1292,7 +1292,7 @@ async function handleApi(request, env, url, ctx) {
         dob: c.onboarded === true ? ((await getJSON(env, `${dkey(c.id)}/onboarding.json`, {})).answers || {}).dob || "" : ((await getJSON(env, `${dkey(c.id)}/onboarding.json`, {})).answers || {}).dob || "",
         pkg: await (async () => { const a = acu && acu.byId && acu.byId[c.id]; const codes = (a && a.codes) || {}; const ks = Object.keys(codes).sort((x, y) => (codes[y].last).localeCompare(codes[x].last) || (codes[y].first).localeCompare(codes[x].first)); const pk = await getJSON(env, `${dkey(c.id)}/package.json`, null);
           const size = (pk && pk.size) || (bizSet && bizSet.pkgSize) || 0;
-          if (ks.length) { const k = ks[0], q = codes[k]; const ord = (await getJSON(env, `${dkey(c.id)}/orders.json`, {})).orders; const ps = pkgSize(pk, ord, k, q.first, q, bizSet); return { auto: true, code: k, size: ps.size, src: ps.src, name: ps.name || q.name || "", used: q.used, booked: q.booked, start: q.first, packages: ks.length }; }
+          if (ks.length) { const ord = (await getJSON(env, `${dkey(c.id)}/orders.json`, {})).orders; const t = pkgTotal(codes, pk, ord, bizSet); return { auto: true, code: t.code, size: t.size, src: t.src, name: t.name, used: t.used, booked: t.booked, start: t.start, packages: t.packages, open: t.open }; }
           if (!pk || !pk.size) return null; const ds = (a && a.dates) || []; return { size: pk.size, start: pk.start, used: ds.filter((d) => d >= pk.start && d <= today).length, booked: ds.filter((d) => d > today).length }; })(),
         startWeight: wts.length ? wts[0] : null, needsReply: (() => { const ks = Object.keys(sm.checkins || {}).sort(); const k = ks[ks.length - 1]; return !!k && !((sm.replied || {})[k]); })(),
         photosThisWeek: [...new Set(thisWeek)], lastUpload: photos.reduce((m, p) => (p.uploaded > m ? p.uploaded : m), ""),
@@ -1654,6 +1654,16 @@ function orderFor(orders, first) {
   if (!os.length) return null;
   let pick = null; for (const o of os) if (o.date <= first) pick = o;
   return pick || os[0];
+}
+// Every package that still has sessions left, added together (clients often buy the next block before finishing the last one).
+function pkgTotal(codes, pk, orders, bs) {
+  const ks = Object.keys(codes || {}).sort((x, y) => (codes[y].first || "").localeCompare(codes[x].first || "") || (codes[y].last || "").localeCompare(codes[x].last || ""));
+  if (!ks.length) return null;
+  const all = ks.map((k) => { const q = codes[k], ps = pkgSize(pk, orders, k, q.first, q, bs); return { k, q, ps, left: ps.size ? Math.max(0, ps.size - q.used) : null }; });
+  const open = all.filter((x) => x.ps.size && x.left > 0);
+  if (!open.length) { const x = all[0]; return { code: x.k, size: x.ps.size, src: x.ps.src, name: x.ps.name || x.q.name || "", used: x.q.used, booked: x.q.booked, start: x.q.first, packages: ks.length, open: 0 }; }
+  const sum = (f) => open.reduce((n, x) => n + (f(x) || 0), 0);
+  return { code: open[0].k, size: sum((x) => x.ps.size), src: open[0].ps.src, name: open.length > 1 ? open.length + " packages" : (open[0].ps.name || open[0].q.name || ""), used: sum((x) => x.q.used), booked: sum((x) => x.q.booked), start: open.map((x) => x.q.first).sort()[0], packages: ks.length, open: open.length };
 }
 function pkgSize(pk, orders, code, first, q, bs) {
   if (pk && pk.size && pk.code && pk.code === code) return { size: pk.size, src: "you" };
