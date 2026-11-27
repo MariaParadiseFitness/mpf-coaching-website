@@ -59,7 +59,7 @@
     function lastDone(wname){var k=nk(wname);for(var i=0;i<sessions.length;i++)if(nk(sessions[i].workout)===k)return sessions[i].date;return ''}
     function allNames(){var o={};progs.forEach(function(p){(p.workouts||[]).forEach(function(w){(w.exercises||[]).forEach(function(e){if(e.name)o[e.name.trim()]=1})})});sessions.forEach(function(s){(s.exercises||[]).forEach(function(e){if(e.name)o[e.name.trim()]=1})});return Object.keys(o).sort()}
 
-    function show(v){view=v;if(v==='active'&&W){drawActive();if(!W.id&&W.exercises.length&&!tourSeen())setTimeout(function(){if(view==='active')lbTour()},600)}else if(v==='history')drawHistory();else{view='home';drawHome()}if(o.onView)o.onView(view)}
+    function show(v){view=v;if(v==='active'&&W){drawActive()}else if(v==='history')drawHistory();else{view='home';drawHome()}if(o.onView)o.onView(view)}
 
     /* ---------- home: pick a workout ---------- */
     function drawHome(){
@@ -120,7 +120,7 @@
       if(t===e.raw.tempo&&/squat/i.test(on)){t=e.str?'3-0-X-2: lower under control, drive up, then pause at the top to breathe and re-brace before every rep':'3-0-1-0: smooth and continuous, no rest at the top, keep the tension on'}
       var tm=r.match(/(\d+)\s*(?:-|to|–)\s*(\d+)/);e.top=tm?+tm[2]:0;e.target=[e.raw.sets&&e.raw.sets+' sets',r&&r+' reps',e.raw.rir&&'RIR '+e.raw.rir,t&&'tempo '+t].filter(Boolean).join(' · ')}
     var PUSHUP=/press[- ]?ups?|push[- ]?ups?|pressups?|pushups?/i,HTS=['Floor','Knees','Smith bar notch','Bench','Box or step','Wall'];
-    function begin(base){W={id:'',date:today(),workout:base.workout,programme:base.programme,notes:'',start:Date.now(),exercises:base.exercises};save();show('active');window.scrollTo(0,0)}
+    function begin(base){W={id:'',date:today(),workout:base.workout,programme:base.programme,notes:'',start:Date.now(),exercises:base.exercises};save();show('active');window.scrollTo(0,0);if(W.exercises.length&&!tourSeen())setTimeout(function(){if(view==='active')lbTour()},700)}
     function save(){if(W)store.set(W)}
 
     /* ---------- active workout ---------- */
@@ -135,7 +135,7 @@
     var TKEY='mpf-lb-tour-v1';
     function tourSeen(){try{return !!localStorage.getItem(TKEY)}catch(e){return true}}
     function lbTour(){
-      if(document.querySelector('.lbt'))return;
+      if(document.querySelector('.lbt')||!el.getClientRects().length||el.closest('[hidden]'))return;
       var X='.lb-ex:not(.shut):not(.lb-choose)';
       var S=[[X,'👋 Quick tour','This is your first exercise. Each one opens like this. Tap its name to open or close it. When you finish all its sets, the next one opens for you.'],
         [X+' .lb-last',"🕘 Last time","What you lifted last time, so you know what to beat."],
