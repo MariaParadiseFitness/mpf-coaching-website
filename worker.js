@@ -1298,11 +1298,12 @@ async function handleApi(request, env, url, ctx) {
   if (path === "/portal/api/coach/integrations") {
     if (!coach) return json({ error: "forbidden" }, 403);
     const gc = await getJSON(env, "_data/_gcal-cache.json", null);
+    const ordSt = await getJSON(env, "_data/_acuity-orders-sync.json", null), acuC = await getJSON(env, "_data/_acuity-cache.json", null);
     const calDb = await getJSON(env, "_data/_calendly.json", null), hkSet = await getJSON(env, "_data/_hk-settings.json", {}), hkDb = await getJSON(env, "_data/_hk.json", { tokens: {} }), hkN = Object.keys(hkDb.last || {}).length;
     const gcDays = gc && gc.data && gc.data.days ? (Array.isArray(gc.data.days) ? gc.data.days.length : Object.keys(gc.data.days).length) : null;
     const list = [
       { id: "gcal", name: "Google Calendar", icon: "📅", on: !!env.GCAL_ICAL, what: "Holidays and all-day events block PT capacity on your Business page.", detail: env.GCAL_ICAL ? (gc ? "Last read " + new Date(gc.at).toISOString() + (gcDays != null ? " · " + gcDays + " blocked days" : "") : "Connected, not read yet") : "", setup: "Google Calendar → Settings → your calendar → Integrate calendar → copy Secret address in iCal format. Add it in Cloudflare as the secret GCAL_ICAL." },
-      { id: "acuity", name: "Acuity Scheduling", icon: "🗓️", on: !!(env.ACUITY_ICAL || (env.ACUITY_USER_ID && env.ACUITY_API_KEY)), what: "Bookings, sessions left on packages and PT numbers.", detail: env.ACUITY_USER_ID && env.ACUITY_API_KEY ? "Connected with the API key" : env.ACUITY_ICAL ? "Connected with the calendar feed" : "", test: true, setup: "Acuity → Integrations → API → copy your User ID and API key. Add them in Cloudflare as ACUITY_USER_ID and ACUITY_API_KEY (secret)." },
+      { id: "acuity", name: "Acuity Scheduling", icon: "🗓️", on: !!(env.ACUITY_ICAL || (env.ACUITY_USER_ID && env.ACUITY_API_KEY)), what: "Bookings, sessions left on packages and PT numbers. New bookings show in the client's portal within 10 minutes." + (env.ACUITY_API_KEY ? " Packages they buy update on their own every 30 minutes." : " Package purchases need the API key to update on their own."), detail: [env.ACUITY_ICAL ? "Bookings: calendar feed" : env.ACUITY_API_KEY ? "Bookings: API" : "", env.ACUITY_USER_ID && env.ACUITY_API_KEY ? "Orders: synced automatically" + (ordSt && ordSt.at ? " (last " + new Date(ordSt.at).toLocaleString("en-GB", { timeZone: "Europe/London", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) + ")" : "") : "Orders: not automatic, add ACUITY_USER_ID and ACUITY_API_KEY"].filter(Boolean).join(" · "), unmatched: ((acuC && acuC.data && acuC.data.unmatched) || []).concat(((ordSt && ordSt.unknown) || []).map((x) => ({ name: x.name, email: x.email, order: x.title }))), test: true, setup: "Acuity → Integrations → API → copy your User ID and API key. Add them in Cloudflare as ACUITY_USER_ID and ACUITY_API_KEY (secret)." },
       { id: "stripe", name: "Stripe", icon: "💳", on: !!env.STRIPE_READ_KEY, what: "Payments, failed payments and renewals on your Business page.", detail: [env.STRIPE_READ_KEY ? "Read key added" : "", env.STRIPE_WEBHOOK_SECRET ? "Live payment alerts on" : "Live payment alerts off"].filter(Boolean).join(" · "), setup: "Stripe → Developers → API keys → create a restricted read-only key. Add it in Cloudflare as STRIPE_READ_KEY (secret). For live alerts add a webhook to /stripe/webhook and save its signing secret as STRIPE_WEBHOOK_SECRET." },
       { id: "email", name: "Email", icon: "✉️", on: !!(env.RESEND_API_KEY || env.MAILER), what: "Branded reminder emails and your notifications.", detail: env.RESEND_API_KEY ? "Sending with Resend" : env.MAILER ? "Sending with Cloudflare Email" : "", setup: "Create a Resend account, verify mpfcoaching.co.uk, then add the key in Cloudflare as RESEND_API_KEY (secret)." },
       { id: "loom", name: "Loom", icon: "🎥", on: true, what: "Record a video with Loom, copy its share link and paste it into a check-in reply. It plays right inside the client's app.", detail: "No key needed. Use the 🎥 Record a Loom button on any check-in reply", link: "https://www.loom.com/looms/videos", linkT: "Open Loom ↗", setup: "" },
@@ -1324,6 +1325,7 @@ async function handleApi(request, env, url, ctx) {
   }
   if (path === "/portal/api/coach/clients") {
     if (!coach) return json({ error: "forbidden" }, 403);
+    await acuityOrdersSync(env, r).catch(() => {});
     const acu = await acuityBookings(env, r).catch(() => null);
     const bizSet = await getJSON(env, "_data/_biz-settings.json", {});
     const pay = (await getJSON(env, "_data/_payments.json", { byEmail: {} })).byEmail || {};
@@ -1676,7 +1678,7 @@ async function acuityFromIcal(env, r) {
   const byEmail = {}, byName = {};
   for (const e of Object.entries(r)) byEmail[e[0].toLowerCase()] = e[1].id;
   for (const c of Object.values(r)) { const k = String(c.name || "").trim().toLowerCase(); if (k) (byName[k] = byName[k] || new Set()).add(c.id); }
-  const out = {}, months = {}, weeks = {}, done = {}, labels = new Set(); let events = 0, matched = 0, next7 = 0;
+  const out = {}, months = {}, weeks = {}, done = {}, labels = new Set(), unmatched = {}; let events = 0, matched = 0, next7 = 0;
   const in7 = new Date(Date.parse(today + "T00:00:00Z") + 7 * 86400000).toISOString().slice(0, 10);
   for (const ev of txt.split("BEGIN:VEVENT").slice(1)) {
     events++;
@@ -1693,7 +1695,7 @@ async function acuityFromIcal(env, r) {
     let id = null;
     for (const em of blob.match(/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/g) || []) if (byEmail[em]) { id = byEmail[em]; break; }
     if (!id) { const first = (get("SUMMARY").split(/[:(\-]/)[0] || "").trim().toLowerCase().split(/\s+/)[0]; const set = byName[first]; if (set && set.size === 1) id = [...set][0]; }
-    if (!id) continue;
+    if (!id) { if (d >= fromT(toT(today) - 30 * DAY_MS)) { const nm = (get("SUMMARY").split(/[:(]/)[0] || "").trim().slice(0, 50), em = ((blob.match(/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/g) || [])[0] || ""); const k = (em || nm).toLowerCase(); if (k) { const u = (unmatched[k] = unmatched[k] || { name: nm, email: em, n: 0, next: "" }); u.n++; if (d > today && (!u.next || d < u.next)) u.next = d; } } continue; }
     matched++;
     const b = (out[id] = out[id] || { last: "", next: "", dates: [], codes: {} });
     if (b.dates.length < 400) b.dates.push(d);
@@ -1709,7 +1711,41 @@ async function acuityFromIcal(env, r) {
     if (d <= today) { if (d > b.last) b.last = d; } else if (!b.next || d < b.next) b.next = d;
   }
   acuityLast.events = events; acuityLast.matched = matched; acuityLast.packageLabels = [...labels].slice(0, 40);
-  return { byId: out, months, weeks, done, next7 };
+  acuityLast.unmatched = Object.values(unmatched).length;
+  return { byId: out, months, weeks, done, next7, unmatched: Object.values(unmatched).sort((a, b) => b.n - a.n).slice(0, 30) };
+}
+
+// ---- Acuity orders (packages bought) pulled automatically with the API key, so package sizes update on their own. ----
+function orderSize(title) { const m = String(title || "").match(/(\d{1,3})\s*(?:x\s*)?(?:pt\s*|personal training\s*|1[:\- ]?(?:to|2|-)?[:\- ]?1\s*)?(?:sessions?|classes|pack|block)/i); return m ? Number(m[1]) : 0; }
+async function acuityOrdersSync(env, r, force) {
+  if (!env.ACUITY_USER_ID || !env.ACUITY_API_KEY) return { ok: false, error: "no-api" };
+  const st = await getJSON(env, "_data/_acuity-orders-sync.json", {});
+  if (!force && st.at && Date.now() - Date.parse(st.at) < 30 * 60 * 1000) return st;
+  const res = await fetch("https://acuityscheduling.com/api/v1/orders?max=1000", { headers: { authorization: "Basic " + btoa(env.ACUITY_USER_ID + ":" + env.ACUITY_API_KEY) }, signal: AbortSignal.timeout(20000) });
+  if (!res.ok) { const out = { ...st, at: new Date().toISOString(), ok: false, error: "Acuity " + res.status }; await putJSON(env, "_data/_acuity-orders-sync.json", out); return out; }
+  const list = await res.json().catch(() => []);
+  const byEmail = {}; for (const [e, c] of Object.entries(r)) byEmail[e.toLowerCase()] = c.id;
+  const byName = {}; for (const c of Object.values(r)) { const k = String(c.name || "").trim().toLowerCase(); if (k) (byName[k] = byName[k] || new Set()).add(c.id); }
+  const per = {}, unknown = [];
+  for (const o of Array.isArray(list) ? list : []) {
+    if (/refund|cancel|void/i.test(o.status || "")) continue;
+    const em = String(o.email || "").trim().toLowerCase(), full = (String(o.firstName || "") + " " + String(o.lastName || "")).trim().toLowerCase();
+    let id = byEmail[em]; if (!id) { const set = byName[full] || byName[String(o.firstName || "").trim().toLowerCase()]; if (set && set.size === 1) id = [...set][0]; }
+    const size = orderSize(o.title), date = String(o.time || "").slice(0, 10);
+    if (!size || !isDate(date)) continue;
+    if (!id) { unknown.push({ name: full, email: em, title: o.title, date }); continue; }
+    (per[id] = per[id] || []).push({ date, size, name: String(o.title || "").slice(0, 80), oid: o.id });
+  }
+  let changed = 0;
+  for (const [id, os] of Object.entries(per)) {
+    const key = `${dkey(id)}/orders.json`, doc = await getJSON(env, key, { orders: [] }), have = doc.orders || [];
+    const seen = new Set(have.map((x) => x.oid || x.date + "|" + x.size));
+    const add = os.filter((x) => !seen.has(x.oid) && !have.some((h) => !h.oid && h.date === x.date && h.size === x.size));
+    if (add.length) { doc.orders = [...have, ...add].sort((a, b) => a.date.localeCompare(b.date)).slice(-200); doc.at = new Date().toISOString(); await putJSON(env, key, doc); changed += add.length; }
+  }
+  const out = { ok: true, at: new Date().toISOString(), orders: Array.isArray(list) ? list.length : 0, added: changed, unknown: unknown.slice(0, 30) };
+  await putJSON(env, "_data/_acuity-orders-sync.json", out);
+  return out;
 }
 // package size from Acuity orders: the package bought most recently on/before the code was first used
 function orderFor(orders, first) {
@@ -1739,7 +1775,7 @@ async function acuityBookings(env, r) {
   if (env.ACUITY_ICAL) {
     if (acuityCache && Date.now() - acuityCache.at < 10 * 60 * 1000) return acuityCache.data;
     const saved = await getJSON(env, "_data/_acuity-cache.json", null);
-    if (saved && Date.now() - saved.at < 30 * 60 * 1000) { acuityCache = saved; return saved.data; }
+    if (saved && Date.now() - saved.at < 10 * 60 * 1000) { acuityCache = saved; return saved.data; }
     const data = await acuityFromIcal(env, r || {});
     if (data) { acuityCache = { at: Date.now(), data }; await putJSON(env, "_data/_acuity-cache.json", acuityCache); }
     else if (saved) return saved.data;
@@ -1963,6 +1999,7 @@ export default {
   async scheduled(event, env, ctx) {
     ctx.waitUntil(runAutomations(env, {}).catch(() => {}));
     if (env.CALENDLY_TOKEN) ctx.waitUntil(calendlySync(env).catch(() => {}));
+    if (env.ACUITY_API_KEY) ctx.waitUntil(loadRoster(env, true).then((r) => acuityOrdersSync(env, r, true)).catch(() => {}));
   },
 };
 
