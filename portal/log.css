@@ -722,3 +722,6 @@ button.lb-pkt span{color:var(--mute);font-size:12px;font-weight:600}
 .lb-mtag{position:absolute;left:8px;bottom:8px;background:rgba(0,0,0,.72);color:#fff;font-size:11px;font-weight:700;border-radius:20px;padding:5px 9px;pointer-events:none}
 .lb-media video+.lb-mtag{bottom:auto;top:8px}
 .lb-cue{background:#151410;border-left:3px solid var(--gold,#c9a64b);border-radius:8px;padding:9px 11px;margin:8px 0;font-size:13.5px;line-height:1.5;color:#eee}.lb-cue b{color:var(--gold-l,#e8c872)}
+/* demo photo / video fills the whole box, no white edges */
+.lb-media{background:#000;border:0}
+.lb-media img,.lb-media video,.lb-flip img{object-fit:cover;background:#000}
