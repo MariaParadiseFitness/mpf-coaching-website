@@ -9,7 +9,7 @@
     var cell=function(l,v,u,k){var target=tg&&num(tg[k]);var diff=target?Math.round(v-target):null;return '<div><small>'+l+'</small><b>'+Math.round(v)+u+'</b>'+(target?'<span class="'+(Math.abs(diff)<=(k==='kcal'?50:5)?'okc':'offc')+'">target '+Math.round(target)+u+'</span>':'')+'</div>'};
     return '<div class="lg-stats mp-tot">'+cell('Calories',t.kcal,'','cals')+cell('Protein',t.p,'g','protein')+cell('Carbs',t.c,'g','carbs')+cell('Fat',t.f,'g','fat')+'</div>';
   }
-  function upd(p){return p&&p.updated?new Date(p.updated).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}):''}
+  function upd(p){var u=p&&p.updated;if(u&&/^\d{10,}$/.test(String(u)))u=+u;var d=u?new Date(u):null;if(d&&isNaN(d))d=null;return d?d.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}):''}
 
   /* ---------- client view ---------- */
   function View(el,doc,targets){

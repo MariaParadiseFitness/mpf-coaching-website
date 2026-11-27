@@ -2,7 +2,7 @@
 (function(){
   var esc=function(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
   var COLS=[{k:'ss',l:'SS',w:'w-ss'},{k:'name',l:'Exercise',w:'w-name'},{k:'opts',l:'Pick from (comma separated)',w:'w-notes'},{k:'sets',l:'Sets',w:'w-s'},{k:'reps',l:'Reps',w:'w-s'},{k:'tempo',l:'Tempo',w:'w-s'},{k:'rir',l:'RIR',w:'w-s'},{k:'rest',l:'Rest',w:'w-s'},{k:'notes',l:'Notes',w:'w-notes'}];
-  function upd(p){return p&&p.updated?new Date(p.updated).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}):''}
+  function upd(p){var u=p&&p.updated;if(u&&/^\d{10,}$/.test(String(u)))u=+u;var d=u?new Date(u):null;if(d&&isNaN(d))d=null;return d?d.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}):''}
 
   /* ---------- client: read-only ---------- */
   function order(doc){var cur=doc.current,ps=(doc.programmes||[]).slice();ps.sort(function(a,b){return (b.id===cur)-(a.id===cur)||(b.created>a.created?1:-1)});return ps}
