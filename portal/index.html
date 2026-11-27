@@ -527,6 +527,12 @@ body.touring .top{z-index:70}
     <h2>Menu.</h2>
     <div class="mm-list" id="mmList"></div>
   </section>
+  <section data-view="more" data-sub="health" id="health" hidden>
+    <a class="mm-back" href="#moreMenu"><i class="ti ti-arrow-left" aria-hidden="true"></i> Back</a>
+    <h2>Apple <em>Health.</em></h2>
+    <div class="sub">Your steps, sleep and resting heart rate go into your daily log automatically every evening. No more typing them in.</div>
+    <div id="hkBox"><p class="mini">Loading…</p></div>
+  </section>
   <section data-view="more" data-sub="music" id="music">
     <a class="mm-back" href="#moreMenu"><i class="ti ti-arrow-left" aria-hidden="true"></i> Back</a>
     <h2>Train with my <em>music.</em></h2>
@@ -1101,11 +1107,33 @@ body.touring #tdSeg{position:relative;z-index:70}#tdSeg a.tour-on{color:#E8C872!
   var esc=function(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
   var ml=document.getElementById('musicList');
   if(ml)ml.innerHTML=PLAYLISTS.map(function(p){return '<a class="mm-item" href="'+esc(p.url)+'" target="_blank" rel="noopener"><span class="mm-ic">🎧</span><span class="mm-t"><b>'+esc(p.name)+'</b><small>Open in Spotify</small></span><span class="mm-ar">↗</span></a>'}).join('');
-  var M=[['sessions','📅','Sessions and bookings','Book, move or cancel your PT sessions'],['account','👤','My account','Your details and login'],['start','✅','Finish my set-up','Go back to your set-up checklist and finish anything you missed'],['aboutme','📝','About me','Your foods, injuries and preferences'],['billing','💳','Billing','Payments and your plan'],['perms','🔒','Privacy and permissions','Photos, data and consent'],['support','💬','Support','Get help from Maria'],['pbs','🏆','Personal bests','Your heaviest lifts and best sets'],['guides','📚','Your guides','Hypertrophy, strength, diet and more'],['supps','💊','Supplement quiz','What to buy and what to skip'],['recs','⭐','Recommended by Maria','Books, podcasts and tools I rate'],['music','🎧','Music','My Spotify playlists']];
+  var M=[['sessions','📅','Sessions and bookings','Book, move or cancel your PT sessions'],['account','👤','My account','Your details and login'],['start','✅','Finish my set-up','Go back to your set-up checklist and finish anything you missed'],['aboutme','📝','About me','Your foods, injuries and preferences'],['billing','💳','Billing','Payments and your plan'],['perms','🔒','Privacy and permissions','Photos, data and consent'],['support','💬','Support','Get help from Maria'],['pbs','🏆','Personal bests','Your heaviest lifts and best sets'],['guides','📚','Your guides','Hypertrophy, strength, diet and more'],['supps','💊','Supplement quiz','What to buy and what to skip'],['recs','⭐','Recommended by Maria','Books, podcasts and tools I rate'],['music','🎧','Music','My Spotify playlists'],['health','❤️','Apple Health','Sync your steps and sleep from your iPhone']];
   window.__mmDraw=function(){var el=document.getElementById('mmList');if(!el)return;el.innerHTML=M.filter(function(m){var sec=document.getElementById(m[0]);return sec&&!sec.hidden&&!sec.classList.contains('gone')}).map(function(m){var sub=m[3],pk=window.__mpfPkg;if(m[0]==='sessions'&&pk)sub=(pk.left!=null?pk.left+' session'+(pk.left===1?'':'s')+' left':pk.used+' used on this package')+(pk.booked?' · '+pk.booked+' booked':'')+' · book, move or cancel';return '<a class="mm-item'+(m[0]==='sessions'?' mm-hl':'')+'" href="#'+m[0]+'"><span class="mm-ic">'+m[1]+'</span><span class="mm-t"><b>'+m[2]+'</b><small>'+esc(sub)+'</small></span><span class="mm-ar">›</span></a>'}).join('')};
   window.__mmDraw();
 })();
 </script>
 <script>document.addEventListener('click',function(e){var t=e.target.closest('[data-x="tick"]');if(!t)return;var all=[].slice.call(document.querySelectorAll('.lb-set')),i=all.indexOf(t.closest('.lb-set'));setTimeout(function(){var r=document.querySelectorAll('.lb-set')[i];r=r&&r.classList.contains('done')&&r.querySelector('.lb-tick');if(r){r.classList.add('pop');setTimeout(function(){r.classList.remove('pop')},450)}},30)},true)</script>
+<script>
+(function(){
+  var esc=function(t){return String(t==null?'':t).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
+  var box=document.getElementById('hkBox'),done=false;if(!box)return;
+  function draw(j){
+    if(!j.shortcut){document.getElementById('health').hidden=true;if(window.__mmDraw)window.__mmDraw();return}
+    document.getElementById('health').hidden=false;if(window.__mmDraw)window.__mmDraw();
+    box.innerHTML='<div class="pg-note" style="line-height:1.75"><b>Set it up once (about 2 minutes, iPhone only)</b><br>'+
+      '1. Tap <b>Copy my sync link</b> below.<br><button class="btn" type="button" id="hkCopy" style="margin:6px 0">📋 Copy my sync link</button><br>'+
+      '2. Tap <b>Get the Shortcut</b>, then <b>Add Shortcut</b>. When it asks, paste your sync link.<br><a class="btn" href="'+esc(j.shortcut)+'" target="_blank" rel="noopener" style="margin:6px 0">⬇ Get the Shortcut</a><br>'+
+      '3. Run it once and tap <b>Allow</b> so it can read your steps, sleep and heart rate.<br>'+
+      '4. In Shortcuts tap <b>Automation</b> → <b>+</b> → <b>Time of Day</b> → <b>9pm, Daily</b> → <b>Run Immediately</b> → pick <b>MPF Health Sync</b>. Done.</div>'+
+      '<div class="mini" style="margin-top:10px">'+(j.last?'✅ Last synced '+new Date(j.last).toLocaleString('en-GB',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'Not synced yet. Once it runs you\'ll see the time here.')+'</div>'+
+      '<div class="mini" style="margin-top:8px">Your sync link is private to you. If you share it by mistake, <a href="#" id="hkReset" style="color:#c9a64b">reset it</a> and set the Shortcut up again.</div>';
+    document.getElementById('hkCopy').onclick=function(){var b=this;try{navigator.clipboard.writeText(j.url).then(function(){b.textContent='✓ Copied'})}catch(e){prompt('Copy your sync link:',j.url)}};
+    document.getElementById('hkReset').onclick=function(e){e.preventDefault();if(!confirm('Reset your sync link? The old one stops working and you\'ll need to paste the new one into the Shortcut.'))return;load(true)};
+  }
+  function load(reset){fetch('/portal/api/health-link',{method:reset?'POST':'GET',credentials:'same-origin',cache:'no-store',headers:{'content-type':'application/json'},body:reset?JSON.stringify({reset:true}):undefined}).then(function(r){return r.ok?r.json():null}).then(function(j){if(j)draw(j);else document.getElementById('health').hidden=true}).catch(function(){})}
+  if(/[?&]preview/.test(location.search))return;
+  setTimeout(function(){load(false)},1500);
+})();
+</script>
 </body>
 </html>

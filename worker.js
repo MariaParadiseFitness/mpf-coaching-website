@@ -1254,9 +1254,27 @@ async function handleApi(request, env, url, ctx) {
     const a = acu && acu.byId && acu.byId[id];
     return json({ id, emails: (a && a.em) || {}, onFile: Object.entries(r).filter(([, x]) => x.id === id).map(([e]) => e) });
   }
+  if (path === "/portal/api/health-link") {
+    if (!client) return json({ error: "unknown" }, 403);
+    const b = request.method === "POST" ? await request.json().catch(() => ({})) : {};
+    const st = await getJSON(env, "_data/_hk-settings.json", {});
+    return json({ ...(await hkLink(env, client.id, !!b.reset)), shortcut: st.shortcut || "" });
+  }
+  if (path === "/portal/api/coach/calendly") {
+    if (!coach) return json({ error: "forbidden" }, 403);
+    if (request.method === "POST") { const out = await calendlySync(env).catch((e) => ({ ok: false, error: String(e.message || e).slice(0, 120) })); return json(out); }
+    return json(await getJSON(env, "_data/_calendly.json", { ok: !!env.CALENDLY_TOKEN, upcoming: [] }));
+  }
+  if (path === "/portal/api/coach/hk-settings" && request.method === "POST") {
+    if (!coach) return json({ error: "forbidden" }, 403);
+    const b = await request.json().catch(() => ({})), sc = String(b.shortcut || "").trim();
+    if (sc && !/^https:\/\/(www\.)?icloud\.com\/shortcuts\/[a-z0-9]+/i.test(sc)) return json({ error: "That doesn't look like an iCloud Shortcut link." });
+    await putJSON(env, "_data/_hk-settings.json", { shortcut: sc }); return json({ ok: true, shortcut: sc });
+  }
   if (path === "/portal/api/coach/integrations") {
     if (!coach) return json({ error: "forbidden" }, 403);
     const gc = await getJSON(env, "_data/_gcal-cache.json", null);
+    const calDb = await getJSON(env, "_data/_calendly.json", null), hkSet = await getJSON(env, "_data/_hk-settings.json", {}), hkDb = await getJSON(env, "_data/_hk.json", { tokens: {} }), hkN = Object.keys(hkDb.last || {}).length;
     const gcDays = gc && gc.data && gc.data.days ? (Array.isArray(gc.data.days) ? gc.data.days.length : Object.keys(gc.data.days).length) : null;
     const list = [
       { id: "gcal", name: "Google Calendar", icon: "📅", on: !!env.GCAL_ICAL, what: "Holidays and all-day events block PT capacity on your Business page.", detail: env.GCAL_ICAL ? (gc ? "Last read " + new Date(gc.at).toISOString() + (gcDays != null ? " · " + gcDays + " blocked days" : "") : "Connected, not read yet") : "", setup: "Google Calendar → Settings → your calendar → Integrate calendar → copy Secret address in iCal format. Add it in Cloudflare as the secret GCAL_ICAL." },
@@ -1264,6 +1282,8 @@ async function handleApi(request, env, url, ctx) {
       { id: "stripe", name: "Stripe", icon: "💳", on: !!env.STRIPE_READ_KEY, what: "Payments, failed payments and renewals on your Business page.", detail: [env.STRIPE_READ_KEY ? "Read key added" : "", env.STRIPE_WEBHOOK_SECRET ? "Live payment alerts on" : "Live payment alerts off"].filter(Boolean).join(" · "), setup: "Stripe → Developers → API keys → create a restricted read-only key. Add it in Cloudflare as STRIPE_READ_KEY (secret). For live alerts add a webhook to /stripe/webhook and save its signing secret as STRIPE_WEBHOOK_SECRET." },
       { id: "email", name: "Email", icon: "✉️", on: !!(env.RESEND_API_KEY || env.MAILER), what: "Branded reminder emails and your notifications.", detail: env.RESEND_API_KEY ? "Sending with Resend" : env.MAILER ? "Sending with Cloudflare Email" : "", setup: "Create a Resend account, verify mpfcoaching.co.uk, then add the key in Cloudflare as RESEND_API_KEY (secret)." },
       { id: "loom", name: "Loom", icon: "🎥", on: true, what: "Record a video with Loom, copy its share link and paste it into a check-in reply. It plays right inside the client's app.", detail: "No key needed. Use the 🎥 Record a Loom button on any check-in reply", link: "https://www.loom.com/looms/videos", linkT: "Open Loom ↗", setup: "" },
+      { id: "calendly", name: "Calendly", icon: "📞", on: !!env.CALENDLY_TOKEN, what: "New phone consult bookings land in your leads as Consult booked, with their number. Checks every morning, or press Sync now.", detail: calDb && calDb.at ? "Last synced " + calDb.at + (calDb.upcoming ? " · " + calDb.upcoming.length + " upcoming" : "") : env.CALENDLY_TOKEN ? "Connected, not synced yet" : "", sync: true, setup: "Calendly → Settings (Integrations & apps) → API and webhooks → Generate a personal access token. Add it in Cloudflare as the secret CALENDLY_TOKEN." },
+      { id: "applehealth", name: "Apple Health", icon: "❤️", on: !!hkSet.shortcut, what: "Clients' steps, sleep and resting heart rate go straight into their daily log every evening from their iPhone.", detail: (hkSet.shortcut ? "Shortcut link added · " : "Add your Shortcut link below to switch it on · ") + hkN + " client" + (hkN === 1 ? "" : "s") + " syncing", hk: hkSet.shortcut || "", setup: "" },
       { id: "whatsapp", name: "WhatsApp", icon: "💬", on: true, what: "Message buttons open the WhatsApp app on your computer or phone.", detail: "Uses the phone number on each client's record", setup: "" },
       { id: "ai", name: "AI check-in drafts", icon: "✨", on: !!env.ANTHROPIC_API_KEY, what: "Drafts a reply to each check-in for you to edit before sending.", detail: env.ANTHROPIC_API_KEY ? "Model: " + (env.AI_MODEL || "default") : "", setup: "Create an API key at console.anthropic.com and add it in Cloudflare as ANTHROPIC_API_KEY (secret)." },
       { id: "access", name: "Client logins", icon: "🔐", on: !!(env.CF_API_TOKEN && env.ACCESS_POLICY_ID && env.ACCESS_TEAM), what: "Cloudflare Access sends clients a login code. Giving a client access adds their email automatically.", detail: env.CF_API_TOKEN && env.ACCESS_POLICY_ID ? "Auto-add emails on" : "Auto-add emails off, add them in Cloudflare yourself", setup: "Needs CF_API_TOKEN, CF_ACCOUNT_ID and ACCESS_POLICY_ID in Cloudflare." },
@@ -1904,6 +1924,7 @@ export default {
     const url = new URL(request.url);
     if (url.pathname === "/stripe/webhook" && request.method === "POST") return stripeWebhook(request, env).catch(() => new Response("error", { status: 500 }));
     if (url.pathname === "/api/recs" && request.method === "GET") return json(await getJSON(env, "_data/_recs.json", { items: [] }));
+    if (url.pathname.startsWith("/hk/")) return hkSync(request, env, url).catch(() => json({ ok: false, error: "server" }, 500));
     if (url.pathname.startsWith("/cal/") && url.pathname.endsWith(".ics")) return calFeed(env, url).catch(() => new Response("error", { status: 500 }));
     if (url.pathname.startsWith("/portal/api/")) {
       try {
@@ -1916,9 +1937,92 @@ export default {
   },
   async scheduled(event, env, ctx) {
     ctx.waitUntil(runAutomations(env, {}).catch(() => {}));
+    if (env.CALENDLY_TOKEN) ctx.waitUntil(calendlySync(env).catch(() => {}));
   },
 };
 
+
+// ---- Apple Health: an iPhone Shortcut posts steps, sleep and resting heart rate to /hk/<token> every evening. ----
+// Each client has their own secret token (_data/_hk.json). Steps and resting HR from Health replace what's logged; sleep only fills a blank.
+function hkNum(v) { const n = parseFloat(String(v == null ? "" : v).replace(/[^0-9.]/g, "")); return isFinite(n) ? n : null; }
+function hkSleep(b) {
+  let v = b.sleep != null ? String(b.sleep) : "", mins = null;
+  const raw = String(b.sleep != null ? b.sleep : b.sleepSecs != null ? b.sleepSecs : b.sleepMins != null ? b.sleepMins : "");
+  const hm = raw.match(/(\d+(?:\.\d+)?)\s*h/i), mm = raw.match(/(\d+)\s*m/i);
+  if (hm || (mm && !/^\s*\d+\s*$/.test(raw))) { mins = (hm ? parseFloat(hm[1]) * 60 : 0) + (mm ? +mm[1] : 0); if (mins >= 30 && mins <= 1080) { mins = Math.round(mins); return Math.floor(mins / 60) + ":" + String(mins % 60).padStart(2, "0"); } return ""; }
+  if (/^\d{1,2}:\d{2}$/.test(v.trim())) { const [h, m] = v.trim().split(":").map(Number); mins = h * 60 + m; }
+  else if (b.sleepMins != null) mins = hkNum(b.sleepMins);
+  else if (b.sleepSecs != null) mins = (hkNum(b.sleepSecs) || 0) / 60;
+  else if (v) { const n = hkNum(v); if (n != null) mins = n > 1440 ? n / 60 : n > 24 ? n : n * 60; }
+  if (!mins || mins < 30 || mins > 1080) return "";
+  mins = Math.round(mins); return Math.floor(mins / 60) + ":" + String(mins % 60).padStart(2, "0");
+}
+async function hkSync(request, env, url) {
+  const tok = url.pathname.slice(4).replace(/[^a-f0-9]/g, "");
+  if (tok.length < 24) return json({ ok: false, error: "link" }, 404);
+  const db = await getJSON(env, "_data/_hk.json", { tokens: {} });
+  const id = db.tokens[tok];
+  const r = await loadRoster(env);
+  const client = id && Object.values(r).find((x) => x.id === id);
+  if (!client) return json({ ok: false, error: "This sync link has been reset. Get a new one in your MPF app." }, 404);
+  if (request.method !== "POST") return json({ ok: true, message: "Your Apple Health link is working. The Shortcut sends your numbers here." });
+  const ct = request.headers.get("content-type") || "";
+  let b = {};
+  if (/json/.test(ct)) b = await request.json().catch(() => ({}));
+  else { const f = await request.formData().catch(() => null); if (f) for (const [k, v] of f.entries()) b[k] = v; }
+  const today = londonToday(), date = isDate(b.date) ? b.date : today;
+  const age = (toT(today) - toT(date)) / DAY_MS; if (age < 0 || age > 7) return json({ ok: false, error: "date" }, 400);
+  const key = `${dkey(client.id)}/log/${date.slice(0, 7)}.json`, doc = await getJSON(env, key, {});
+  const day = { ...(doc[date] || {}) }; delete day._at; const got = [];
+  const st = hkNum(b.steps); if (st != null && st >= 0 && st < 150000) { day.steps = String(Math.round(st)); got.push("steps"); }
+  const rh = hkNum(b.rhr); if (rh && rh > 25 && rh < 150) { day.rhr = String(Math.round(rh)); got.push("resting heart rate"); }
+  const sl = hkSleep(b); if (sl && !day.sleep) { day.sleep = sl; got.push("sleep"); }
+  if (!got.length) return json({ ok: true, saved: [], message: "Nothing new to save." });
+  day.hk = new Date().toISOString().slice(0, 16);
+  await saveDay(env, client, date, day);
+  db.last = db.last || {}; db.last[client.id] = new Date().toISOString(); await putJSON(env, "_data/_hk.json", db);
+  return json({ ok: true, date, saved: got, message: "Saved your " + got.join(", ") + " to your MPF log ✅" });
+}
+async function hkLink(env, clientId, reset) {
+  const db = await getJSON(env, "_data/_hk.json", { tokens: {} });
+  let tok = Object.keys(db.tokens).find((k) => db.tokens[k] === clientId);
+  if (tok && reset) { delete db.tokens[tok]; tok = null; }
+  if (!tok) { tok = [...crypto.getRandomValues(new Uint8Array(16))].map((n) => n.toString(16).padStart(2, "0")).join(""); db.tokens[tok] = clientId; await putJSON(env, "_data/_hk.json", db); }
+  return { url: SITE + "/hk/" + tok, last: (db.last || {})[clientId] || null };
+}
+
+// ---- Calendly: new phone-consult bookings become leads ("Consult booked"). Needs the secret CALENDLY_TOKEN (a Calendly personal access token). ----
+async function calendlyGet(env, u) {
+  const res = await fetch(u.startsWith("http") ? u : "https://api.calendly.com" + u, { headers: { authorization: "Bearer " + env.CALENDLY_TOKEN }, signal: AbortSignal.timeout(15000) });
+  if (!res.ok) throw new Error("Calendly " + res.status);
+  return res.json();
+}
+async function calendlySync(env) {
+  if (!env.CALENDLY_TOKEN) return { ok: false, error: "no-token" };
+  const me = await calendlyGet(env, "/users/me"), user = me.resource.uri;
+  const min = new Date(Date.now() - 30 * DAY_MS).toISOString(), max = new Date(Date.now() + 90 * DAY_MS).toISOString();
+  const ev = await calendlyGet(env, `/scheduled_events?user=${encodeURIComponent(user)}&status=active&count=100&sort=start_time:asc&min_start_time=${min}&max_start_time=${max}`);
+  const db = await getJSON(env, "_data/_leads.json", { items: [] }), have = new Set(db.items.map((x) => x.id));
+  const upcoming = []; let added = 0;
+  for (const e of ev.collection || []) {
+    const uuid = e.uri.split("/").pop(), lid = ("cal" + uuid.replace(/[^a-z0-9]/gi, "")).slice(0, 20);
+    let inv = null;
+    if (!have.has(lid) || new Date(e.start_time) > new Date()) {
+      const iv = await calendlyGet(env, e.uri + "/invitees?count=5").catch(() => null); inv = iv && iv.collection && iv.collection[0];
+    }
+    const when = new Date(e.start_time), whenTxt = when.toLocaleString("en-GB", { timeZone: "Europe/London", weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+    const phone = inv ? (inv.text_reminder_number || ((inv.questions_and_answers || []).find((q) => /phone|mobile|number|whatsapp/i.test(q.question)) || {}).answer || "") : "";
+    if (when > new Date()) upcoming.push({ when: e.start_time, whenTxt, name: inv ? inv.name : "", phone, type: e.name, lead: lid });
+    if (!have.has(lid) && inv) {
+      db.items.unshift({ id: lid, date: e.created_at ? e.created_at.slice(0, 10) : londonToday(), name: String(inv.name || "Calendly booking").slice(0, 60), source: "Calendly", status: "Consult booked", note: (e.name + " · " + whenTxt + (phone ? " · " + phone : "") + (inv.email ? " · " + inv.email : "")).slice(0, 300), updated: londonToday(), phone: String(phone).replace(/[^0-9+]/g, "").slice(0, 20) });
+      have.add(lid); added++;
+    }
+  }
+  if (added) await putJSON(env, "_data/_leads.json", db);
+  const out = { ok: true, at: new Date().toISOString(), added, upcoming: upcoming.slice(0, 20) };
+  await putJSON(env, "_data/_calendly.json", out);
+  return out;
+}
 // ---- AI check-in drafts: when a client checks in, Claude writes a draft reply for Maria to edit. Never sent automatically. ----
 // Needs the Cloudflare secret ANTHROPIC_API_KEY. Optional variable AI_MODEL to change the model.
 const AI_SYSTEM = `You are drafting a weekly check-in reply for Maria Paradise, a UK personal trainer and online coach (MPF Coaching, fat loss and body recomp, evidence-based, flexible dieting). Maria will read and edit your draft before sending, so write it exactly as she would send it, in the first person as Maria, to the client.
