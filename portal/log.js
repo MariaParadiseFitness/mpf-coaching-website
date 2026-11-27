@@ -58,7 +58,7 @@
   function Today(el,o){
     o=o||{};var demo=!!o.demo,today=o.today||londonToday(),cur=today,days={},dirty=false;
     el.innerHTML='<div class="lg-nav"><button type="button" class="lg-arr" data-d="-1" aria-label="Previous day">‹</button><div class="lg-date"><b></b><small></small></div><button type="button" class="lg-arr" data-d="1" aria-label="Next day">›</button></div>'+
-      '<div class="lg-strip"></div><div class="lg-bars" hidden></div><form class="lg-form" autocomplete="off"></form>'+
+      '<div class="lg-strip"></div><form class="lg-form" autocomplete="off"></form><div class="lg-bars" hidden></div>'+
       '<div class="lg-save"><span class="lg-msg"></span><button class="btn" type="button">Save</button></div>';
     var form=el.querySelector('form'),msg=el.querySelector('.lg-msg'),saveBtn=el.querySelector('.lg-save .btn');
     function field(f){
