@@ -835,7 +835,8 @@ async function handleApi(request, env, url, ctx) {
   if (path === "/portal/api/coach/grant-access" && request.method === "POST") {
     if (!coach) return json({ error: "forbidden" }, 403);
     const b = await request.json().catch(() => ({}));
-    const hit = Object.entries(r).find(([, x]) => x.id === String(b.id || "").toLowerCase());
+    const want = String(b.email || "").trim().toLowerCase();
+    const hit = Object.entries(r).find(([e, x]) => x.id === String(b.id || "").toLowerCase() && (!want || e === want));
     if (!hit) return json({ error: "unknown" }, 404);
     return json({ ok: true, email: hit[0], access: await accessAllow(env, hit[0]) });
   }
