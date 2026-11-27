@@ -102,7 +102,7 @@
       var s=el.querySelector('.lg-strip');s.innerHTML=h;
       [].forEach.call(s.querySelectorAll('button'),function(b){b.onclick=function(){go(b.getAttribute('data-day'))}});
     }
-    function go(d){if(dirty&&!confirm('You have changes that are not saved. Leave without saving?'))return;cur=d;fill();if(lastT)setTargets(lastT)}
+    function go(d){var g=function(){dirty=false;cur=d;fill();if(lastT)setTargets(lastT)};if(dirty)mpfAsk('You have changes that are not saved. Leave without saving?',{yes:'Leave',red:true},g);else g()}
     [].forEach.call(el.querySelectorAll('.lg-arr'),function(b){b.onclick=function(){var n=fromT(toT(cur)+(+b.getAttribute('data-d'))*DAY);if(n>today||toT(today)-toT(n)>60*DAY)return;go(n)}});
     saveBtn.onclick=function(){
       var data={};Object.keys(vals).forEach(function(k){if(vals[k]!==''&&vals[k]!=null)data[k]=vals[k]});

@@ -2,6 +2,7 @@
 <html lang="en-GB">
 <head>
 <meta charset="utf-8">
+<script src="/portal/ui.js?v=1"></script>
 <script src="/js/inapp.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Client Portal | MPF Coaching</title>
@@ -653,20 +654,20 @@ body.touring .top{z-index:70}
 window.fetch=function(u,o){var s=typeof u==='string'?u:(u&&u.url)||'';if(s.indexOf('/portal/api/')===0||s.indexOf(location.origin+'/portal/api/')===0){o=Object.assign({},o||{});var h=new Headers(o.headers||{});h.set('x-mpf-as',id);o.headers=h}return of.call(this,u,o)};
 document.addEventListener('DOMContentLoaded',function(){var b=document.createElement('div');b.id='asBar';b.innerHTML='👁 Viewing <b>'+id+'</b>\'s portal exactly as they see it. Read only, nothing you click here saves. <a href="/portal/coach/#v=clients">Back to coach view</a>';b.style.cssText='position:sticky;top:0;z-index:9999;background:#c9a64b;color:#111;font:600 13px/1.4 Montserrat,Helvetica,sans-serif;padding:10px 14px;text-align:center';var a=b.querySelector('a');a.style.cssText='color:#111;margin-left:8px;text-decoration:underline';document.body.insertBefore(b,document.body.firstChild)})})();</script>
 <script src="/portal/chart.js"></script>
-<script src="/portal/log.js?v=loom2"></script>
+<script src="/portal/log.js?v=ui1"></script>
 <script src="/portal/exlib.js"></script>
 <script src="/portal/swaps.js"></script>
 <script src="/portal/glossary.js"></script>
 <script src="/portal/programme.js"></script>
-<script src="/portal/logbook.js?v=lb11"></script>
-<script src="/portal/planner.js"></script>
+<script src="/portal/logbook.js?v=lb12"></script>
+<script src="/portal/planner.js?v=ui1"></script>
 <script src="/portal/onboard.js"></script>
 <script src="/portal/mealplan.js"></script>
 <script src="/portal/week.js"></script>
-<script src="/portal/cycle.js"></script>
+<script src="/portal/cycle.js?v=ui1"></script>
 <script src="/portal/guides.js"></script>
 <script src="/portal/breathe.js"></script>
-<script src="/portal/mealgen.js"></script>
+<script src="/portal/mealgen.js?v=ui1"></script>
 <script src="/portal/supps.js"></script>
 <script>document.addEventListener('DOMContentLoaded',function(){MPFSupps.mount(document.getElementById('sqBox'))})</script>
 <script>
@@ -769,7 +770,7 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
           h='<div class="lg-stats tgt"><div><small>Status</small><b style="font-size:16px">'+esc(st)+'</b></div><div><small>Started</small><b style="font-size:16px">'+fd(b.started)+'</b></div><div><small>Last payment</small><b style="font-size:16px">'+fd(b.lastPaid)+'</b>'+(b.lastAmount!=null?'<span>'+money(b.lastAmount)+'</span>':'')+'</div><div><small>'+(b.endsOn?'Coaching ends':'Next payment')+'</small><b style="font-size:16px">'+fd(b.endsOn||b.next)+'</b></div></div>'+(b.plan?'<p class="ci-note" style="margin-top:8px">Plan: '+esc(b.plan)+'</p>':'')}
         if(c)h+='<div class="pg-note" style="margin-top:12px">🛑 You asked to cancel on '+fd(String(c.at).slice(0,10))+'. Maria will confirm by message. Your coaching carries on until the end of the period you\'ve paid for.</div>';
         else if(b&&b.status!=='cancelled')h+='<details class="ci-card" style="margin-top:12px"><summary><b>Request to cancel</b></summary><div style="padding:10px 0"><p class="ci-note">Please give at least 7 days\' notice before your next payment. Your coaching carries on until the end of the period you\'ve paid for. See the <a href="/terms.html" target="_blank">terms</a>.</p><label class="pe-full">Anything you\'d like to tell me? (optional)<textarea id="cnlWhy" rows="2"></textarea></label><button class="btn g" type="button" id="cnlBtn">Send cancellation request</button> <span class="lg-msg" id="cnlMsg"></span></div></details>';
-        box.innerHTML=h;var bt=$('cnlBtn');if(bt)bt.onclick=function(){if(!confirm('Send a request to cancel your online coaching?'))return;$('cnlMsg').textContent='Sending…';
+        box.innerHTML=h;var bt=$('cnlBtn');if(bt)bt.onclick=function(){mpfAsk('Send a request to cancel your online coaching?',{yes:'Send request',red:true},cnlGo)};function cnlGo(){$('cnlMsg').textContent='Sending…';
           fetch('/portal/api/billing',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({reason:$('cnlWhy').value})}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(x){draw({billing:b,cancel:x.cancel})}).catch(function(){$('cnlMsg').textContent='Not sent. Try again or message me.'})}};
       if(demo){draw({billing:{status:'active',started:'2026-09-02',lastPaid:'2026-11-02',lastAmount:175,next:'2026-12-02',plan:'Online coaching: monthly'}});return}
       fetch('/portal/api/billing',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(draw).catch(function(){box.innerHTML='<p class="ci-note">Could not load your plan right now.</p>'});
@@ -895,7 +896,7 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
           if(!r.ok)throw new Error(j.error||'upload');
           photos.unshift({key:j.key,week:j.week,angle:j.angle});drawWeek();
         })});
-      }).catch(function(err){slot.classList.remove('busy');alert(err&&err.message==='size'?'That photo is too big. Try taking it again.':'Sorry, that upload did not work. Please try again, or message me.')});
+      }).catch(function(err){slot.classList.remove('busy');mpfToast(err&&err.message==='size'?'That photo is too big. Try taking it again.':'Sorry, that upload did not work. Please try again, or message me.')});
     }
     if(demo){drawWeek()}
     else if(enabled){
@@ -949,11 +950,11 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
         cv.toBlob(function(bl){
           if(demo){box.classList.remove('busy');avShow(URL.createObjectURL(bl));if(cb)cb();return}
           var fd=new FormData();fd.append('photo',new File([bl],'me.jpg',{type:'image/jpeg'}));
-          fetch('/portal/api/avatar',{method:'POST',body:fd,credentials:'same-origin'}).then(function(r){if(!r.ok)throw 0;box.classList.remove('busy');avShow('/portal/api/avatar?v='+Date.now());if(cb)cb()}).catch(function(){box.classList.remove('busy');alert('Sorry, that photo did not upload. Please try again.')});
-        },'image/jpeg',0.88)}).catch(function(){box.classList.remove('busy');alert('Sorry, that photo could not be opened. Try a different one.')});
+          fetch('/portal/api/avatar',{method:'POST',body:fd,credentials:'same-origin'}).then(function(r){if(!r.ok)throw 0;box.classList.remove('busy');avShow('/portal/api/avatar?v='+Date.now());if(cb)cb()}).catch(function(){box.classList.remove('busy');mpfToast('Sorry, that photo did not upload. Please try again.')});
+        },'image/jpeg',0.88)}).catch(function(){box.classList.remove('busy');mpfToast('Sorry, that photo could not be opened. Try a different one.')});
     }
     [['avIn','avBox'],['avIn2','avBox2']].forEach(function(x){$(x[0]).onchange=function(e){var f=e.target.files[0];if(f)avUp(f,$(x[1]),function(){if(window.__tick)window.__tick('avatar',true)});e.target.value=''}});
-    $('avDel').onclick=function(){if(!confirm('Remove your photo?'))return;if(demo){avShow(null);return}fetch('/portal/api/avatar',{method:'DELETE',credentials:'same-origin'}).then(function(){avShow(null)})};
+    $('avDel').onclick=function(){mpfAsk('Remove your photo?',{yes:'Remove',red:true},function(){if(demo){avShow(null);return}fetch('/portal/api/avatar',{method:'DELETE',credentials:'same-origin'}).then(function(){avShow(null)})})};
     if(!demo)avShow('/portal/api/avatar?v='+Date.now());
 
     // daily log, weekly check-in and weight chart
@@ -1010,7 +1011,7 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
         (/[?&]paid/.test(location.search)?'<p style="margin-top:18px;color:#fff">Payment received? Opening your portal…</p>':'')+'<p style="margin-top:18px"><button class="btn g" type="button" onclick="location.reload()">I\'ve paid, open my portal</button></p><p style="margin-top:14px;font-size:13px">Paid another way or got a question? <a href="https://wa.me/447592791137">Message me</a> · <a href="/cdn-cgi/access/logout">Log out</a></p>');if(/[?&]paid/.test(location.search)){var tries=+(sessionStorage.getItem('payTries')||0);if(tries<10){sessionStorage.setItem('payTries',tries+1);setTimeout(function(){location.reload()},3000)}}return}
     sessionStorage.removeItem('payTries');
     (function(){var cb=document.getElementById('pfRem');if(!cb)return;fetch('/portal/api/prefs',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(p){cb.checked=p.reminders!==false}).catch(function(){});cb.onchange=function(){fetch('/portal/api/prefs',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({reminders:cb.checked})}).then(function(){document.getElementById('pfMsg').textContent=cb.checked?'✓ Reminders on':'✓ Reminders off'})};
-      var dr=document.getElementById('delReq');if(dr)dr.onclick=function(){if(!confirm('Ask Maria to permanently delete your account and all your data?'))return;dr.disabled=true;fetch('/portal/api/delete-request',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({reason:document.getElementById('delWhy').value})}).then(function(r){if(!r.ok)throw 0;document.getElementById('delMsg').textContent='✓ Request sent. Maria will delete your data and confirm, normally within a month.'}).catch(function(){dr.disabled=false;document.getElementById('delMsg').textContent='Not sent. Please try again or email info@mpfcoaching.co.uk.'})}})();
+      var dr=document.getElementById('delReq');if(dr)dr.onclick=function(){mpfAsk('Ask Maria to permanently delete your account and all your data?',{yes:'Ask Maria',red:true},drGo)};function drGo(){dr.disabled=true;fetch('/portal/api/delete-request',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({reason:document.getElementById('delWhy').value})}).then(function(r){if(!r.ok)throw 0;document.getElementById('delMsg').textContent='✓ Request sent. Maria will delete your data and confirm, normally within a month.'}).catch(function(){dr.disabled=false;document.getElementById('delMsg').textContent='Not sent. Please try again or email info@mpfcoaching.co.uk.'})}})();
     if(j.client.askSex&&!j.coach&&!window.__mpfAs){var fn1=esc((j.client.name||'').split(' ')[0]);
       message('One quick <em>question.</em>','Hi '+fn1+'! Are you male or female? This sets up your programme, exercise tips and check-ins properly for you.','<div class="pay-opts gate"><button class="btn" type="button" data-sx="f">Female</button><button class="btn" type="button" data-sx="m">Male</button></div><p id="sxMsg" style="margin-top:12px"></p>');
       [].forEach.call(document.querySelectorAll('[data-sx]'),function(b){b.onclick=function(){[].forEach.call(document.querySelectorAll('[data-sx]'),function(x){x.disabled=true});fetch('/portal/api/sex',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({sex:b.getAttribute('data-sx')})}).then(function(r){if(!r.ok)throw 0;location.reload()}).catch(function(){[].forEach.call(document.querySelectorAll('[data-sx]'),function(x){x.disabled=false});document.getElementById('sxMsg').textContent='That didn\'t save. Please try again.'})}});
@@ -1127,8 +1128,8 @@ body.touring #tdSeg{position:relative;z-index:70}#tdSeg a.tour-on{color:#E8C872!
       '4. In Shortcuts tap <b>Automation</b> → <b>+</b> → <b>Time of Day</b> → <b>9pm, Daily</b> → <b>Run Immediately</b> → pick <b>MPF Health Sync</b>. Done.</div>'+
       '<div class="mini" style="margin-top:10px">'+(j.last?'✅ Last synced '+new Date(j.last).toLocaleString('en-GB',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'Not synced yet. Once it runs you\'ll see the time here.')+'</div>'+
       '<div class="mini" style="margin-top:8px">Your sync link is private to you. If you share it by mistake, <a href="#" id="hkReset" style="color:#c9a64b">reset it</a> and set the Shortcut up again.</div>';
-    document.getElementById('hkCopy').onclick=function(){var b=this;try{navigator.clipboard.writeText(j.url).then(function(){b.textContent='✓ Copied'})}catch(e){prompt('Copy your sync link:',j.url)}};
-    document.getElementById('hkReset').onclick=function(e){e.preventDefault();if(!confirm('Reset your sync link? The old one stops working and you\'ll need to paste the new one into the Shortcut.'))return;load(true)};
+    document.getElementById('hkCopy').onclick=function(){var b=this;mpfCopy(j.url,'✓ Sync link copied');b.textContent='✓ Copied'};
+    document.getElementById('hkReset').onclick=function(e){e.preventDefault();mpfAsk('Reset your sync link? The old one stops working and you\'ll need to paste the new one into the Shortcut.',{yes:'Reset it',red:true},function(){load(true)})};
   }
   function load(reset){fetch('/portal/api/health-link',{method:reset?'POST':'GET',credentials:'same-origin',cache:'no-store',headers:{'content-type':'application/json'},body:reset?JSON.stringify({reset:true}):undefined}).then(function(r){return r.ok?r.json():null}).then(function(j){if(j)draw(j);else document.getElementById('health').hidden=true}).catch(function(){})}
   if(/[?&]preview/.test(location.search))return;

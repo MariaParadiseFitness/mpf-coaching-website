@@ -76,9 +76,9 @@
       a('new',function(){var d=view==='month'?sel:wk===monday(today())?today():wk;edit={id:'',type:'training',title:'',date:d,time:'07:00',dur:60,days:[],until:'',notes:''};form(edit)});
       var msg=function(t){var m=el.querySelector('#plMsg');if(m)m.textContent=t};
       a('on',function(){msg('Setting up…');save({feed:'on'}).then(draw).catch(function(){msg('Not done. Try again.')})});
-      a('reset',function(){if(!confirm('Make a new link? The old one stops working, so you\'ll need to add the new one to your calendar again.'))return;save({feed:'reset'}).then(draw)});
-      a('off',function(){if(!confirm('Turn off calendar sync? Your plan stays here but stops showing in your calendar.'))return;save({feed:'off'}).then(draw)});
-      a('copy',function(){try{navigator.clipboard.writeText(feed).then(function(){msg('✓ Link copied')})}catch(e){prompt('Copy your link:',feed)}});
+      a('reset',function(){mpfAsk('Make a new link? The old one stops working, so you\'ll need to add the new one to your calendar again.',{yes:'New link',red:true},function(){save({feed:'reset'}).then(draw)})});
+      a('off',function(){mpfAsk('Turn off calendar sync? Your plan stays here but stops showing in your calendar.',{yes:'Turn off',red:true},function(){save({feed:'off'}).then(draw)})});
+      a('copy',function(){mpfCopy(feed,'✓ Link copied')});
     }
     function $f(){return el.querySelector('#plForm')}
     function form(x){
@@ -97,7 +97,7 @@
       [].forEach.call(f.querySelectorAll('[data-q]'),function(b){b.onclick=function(){keep();x.title=b.getAttribute('data-q');form(x)}});
       [].forEach.call(f.querySelectorAll('[data-d]'),function(b){b.onclick=function(){keep();var d=+b.getAttribute('data-d'),i=x.days.indexOf(d);if(i>-1)x.days.splice(i,1);else x.days.push(d);x.days.sort();form(x)}});
       f.querySelector('[data-f=x]').onclick=function(){edit=null;f.innerHTML=''};
-      var del=f.querySelector('[data-f=del]');if(del)del.onclick=function(){if(!confirm('Delete '+x.title+(x.days.length?' (every week)':'')+'?'))return;items=items.filter(function(i){return i.id!==x.id});save().then(function(){edit=null;draw()}).catch(function(){f.querySelector('#plFm').textContent='Not deleted. Try again.'})};
+      var del=f.querySelector('[data-f=del]');if(del)del.onclick=function(){mpfAsk('Delete '+x.title+(x.days.length?' (every week)':'')+'?',{yes:'Delete',red:true},function(){items=items.filter(function(i){return i.id!==x.id});save().then(function(){edit=null;draw()}).catch(function(){f.querySelector('#plFm').textContent='Not deleted. Try again.'})})};
       f.querySelector('[data-f=save]').onclick=function(){keep();var m=f.querySelector('#plFm');if(!x.title.trim()){m.textContent='Add a name first.';f.querySelector('#plT').focus();return}
         if(!x.id)x.id=Math.random().toString(36).slice(2,10);items=items.filter(function(i){return i.id!==x.id}).concat([x]);m.textContent='Saving…';
         save().then(function(){edit=null;var f=x.date;if(x.days.length){for(var i=0;i<7;i++){if(occurs(x,add(x.date,i))){f=add(x.date,i);break}}}if(f<wk||f>add(wk,6))wk=monday(f);if(view==='month'){sel=f;mo=f.slice(0,8)+'01'}draw();var m=el.querySelector('#plOk');if(m)m.textContent='✓ Saved. First one: '+fmt(f,{weekday:'short',day:'numeric',month:'short'})+(x.time?' at '+x.time:'');setTimeout(function(){if(m)m.textContent=''},6000)}).catch(function(){m.textContent='Not saved. Check your signal and try again.'})};
