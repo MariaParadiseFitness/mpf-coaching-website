@@ -59,7 +59,7 @@
     function lastDone(wname){var k=nk(wname);for(var i=0;i<sessions.length;i++)if(nk(sessions[i].workout)===k)return sessions[i].date;return ''}
     function allNames(){var o={};progs.forEach(function(p){(p.workouts||[]).forEach(function(w){(w.exercises||[]).forEach(function(e){if(e.name)o[e.name.trim()]=1})})});sessions.forEach(function(s){(s.exercises||[]).forEach(function(e){if(e.name)o[e.name.trim()]=1})});return Object.keys(o).sort()}
 
-    function show(v){view=v;if(v==='active'&&W)drawActive();else if(v==='history')drawHistory();else{view='home';drawHome()}if(o.onView)o.onView(view)}
+    function show(v){view=v;if(v==='active'&&W){drawActive();if(!W.id&&W.exercises.length&&!tourSeen())setTimeout(function(){if(view==='active')lbTour()},600)}else if(v==='history')drawHistory();else{view='home';drawHome()}if(o.onView)o.onView(view)}
 
     /* ---------- home: pick a workout ---------- */
     function drawHome(){
@@ -130,8 +130,40 @@
     function allDone(e){return e.sets.length>0&&e.sets.every(function(x){return x.done})}
     function openIdx(){if(W._open!=null&&W._open<W.exercises.length)return W._open;for(var i=0;i<W.exercises.length;i++)if(!allDone(W.exercises[i]))return i;return -1}
     function sumH(e,i,shut){var n=e.sets.length,d=e.sets.filter(function(x){return x.done}).length;return '<button type="button" class="lb-tog" data-x="tog" aria-expanded="'+(!shut)+'" aria-label="'+(shut?'Open':'Close')+' '+esc(e.name)+'"><span>'+(n&&d===n?'✅ Done':d+'/'+n+' sets')+'</span><i>'+(shut?'▾':'▴')+'</i></button>'}
+
+    // first-time walkthrough of logging a workout (replay any time from "How to log")
+    var TKEY='mpf-lb-tour-v1';
+    function tourSeen(){try{return !!localStorage.getItem(TKEY)}catch(e){return true}}
+    function lbTour(){
+      if(document.querySelector('.lbt'))return;
+      var X='.lb-ex:not(.shut):not(.lb-choose)';
+      var S=[[X,'👋 Quick tour','This is your first exercise. Each one opens like this. Tap its name to open or close it. When you finish all its sets, the next one opens for you.'],
+        [X+' .lb-last',"🕘 Last time","What you lifted last time, so you know what to beat."],
+        [X+' .lb-set[data-k] [data-f=kg]','🏋️ Weight','Type the weight in kg. If a grey number shows, that\'s your weight from last time.'],
+        [X+' .lb-set[data-k] [data-f=reps]','🔢 Reps','Type how many full reps you did.'],
+        [X+' .lb-set[data-k] [data-f=part]','➕ Partials','Did a few partial reps at the end? Pop them here. Leave it blank if not.'],
+        [X+' .lb-set[data-k] .lb-tick','✓ Done','Tap the tick when the set is done. Your rest timer starts on its own.'],
+        [X+' .lb-set[data-k] .lb-n','🏷️ Set type','Tap the set number to mark it as a warm-up, drop set, to failure and more.'],
+        [X+' .lb-set[data-k]','👈 Delete a set','Swipe a set to the left to delete it.'],
+        [X+' .lb-adds','＋ Add more','Add another set, or a pre or post exhaust. Tap the ⓘ to see what they are.'],
+        [X+' .lb-more','⋯ Options','Swap the exercise, move it up or down, or log each side separately.'],
+        [X+' .lb-note','📝 Notes','Seat height, how it felt, anything to remember for next time.'],
+        ['[data-a=finish]','✅ Finish','Everything saves as you go, so you can leave and come back. When you\'re done, tap Finish workout at the top.']
+      ].filter(function(t){return el.querySelector(t[0])});
+      if(!S.length)return;
+      var o=document.createElement('div');o.className='lbt';o.innerHTML='<div class="lbt-hole"></div><div class="lbt-card"><div class="lbt-n"></div><b></b><p></p><div class="lbt-btns"><button type="button" class="lbt-skip">Skip</button><button type="button" class="lbt-next">Next</button></div></div>';
+      document.body.appendChild(o);var i=0,hole=o.querySelector('.lbt-hole'),card=o.querySelector('.lbt-card');
+      function end(){try{localStorage.setItem(TKEY,'1')}catch(e){}o.remove();window.removeEventListener('resize',place);window.removeEventListener('scroll',place,true)}
+      function place(){var t=el.querySelector(S[i][0]);if(!t)return;var r=t.getBoundingClientRect(),pad=6;
+        hole.style.cssText='top:'+(r.top-pad)+'px;left:'+(r.left-pad)+'px;width:'+(r.width+pad*2)+'px;height:'+(r.height+pad*2)+'px';
+        var vh=window.innerHeight,ch=card.offsetHeight||150,below=r.bottom+pad+12;card.style.top=(below+ch<vh-8?below:Math.max(8,r.top-pad-12-ch))+'px'}
+      function step(){var t=el.querySelector(S[i][0]);card.querySelector('.lbt-n').textContent='Step '+(i+1)+' of '+S.length;card.querySelector('b').textContent=S[i][1];card.querySelector('p').textContent=S[i][2];
+        card.querySelector('.lbt-next').textContent=i===S.length-1?'Got it 💪':'Next';
+        if(t){var r=t.getBoundingClientRect();if(r.top<90||r.bottom>window.innerHeight-170)t.scrollIntoView({block:'center'})}setTimeout(place,250);place()}
+      o.querySelector('.lbt-skip').onclick=end;o.querySelector('.lbt-next').onclick=function(){if(++i>=S.length)end();else step()};
+      window.addEventListener('resize',place);window.addEventListener('scroll',place,true);step()}
     function drawActive(){
-      var h='<div class="lb-act"><div class="lb-top"><input class="lb-title" id="lbTitle" value="'+esc(W.workout)+'" aria-label="Workout name"><div class="lb-meta"><label>📅 <input type="date" id="lbDate" value="'+esc(W.date)+'" max="'+today()+'"></label>'+(W.id?'<span class="lb-tag">Editing</span>':'<span class="lb-time" id="lbTime">0:00</span>')+'</div>'+(window.MPFGloss?'<button type="button" class="gl-open" data-gl="">📖 Training terms explained</button>':'')+'<a class="gl-open lb-pl" href="#music">🎧 Spotify playlists</a>'+'<div class="lb-bar"><span class="lb-note">Your workout saves automatically as you fill it in. If you leave the page, it will still be here.</span><button class="btn" type="button" data-a="finish">'+(W.id?'Save changes':'Finish workout ✓')+'</button></div><span class="lg-msg" id="lbMsg"></span>'+'</div>';
+      var h='<div class="lb-act"><div class="lb-top"><input class="lb-title" id="lbTitle" value="'+esc(W.workout)+'" aria-label="Workout name"><div class="lb-meta"><label>📅 <input type="date" id="lbDate" value="'+esc(W.date)+'" max="'+today()+'"></label>'+(W.id?'<span class="lb-tag">Editing</span>':'<span class="lb-time" id="lbTime">0:00</span>')+'</div>'+(window.MPFGloss?'<button type="button" class="gl-open" data-gl="">📖 Training terms explained</button>':'')+'<button type="button" class="gl-open" data-a="tour">❓ How to log</button><a class="gl-open lb-pl" href="#music">🎧 Spotify playlists</a>'+'<div class="lb-bar"><span class="lb-note">Your workout saves automatically as you fill it in. If you leave the page, it will still be here.</span><button class="btn" type="button" data-a="finish">'+(W.id?'Save changes':'Finish workout ✓')+'</button></div><span class="lg-msg" id="lbMsg"></span>'+'</div>';
       if(!W.exercises.length)h+='<p class="ci-note" style="text-align:center;margin:18px 0">No exercises yet. Tap <b>＋ Add exercise</b> to choose some.</p>';
       h+=blockH('pre','🔥 Warm-up, activation & mobility','Anything you did before your first exercise. Optional.',PRE,W.pre);
       var oi=openIdx();h+=W.exercises.map(function(e,i){var prev=prevFor(e.name,W.id),shut=i!==oi;
@@ -195,6 +227,7 @@
       act('addex',function(){pickEx()});
       act('discard',function(){if(!W.id&&nSets(W.exercises)&&!confirm('Throw this workout away? Nothing will be saved.'))return;W=null;store.del();stopRest();show('home')});
       act('finish',finish);
+      act('tour',function(){var oi=openIdx();if(oi<0&&W.exercises.length){W._open=0;drawActive()}setTimeout(lbTour,100)});
     }
     // no countdown: rest until you're genuinely ready to give the next set everything
     function startRest(st){stopRest();rest={};var bar=document.createElement('div');bar.className='lb-rest lb-rest2';bar.id='lbRest';bar.innerHTML=(st?'<span>😮‍💨 Rest until fully recovered, usually <b>3–5 min</b>, so every rep is crisp</span>':'<span>😮‍💨 Rest until you\'re ready to <b>smash</b> the next set</span>')+(window.MPFGloss?window.MPFGloss.btn(st?'strrest':'rest','How long should I rest?'):'')+'<button type="button" data-r="0" aria-label="Close">✕</button>';document.body.appendChild(bar);

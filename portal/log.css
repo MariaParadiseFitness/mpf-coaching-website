@@ -670,3 +670,12 @@ button.lb-pkt span{color:var(--mute);font-size:12px;font-weight:600}
 .lb-swhint{font-size:11.5px;color:var(--mute,#8d8371);text-align:center;margin:4px 0 12px}
 
 .lb-addw{position:relative;display:flex;flex:1;min-width:0}.lb-addw .lb-add{flex:1;width:100%}.lb-addi{position:absolute;top:-7px;right:-5px;background:#141414!important;z-index:2}
+
+/* first-time logging walkthrough */
+.lbt{position:fixed;inset:0;z-index:2000}
+.lbt-hole{position:fixed;border-radius:12px;box-shadow:0 0 0 9999px rgba(0,0,0,.72);border:2px solid var(--gold,#c9a64b);transition:all .25s ease;pointer-events:none}
+.lbt-card{position:fixed;left:12px;right:12px;max-width:420px;margin:0 auto;background:#141210;border:1px solid var(--gold,#c9a64b);border-radius:16px;padding:14px 16px;box-shadow:0 10px 30px rgba(0,0,0,.5);transition:top .25s ease}
+.lbt-n{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute,#8d8371);margin-bottom:4px}
+.lbt-card b{display:block;color:var(--gold-l,#e8c872);font-size:16px;margin-bottom:4px}.lbt-card p{margin:0;font-size:14px;line-height:1.5;color:#eee}
+.lbt-btns{display:flex;justify-content:space-between;margin-top:12px}.lbt-btns button{font:inherit;font-weight:700;font-size:13px;border-radius:20px;padding:8px 16px;cursor:pointer}
+.lbt-skip{background:transparent;border:1px solid var(--line,#2a2a2a);color:var(--soft,#bbb)}.lbt-next{background:linear-gradient(120deg,#9C7A2C 0%,#C9A64B 45%,#E8D79A 100%);border:0;color:#111}
