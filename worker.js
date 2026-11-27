@@ -1169,6 +1169,14 @@ async function handleApi(request, env, url, ctx) {
       if (b.bankAdd) db.bank.unshift({ id: Date.now().toString(36), text: str(b.bankAdd.text, 200), pillar: str(b.bankAdd.pillar, 20) });
       if (b.bankRemove) db.bank = db.bank.filter((x) => x.id !== b.bankRemove);
       db.bank = db.bank.slice(0, 300);
+      // Idea folders: full content ideas and scripts, grouped into folders
+      db.ideas = db.ideas || [];
+      const cleanIdea = (x) => ({ id: str(x.id || Date.now().toString(36) + Math.random().toString(36).slice(2, 6), 40), folder: str(x.folder || "My ideas", 80), title: str(x.title, 200), pillar: str(x.pillar, 20), status: ["idea", "filmed", "posted"].includes(x.status) ? x.status : "idea", body: str(x.body, 12000) });
+      if (Array.isArray(b.ideasImport)) { const have = new Set(db.ideas.map((x) => x.id)); for (const x of b.ideasImport.slice(0, 300)) if (x && x.title && !have.has(String(x.id))) db.ideas.push(cleanIdea(x)); }
+      if (b.ideaSet && b.ideaSet.title) { const n = cleanIdea(b.ideaSet), i = db.ideas.findIndex((x) => x.id === n.id); if (i > -1) db.ideas[i] = n; else db.ideas.unshift(n); }
+      if (b.ideaStatus && b.ideaStatus.id) { const x = db.ideas.find((y) => y.id === b.ideaStatus.id); if (x && ["idea", "filmed", "posted"].includes(b.ideaStatus.status)) x.status = b.ideaStatus.status; }
+      if (b.ideaRemove) db.ideas = db.ideas.filter((x) => x.id !== b.ideaRemove);
+      db.ideas = db.ideas.slice(0, 600);
       if (b.checks && typeof b.checks === "object") db.checks = Object.fromEntries(Object.entries(b.checks).slice(0, 200).map(([k, v]) => [str(k, 80), str(v, 12)]));
       await putJSON(env, key, db);
     }
