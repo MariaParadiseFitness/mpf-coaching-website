@@ -652,7 +652,7 @@ html,body{overflow-x:hidden}
     $('idSt').innerHTML=[['all','All'],['idea','To film'],['filmed','Filmed'],['posted','Posted']].map(function(x){var n=x[0]==='all'?I.length:I.filter(function(i){return i.status===x[0]}).length;return '<button type="button" data-s="'+x[0]+'" class="'+(idStat===x[0]?'on':'')+'">'+x[1]+' · '+n+'</button>'}).join('');
     [].forEach.call($('idSt').querySelectorAll('button'),function(b){b.onclick=function(){idStat=b.getAttribute('data-s');drawIdeas()}});
     var show=I.filter(function(i){return (idStat==='all'||i.status===idStat)&&(!q||(i.title+' '+i.body+' '+i.folder).toLowerCase().indexOf(q)>-1)});
-    var F={},order=[];show.forEach(function(i){if(!F[i.folder]){F[i.folder]=[];order.push(i.folder)}F[i.folder].push(i)});
+    var F={},order=[];show.forEach(function(i){if(!F[i.folder]){F[i.folder]=[];order.push(i.folder)}F[i.folder].push(i)});var rk=function(f){return /Notes$/.test(f)?3:/^Women's emotions/.test(f)?2:/^To develop/.test(f)?1:0};order.sort(function(x,y){return rk(x)-rk(y)});
     $('idN').textContent=I.length+' ideas · '+Object.keys(I.reduce(function(a,i){a[i.folder]=1;return a},{})).length+' folders';
     $('idFl').innerHTML=Object.keys(I.reduce(function(a,i){a[i.folder]=1;return a},{})).map(function(f){return '<option value="'+esc(f)+'">'}).join('');
     var SL={idea:'To film',filmed:'Filmed',posted:'Posted'};
