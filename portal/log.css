@@ -713,3 +713,12 @@ button.lb-pkt span{color:var(--mute);font-size:12px;font-weight:600}
 
 .lb-anyh{margin:14px 2px 6px;font-size:13px;color:var(--soft,#cfc8b8)}.lb-anyh b{color:var(--gold-l,#e8c872)}
 .lb-progs .lb-anysw{border-style:dashed!important;color:var(--gold-l,#e8c872)!important}
+
+/* exercise demo photos / Maria's videos */
+.lb-media{position:relative;margin:10px 0 6px;border-radius:14px;overflow:hidden;background:#fff;aspect-ratio:4/3;border:1px solid rgba(201,166,75,.35);cursor:pointer}
+.lb-media img,.lb-media video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000}
+.lb-flip img{background:#fff}.lb-flip img.b{animation:lbFlip 2.2s steps(1,end) infinite}.lb-flip.paused img.b{animation-play-state:paused}
+@keyframes lbFlip{0%{opacity:0}50%{opacity:1}100%{opacity:0}}
+.lb-mtag{position:absolute;left:8px;bottom:8px;background:rgba(0,0,0,.72);color:#fff;font-size:11px;font-weight:700;border-radius:20px;padding:5px 9px;pointer-events:none}
+.lb-media video+.lb-mtag{bottom:auto;top:8px}
+.lb-cue{background:#151410;border-left:3px solid var(--gold,#c9a64b);border-radius:8px;padding:9px 11px;margin:8px 0;font-size:13.5px;line-height:1.5;color:#eee}.lb-cue b{color:var(--gold-l,#e8c872)}

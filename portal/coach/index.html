@@ -243,11 +243,24 @@ html,body{overflow-x:hidden}
 .idbody{padding:4px 14px 14px 28px;font-size:14px;line-height:1.6;color:#ddd}.idbody h4{color:var(--gold-l);font-size:12px;letter-spacing:.12em;text-transform:uppercase;margin:14px 0 4px}.idbody p{margin:6px 0}.idbody ul,.idbody ol{margin:6px 0;padding-left:20px}.idacts{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
 .idnew{margin-top:10px}.idnew>summary{cursor:pointer;color:var(--gold-l);font-size:14px}.idform{display:grid;gap:8px;margin-top:8px}.idform input,.idform textarea{font:inherit;font-size:14px;padding:9px 12px;border-radius:12px;border:1px solid rgba(201,166,75,.35);background:#0e0e0e;color:#fff}
 </style>
+<style>
+.exl-row{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:#141414;border:1px solid #262421;border-radius:14px;padding:8px 12px 8px 8px;margin-bottom:7px;color:#fff;font:inherit;cursor:pointer}
+.exl-th{width:58px;height:44px;flex:none;border-radius:9px;overflow:hidden;background:#fff;display:flex;align-items:center;justify-content:center;font-size:20px}.exl-th img{width:100%;height:100%;object-fit:cover}
+.exl-nm{flex:1;min-width:0}.exl-nm b{display:block;font-size:14.5px}.exl-nm small{display:block;color:#8d8371;font-size:12px;margin-top:2px}.exl-ar{color:#c9a64b;font-size:20px}
+.exl-ed{position:fixed;inset:0;z-index:300;background:#0b0b0b;overflow:auto}.exl-in{max-width:620px;margin:0 auto;padding:14px 14px 90px}
+.exl-hd{display:flex;align-items:center;gap:10px;margin-bottom:10px}.exl-hd b{font-size:18px;color:#e8c872}
+.exl-media{border-radius:14px;overflow:hidden;border:1px solid rgba(201,166,75,.35);aspect-ratio:4/3;background:#000;position:relative}.exl-media video{width:100%;height:100%;object-fit:contain;background:#000}
+.exl-flip{position:absolute;inset:0;background:#fff}.exl-flip img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}.exl-flip img.b{animation:exlF 2.2s steps(1,end) infinite}@keyframes exlF{0%{opacity:0}50%{opacity:1}100%{opacity:0}}
+.exl-none{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#8d8371;font-size:14px;padding:20px;text-align:center;background:#101010}
+.exl-sec{background:#141414;border:1px solid #262421;border-radius:14px;padding:12px;margin-top:12px}.exl-sec>b{color:#e8c872;font-size:14.5px}
+.exl-mus{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.exl-mus button{background:#1a1a1a;border:1px solid #2a2a2a;color:#cfc8b8;border-radius:20px;padding:7px 11px;font:inherit;font-size:12.5px;cursor:pointer}.exl-mus button.main{background:#e0362c;border-color:#e0362c;color:#fff}.exl-mus button.also{background:#8e2b25;border-color:#8e2b25;color:#fff}
+.exl-foot{position:fixed;left:0;right:0;bottom:0;background:#141414;border-top:1px solid #262421;padding:10px 14px;display:flex;align-items:center;justify-content:flex-end;gap:10px;z-index:301}.exl-foot .mini{flex:1}
+</style>
 </head>
 <body>
 <div class="top"><div class="in"><a href="/portal/coach/"><img src="/img/logo.png" alt="MPF Coaching"></a><a class="o" href="/cdn-cgi/access/logout">Log out</a></div></div>
 <main class="wrap" id="app" hidden>
-  <nav class="vnav" id="vnav"><a data-v="today" href="#v=today">✅ Today</a><a data-v="clients" href="#v=clients">👥 Clients</a><a data-v="checkins" href="#v=checkins">💬 Check-ins<span class="nb" id="nbCi" hidden></span></a><a data-v="prog" href="#v=prog">📋 Programmes</a><a data-v="meal" href="#v=meal">🥗 Meal plans</a><a data-v="mkt" href="#v=mkt">📣 Content</a><a href="/portal/coach/business.html">💷 Business</a><a href="#" id="cvNav">👁 Client view</a><a data-v="cal" href="#v=cal">📅 Calendar</a><a data-v="email" href="#v=email">📧 Email</a><a data-v="int" href="#v=int">🔌 Integrations</a><a data-v="settings" href="#v=settings">⚙️ Settings</a></nav>
+  <nav class="vnav" id="vnav"><a data-v="today" href="#v=today">✅ Today</a><a data-v="clients" href="#v=clients">👥 Clients</a><a data-v="checkins" href="#v=checkins">💬 Check-ins<span class="nb" id="nbCi" hidden></span></a><a data-v="prog" href="#v=prog">📋 Programmes</a><a data-v="meal" href="#v=meal">🥗 Meal plans</a><a data-v="mkt" href="#v=mkt">📣 Content</a><a href="/portal/coach/business.html">💷 Business</a><a href="#" id="cvNav">👁 Client view</a><a data-v="cal" href="#v=cal">📅 Calendar</a><a data-v="exlib" href="#v=exlib">🎬 Exercises</a><a data-v="email" href="#v=email">📧 Email</a><a data-v="int" href="#v=int">🔌 Integrations</a><a data-v="settings" href="#v=settings">⚙️ Settings</a></nav>
   <nav class="cbnav" id="cbnav"><a data-v="today" href="#v=today"><i class="ti ti-circle-check"></i>Today</a><a data-v="clients" href="#v=clients"><i class="ti ti-users"></i>Clients</a><a data-v="checkins" href="#v=checkins"><i class="ti ti-message-circle"></i>Check-ins<span class="nb" id="nbCi2" hidden></span></a><a data-v="mkt" href="#v=mkt"><i class="ti ti-speakerphone"></i>Content</a><a href="#" id="cbMore"><i class="ti ti-dots"></i>More</a></nav>
   <div class="cbsheet" id="cbSheet" hidden><div class="cbs-in"><div class="cbs-h"><b>More</b><button type="button" class="x" id="cbX">✕</button></div>
     <a data-v="prog" href="#v=prog"><i class="ti ti-clipboard-list"></i><span><b>Programmes</b><small>Your training templates</small></span></a>
@@ -255,6 +268,7 @@ html,body{overflow-x:hidden}
     <a href="/portal/coach/business.html"><i class="ti ti-currency-pound"></i><span><b>Business</b><small>Money, sessions and goals</small></span></a>
     <a href="#" data-cv="1"><i class="ti ti-eye"></i><span><b>Client view</b><small>See the app as a client sees it</small></span></a>
     <a data-v="cal" href="#v=cal"><i class="ti ti-calendar"></i><span><b>Calendar</b><small>Your Google Calendar connection</small></span></a>
+    <a data-v="exlib" href="#v=exlib"><i class="ti ti-video"></i><span><b>Exercises</b><small>Your videos, tips and muscles for every exercise</small></span></a>
     <a data-v="email" href="#v=email"><i class="ti ti-mail"></i><span><b>Email marketing</b><small>Your list and newsletters in Kit</small></span></a>
     <a data-v="int" href="#v=int"><i class="ti ti-plug-connected"></i><span><b>Integrations</b><small>Everything connected to your portal</small></span></a>
     <a data-v="settings" href="#v=settings"><i class="ti ti-settings"></i><span><b>Settings</b><small>Reminders, templates, recommendations, backup</small></span></a></div></div>
@@ -307,6 +321,14 @@ html,body{overflow-x:hidden}
   <div data-view="cal" id="calv">
     <div class="card2"><h2>Google <em>Calendar.</em></h2><div id="gcalSt"></div></div>
   </div>
+  <div data-view="exlib" id="exlv">
+    <div class="t2h" style="margin-bottom:6px"><h2 class="sec">Exercise <em>library.</em></h2><span class="mini" id="exlN"></span></div>
+    <div class="mini" style="margin-bottom:10px">Every exercise in the app. Tap one to upload your own demo video, add your tips, change the bracing cue or the muscles it shows. Clients see your changes straight away.</div>
+    <input id="exlQ" type="search" placeholder="Search exercises, e.g. hip thrust" style="background:#0e0e0e;color:#fff;border:1px solid rgba(201,166,75,.35);border-radius:10px;padding:10px;font:inherit;font-size:14px;width:100%;box-sizing:border-box;margin-bottom:8px">
+    <div class="filters" id="exlF"></div>
+    <div id="exlBox"><p class="mini">Loading…</p></div>
+  </div>
+  <div class="exl-ed" id="exlEd" hidden></div>
   <div data-view="email" id="emv">
     <div class="t2h" style="margin-bottom:10px"><h2 class="sec">Email <em>marketing.</em></h2><span class="mini" id="kitN"></span></div>
     <div id="kitOff" hidden class="card2"><h2>Connect <em>Kit.</em></h2><div class="mini" style="line-height:1.7">1. Make a free account at <a href="https://kit.com" target="_blank" rel="noopener" style="color:#c9a64b">kit.com</a> and verify info@mpfcoaching.co.uk as your sender.<br>2. In Kit: Settings → Developer → <b>Add a new V4 API key</b>, copy it.<br>3. In Cloudflare → Workers &amp; Pages → mpf-coaching-website → Settings → + Add variable: name <b>KIT_API_KEY</b>, paste it, tick <b>Secret</b>, Deploy.<br>Then come back here and refresh.</div></div>
@@ -399,6 +421,9 @@ html,body{overflow-x:hidden}
 <script src="/portal/chart.js"></script>
 <script src="/portal/log.js?v=cy1"></script>
 <script src="/portal/exlib.js"></script>
+<script src="/portal/swaps.js"></script>
+<script src="/portal/muscles.js?v=3"></script>
+<script src="/portal/exphotos.js?v=1"></script>
 <script src="/portal/programme.js?v=d1"></script>
 <script src="/portal/calc.js"></script>
 <script src="/portal/onboard.js"></script>
@@ -886,6 +911,55 @@ html,body{overflow-x:hidden}
       m.textContent=send?'✅ Sending in about 2 minutes':'✅ Saved as a draft in Kit';$('kSub').value=$('kPre').value=$('kTxt').value='';loadKit()}).catch(function(){$('kDraft').disabled=$('kSend').disabled=false;m.textContent='Not saved. Try again.'})}
   if($('kDraft')){$('kDraft').onclick=function(){kitPost(false)};$('kSend').onclick=function(){kitPost(true)};
     $('kAdd').onclick=function(){var m=$('kAddM');m.textContent='Adding…';postJ('/portal/api/coach/kit',{action:'subscribe',name:$('kAddN').value.trim(),email:$('kAddE').value.trim()}).then(function(j){if(j.error){m.textContent='⚠️ '+j.error;return}m.textContent='✅ Added';$('kAddN').value=$('kAddE').value='';loadKit()}).catch(function(){m.textContent='Not added. Try again.'})}}
+
+  // ---- Exercise library: Maria's videos, tips, brace cues and muscles ----
+  var EXL={ov:{},use:{},names:[],f:'all',n:60,loaded:false};
+  var exK=function(n){return String(n||'').toLowerCase().trim()};
+  function exlPhoto(n){return window.MPFPhotoFor?MPFPhotoFor(n):null}
+  function loadExl(){if(preview){EXL.loaded=true;exlBuild();return}if(!clients.length){$('exlBox').innerHTML='<p class="mini">Loading…</p>';setTimeout(function(){if(document.querySelector('#exlv')&&!document.querySelector('#exlv').hidden)loadExl()},700);return}
+    var jobs=[fetch('/portal/api/exlib',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){EXL.ov=j.items||{}})];
+    if(!EXL.useDone)jobs.push(Promise.all(clients.filter(function(c){return c.active}).map(function(c){return fetch('/portal/api/coach/programmes?id='+encodeURIComponent(c.id),{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(p){var cur=(p.programmes||[]).filter(function(x){return x.id===p.current})[0]||(p.programmes||[])[0];if(!cur)return;var seen={};(cur.workouts||[]).forEach(function(w){(w.exercises||[]).forEach(function(e){var k=exK(e.name);if(!k||seen[k])return;seen[k]=1;(EXL.use[k]=EXL.use[k]||{name:e.name,n:0,who:[]}).n++;EXL.use[k].who.push(c.name.split(' ')[0])})})}).catch(function(){})})).then(function(){EXL.useDone=true}));
+    $('exlBox').innerHTML='<p class="mini">Loading your exercises and clients\' programmes…</p>';Promise.all(jobs).then(function(){EXL.loaded=true;exlBuild()}).catch(function(){$('exlBox').innerHTML='<p class="mini">Could not load. Try again.</p>'})}
+  function exlBuild(){var m={},add=function(n){var k=exK(n);if(k&&!m[k])m[k]=n};Object.keys(EXL.use).forEach(function(k){add(EXL.use[k].name)});var L=window.MPFEX||{};Object.keys(L).forEach(function(g){L[g].forEach(add)});Object.keys(EXL.ov).forEach(function(k){add(EXL.ov[k].name||k)});
+    EXL.names=Object.keys(m).map(function(k){return m[k]});exlDraw()}
+  function exlInfo(n){var k=exK(n),ov=EXL.ov[k]||{},u=EXL.use[k];return {k:k,ov:ov,used:u?u.n:0,who:u?u.who:[],vid:!!ov.video,ph:!!exlPhoto(n)&&!ov.hidePhoto,ed:!!(ov.cue||ov.brace||ov.main)}}
+  function exlDraw(){var q=exK($('exlQ').value),F=[['all','All'],['film','🎬 Film these first'],['vid','🎥 My videos'],['ph','📷 Photo only'],['none','No picture'],['ed','✏️ Edited']];
+    var all=EXL.names.map(function(n){var i=exlInfo(n);i.name=n;return i});
+    var cnt={all:all.length,film:all.filter(function(x){return x.used&&!x.vid}).length,vid:all.filter(function(x){return x.vid}).length,ph:all.filter(function(x){return x.ph&&!x.vid}).length,none:all.filter(function(x){return !x.ph&&!x.vid}).length,ed:all.filter(function(x){return x.ed}).length};
+    $('exlF').innerHTML=F.map(function(f){return '<button type="button" class="'+(EXL.f===f[0]?'on':'')+'" data-xf="'+f[0]+'">'+f[1]+' <span>'+cnt[f[0]]+'</span></button>'}).join('');
+    [].forEach.call($('exlF').querySelectorAll('[data-xf]'),function(b){b.onclick=function(){EXL.f=b.getAttribute('data-xf');EXL.n=60;exlDraw()}});
+    var L=all.filter(function(x){if(q&&x.k.indexOf(q)<0)return false;return EXL.f==='all'||(EXL.f==='film'&&x.used&&!x.vid)||(EXL.f==='vid'&&x.vid)||(EXL.f==='ph'&&x.ph&&!x.vid)||(EXL.f==='none'&&!x.ph&&!x.vid)||(EXL.f==='ed'&&x.ed)});
+    L.sort(function(a,b){return (b.used-a.used)||(b.vid-a.vid)||a.name.localeCompare(b.name)});
+    $('exlN').textContent=cnt.vid+' with your video · '+cnt.ph+' with photos';
+    $('exlBox').innerHTML=(EXL.f==='film'?'<div class="mini" style="margin:2px 0 10px">Exercises in your clients\' current programmes that don\'t have your video yet, most used first.</div>':'')+L.slice(0,EXL.n).map(function(x){var sl=exlPhoto(x.name);return '<button type="button" class="exl-row" data-xn="'+intEsc(x.name)+'"><span class="exl-th">'+(x.vid?'🎥':sl&&!x.ov.hidePhoto?'<img src="/portal/ex/'+sl+'-0.webp" alt="" loading="lazy">':'▫️')+'</span><span class="exl-nm"><b>'+intEsc(x.name)+'</b><small>'+[x.used?'In '+x.used+' client'+(x.used===1?'':'s')+'\' programmes':'',x.vid?'🎥 Your video':x.ph?'📷 Stock photo':'No picture yet',x.ov.cue?'💬 Your tips':'',x.ov.main?'💪 Muscles edited':'',x.ov.brace?'🫁 Brace edited':''].filter(Boolean).join(' · ')+'</small></span><span class="exl-ar">›</span></button>'}).join('')+(L.length>EXL.n?'<button type="button" class="btn g" id="exlMore" style="margin-top:8px">Show more ('+(L.length-EXL.n)+')</button>':'')+(L.length?'':'<p class="mini">No exercises match.</p>');
+    var mo=$('exlMore');if(mo)mo.onclick=function(){EXL.n+=120;exlDraw()};
+    [].forEach.call($('exlBox').querySelectorAll('[data-xn]'),function(b){b.onclick=function(){exlEdit(b.getAttribute('data-xn'))}})}
+  function exlEdit(name){var i=exlInfo(name),ov=i.ov,sl=exlPhoto(name),auto=window.MPFMuscles?MPFMuscles.auto(name):null,mus={},NM=(window.MPFMuscles&&MPFMuscles.names)||{};
+    (ov.main||(auto&&auto.main)||[]).forEach(function(k){mus[k]='main'});(ov.main?(ov.also||[]):(auto&&auto.also)||[]).forEach(function(k){if(!mus[k])mus[k]='also'});
+    var defBrace=window.MPFSWAP&&MPFSWAP.brace?(function(){var k=window.__exov;window.__exov=null;var r='';try{r=MPFSWAP.brace(name)}catch(e){}window.__exov=k;return r})():'';
+    var ed=$('exlEd');ed.hidden=false;document.body.style.overflow='hidden';
+    var media=function(){var o=EXL.ov[i.k]||{};return o.video?'<video src="/portal/api/exvideo/'+intEsc(o.video)+'" autoplay muted loop playsinline controls></video>':sl&&!o.hidePhoto?'<div class="exl-flip"><img src="/portal/ex/'+sl+'-0.webp" alt=""><img class="b" src="/portal/ex/'+sl+'-1.webp" alt=""></div>':'<div class="exl-none">No picture yet. Upload your video below.</div>'};
+    ed.innerHTML='<div class="exl-in"><div class="exl-hd"><button type="button" class="btn g" id="exlX">← Back</button><b>'+intEsc(name)+'</b></div>'+(i.used?'<div class="mini" style="margin-bottom:8px">In '+i.used+' client'+(i.used===1?'':'s')+'\' programmes: '+intEsc(i.who.slice(0,8).join(', '))+(i.who.length>8?' +'+(i.who.length-8):'')+'</div>':'')+
+      '<div class="exl-media" id="exlMd">'+media()+'</div>'+
+      '<div class="exl-sec"><b>🎥 Your demo video</b><div class="mini">A short clip of you doing it, 5 to 15 seconds is perfect. MP4 or MOV straight from your phone. It replaces the stock photo for every client.</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><label class="btn">⬆ '+(ov.video?'Replace video':'Upload video')+'<input type="file" id="exlFile" accept="video/mp4,video/quicktime,video/webm,video/*" hidden></label>'+(ov.video?'<button type="button" class="btn g" id="exlRmV">Remove video</button>':'')+(sl?'<label class="mini" style="display:flex;align-items:center;gap:6px"><input type="checkbox" id="exlHide"'+(ov.hidePhoto?' checked':'')+'> Hide the stock photo</label>':'')+'</div><div class="mini" id="exlVm" style="margin-top:6px"></div></div>'+
+      '<div class="exl-sec"><b>💬 Your tips for clients</b><div class="mini">Shows under the demo, e.g. "Squeeze your bum at the top, chest up, thumbs on the outside."</div><textarea id="exlCue" rows="3" style="background:#0e0e0e;color:#fff;border:1px solid rgba(201,166,75,.35);border-radius:10px;padding:10px;font:inherit;font-size:14px;width:100%;box-sizing:border-box;margin-top:6px" placeholder="Your cues for this exercise">'+intEsc(ov.cue||'')+'</textarea></div>'+
+      '<div class="exl-sec"><b>🫁 Bracing cue</b><div class="mini">Leave blank to use the automatic one shown here.</div><textarea id="exlBr" rows="3" style="background:#0e0e0e;color:#fff;border:1px solid rgba(201,166,75,.35);border-radius:10px;padding:10px;font:inherit;font-size:14px;width:100%;box-sizing:border-box;margin-top:6px" placeholder="'+intEsc(defBrace)+'">'+intEsc(ov.brace||'')+'</textarea></div>'+
+      '<div class="exl-sec"><b>💪 Muscles worked</b><div class="mini">Tap a muscle: once for <span style="color:#e0362c">main</span>, twice for <span style="color:#c86a5e">also works</span>, three times to turn it off.</div><div class="exl-mus" id="exlMus"></div>'+(ov.main?'<button type="button" class="btn g" id="exlMr" style="margin-top:8px">Reset to automatic</button>':'')+'</div>'+
+      '<div class="exl-foot"><span class="mini" id="exlM"></span><button type="button" class="btn" id="exlSave">Save changes</button></div></div>';
+    var drawMus=function(){$('exlMus').innerHTML=Object.keys(NM).map(function(k){return '<button type="button" data-mk="'+k+'" class="'+(mus[k]||'')+'">'+NM[k]+'</button>'}).join('');[].forEach.call($('exlMus').querySelectorAll('[data-mk]'),function(b){b.onclick=function(){var k=b.getAttribute('data-mk');mus[k]=mus[k]==='main'?'also':mus[k]==='also'?'':'main';if(!mus[k])delete mus[k];musTouched=true;drawMus()}})},musTouched=false;drawMus();
+    var close=function(){ed.hidden=true;ed.innerHTML='';document.body.style.overflow='';exlDraw()};$('exlX').onclick=close;
+    var after=function(j){if(j&&j.item!==undefined){if(j.item)EXL.ov[i.k]=j.item;else delete EXL.ov[i.k]}};
+    $('exlSave').onclick=function(){var b={name:name,cue:$('exlCue').value,brace:$('exlBr').value};if(musTouched){var mn=Object.keys(mus).filter(function(k){return mus[k]==='main'}),al=Object.keys(mus).filter(function(k){return mus[k]==='also'});b.main=mn;b.also=al}var h=$('exlHide');if(h)b.hidePhoto=h.checked;
+      $('exlM').textContent='Saving…';postJ('/portal/api/coach/exlib',b).then(function(j){after(j);$('exlM').textContent='✓ Saved. Clients see it now.';setTimeout(close,700)}).catch(function(){$('exlM').textContent='Not saved. Try again.'})};
+    var mr=$('exlMr');if(mr)mr.onclick=function(){postJ('/portal/api/coach/exlib',{name:name,resetMuscles:true}).then(function(j){after(j);exlEdit(name)})};
+    var rv=$('exlRmV');if(rv)rv.onclick=function(){mpfAsk?mpfAsk('Remove your video for '+name+'?',{yes:'Remove',red:true},go):go();function go(){postJ('/portal/api/coach/exlib',{name:name,removeVideo:true}).then(function(j){after(j);exlEdit(name)})}};
+    $('exlFile').onchange=function(){var f=this.files[0];if(!f)return;var vm=$('exlVm');if(f.size>95*1024*1024){vm.textContent='⚠️ That video is over 95MB. Trim it to a few seconds and try again.';return}
+      var ty=f.type||(/\.mov$/i.test(f.name)?'video/quicktime':'video/mp4');vm.textContent='Uploading… 0%';
+      var x=new XMLHttpRequest();x.open('POST','/portal/api/coach/exvideo?name='+encodeURIComponent(name));x.setRequestHeader('content-type',ty);x.withCredentials=true;
+      x.upload.onprogress=function(e){if(e.lengthComputable)vm.textContent='Uploading… '+Math.round(e.loaded/e.total*100)+'%'};
+      x.onload=function(){var j={};try{j=JSON.parse(x.responseText)}catch(e){}if(x.status===200&&j.ok){after(j);vm.textContent='✓ Uploaded. Clients see your video now.';$('exlMd').innerHTML=media()}else vm.textContent='⚠️ '+(j.error||'Upload failed. Try again.')};
+      x.onerror=function(){vm.textContent='⚠️ Upload failed. Check your connection and try again.'};x.send(f)}}
+  if($('exlQ'))$('exlQ').oninput=function(){EXL.n=60;exlDraw()};
   function loadSettings(){recLoad();if(preview){AUTO={enabled:{},log:[]};drawSettings();return}fetch('/portal/api/coach/automation',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){AUTO=j;drawSettings()})}
   function drawSettings(){var E=AUTO.enabled||{};
     $('arules').innerHTML=Object.keys(RL).map(function(k){return '<div class="arule"><div><b>'+RL[k][0]+'</b><small>'+RL[k][1]+'</small><button type="button" class="mini" data-test="'+k+'" style="background:none;border:0;color:var(--gold-l);cursor:pointer;padding:4px 0">Send me a test</button></div><label class="sw"><input type="checkbox" data-k="'+k+'"'+(E[k]?' checked':'')+'><span></span></label></div>'}).join('');
@@ -1045,9 +1119,9 @@ html,body{overflow-x:hidden}
   $('closeBtn').onclick=function(){if(location.hash.indexOf('#c=')===0)history.back();else closeP()};
   window.addEventListener('popstate',function(){if(location.hash.indexOf('#c=')!==0)closeP()});
   var curView='';
-  function go(v,noPush){if(['today','clients','prog','meal','mkt','checkins','settings','cal','int','email'].indexOf(v)<0)v='today';if(v==='mkt')drawMkt();if(v==='checkins')loadQueue();if(v==='settings'||v==='cal')loadSettings();if(v==='int')loadInt();if(v==='email')loadKit();
+  function go(v,noPush){if(['today','clients','prog','meal','mkt','checkins','settings','cal','int','email','exlib'].indexOf(v)<0)v='today';if(v==='mkt')drawMkt();if(v==='checkins')loadQueue();if(v==='settings'||v==='cal')loadSettings();if(v==='int')loadInt();if(v==='email')loadKit();if(v==='exlib')loadExl();
     [].forEach.call(document.querySelectorAll('[data-view]'),function(el){var dv=el.getAttribute('data-view');el.hidden=dv==='tpl'?!(v==='prog'||v==='meal'):dv!==v});
-    [].forEach.call(document.querySelectorAll('#vnav a[data-v],#cbnav a[data-v]'),function(a){a.classList.toggle('on',a.getAttribute('data-v')===v)});var mo=$('cbMore');if(mo)mo.classList.toggle('on',['prog','meal','settings','cal','int','email'].indexOf(v)>-1);if($('cbSheet'))$('cbSheet').hidden=true;
+    [].forEach.call(document.querySelectorAll('#vnav a[data-v],#cbnav a[data-v]'),function(a){a.classList.toggle('on',a.getAttribute('data-v')===v)});var mo=$('cbMore');if(mo)mo.classList.toggle('on',['prog','meal','settings','cal','int','email','exlib'].indexOf(v)>-1);if($('cbSheet'))$('cbSheet').hidden=true;
     if(v!==curView){if(v==='prog')$('tplBtn').click();if(v==='meal')$('mtplBtn').click();window.scrollTo(0,0)}curView=v;
     if(!noPush&&location.hash!=='#v='+v)history.pushState(null,'','#v='+v)}
   [].forEach.call(document.querySelectorAll('#vnav a[data-v],#cbnav a[data-v],#cbSheet a[data-v]'),function(a){a.onclick=function(e){e.preventDefault();go(a.getAttribute('data-v'))}});

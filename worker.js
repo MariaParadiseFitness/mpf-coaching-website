@@ -604,6 +604,55 @@ async function handleApi(request, env, url, ctx) {
   }
 
   // ---- profile photo: _data/<id>/avatar ----
+  // ---- exercise library overrides: Maria's own demo videos, tips, brace cues and muscles (_data/_exlib.json) ----
+  if (path === "/portal/api/exlib" && request.method === "GET") {
+    if (!client && !coach) return json({ error: "unknown" }, 403);
+    return new Response(JSON.stringify(await getJSON(env, "_data/_exlib.json", { items: {} })), { headers: { "content-type": "application/json", "cache-control": "private, max-age=60" } });
+  }
+  if (path === "/portal/api/coach/exlib" && request.method === "POST") {
+    if (!coach) return json({ error: "forbidden" }, 403);
+    const b = await request.json().catch(() => ({})), k = String(b.name || "").trim().toLowerCase().slice(0, 100);
+    if (!k) return json({ error: "name" }, 400);
+    const db = await getJSON(env, "_data/_exlib.json", { items: {} }), cur = db.items[k] || {};
+    const MUS = ["chest", "fdelt", "sdelt", "rdelt", "bi", "tri", "fore", "abs", "obl", "quad", "add", "abd", "glute", "ham", "calf", "trap", "ub", "lat", "lb"];
+    const arr = (a) => (Array.isArray(a) ? a.filter((x) => MUS.includes(x)).slice(0, 8) : null);
+    for (const f of ["cue", "brace"]) if (b[f] != null) { const v = String(b[f]).trim().slice(0, 1200); if (v) cur[f] = v; else delete cur[f]; }
+    if (b.main !== undefined) { const m = arr(b.main); if (m && m.length) cur.main = m; else delete cur.main; }
+    if (b.also !== undefined) { const m = arr(b.also); if (m) cur.also = m; else delete cur.also; }
+    if (b.resetMuscles) { delete cur.main; delete cur.also; }
+    if (b.removeVideo && cur.video) { await env.PHOTOS.delete("_exvid/" + cur.video).catch(() => {}); delete cur.video; delete cur.vtype; }
+    if (b.hidePhoto !== undefined) { if (b.hidePhoto) cur.hidePhoto = true; else delete cur.hidePhoto; }
+    cur.name = String(b.name).trim().slice(0, 100); cur.updated = new Date().toISOString();
+    if (Object.keys(cur).filter((x) => !["name", "updated"].includes(x)).length) db.items[k] = cur; else delete db.items[k];
+    await putJSON(env, "_data/_exlib.json", db); return json({ ok: true, item: db.items[k] || null });
+  }
+  if (path === "/portal/api/coach/exvideo" && request.method === "POST") {
+    if (!coach) return json({ error: "forbidden" }, 403);
+    const name = String(url.searchParams.get("name") || "").trim(), k = name.toLowerCase().slice(0, 100);
+    const type = (request.headers.get("content-type") || "").split(";")[0].trim();
+    if (!k || !/^video\/(mp4|quicktime|webm|x-m4v)$/.test(type)) return json({ error: "Upload an MP4 or MOV video." }, 400);
+    const len = Number(request.headers.get("content-length") || 0);
+    if (len > 95 * 1024 * 1024) return json({ error: "That video is over 95MB. Trim it to a few seconds and try again." }, 413);
+    const ext = type === "video/webm" ? "webm" : type === "video/quicktime" ? "mov" : "mp4";
+    const file = k.replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60) + "-" + Date.now().toString(36) + "." + ext;
+    await env.PHOTOS.put("_exvid/" + file, request.body, { httpMetadata: { contentType: type } });
+    const db = await getJSON(env, "_data/_exlib.json", { items: {} }), cur = db.items[k] || {};
+    if (cur.video) await env.PHOTOS.delete("_exvid/" + cur.video).catch(() => {});
+    cur.video = file; cur.vtype = type; cur.name = name.slice(0, 100); cur.updated = new Date().toISOString(); db.items[k] = cur;
+    await putJSON(env, "_data/_exlib.json", db); return json({ ok: true, item: cur });
+  }
+  if (path.startsWith("/portal/api/exvideo/") && request.method === "GET") {
+    if (!client && !coach) return json({ error: "unknown" }, 403);
+    const f = path.slice("/portal/api/exvideo/".length).replace(/[^a-z0-9.-]/gi, "");
+    const rh = request.headers.get("range"), m = rh && rh.match(/bytes=(\d+)-(\d*)/);
+    const head = await env.PHOTOS.head("_exvid/" + f); if (!head) return new Response("not found", { status: 404 });
+    const size = head.size, ct = (head.httpMetadata && head.httpMetadata.contentType) || "video/mp4";
+    if (m) { const start = +m[1], end = m[2] ? Math.min(+m[2], size - 1) : size - 1;
+      const o = await env.PHOTOS.get("_exvid/" + f, { range: { offset: start, length: end - start + 1 } });
+      return new Response(o.body, { status: 206, headers: { "content-type": ct, "content-range": `bytes ${start}-${end}/${size}`, "content-length": String(end - start + 1), "accept-ranges": "bytes", "cache-control": "private, max-age=86400" } }); }
+    const o = await env.PHOTOS.get("_exvid/" + f);
+    return new Response(o.body, { headers: { "content-type": ct, "content-length": String(size), "accept-ranges": "bytes", "cache-control": "private, max-age=86400" } });
+  }
   if (path === "/portal/api/avatar" && request.method === "POST") {
     if (!client) return json({ error: "unknown" }, 403);
     const form = await request.formData();

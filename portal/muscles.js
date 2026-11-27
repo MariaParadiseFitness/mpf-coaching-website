@@ -15,7 +15,8 @@
     [/back extension|hyperextension|good ?morning|superman/,[['lb','glute'],['ham']]],[/sumo/,[['glute','add','quad'],['ham','lb']]],[/front squat|goblet|hack squat|sissy|leg press/,[['quad'],['glute','add']]],
     [/(single|one|1)[- ]?leg(ged)?.*(rdl|romanian|deadlift)/,[['ham','glute'],['lb','add']]],[/romanian|\brdl\b|stiff[- ]?leg/,[['ham','glute'],['lb','fore']]],[/(^|\s)deadlift|trap bar|rack pull/,[['ham','glute','lb'],['quad','trap','ub','fore']]],[/face pull/,[['rdelt','ub'],['trap']]],[/pull[- ]?up|chin[- ]?up/,[['lat'],['bi','ub','fore']]],
     [/close[- ]?grip (bench|press)|diamond push/,[['tri','chest'],['fdelt']]],[/push[- ]?up|press[- ]?up/,[['chest'],['fdelt','tri','abs']]],[/plank|dead ?bug|rollout|ab wheel/,[['abs'],['obl','lb']]]];
-  function of(name){var n=String(name||'').toLowerCase().replace(/\(.*?\)/g,' ').replace(/\s+/g,' ').trim();if(!n||/cardio|treadmill|bike|cycle|stair|elliptical|cross ?trainer|rowing machine|rower|\brun\b|walk(ing)?$|stretch|foam roll|mobility/.test(n))return null;
+  function of(name){var ov=window.__exov&&window.__exov[String(name||'').toLowerCase().trim()];if(ov&&ov.main&&ov.main.length)return {main:ov.main,also:ov.also||[]};
+    var n=String(name||'').toLowerCase().replace(/\(.*?\)/g,' ').replace(/\s+/g,' ').trim();if(!n||/cardio|treadmill|bike|cycle|stair|elliptical|cross ?trainer|rowing machine|rower|\brun\b|walk(ing)?$|stretch|foam roll|mobility/.test(n))return null;
     for(var i=0;i<RULE.length;i++)if(RULE[i][0].test(n))return {main:RULE[i][1][0],also:RULE[i][1][1]};
     var p=window.MPFSWAP&&window.MPFSWAP.of(name);return p&&BY[p.key]?{main:BY[p.key][0],also:BY[p.key][1]}:null}
   // body shapes: [muscle, view, svg]
@@ -37,5 +38,5 @@
     '.mus-svg{width:165px;flex:none;height:auto}.mus-svg text{fill:#8d8371;font-size:9px;font-family:inherit;letter-spacing:.08em;text-transform:uppercase}'+
     '.lb-mus-t{display:flex;flex-direction:column;gap:6px;font-size:13px;line-height:1.35;color:#e9e4da}.lb-mus-t b{color:#e8c872;font-size:13px}.mus-dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#e0362c;margin-right:6px;vertical-align:-1px}.mus-dot.al{background:#8e2b25}'+
     '@media(max-width:360px){.mus-svg{width:120px}}';(document.head||document.documentElement).appendChild(st);
-  window.MPFMuscles={of:of,html:html,names:NM};
+  window.MPFMuscles={of:of,html:html,names:NM,auto:function(n){var k=window.__exov;window.__exov=null;var r=of(n);window.__exov=k;return r}};
 })();
