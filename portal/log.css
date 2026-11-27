@@ -698,3 +698,10 @@ button.lb-pkt span{color:var(--mute);font-size:12px;font-weight:600}
 .lb-rest.lb-rest2 button[data-r="0"]{position:absolute;top:8px;right:8px;width:28px;height:28px;padding:0;border-radius:50%;background:#222;font-size:13px}
 .lb-rest.lb-rest2 .lb-i{margin:0}
 @keyframes lbRestIn{from{opacity:0;transform:translate(-50%,-46%)}}
+
+/* end of workout: count up the new PBs, then confetti */
+.lb-prc{text-align:center}.lb-pbn{display:flex;flex-direction:column;align-items:center;margin-bottom:8px}
+.lb-pbn b{font-size:54px!important;line-height:1;color:var(--gold-l,#e8c872);font-variant-numeric:tabular-nums;display:inline-block}
+.lb-pbn b.pop{animation:lbPbPop .3s ease}.lb-pbn span{font-size:14px;font-weight:700;color:#fff;margin-top:4px}
+.lb-pbi{opacity:0;animation:lbPbIn .35s ease forwards}
+@keyframes lbPbPop{50%{transform:scale(1.35)}}@keyframes lbPbIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
