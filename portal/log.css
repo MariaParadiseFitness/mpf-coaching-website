@@ -693,7 +693,7 @@ button.lb-pkt span{color:var(--mute);font-size:12px;font-weight:600}
 .lb-nopart.lb-side .lb-set{grid-template-columns:30px 54px 42px 42px minmax(0,1fr) 34px}
 @media(max-width:400px){.lb-nopart .lb-set{grid-template-columns:30px 60px 52px minmax(0,1fr) 36px}.lb-nopart.lb-side .lb-set{grid-template-columns:30px 52px 42px 42px minmax(0,1fr) 34px}}
 /* rest pop-up: a neat card in the middle of the screen */
-.lb-rest.lb-rest2{top:50%;bottom:auto!important;left:50%;transform:translate(-50%,-50%);flex-direction:column;align-items:center;text-align:center;gap:10px;white-space:normal;width:min(300px,calc(100vw - 48px));max-width:none;border-radius:18px;padding:18px 18px 14px;font-size:15px;line-height:1.45;animation:lbRestIn .18s ease}
+.lb-rest.lb-rest2{top:50%;bottom:auto!important;left:50%;transform:translate(-50%,-50%);flex-direction:column;align-items:center;text-align:center;gap:10px;white-space:normal;width:min(270px,calc(100vw - 64px));max-width:none;border-radius:18px;padding:20px 34px 16px;box-sizing:border-box;font-size:15px;line-height:1.45;animation:lbRestIn .18s ease}
 .lb-rest.lb-rest2>span{display:block}.lb-rest.lb-rest2 b{font-size:15px;margin:0}
 .lb-rest.lb-rest2 button[data-r="0"]{position:absolute;top:8px;right:8px;width:28px;height:28px;padding:0;border-radius:50%;background:#222;font-size:13px}
 .lb-rest.lb-rest2 .lb-i{margin:0}

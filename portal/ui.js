@@ -24,4 +24,14 @@
   // copy text, with a toast instead of a box
   window.mpfCopy=function(text,okMsg){var done=function(){mpfToast(okMsg||'Copied ✓')};try{navigator.clipboard.writeText(text).then(done,function(){fallback()})}catch(e){fallback()}
     function fallback(){var ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');done()}catch(e){mpfToast('Press and hold to copy: '+text,8000)}ta.remove()}};
+
+  // confetti burst in MPF colours (gold, cream, white, black). mpfConfetti()
+  window.mpfConfetti=function(){try{if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+    var c=document.createElement('canvas'),x=c.getContext('2d'),W=c.width=innerWidth*devicePixelRatio,H=c.height=innerHeight*devicePixelRatio;
+    c.style.cssText='position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:4000';document.body.appendChild(c);
+    var col=['#C9A64B','#E8D79A','#9C7A2C','#FFFFFF','#F5E6B8','#1a1a1a'],P=[],n=160,dpr=devicePixelRatio;
+    for(var i=0;i<n;i++){var a=Math.random()*Math.PI*2,v=(6+Math.random()*9)*dpr;P.push({x:W/2+(Math.random()-.5)*W*.3,y:H*.38,vx:Math.cos(a)*v,vy:Math.sin(a)*v-8*dpr,s:(5+Math.random()*7)*dpr,r:Math.random()*6,vr:(Math.random()-.5)*.4,c:col[i%col.length],sh:Math.random()<.5})}
+    var t0=performance.now();(function f(t){var dt=Math.min(32,t-t0)/16;t0=t;x.clearRect(0,0,W,H);var alive=0;
+      P.forEach(function(p){p.vy+=.35*dpr*dt;p.vx*=.99;p.x+=p.vx*dt;p.y+=p.vy*dt;p.r+=p.vr*dt;if(p.y<H+40){alive++;x.save();x.translate(p.x,p.y);x.rotate(p.r);x.fillStyle=p.c;if(p.sh)x.fillRect(-p.s/2,-p.s/4,p.s,p.s/2);else{x.beginPath();x.arc(0,0,p.s/3,0,7);x.fill()}x.restore()}});
+      if(alive)requestAnimationFrame(f);else c.remove()})(t0);setTimeout(function(){c.remove()},6000)}catch(e){}};
 })();
