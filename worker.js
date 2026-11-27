@@ -801,7 +801,7 @@ async function handleApi(request, env, url, ctx) {
       cardio: (Array.isArray(b.cardio) ? b.cardio : []).slice(0, 6).map((x) => ({ type: str(x && x.type, 40), mins: str(x && x.mins, 5), hr: str(x && x.hr, 5), km: str(x && x.km, 6), lvl: str(x && x.lvl, 30) })).filter((x) => x.type),
       exercises: (Array.isArray(b.exercises) ? b.exercises : []).slice(0, 40).map((e) => ({
         name: str(e.name, 80), ss: str(e.ss, 6), notes: str(e.notes, 600), ...(e.fin ? { fin: true } : {}), ...(e.side === true || e.side === false ? { side: e.side } : {}),
-        sets: (Array.isArray(e.sets) ? e.sets : []).slice(0, 24).map((x) => ({ kg: str(x.kg, 10), reps: str(x.reps, 10), ...(x.repsR != null && String(x.repsR) !== "" ? { repsR: str(x.repsR, 10) } : {}), done: !!x.done, ...(["w", "d", "m", "f"].includes(x.t) ? { t: x.t } : {}) })),
+        sets: (Array.isArray(e.sets) ? e.sets : []).slice(0, 24).map((x) => ({ kg: str(x.kg, 10), reps: str(x.reps, 10), ...(x.repsR != null && String(x.repsR) !== "" ? { repsR: str(x.repsR, 10) } : {}), ...(x.part != null && String(x.part) !== "" ? { part: str(x.part, 10) } : {}), done: !!x.done, ...(["w", "d", "m", "f"].includes(x.t) ? { t: x.t } : {}) })),
       })),
     };
     const key = `${dkey(client.id)}/workouts/${b.date.slice(0, 7)}.json`;
