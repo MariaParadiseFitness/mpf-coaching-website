@@ -1254,6 +1254,22 @@ async function handleApi(request, env, url, ctx) {
     const a = acu && acu.byId && acu.byId[id];
     return json({ id, emails: (a && a.em) || {}, onFile: Object.entries(r).filter(([, x]) => x.id === id).map(([e]) => e) });
   }
+  if (path === "/portal/api/coach/integrations") {
+    if (!coach) return json({ error: "forbidden" }, 403);
+    const gc = await getJSON(env, "_data/_gcal-cache.json", null);
+    const gcDays = gc && gc.data && gc.data.days ? (Array.isArray(gc.data.days) ? gc.data.days.length : Object.keys(gc.data.days).length) : null;
+    const list = [
+      { id: "gcal", name: "Google Calendar", icon: "📅", on: !!env.GCAL_ICAL, what: "Holidays and all-day events block PT capacity on your Business page.", detail: env.GCAL_ICAL ? (gc ? "Last read " + new Date(gc.at).toISOString() + (gcDays != null ? " · " + gcDays + " blocked days" : "") : "Connected, not read yet") : "", setup: "Google Calendar → Settings → your calendar → Integrate calendar → copy Secret address in iCal format. Add it in Cloudflare as the secret GCAL_ICAL." },
+      { id: "acuity", name: "Acuity Scheduling", icon: "🗓️", on: !!(env.ACUITY_ICAL || (env.ACUITY_USER_ID && env.ACUITY_API_KEY)), what: "Bookings, sessions left on packages and PT numbers.", detail: env.ACUITY_USER_ID && env.ACUITY_API_KEY ? "Connected with the API key" : env.ACUITY_ICAL ? "Connected with the calendar feed" : "", test: true, setup: "Acuity → Integrations → API → copy your User ID and API key. Add them in Cloudflare as ACUITY_USER_ID and ACUITY_API_KEY (secret)." },
+      { id: "stripe", name: "Stripe", icon: "💳", on: !!env.STRIPE_READ_KEY, what: "Payments, failed payments and renewals on your Business page.", detail: [env.STRIPE_READ_KEY ? "Read key added" : "", env.STRIPE_WEBHOOK_SECRET ? "Live payment alerts on" : "Live payment alerts off"].filter(Boolean).join(" · "), setup: "Stripe → Developers → API keys → create a restricted read-only key. Add it in Cloudflare as STRIPE_READ_KEY (secret). For live alerts add a webhook to /stripe/webhook and save its signing secret as STRIPE_WEBHOOK_SECRET." },
+      { id: "email", name: "Email", icon: "✉️", on: !!(env.RESEND_API_KEY || env.MAILER), what: "Branded reminder emails and your notifications.", detail: env.RESEND_API_KEY ? "Sending with Resend" : env.MAILER ? "Sending with Cloudflare Email" : "", setup: "Create a Resend account, verify mpfcoaching.co.uk, then add the key in Cloudflare as RESEND_API_KEY (secret)." },
+      { id: "whatsapp", name: "WhatsApp", icon: "💬", on: true, what: "Message buttons open the WhatsApp app on your computer or phone.", detail: "Uses the phone number on each client's record", setup: "" },
+      { id: "ai", name: "AI check-in drafts", icon: "✨", on: !!env.ANTHROPIC_API_KEY, what: "Drafts a reply to each check-in for you to edit before sending.", detail: env.ANTHROPIC_API_KEY ? "Model: " + (env.AI_MODEL || "default") : "", setup: "Create an API key at console.anthropic.com and add it in Cloudflare as ANTHROPIC_API_KEY (secret)." },
+      { id: "access", name: "Client logins", icon: "🔐", on: !!(env.CF_API_TOKEN && env.ACCESS_POLICY_ID && env.ACCESS_TEAM), what: "Cloudflare Access sends clients a login code. Giving a client access adds their email automatically.", detail: env.CF_API_TOKEN && env.ACCESS_POLICY_ID ? "Auto-add emails on" : "Auto-add emails off, add them in Cloudflare yourself", setup: "Needs CF_API_TOKEN, CF_ACCOUNT_ID and ACCESS_POLICY_ID in Cloudflare." },
+      { id: "storage", name: "Photo and data storage", icon: "🗄️", on: !!env.PHOTOS, what: "Client photos, check-ins, programmes and meal plans.", detail: env.PHOTOS ? "Cloudflare R2" : "", setup: "" },
+    ];
+    return json({ list });
+  }
   if (path === "/portal/api/coach/acuity-status") {
     if (!coach) return json({ error: "forbidden" }, 403);
     const t0 = Date.now(); acuityCache = null; await env.PHOTOS.delete("_data/_acuity-cache.json").catch(() => {});

@@ -247,7 +247,7 @@ html,body{overflow-x:hidden}
 <body>
 <div class="top"><div class="in"><a href="/portal/coach/"><img src="/img/logo.png" alt="MPF Coaching"></a><a class="o" href="/cdn-cgi/access/logout">Log out</a></div></div>
 <main class="wrap" id="app" hidden>
-  <nav class="vnav" id="vnav"><a data-v="today" href="#v=today">✅ Today</a><a data-v="clients" href="#v=clients">👥 Clients</a><a data-v="checkins" href="#v=checkins">💬 Check-ins<span class="nb" id="nbCi" hidden></span></a><a data-v="prog" href="#v=prog">📋 Programmes</a><a data-v="meal" href="#v=meal">🥗 Meal plans</a><a data-v="mkt" href="#v=mkt">📣 Content</a><a href="/portal/coach/business.html">💷 Business</a><a href="#" id="cvNav">👁 Client view</a><a data-v="cal" href="#v=cal">📅 Calendar</a><a data-v="settings" href="#v=settings">⚙️ Settings</a></nav>
+  <nav class="vnav" id="vnav"><a data-v="today" href="#v=today">✅ Today</a><a data-v="clients" href="#v=clients">👥 Clients</a><a data-v="checkins" href="#v=checkins">💬 Check-ins<span class="nb" id="nbCi" hidden></span></a><a data-v="prog" href="#v=prog">📋 Programmes</a><a data-v="meal" href="#v=meal">🥗 Meal plans</a><a data-v="mkt" href="#v=mkt">📣 Content</a><a href="/portal/coach/business.html">💷 Business</a><a href="#" id="cvNav">👁 Client view</a><a data-v="cal" href="#v=cal">📅 Calendar</a><a data-v="int" href="#v=int">🔌 Integrations</a><a data-v="settings" href="#v=settings">⚙️ Settings</a></nav>
   <nav class="cbnav" id="cbnav"><a data-v="today" href="#v=today"><i class="ti ti-circle-check"></i>Today</a><a data-v="clients" href="#v=clients"><i class="ti ti-users"></i>Clients</a><a data-v="checkins" href="#v=checkins"><i class="ti ti-message-circle"></i>Check-ins<span class="nb" id="nbCi2" hidden></span></a><a data-v="mkt" href="#v=mkt"><i class="ti ti-speakerphone"></i>Content</a><a href="#" id="cbMore"><i class="ti ti-dots"></i>More</a></nav>
   <div class="cbsheet" id="cbSheet" hidden><div class="cbs-in"><div class="cbs-h"><b>More</b><button type="button" class="x" id="cbX">✕</button></div>
     <a data-v="prog" href="#v=prog"><i class="ti ti-clipboard-list"></i><span><b>Programmes</b><small>Your training templates</small></span></a>
@@ -255,6 +255,7 @@ html,body{overflow-x:hidden}
     <a href="/portal/coach/business.html"><i class="ti ti-currency-pound"></i><span><b>Business</b><small>Money, sessions and goals</small></span></a>
     <a href="#" data-cv="1"><i class="ti ti-eye"></i><span><b>Client view</b><small>See the app as a client sees it</small></span></a>
     <a data-v="cal" href="#v=cal"><i class="ti ti-calendar"></i><span><b>Calendar</b><small>Your Google Calendar connection</small></span></a>
+    <a data-v="int" href="#v=int"><i class="ti ti-plug-connected"></i><span><b>Integrations</b><small>Everything connected to your portal</small></span></a>
     <a data-v="settings" href="#v=settings"><i class="ti ti-settings"></i><span><b>Settings</b><small>Reminders, templates, recommendations, backup</small></span></a></div></div>
   <div id="cvPick" style="position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.7);display:none;place-items:center;padding:16px"><div style="background:#141414;border:1px solid rgba(201,166,75,.4);border-radius:18px;padding:18px;max-width:380px;width:100%"><b style="color:#fff;font-size:17px">See a client's portal</b><div class="mini" style="margin:6px 0 12px">Opens their portal exactly as they see it. Read only, nothing you tap saves.</div><select id="cvSel" style="width:100%;background:#0e0e0e;color:#fff;border:1px solid rgba(201,166,75,.35);border-radius:10px;padding:10px;font:inherit"></select><div style="display:flex;gap:8px;margin-top:12px"><button class="btn" type="button" id="cvGo">Open their portal</button><button class="btn g" type="button" id="cvX">Cancel</button></div></div></div>
   <div class="preview" id="pv" hidden>👀 Preview with made-up clients. Real clients appear once the login is switched on.</div>
@@ -304,6 +305,12 @@ html,body{overflow-x:hidden}
   </div>
   <div data-view="cal" id="calv">
     <div class="card2"><h2>Google <em>Calendar.</em></h2><div id="gcalSt"></div></div>
+  </div>
+  <div data-view="int" id="intv">
+    <div class="t2h" style="margin-bottom:10px"><h2 class="sec">Your <em>integrations.</em></h2><span class="mini" id="intN"></span></div>
+    <div class="mini" style="margin-bottom:12px">Everything your portal is connected to, in one place. Keys and secret links are kept in Cloudflare and are never shown here.</div>
+    <div id="intBox"><p class="mini">Loading…</p></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><a class="btn g" href="https://dash.cloudflare.com/?to=/:account/workers/services/view/mpf-coaching-website/production/settings" target="_blank" rel="noopener">Open Cloudflare settings ↗</a><button class="btn g" type="button" id="intRe">↻ Refresh</button></div>
   </div>
   <div data-view="mkt" id="mkt">
     <div class="mhero" style="padding:22px"><div class="kick">Grow MPF Coaching</div><h1>Your <em>marketing.</em></h1><div class="mq">"Post like your next client is watching. Because they are."</div></div>
@@ -813,6 +820,20 @@ html,body{overflow-x:hidden}
   function recLoad(){if(preview){recDraw();return}fetch('/portal/api/recs',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){RECS=j.items||[];recDraw()})}
   document.addEventListener('click',function(e){var id=e.target&&e.target.id;if(id==='recAdd'){RECS.push({type:'book',title:'',by:'',why:'',link:'',img:''});recDraw()}
     if(id==='recSave'){$('recMsg').textContent='Saving…';postJ('/portal/api/recs',{items:RECS}).then(function(j){RECS=j.items;recDraw();$('recMsg').textContent='✓ Saved. Clients see it now.'}).catch(function(){$('recMsg').textContent='⚠ Not saved. Try again.'})}});
+
+  var INT=null;
+  function intEsc(t){return String(t==null?'':t).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+  function intAgo(t){var m=String(t).match(/Last read (\S+)/);if(!m)return t;var d=new Date(m[1]),mins=Math.round((Date.now()-d)/60000),a=mins<2?'just now':mins<60?mins+' mins ago':mins<1440?Math.round(mins/60)+' hrs ago':Math.round(mins/1440)+' days ago';return t.replace(m[0],'Last read '+a)}
+  function drawInt(){var L=(INT&&INT.list)||[],on=L.filter(function(x){return x.on}).length;$('intN').textContent=on+' of '+L.length+' connected';
+    $('intBox').innerHTML=L.map(function(x){return '<div class="card2" style="margin-bottom:10px"><div class="t2h"><h2 style="font-size:17px">'+x.icon+' '+intEsc(x.name)+'</h2><span class="mini" style="color:'+(x.on?'#7fd18b':'#e0a050')+';font-weight:700">'+(x.on?'● Connected':'○ Not connected')+'</span></div>'+
+      '<div class="mini" style="margin-top:4px">'+intEsc(x.what)+'</div>'+(x.detail?'<div class="mini" style="margin-top:6px;color:#c9a64b">'+intEsc(intAgo(x.detail))+'</div>':'')+
+      (x.test&&x.on?'<div style="margin-top:8px"><button class="btn g" type="button" data-itest="'+x.id+'">Test connection</button> <span class="mini" id="it_'+x.id+'"></span></div>':'')+
+      (x.id==='gcal'?'<div style="margin-top:8px"><a class="btn g" href="#v=cal">Open Calendar tab</a></div>':'')+
+      (!x.on&&x.setup?'<details style="margin-top:8px"><summary class="mini" style="cursor:pointer;color:#c9a64b">How to connect</summary><div class="mini" style="margin-top:6px;line-height:1.6">'+intEsc(x.setup)+'</div></details>':'')+'</div>'}).join('');
+    [].forEach.call(document.querySelectorAll('[data-itest]'),function(b){b.onclick=function(){var id=b.getAttribute('data-itest'),o=$('it_'+id);o.textContent='Testing…';fetch('/portal/api/coach/acuity-status',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){o.textContent=j.ok?'✅ Working: '+j.clients+' clients found ('+j.ms+' ms)':'⚠️ Not working'+(j.err?': '+j.err:'')}).catch(function(){o.textContent='⚠️ Could not reach it'})}})}
+  function loadInt(){if(preview){INT={list:[{id:'gcal',name:'Google Calendar',icon:'📅',on:true,what:'Preview',detail:''}]};drawInt();return}
+    fetch('/portal/api/coach/integrations',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){INT=j;drawInt()}).catch(function(){$('intBox').innerHTML='<p class="mini">Could not load your integrations.</p>'})}
+  if($('intRe'))$('intRe').onclick=loadInt;
   function loadSettings(){recLoad();if(preview){AUTO={enabled:{},log:[]};drawSettings();return}fetch('/portal/api/coach/automation',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){AUTO=j;drawSettings()})}
   function drawSettings(){var E=AUTO.enabled||{};
     $('arules').innerHTML=Object.keys(RL).map(function(k){return '<div class="arule"><div><b>'+RL[k][0]+'</b><small>'+RL[k][1]+'</small><button type="button" class="mini" data-test="'+k+'" style="background:none;border:0;color:var(--gold-l);cursor:pointer;padding:4px 0">Send me a test</button></div><label class="sw"><input type="checkbox" data-k="'+k+'"'+(E[k]?' checked':'')+'><span></span></label></div>'}).join('');
@@ -972,9 +993,9 @@ html,body{overflow-x:hidden}
   $('closeBtn').onclick=function(){if(location.hash.indexOf('#c=')===0)history.back();else closeP()};
   window.addEventListener('popstate',function(){if(location.hash.indexOf('#c=')!==0)closeP()});
   var curView='';
-  function go(v,noPush){if(['today','clients','prog','meal','mkt','checkins','settings','cal'].indexOf(v)<0)v='today';if(v==='mkt')drawMkt();if(v==='checkins')loadQueue();if(v==='settings'||v==='cal')loadSettings();
+  function go(v,noPush){if(['today','clients','prog','meal','mkt','checkins','settings','cal','int'].indexOf(v)<0)v='today';if(v==='mkt')drawMkt();if(v==='checkins')loadQueue();if(v==='settings'||v==='cal')loadSettings();if(v==='int')loadInt();
     [].forEach.call(document.querySelectorAll('[data-view]'),function(el){var dv=el.getAttribute('data-view');el.hidden=dv==='tpl'?!(v==='prog'||v==='meal'):dv!==v});
-    [].forEach.call(document.querySelectorAll('#vnav a[data-v],#cbnav a[data-v]'),function(a){a.classList.toggle('on',a.getAttribute('data-v')===v)});var mo=$('cbMore');if(mo)mo.classList.toggle('on',['prog','meal','settings','cal'].indexOf(v)>-1);if($('cbSheet'))$('cbSheet').hidden=true;
+    [].forEach.call(document.querySelectorAll('#vnav a[data-v],#cbnav a[data-v]'),function(a){a.classList.toggle('on',a.getAttribute('data-v')===v)});var mo=$('cbMore');if(mo)mo.classList.toggle('on',['prog','meal','settings','cal','int'].indexOf(v)>-1);if($('cbSheet'))$('cbSheet').hidden=true;
     if(v!==curView){if(v==='prog')$('tplBtn').click();if(v==='meal')$('mtplBtn').click();window.scrollTo(0,0)}curView=v;
     if(!noPush&&location.hash!=='#v='+v)history.pushState(null,'','#v='+v)}
   [].forEach.call(document.querySelectorAll('#vnav a[data-v],#cbnav a[data-v],#cbSheet a[data-v]'),function(a){a.onclick=function(e){e.preventDefault();go(a.getAttribute('data-v'))}});
