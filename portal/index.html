@@ -278,6 +278,7 @@ body.trk-alc .lg-f[data-k="alcohol"]{border:1px solid #E8C872;border-radius:12px
 .mnu i{font-size:24px}.mnu.on{background:linear-gradient(120deg,#9C7A2C 0%,#C9A64B 45%,#E8D79A 100%);color:#111;border-color:transparent}
 body.touring .top{z-index:70}
 .mnu.tour-on{box-shadow:0 0 0 2px #C9A64B,0 0 22px rgba(201,166,75,.55);position:relative;z-index:71}
+@media(max-width:820px){.mnu{display:none}}
 </style>
 <style id="mpf-anim">
 /* animations: page entrances, staggered cards, press feedback, tab pop. Off for anyone with reduced motion on. */
@@ -638,7 +639,7 @@ body.touring .top{z-index:70}
 </main>
 
 <div class="msg" id="msgBox" hidden></div>
-<nav class="bnav" id="bnav" hidden><a data-v="today" href="#log"><i class="ti ti-notebook" aria-hidden="true"></i>Today</a><a data-v="nutrition" href="#targets"><i class="ti ti-apple" aria-hidden="true"></i>Food</a><a data-v="training" href="#folder"><i class="ti ti-barbell" aria-hidden="true"></i>Training</a><a data-v="progress" href="#progress"><i class="ti ti-chart-line" aria-hidden="true"></i>Progress<em class="dot" id="ciDot" hidden></em></a></nav>
+<nav class="bnav" id="bnav" hidden><a data-v="today" href="#log"><i class="ti ti-notebook" aria-hidden="true"></i>Today</a><a data-v="nutrition" href="#targets"><i class="ti ti-apple" aria-hidden="true"></i>Food</a><a data-v="training" href="#folder"><i class="ti ti-barbell" aria-hidden="true"></i>Training</a><a data-v="progress" href="#progress"><i class="ti ti-chart-line" aria-hidden="true"></i>Progress<em class="dot" id="ciDot" hidden></em></a><a data-v="more" href="#moreMenu" aria-label="More: account, sessions, guides and more"><i class="ti ti-menu-2" aria-hidden="true"></i>More</a></nav>
 <footer>© MPF Coaching · <a href="/privacy.html" style="color:#7d735c">Privacy</a></footer>
 
 <script>/* coach preview: /portal/?as=<client id> shows that client's portal, read only */
@@ -1050,10 +1051,10 @@ document.getElementById('amSave').onclick=function(){var m=document.getElementBy
     {v:'nutrition',ic:'🥗',t:'Food',p:'Your targets and your meal plan. Tap Generate to build a new day of food in 15 cuisines, and swap any meal you fancy.'},
     {v:'training',ic:'🏋️',t:'Training',p:'Your programme and your workout logbook. It tells you when to go up in weight. PT clients can book and manage sessions here too.'},
     {v:'progress',ic:'📈',t:'Progress',p:'Your weight trend, personal bests and photos. Your weekly check-in lives here too, with all my feedback saved. On check-in day it pops up on Today as well.'},
-    {el:'#mnuBtn',ic:'☰',t:'Menu',p:'Tap the menu at the top for your account, About me, your sessions, guides and the supplement quiz. Fill in About me so your meal plans fit you even better.'},
+    {v:'more',ic:'☰',t:'More',p:'Tap More for your account, About me, your sessions, guides and the supplement quiz. Fill in About me so your meal plans fit you even better.'},
     {ic:'💪',t:"You're all set!",p:'Start with today\'s log. Any questions, message me. Maria x'}
   ],i=0,box=document.getElementById('tour');
-  function tabs(v){return [].slice.call(document.querySelectorAll('#bnav a[data-v="'+v+'"],#topTabs a[data-v="'+v+'"]'))}
+  function tabs(v){return [].slice.call(document.querySelectorAll('#bnav a[data-v="'+v+'"],#topTabs a[data-v="'+v+'"]'+(v==='more'?',#mnuBtn':'')))}
   function clear(){[].forEach.call(document.querySelectorAll('.tour-on'),function(e){e.classList.remove('tour-on')})}
   function show(){var s=T[i];clear();if(s.el){var el=document.querySelector(s.el);if(!el||el.hidden){i++;return show()}if(typeof window.__tourGo==='function')window.__tourGo('log');window.scrollTo(0,0);el.classList.add('tour-on')}else if(s.v)tabs(s.v).forEach(function(e){e.classList.add('tour-on')});
     document.getElementById('tourIc').textContent=s.ic;document.getElementById('tourT').textContent=s.t;document.getElementById('tourP').textContent=s.p;
