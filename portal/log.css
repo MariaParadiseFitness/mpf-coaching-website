@@ -687,3 +687,8 @@ button.lb-pkt span{color:var(--mute);font-size:12px;font-weight:600}
 .lb-mrow2{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:6px;font-size:12px;color:var(--mute,#8d8371)}.lb-mrow2>span{flex:1 1 100%;font-weight:600}.lb-mrow2 .gl-open{font-size:11.5px;padding:5px 10px;margin:0}
 .lb-focus .lb-tog{display:none}
 .lb-fnav{display:flex;justify-content:space-between;gap:8px;margin:14px 0 4px}.lb-fnav .btn{max-width:62%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* strength exercises: no partials column */
+.lb-nopart .lb-set{grid-template-columns:34px 66px 58px minmax(0,1fr) 40px}
+.lb-nopart.lb-side .lb-set{grid-template-columns:30px 54px 42px 42px minmax(0,1fr) 34px}
+@media(max-width:400px){.lb-nopart .lb-set{grid-template-columns:30px 60px 52px minmax(0,1fr) 36px}.lb-nopart.lb-side .lb-set{grid-template-columns:30px 52px 42px 42px minmax(0,1fr) 34px}}
