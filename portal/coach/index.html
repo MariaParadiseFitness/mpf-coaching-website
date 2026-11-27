@@ -378,7 +378,7 @@ html,body{overflow-x:hidden}
 </main>
 <div class="msg" id="msg" hidden></div>
 <script src="/portal/chart.js"></script>
-<script src="/portal/log.js"></script>
+<script src="/portal/log.js?v=loom1"></script>
 <script src="/portal/exlib.js"></script>
 <script src="/portal/programme.js"></script>
 <script src="/portal/calc.js"></script>
@@ -828,7 +828,7 @@ html,body{overflow-x:hidden}
     $('intBox').innerHTML=L.map(function(x){return '<div class="card2" style="margin-bottom:10px"><div class="t2h"><h2 style="font-size:17px">'+x.icon+' '+intEsc(x.name)+'</h2><span class="mini" style="color:'+(x.on?'#7fd18b':'#e0a050')+';font-weight:700">'+(x.on?'● Connected':'○ Not connected')+'</span></div>'+
       '<div class="mini" style="margin-top:4px">'+intEsc(x.what)+'</div>'+(x.detail?'<div class="mini" style="margin-top:6px;color:#c9a64b">'+intEsc(intAgo(x.detail))+'</div>':'')+
       (x.test&&x.on?'<div style="margin-top:8px"><button class="btn g" type="button" data-itest="'+x.id+'">Test connection</button> <span class="mini" id="it_'+x.id+'"></span></div>':'')+
-      (x.id==='gcal'?'<div style="margin-top:8px"><a class="btn g" href="#v=cal">Open Calendar tab</a></div>':'')+
+      (x.id==='gcal'?'<div style="margin-top:8px"><a class="btn g" href="#v=cal">Open Calendar tab</a></div>':'')+(x.link?'<div style="margin-top:8px"><a class="btn g" href="'+intEsc(x.link)+'" target="_blank" rel="noopener">'+intEsc(x.linkT||'Open ↗')+'</a></div>':'')+
       (!x.on&&x.setup?'<details style="margin-top:8px"><summary class="mini" style="cursor:pointer;color:#c9a64b">How to connect</summary><div class="mini" style="margin-top:6px;line-height:1.6">'+intEsc(x.setup)+'</div></details>':'')+'</div>'}).join('');
     [].forEach.call(document.querySelectorAll('[data-itest]'),function(b){b.onclick=function(){var id=b.getAttribute('data-itest'),o=$('it_'+id);o.textContent='Testing…';fetch('/portal/api/coach/acuity-status',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){o.textContent=j.ok?'✅ Working: '+j.clients+' clients found ('+j.ms+' ms)':'⚠️ Not working'+(j.err?': '+j.err:'')}).catch(function(){o.textContent='⚠️ Could not reach it'})}})}
   function loadInt(){if(preview){INT={list:[{id:'gcal',name:'Google Calendar',icon:'📅',on:true,what:'Preview',detail:''}]};drawInt();return}
