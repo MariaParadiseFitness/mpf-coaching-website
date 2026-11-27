@@ -774,11 +774,8 @@ html,body{overflow-x:hidden}
     .catch(function(){ta.disabled=false;m.textContent='Couldn\'t draft this one. Write it yourself or tap ✨ to try again.'})}
   var EMO=['🔥','💪🏼','👏','🙌','😂','💀','🫡','🖤','❤️‍🔥','🍑','👀','👇','✅','🎉','✨','🥹','🫶','😍','😴','💧','🥗','🍕','🏋️‍♀️','👟','📸','📈','💯','🤍','💛','😘','xx'];
   function waGo(ph,txt){var q='phone='+ph+(txt?'&text='+encodeURIComponent(txt):'');if(txt){try{navigator.clipboard.writeText(txt).catch(function(){})}catch(e){}}
-    /* phone or tablet: open the WhatsApp app. Laptop: WhatsApp Web in one side window next to the portal, reused every time */
-    var phone=window.matchMedia&&matchMedia('(pointer:coarse)').matches&&innerWidth<1024;if(phone){location.href='whatsapp://send?'+q;return}
-    var W=Math.min(560,Math.round(screen.availWidth*0.4)),H=screen.availHeight,L=(screen.availLeft||0)+screen.availWidth-W,T=screen.availTop||0;
-    var w=window.open('https://web.whatsapp.com/send?'+q,'mpfWhatsApp','popup=yes,width='+W+',height='+H+',left='+L+',top='+T);
-    if(w){try{w.focus()}catch(e){}}else location.href='whatsapp://send?'+q}
+    /* opens the WhatsApp app on this phone or computer */
+    location.href='whatsapp://send?'+q}
   function cqNote(box,note){var d=document.createElement('details');d.className='cqnote';d.innerHTML='<summary>⚠️ Heads up</summary><div class="mini">'+esc(note)+'</div>';box.appendChild(d)}
   function cqEnhance(){cqQ=[];if(!AUTO&&!preview&&!cqEnhance.loading){cqEnhance.loading=1;fetch('/portal/api/coach/automation',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){AUTO=j;if(document.querySelector('#cqBody .cqt'))cqEnhance()}).catch(function(){})}
     [].forEach.call($('cqBody').querySelectorAll('.cqr'),function(box){var send=box.querySelector('[data-rep]');if(!send)return;var id=send.getAttribute('data-rep'),due=send.getAttribute('data-due'),c=(CQ.clients||[]).filter(function(x){return x.id===id})[0];if(!c)return;
