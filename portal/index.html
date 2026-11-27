@@ -556,9 +556,8 @@ body.touring .top{z-index:70}
     </div>
   </section>
 
-  <section data-view="more" data-sub="about" id="aboutme">
-    <a class="mm-back" href="#moreMenu"><i class="ti ti-arrow-left" aria-hidden="true"></i> Back</a>
-        <h2>About <em>me.</em></h2>
+  <section data-view="more" data-sub="acc" id="aboutme" style="padding-top:0">
+        <h3 style="margin:6px 0 4px">📝 About me</h3>
     <div class="sub">Keep this up to date so Maria can coach you properly and your generated meal plans suit you. Only you and Maria see it.</div>
     <div class="pg-note am">
       <label>Mobile number <small>(so Maria can message you on WhatsApp)</small><input name="phone" type="tel" inputmode="tel" placeholder="07…"></label>
@@ -1108,6 +1107,7 @@ body.touring #tdSeg{position:relative;z-index:70}#tdSeg a.tour-on{color:#E8C872!
 @media(min-width:821px){.tour.tour-low{align-items:flex-end;padding-top:0;padding-bottom:40px}}
 @media(prefers-reduced-motion:reduce){.tour-card,.bnav a.tour-on,#topTabs a.tour-on{animation:none}}
 </style>
+<script>try{localStorage.setItem('mpfGuide','1')}catch(e){}</script>
 <script src="/portal/icons.js"></script>
 <script>
 (function(){
@@ -1116,7 +1116,7 @@ body.touring #tdSeg{position:relative;z-index:70}#tdSeg a.tour-on{color:#E8C872!
   var esc=function(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
   var ml=document.getElementById('musicList');
   if(ml)ml.innerHTML=PLAYLISTS.map(function(p){return '<a class="mm-item" href="'+esc(p.url)+'" target="_blank" rel="noopener"><span class="mm-ic">🎧</span><span class="mm-t"><b>'+esc(p.name)+'</b><small>Open in Spotify</small></span><span class="mm-ar">↗</span></a>'}).join('');
-  var M=[['sessions','📅','Sessions and bookings','Book, move or cancel your PT sessions'],['account','👤','My account','Your details and login'],['start','✅','Finish my set-up','Go back to your set-up checklist and finish anything you missed'],['aboutme','📝','About me','Your foods, injuries and preferences'],['billing','💳','Billing','Payments and your plan'],['perms','🔒','Privacy and permissions','Photos, data and consent'],['support','💬','Support','Get help from Maria'],['pbs2','🏆','Personal bests','Your heaviest lifts and best sets'],['guides','📚','Your guides','Hypertrophy, strength, diet and more'],['supps','💊','Supplement quiz','What to buy and what to skip'],['recs','⭐','Recommended by Maria','Books, podcasts and tools I rate'],['music','🎧','Music','My Spotify playlists'],['health','❤️','Apple Health','Sync your steps and sleep from your iPhone']];
+  var M=[['sessions','📅','Sessions and bookings','Book, move or cancel your PT sessions'],['account','👤','My account and About me','Your details, login, foods, injuries and preferences'],['start','✅','Finish my set-up','Go back to your set-up checklist and finish anything you missed'],['billing','💳','Billing','Payments and your plan'],['perms','🔒','Privacy and permissions','Photos, data and consent'],['support','💬','Support','Get help from Maria'],['pbs2','🏆','Personal bests','Your heaviest lifts and best sets'],['guides','📚','Your guides','Hypertrophy, strength, diet and more'],['supps','💊','Supplement quiz','What to buy and what to skip'],['recs','⭐','Recommended by Maria','Books, podcasts and tools I rate'],['music','🎧','Music','My Spotify playlists'],['health','❤️','Apple Health','Sync your steps and sleep from your iPhone']];
   window.__mmDraw=function(){var el=document.getElementById('mmList');if(!el)return;el.innerHTML=M.filter(function(m){var sec=document.getElementById(m[0]);return sec&&!sec.hidden&&!sec.classList.contains('gone')}).map(function(m){var sub=m[3],pk=window.__mpfPkg;if(m[0]==='sessions'&&pk)sub=(pk.left!=null?pk.left+' session'+(pk.left===1?'':'s')+' left':pk.used+' used on this package')+(pk.booked?' · '+pk.booked+' booked':'')+' · book, move or cancel';return '<a class="mm-item'+(m[0]==='sessions'?' mm-hl':'')+'" href="#'+m[0]+'"><span class="mm-ic">'+m[1]+'</span><span class="mm-t"><b>'+m[2]+'</b><small>'+esc(sub)+'</small></span><span class="mm-ar">›</span></a>'}).join('')};
   window.__mmDraw();
 })();

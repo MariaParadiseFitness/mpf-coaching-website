@@ -6,6 +6,8 @@ var MPF_GATE={action:"https://docs.google.com/forms/d/e/1FAIpQLSdA15cYhMQJkAxDUQ
   var KEY='mpfGuide';
   function unlocked(){try{return localStorage.getItem(KEY)==='1'}catch(e){return false}}
   var forced=/[?&]gate=1/.test(location.search);
+  // Clients coming from the MPF app never see the email box
+  if(!forced&&/\/portal(\/|$)/.test(document.referrer||'')){try{localStorage.setItem(KEY,'1')}catch(e){}return}
   if((!MPF_GATE.action&&!forced)||unlocked())return;
   var label=document.body.getAttribute('data-gate')||document.title.split('|')[0].trim();
   var css='.mg{position:fixed;inset:0;z-index:9999;background:rgba(10,10,10,.82);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:16px;font-family:Montserrat,system-ui,sans-serif}'+
