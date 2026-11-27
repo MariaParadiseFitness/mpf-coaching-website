@@ -1660,7 +1660,8 @@ function pkgTotal(codes, pk, orders, bs) {
   const ks = Object.keys(codes || {}).sort((x, y) => (codes[y].first || "").localeCompare(codes[x].first || "") || (codes[y].last || "").localeCompare(codes[x].last || ""));
   if (!ks.length) return null;
   const all = ks.map((k) => { const q = codes[k], ps = pkgSize(pk, orders, k, q.first, q, bs); return { k, q, ps, left: ps.size ? Math.max(0, ps.size - q.used) : null }; });
-  const open = all.filter((x) => x.ps.size && x.left > 0);
+  // an older package only still counts if it was still being used after the next one started (e.g. sessions booked ahead); otherwise it's finished
+  const open = all.filter((x, i) => x.ps.size && x.left > 0 && (i === 0 || (x.q.last || "") >= (all[i - 1].q.first || "")));
   if (!open.length) { const x = all[0]; return { code: x.k, size: x.ps.size, src: x.ps.src, name: x.ps.name || x.q.name || "", used: x.q.used, booked: x.q.booked, start: x.q.first, packages: ks.length, open: 0 }; }
   const sum = (f) => open.reduce((n, x) => n + (f(x) || 0), 0);
   return { code: open[0].k, size: sum((x) => x.ps.size), src: open[0].ps.src, name: open.length > 1 ? open.length + " packages" : (open[0].ps.name || open[0].q.name || ""), used: sum((x) => x.q.used), booked: sum((x) => x.q.booked), start: open.map((x) => x.q.first).sort()[0], packages: ks.length, open: open.length };
