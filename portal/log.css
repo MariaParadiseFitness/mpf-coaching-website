@@ -679,3 +679,11 @@ button.lb-pkt span{color:var(--mute);font-size:12px;font-weight:600}
 .lbt-card b{display:block;color:var(--gold-l,#e8c872);font-size:16px;margin-bottom:4px}.lbt-card p{margin:0;font-size:14px;line-height:1.5;color:#eee}
 .lbt-btns{display:flex;justify-content:space-between;margin-top:12px}.lbt-btns button{font:inherit;font-weight:700;font-size:13px;border-radius:20px;padding:8px 16px;cursor:pointer}
 .lbt-skip{background:transparent;border:1px solid var(--line,#2a2a2a);color:var(--soft,#bbb)}.lbt-next{background:linear-gradient(120deg,#9C7A2C 0%,#C9A64B 45%,#E8D79A 100%);border:0;color:#111}
+
+/* one exercise full page, small bar on top */
+.lb-mini{padding:8px 12px!important}
+.lb-mrow{display:flex;align-items:center;gap:8px}.lb-mrow .lb-time{margin-left:auto;font-size:13px}.lb-mrow .btn{padding:8px 14px;font-size:12px}
+.lb-back{background:#151410;border:1px solid rgba(201,166,75,.45);color:#E4CF8A;border-radius:20px;padding:8px 12px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
+.lb-mrow2{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:6px;font-size:12px;color:var(--mute,#8d8371)}.lb-mrow2>span{flex:1 1 100%;font-weight:600}.lb-mrow2 .gl-open{font-size:11.5px;padding:5px 10px;margin:0}
+.lb-focus .lb-tog{display:none}
+.lb-fnav{display:flex;justify-content:space-between;gap:8px;margin:14px 0 4px}.lb-fnav .btn{max-width:62%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
