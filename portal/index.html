@@ -534,6 +534,12 @@ body.touring .top{z-index:70}
     <div class="sub">Your steps, sleep and resting heart rate go into your daily log automatically every evening. No more typing them in.</div>
     <div id="hkBox"><p class="mini">Loading…</p></div>
   </section>
+  <section data-view="more" data-sub="pbs2" id="pbs2">
+    <a class="mm-back" href="#moreMenu"><i class="ti ti-arrow-left" aria-hidden="true"></i> Back</a>
+    <h2>My personal <em>bests.</em></h2>
+    <div class="sub">Your best lift on every exercise from your logbook, newest first. Beat one and it updates here. They're on your Progress page too.</div>
+    <div id="pbBox2"><div class="wc-empty">Loading…</div></div>
+  </section>
   <section data-view="more" data-sub="music" id="music">
     <a class="mm-back" href="#moreMenu"><i class="ti ti-arrow-left" aria-hidden="true"></i> Back</a>
     <h2>Train with my <em>music.</em></h2>
@@ -983,8 +989,8 @@ document.addEventListener('DOMContentLoaded',function(){var b=document.createEle
       fetch('/portal/api/mealplans',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){MPFMeal.View($('mpBox'),j)}).catch(function(){MPFMeal.View($('mpBox'),null)})}
       window.addEventListener('mpf-plan-updated',function(){fetch('/portal/api/mealplans',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){MPFMeal.View($('mpBox'),j)}).catch(function(){})});
     MPFMealGen.Panel($('mgBox'),{demo:!!demo,onSaved:function(j){MPFMeal.View($('mpBox'),j)}});MPFBody.Panel($('bodyBox'),{demo:!!demo});
-    (function(){var SS=[];window.__WK=MPFWeek.Week($('wkBox'),{today:today,getDays:log.days,getTargets:function(){return window.__TG||{}},getSessions:function(){return SS}});var PB=MPFWeek.PBs($('pbBox'),{getSessions:function(){return SS}});
-      if(!demo)fetch('/portal/api/workouts',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){SS=j.sessions||[];window.__WK.refresh();PB.refresh()}).catch(function(){})})();
+    (function(){var SS=[];window.__WK=MPFWeek.Week($('wkBox'),{today:today,getDays:log.days,getTargets:function(){return window.__TG||{}},getSessions:function(){return SS}});var PB=MPFWeek.PBs($('pbBox'),{getSessions:function(){return SS}}),PB2=$('pbBox2')?MPFWeek.PBs($('pbBox2'),{getSessions:function(){return SS}}):null;
+      if(!demo)fetch('/portal/api/workouts',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){SS=j.sessions||[];window.__WK.refresh();PB.refresh();if(PB2)PB2.refresh()}).catch(function(){})})();
     if(demo){var dt={cals:'1,800',protein:'150',carbs:'180',fat:'55',steps:'10,000',water:'3',cardio:'3 x 30 mins a week',sleep:'8',notes:'Hit your protein first, then fit carbs and fats around it.',updated:new Date().toISOString()};window.__TG=dt;$('tgBox').innerHTML=MPFLog.targetsHTML(dt,'food');window.__tg2(dt);log.setTargets(dt);window.__WK.refresh()}
     else fetch('/portal/api/targets',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){window.__TG=j.targets||{};$('tgBox').innerHTML=MPFLog.targetsHTML(j.targets,'food');window.__tg2(j.targets);log.setTargets(j.targets);if(window.__WK)window.__WK.refresh()}).catch(function(){$('tgBox').innerHTML=MPFLog.targetsHTML(null)});
     $('ciSub').textContent='Every '+day+': upload your photos, check your week\'s numbers, answer the questions and send.';
@@ -1108,7 +1114,7 @@ body.touring #tdSeg{position:relative;z-index:70}#tdSeg a.tour-on{color:#E8C872!
   var esc=function(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
   var ml=document.getElementById('musicList');
   if(ml)ml.innerHTML=PLAYLISTS.map(function(p){return '<a class="mm-item" href="'+esc(p.url)+'" target="_blank" rel="noopener"><span class="mm-ic">🎧</span><span class="mm-t"><b>'+esc(p.name)+'</b><small>Open in Spotify</small></span><span class="mm-ar">↗</span></a>'}).join('');
-  var M=[['sessions','📅','Sessions and bookings','Book, move or cancel your PT sessions'],['account','👤','My account','Your details and login'],['start','✅','Finish my set-up','Go back to your set-up checklist and finish anything you missed'],['aboutme','📝','About me','Your foods, injuries and preferences'],['billing','💳','Billing','Payments and your plan'],['perms','🔒','Privacy and permissions','Photos, data and consent'],['support','💬','Support','Get help from Maria'],['pbs','🏆','Personal bests','Your heaviest lifts and best sets'],['guides','📚','Your guides','Hypertrophy, strength, diet and more'],['supps','💊','Supplement quiz','What to buy and what to skip'],['recs','⭐','Recommended by Maria','Books, podcasts and tools I rate'],['music','🎧','Music','My Spotify playlists'],['health','❤️','Apple Health','Sync your steps and sleep from your iPhone']];
+  var M=[['sessions','📅','Sessions and bookings','Book, move or cancel your PT sessions'],['account','👤','My account','Your details and login'],['start','✅','Finish my set-up','Go back to your set-up checklist and finish anything you missed'],['aboutme','📝','About me','Your foods, injuries and preferences'],['billing','💳','Billing','Payments and your plan'],['perms','🔒','Privacy and permissions','Photos, data and consent'],['support','💬','Support','Get help from Maria'],['pbs2','🏆','Personal bests','Your heaviest lifts and best sets'],['guides','📚','Your guides','Hypertrophy, strength, diet and more'],['supps','💊','Supplement quiz','What to buy and what to skip'],['recs','⭐','Recommended by Maria','Books, podcasts and tools I rate'],['music','🎧','Music','My Spotify playlists'],['health','❤️','Apple Health','Sync your steps and sleep from your iPhone']];
   window.__mmDraw=function(){var el=document.getElementById('mmList');if(!el)return;el.innerHTML=M.filter(function(m){var sec=document.getElementById(m[0]);return sec&&!sec.hidden&&!sec.classList.contains('gone')}).map(function(m){var sub=m[3],pk=window.__mpfPkg;if(m[0]==='sessions'&&pk)sub=(pk.left!=null?pk.left+' session'+(pk.left===1?'':'s')+' left':pk.used+' used on this package')+(pk.booked?' · '+pk.booked+' booked':'')+' · book, move or cancel';return '<a class="mm-item'+(m[0]==='sessions'?' mm-hl':'')+'" href="#'+m[0]+'"><span class="mm-ic">'+m[1]+'</span><span class="mm-t"><b>'+m[2]+'</b><small>'+esc(sub)+'</small></span><span class="mm-ar">›</span></a>'}).join('')};
   window.__mmDraw();
 })();
