@@ -794,3 +794,15 @@ body.lb-dragon{-webkit-user-select:none;user-select:none}
 @keyframes lbInL{from{transform:translateX(-40%);opacity:0}to{transform:none;opacity:1}}
 .lb-in-r{animation:lbInR .22s ease-out}.lb-in-l{animation:lbInL .22s ease-out}
 @media(prefers-reduced-motion:reduce){.lb-in-r,.lb-in-l{animation:none}}
+/* ⋯ exercise options as a pop-up sheet */
+.lb-mt,.lb-mclose{display:none}
+.lb-mbg{position:fixed;inset:0;background:rgba(0,0,0,.62);z-index:10000;animation:lbFade .15s ease-out}
+.lb-menu.lb-msheet{position:fixed;left:0;right:0;bottom:0;z-index:10001;margin:0;display:flex;flex-direction:column;flex-wrap:nowrap;gap:8px;max-height:82vh;overflow-y:auto;background:#141414;border-top:1px solid rgba(201,166,75,.45);border-radius:20px 20px 0 0;padding:18px 16px calc(16px + env(safe-area-inset-bottom));box-shadow:0 -12px 40px rgba(0,0,0,.6);animation:lbUp .22s ease-out}
+@media(min-width:700px){.lb-menu.lb-msheet{left:50%;right:auto;width:440px;transform:translateX(-50%);bottom:24px;border-radius:20px;border:1px solid rgba(201,166,75,.45);animation:lbFade .15s ease-out}}
+.lb-msheet .lb-mt{display:block;text-align:center;color:var(--gold-l,#e8c872);font-size:15px;margin:0 0 4px}
+.lb-msheet button{width:100%;text-align:left;padding:14px 16px;font-size:15px;border-radius:12px;background:#1d1d1d}
+.lb-msheet .lb-mclose{display:block;text-align:center;margin-top:4px;background:transparent;border-color:rgba(255,255,255,.18);color:#ccc}
+body.lb-mon{overflow:hidden}
+@keyframes lbUp{from{transform:translateY(100%)}to{transform:none}}
+@keyframes lbFade{from{opacity:0}to{opacity:1}}
+@media(prefers-reduced-motion:reduce){.lb-menu.lb-msheet,.lb-mbg{animation:none}}
