@@ -166,7 +166,7 @@
   var today=function(){try{return new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/London',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date())}catch(e){return new Date().toISOString().slice(0,10)}};
   var nk=function(n){return String(n||'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim()};
   function lastFor(sessions,name){var k=nk(name);for(var i=0;i<(sessions||[]).length;i++){var e=(sessions[i].exercises||[]).filter(function(x){return nk(x.name)===k})[0];if(e&&e.sets.some(function(s){return s.kg||s.reps}))return {date:sessions[i].date,sets:e.sets}}return null}
-  function setsTxt(sets){return sets.filter(function(s){return s.kg||s.reps}).map(function(s){return (s.kg?s.kg+'kg':'')+(s.kg&&s.reps?' × ':'')+(s.reps||'')}).join(', ')}
+  function setsTxt(sets){return sets.filter(function(s){return s.kg||s.reps}).map(function(s){var w=s.kg?s.kg+'kg':(s.ht||'');return w+(w&&s.reps?' × ':'')+(s.reps||'')}).join(', ')}
   function Logger(box,prog,w,opts){
     var sessions=null;
     function draw(){
