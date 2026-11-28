@@ -386,7 +386,7 @@ html,body{overflow-x:hidden}
   <div class="panel" id="panel" hidden>
     <div class="ph-head">
       <div><div class="kick" id="pKick">Client</div><h2 id="pName">Client</h2></div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end"><a class="btn g" id="drBtn" href="#" target="_blank" rel="noopener">📁 Drive folder</a><a class="btn" id="asBtn" href="#">👁 See their portal</a><button class="btn g" id="swBtn" type="button">Switch to online</button><button class="btn g" id="payBtn" type="button" hidden>Paid another way</button><button class="btn" id="readyBtn" type="button" hidden>Plan ready</button><button class="btn g" id="closeBtn" type="button">← All clients</button><button class="btn g noico" id="delJump" type="button" style="border-color:rgba(224,100,90,.6);color:#f4a59e">🗑 Delete client</button></div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end"><a class="btn g" id="drBtn" href="#" target="_blank" rel="noopener">📁 Drive folder</a><a class="btn" id="asBtn" href="#">👁 See their portal</a><button class="btn g" id="swBtn" type="button">Switch to online</button><button class="btn g" id="payBtn" type="button" hidden>Paid another way</button><button class="btn" id="readyBtn" type="button" hidden>Plan ready</button><button class="btn g" id="closeBtn" type="button">← All clients</button><button class="btn g" id="impBtn" type="button">⬆ Import old tracker</button><input type="file" id="impFile" accept=".json,application/json" hidden><button class="btn g noico" id="delJump" type="button" style="border-color:rgba(224,100,90,.6);color:#f4a59e">🗑 Delete client</button></div><p class="mini" id="impMsg" hidden style="margin:6px 0 0"></p>
     </div>
     <div class="gp"><div class="wc" id="wChart"></div><div class="fvl" id="fvl"></div></div>
     <div class="pmeta" id="pMeta"></div><div id="pExtra"></div>
@@ -1126,6 +1126,16 @@ html,body{overflow-x:hidden}
     fetch('/portal/api/coach/photos?id='+encodeURIComponent(id),{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){curPhotos=j.photos||[];drawPhotos();$('panel').scrollIntoView({behavior:'smooth'})});
   }
   var closeP=function(){$('panel').hidden=true;document.body.style.overflow=''};
+  // import a client's old Google Sheets tracker (a file Claude prepares): daily log, weights and check-ins. Never overwrites anything they logged in the app.
+  $('impBtn').onclick=function(){if(!cur)return;$('impFile').value='';$('impFile').click()};
+  $('impFile').onchange=function(){var f=this.files&&this.files[0],m=$('impMsg');if(!f||!cur)return;m.hidden=false;m.textContent='Reading '+f.name+'…';var rd=new FileReader();
+    rd.onload=function(){var j;try{j=JSON.parse(rd.result)}catch(e){m.textContent='That file isn\'t a tracker import file.';return}
+      if(!j||typeof j.days!=='object'){m.textContent='That file isn\'t a tracker import file.';return}
+      var nm=function(x){return String(x||'').toLowerCase().replace(/[^a-z]/g,'')};if(j.client&&nm(j.client)!==nm(cur.name)&&nm(j.client).indexOf(nm(cur.name))!==0&&nm(cur.name).indexOf(nm(j.client))!==0){m.textContent='This file is for '+j.client+', not '+cur.name+'. Open '+j.client+'\'s profile to import it.';return}
+      var nd=Object.keys(j.days).length;m.textContent='Importing '+nd+' days into '+cur.name+'\'s profile…';var id=cur.id;
+      if(preview){m.textContent='✓ Preview: would import '+nd+' days'+(j.checkins?' and '+Object.keys(j.checkins).length+' check-in(s)':'')+'.';return}
+      fetch('/portal/api/coach/import?id='+encodeURIComponent(id),{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({days:j.days,checkins:j.checkins||{}})}).then(function(r){return r.json()}).then(function(r){if(!r||!r.ok){m.textContent='Import failed. Try again.';return}m.textContent='✓ Imported '+r.days+' days'+(r.checkins?' and '+r.checkins+' check-in'+(r.checkins===1?'':'s'):'')+'. The weight trend now includes them.';setTimeout(function(){open(id);var mm=$('impMsg');if(mm){mm.hidden=false;mm.textContent='✓ Imported '+r.days+' days'+(r.checkins?' and '+r.checkins+' check-in'+(r.checkins===1?'':'s'):'')+' from the old tracker.'}},300)}).catch(function(){m.textContent='Import failed. Check your signal and try again.'})};
+    rd.readAsText(f)};
   $('delJump').onclick=function(){var d=$('pDanger');if(!d)return;d.scrollIntoView({behavior:'smooth',block:'center'});var x=d.querySelector('.danger');if(x){x.style.transition='box-shadow .3s';x.style.boxShadow='0 0 0 3px rgba(224,100,90,.8)';setTimeout(function(){x.style.boxShadow=''},1800)}};
   $('closeBtn').onclick=function(){if(location.hash.indexOf('#c=')===0)history.back();else closeP()};
   window.addEventListener('popstate',function(){if(location.hash.indexOf('#c=')!==0)closeP()});
