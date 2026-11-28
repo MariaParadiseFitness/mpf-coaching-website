@@ -142,6 +142,14 @@
       if(ov&&ov.cue)h+='<p class="lb-cue">💬 <b>Maria\'s tips:</b> '+esc(ov.cue).replace(/\n/g,'<br>')+'</p>';return h}
     function topOf(){window.scrollTo(0,Math.max(0,el.getBoundingClientRect().top+window.scrollY-70))}
     function focusEx(i){W._focus=true;W._open=i;save();drawActive();topOf()}
+    // swipe an exercise left to delete it straight away (it can be put back from "Removed by mistake?")
+    function swipeDel(nodes,attr){nodes.forEach(function(row){var x0=0,y0=0,dx=0,on=false,lock=null,swiped=false;
+      row.addEventListener('touchstart',function(ev){if(ev.target.closest('input,textarea,select,.lb-drag')||ev.touches.length>1)return;var t=ev.touches[0];x0=t.clientX;y0=t.clientY;dx=0;on=true;lock=null;row.style.transition='none'},{passive:true});
+      row.addEventListener('touchmove',function(ev){if(!on)return;var t=ev.touches[0],mx=t.clientX-x0,my=t.clientY-y0;if(lock===null&&(Math.abs(mx)>10||Math.abs(my)>10))lock=Math.abs(mx)>Math.abs(my)*1.3?'x':'y';if(lock!=='x')return;swiped=true;row.classList.add('lb-sw');dx=Math.min(0,Math.max(-180,mx));row.style.setProperty('--sw',(-dx)+'px');row.classList.toggle('lb-sw-go',dx<-100)},{passive:true});
+      var end=function(){if(!on)return;on=false;row.style.transition='transform .2s';if(lock==='x'&&dx<-100){var i=+row.getAttribute(attr),ex=W.exercises[i];if(ex){var cx=W._open!=null?W.exercises[W._open]:null;W._bin=(W._bin||[]).concat([{e:ex,i:i}]).slice(-5);W.exercises.splice(i,1);if(cx&&cx!==ex)W._open=W.exercises.indexOf(cx);else if(cx===ex){W._open=Math.min(i,W.exercises.length-1);if(W._open<0){W._open=null;W._focus=false}}save();drawActive()}return}row.style.setProperty('--sw','0px');row.classList.remove('lb-sw-go');setTimeout(function(){row.classList.remove('lb-sw');row.style.transition='';row.style.removeProperty('--sw')},220)};
+      row.addEventListener('touchend',end);row.addEventListener('touchcancel',end);
+      // a swipe isn't a tap
+      row.addEventListener('click',function(ev){if(swiped){swiped=false;ev.stopPropagation();ev.preventDefault()}},true)})}
     function binH(){var B=W._bin||[];return B.length?'<div class="lb-bin"><small>Removed by mistake? Tap to put it back</small>'+B.map(function(x,k){return '<button type="button" data-bin="'+k+'">↩ '+esc(x.e&&x.e.name||'Exercise')+'</button>'}).join('')+'</div>':''}
     function bindBin(){[].forEach.call(el.querySelectorAll('[data-bin]'),function(b){b.onclick=function(){var x=(W._bin||[]).splice(+b.getAttribute('data-bin'),1)[0];if(!x||!x.e)return;W.exercises.splice(Math.min(x.i,W.exercises.length),0,x.e);save();drawActive()}})}
     // drag an exercise by its ⠿ handle to put it in a different order
@@ -215,7 +223,7 @@
         h+=cards[fi]+all+binH()+'</div>';
         el.innerHTML=h;bindActive();bindBin();
         var dx=el.querySelector('.lb-allx');if(dx)dx.addEventListener('toggle',function(){W._allx=dx.open;save()});
-        dragSort([].slice.call(el.querySelectorAll('.lb-allx li[data-j]')),'data-j');
+        dragSort([].slice.call(el.querySelectorAll('.lb-allx li[data-j]')),'data-j');swipeDel([].slice.call(el.querySelectorAll('.lb-allx li[data-j]')),'data-j');
         [].forEach.call(el.querySelectorAll('.lb-allx [data-go]'),function(b){b.onclick=function(){var j=+b.getAttribute('data-go');if(j===fi)return;W._allx=false;focusEx(j)}});
         clock();return}
       h+=cards.join('');
@@ -226,7 +234,7 @@
       h+='<label class="pe-full">How did the session go?<textarea id="lbNotes" rows="2" placeholder="Energy, pumps, anything that felt off">'+esc(W.notes)+'</textarea></label>';
       h+='<div class="lb-foot"><button class="btn g" type="button" data-a="discard">'+(W.id?'Cancel':'Discard workout')+'</button></div></div>';
       el.innerHTML=h;bindActive();clock();
-      dragSort([].slice.call(el.querySelectorAll('.lb-ex[data-e]')),'data-e');bindBin();
+      dragSort([].slice.call(el.querySelectorAll('.lb-ex[data-e]')),'data-e');swipeDel([].slice.call(el.querySelectorAll('.lb-ex.shut[data-e]')),'data-e');bindBin();
       var ac=el.querySelector('[data-a2=addcardio]');if(ac)ac.onclick=function(){cardioSheet()};
       [].forEach.call(el.querySelectorAll('[data-ci]'),function(r){var i=+r.getAttribute('data-ci');[].forEach.call(r.querySelectorAll('[data-cf]'),function(inp){inp.oninput=function(){W.cardio[i][inp.getAttribute('data-cf')]=inp.value;save()}});r.querySelector('[data-cx=del]').onclick=function(){W.cardio.splice(i,1);save();drawActive()}});
       [].forEach.call(el.querySelectorAll('.lb-blk[data-blk]'),function(bk){var k=bk.getAttribute('data-blk');W[k]=W[k]||[];

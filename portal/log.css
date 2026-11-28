@@ -783,3 +783,9 @@ body.lb-dragon{-webkit-user-select:none;user-select:none}
 .lb-bin{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:10px 0;padding:10px 12px;border:1px dashed rgba(201,166,75,.4);border-radius:12px}
 .lb-bin small{flex:1 1 100%;font-size:12px;color:var(--mute,#8d8371)}
 .lb-bin button{background:#1a1a1a;border:1px solid rgba(201,166,75,.45);color:var(--gold-l,#e8c872);border-radius:20px;padding:7px 12px;font:inherit;font-size:12.5px;cursor:pointer}
+/* swipe an exercise left to delete it: a red Delete panel grows in from the right */
+.lb-ex[data-e],.lb-allx li[data-j]{position:relative}
+.lb-ex.shut[data-e]::after,.lb-allx li[data-j]::after{content:'🗑 Delete';position:absolute;top:0;bottom:0;right:0;width:var(--sw,0px);display:flex;align-items:center;justify-content:center;overflow:hidden;white-space:nowrap;background:#7a2a22;color:#fff;font-size:13px;font-weight:700;border-radius:0 14px 14px 0;z-index:4;opacity:0;visibility:hidden;pointer-events:none;transition:width .2s,background .15s}
+.lb-ex.shut[data-e].lb-sw::after,.lb-allx li[data-j].lb-sw::after{opacity:1;visibility:visible;transition:background .15s}
+.lb-ex.shut[data-e].lb-sw-go::after,.lb-allx li[data-j].lb-sw-go::after{background:#c0392b}
+.lb-allx li[data-j]::after{border-radius:10px;top:6px}
