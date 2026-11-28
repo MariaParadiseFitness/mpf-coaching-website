@@ -1207,6 +1207,11 @@ async function handleApi(request, env, url, ctx) {
       db.seed1126d = true;
       await putJSON(env, key, db);
     }
+    if (!db.seed1128a) {
+      db.items = [{ id: Date.now().toString(36) + "s1128", text: "Sort out people's supersets in the app (check each client's programme has the right exercises paired)", done: false, at: londonToday(), client: "", list: "", due: "", pri: "1" }, ...(db.items || [])];
+      db.seed1128a = true;
+      await putJSON(env, key, db);
+    }
     if (request.method === "POST") {
       const b = await request.json().catch(() => ({}));
       if (b.add) db.items.unshift({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 5), text: String(b.add).slice(0, 200), done: false, at: londonToday(), client: String(b.client || "").slice(0, 40), list: String(b.list || "").slice(0, 30), due: isDate(b.due) ? b.due : "", pri: ["1", "2", "3"].includes(String(b.pri)) ? String(b.pri) : "" });
