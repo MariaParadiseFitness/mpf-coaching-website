@@ -150,6 +150,17 @@
       row.addEventListener('touchend',end);row.addEventListener('touchcancel',end);
       // a swipe isn't a tap
       row.addEventListener('click',function(ev){if(swiped){swiped=false;ev.stopPropagation();ev.preventDefault()}},true)})}
+    // on the exercise screen, swipe left for the next exercise and right for the previous one
+    var swIn='';
+    function swipeNav(card){if(!card)return;if(swIn){card.classList.add(swIn);swIn=''}var x0=0,y0=0,dx=0,on=false,lock=null;
+      var skip=function(t){if(t.closest('.lb-set,input,textarea,select,video,.lb-menu,.lb-media,button.lb-drag'))return true;for(var n=t;n&&n!==card;n=n.parentElement){if(n.scrollWidth>n.clientWidth+2){var ox=getComputedStyle(n).overflowX;if(ox==='auto'||ox==='scroll')return true}}return false};
+      card.addEventListener('touchstart',function(ev){if(ev.touches.length>1||skip(ev.target)){on=false;return}var t=ev.touches[0];x0=t.clientX;y0=t.clientY;dx=0;on=true;lock=null;card.style.transition='none'},{passive:true});
+      card.addEventListener('touchmove',function(ev){if(!on)return;var t=ev.touches[0],mx=t.clientX-x0,my=t.clientY-y0;if(lock===null&&(Math.abs(mx)>12||Math.abs(my)>12))lock=Math.abs(mx)>Math.abs(my)*1.4?'x':'y';if(lock!=='x')return;var last=W._open>=W.exercises.length-1,first=W._open<=0;dx=mx;if((dx<0&&last)||(dx>0&&first))dx=dx/4;card.style.transform='translateX('+dx+'px)';card.style.opacity=String(Math.max(.55,1-Math.abs(dx)/600))},{passive:true});
+      var end=function(){if(!on)return;on=false;card.style.transition='transform .18s,opacity .18s';var i=W._open;
+        if(lock==='x'&&dx<-70&&i<W.exercises.length-1){swIn='lb-in-r';card.style.transform='translateX(-100%)';card.style.opacity='0';setTimeout(function(){focusEx(i+1)},120);return}
+        if(lock==='x'&&dx>70&&i>0){swIn='lb-in-l';card.style.transform='translateX(100%)';card.style.opacity='0';setTimeout(function(){focusEx(i-1)},120);return}
+        card.style.transform='';card.style.opacity=''};
+      card.addEventListener('touchend',end);card.addEventListener('touchcancel',end)}
     function binH(){var B=W._bin||[];return B.length?'<div class="lb-bin"><small>Removed by mistake? Tap to put it back</small>'+B.map(function(x,k){return '<button type="button" data-bin="'+k+'">↩ '+esc(x.e&&x.e.name||'Exercise')+'</button>'}).join('')+'</div>':''}
     function bindBin(){[].forEach.call(el.querySelectorAll('[data-bin]'),function(b){b.onclick=function(){var x=(W._bin||[]).splice(+b.getAttribute('data-bin'),1)[0];if(!x||!x.e)return;W.exercises.splice(Math.min(x.i,W.exercises.length),0,x.e);save();drawActive()}})}
     // drag an exercise by its ⠿ handle to put it in a different order
@@ -221,7 +232,7 @@
         h=h.replace('@@FNAV@@',fnav);
         var all='<details class="lb-allx"'+(W._allx?' open':'')+'><summary><span>📋 All exercises in this workout</span><small>'+W.exercises.filter(allDone).length+'/'+W.exercises.length+' done</small><i>›</i></summary><ol>'+W.exercises.map(function(x,j){var nd=x.sets.filter(function(s){return s.done}).length,ch=x.opts&&x.opts.length&&!x.picked;return '<li data-j="'+j+'"><button type="button" class="lb-drag" aria-label="Drag to change the order" title="Drag to change the order">⠿</button><button type="button" data-go="'+j+'" class="'+(j===fi?'cur':'')+(allDone(x)?' done':'')+'"><b>'+(x.ss?esc(x.ss)+' · ':'')+esc(ch?(x.group||x.name)+': pick one':x.name)+'</b><span>'+(j===fi?'You\'re here':allDone(x)?'✅ Done':nd+'/'+x.sets.length+' sets')+'</span></button></li>'}).join('')+'</ol></details>';
         h+=cards[fi]+all+binH()+'</div>';
-        el.innerHTML=h;bindActive();bindBin();
+        el.innerHTML=h;bindActive();bindBin();swipeNav(el.querySelector('.lb-focus .lb-ex[data-e]'));
         var dx=el.querySelector('.lb-allx');if(dx)dx.addEventListener('toggle',function(){W._allx=dx.open;save()});
         dragSort([].slice.call(el.querySelectorAll('.lb-allx li[data-j]')),'data-j');swipeDel([].slice.call(el.querySelectorAll('.lb-allx li[data-j]')),'data-j');
         [].forEach.call(el.querySelectorAll('.lb-allx [data-go]'),function(b){b.onclick=function(){var j=+b.getAttribute('data-go');if(j===fi)return;W._allx=false;focusEx(j)}});

@@ -789,3 +789,8 @@ body.lb-dragon{-webkit-user-select:none;user-select:none}
 .lb-ex.shut[data-e].lb-sw::after,.lb-allx li[data-j].lb-sw::after{opacity:1;visibility:visible;transition:background .15s}
 .lb-ex.shut[data-e].lb-sw-go::after,.lb-allx li[data-j].lb-sw-go::after{background:#c0392b}
 .lb-allx li[data-j]::after{border-radius:10px;top:6px}
+/* swipe between exercises on the exercise screen */
+@keyframes lbInR{from{transform:translateX(40%);opacity:0}to{transform:none;opacity:1}}
+@keyframes lbInL{from{transform:translateX(-40%);opacity:0}to{transform:none;opacity:1}}
+.lb-in-r{animation:lbInR .22s ease-out}.lb-in-l{animation:lbInL .22s ease-out}
+@media(prefers-reduced-motion:reduce){.lb-in-r,.lb-in-l{animation:none}}
