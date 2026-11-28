@@ -37,7 +37,8 @@
   var DEMO_LB=/[?&]demo/.test(location.search)||!!window.__mpfAs,rT=null,rLast='';
   function lbSv(t){var e=document.getElementById('lbSv');if(e)e.textContent=t}
   function lbOk(){lbSv('✓ Saved '+new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}))}
-  function rPush(v,now){if(DEMO_LB){lbOk();return}clearTimeout(rT);lbSv('Saving…');var go=function(){var s=JSON.stringify(v);if(s===rLast){lbOk();return}rLast=s;try{if(now==='beacon'&&navigator.sendBeacon){navigator.sendBeacon('/portal/api/workout-draft',new Blob([s],{type:'application/json'}));return}}catch(e){}fetch('/portal/api/workout-draft',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:s,keepalive:true}).then(function(r){if(r.ok)lbOk();else{rLast='';lbSv('✓ Saved on this phone')}}).catch(function(){rLast='';lbSv('✓ Saved on this phone, will sync when you have signal')})};if(now)go();else rT=setTimeout(go,2500)}
+  var lbBase=null;
+  function rPush(v,now){if(DEMO_LB){lbOk();return}try{v._src=(navigator.standalone||matchMedia('(display-mode: standalone)').matches)?'app':'browser'}catch(e){}clearTimeout(rT);lbSv('Saving…');var go=function(){if(lbBase==null)lbBase=v._at||0;v._base=lbBase;var s=JSON.stringify(v);if(s===rLast){lbOk();return}rLast=s;lbBase=v._at||lbBase;try{if(now==='beacon'&&navigator.sendBeacon){navigator.sendBeacon('/portal/api/workout-draft',new Blob([s],{type:'application/json'}));return}}catch(e){}fetch('/portal/api/workout-draft',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:s,keepalive:true}).then(function(r){if(r.ok){lbOk();r.json().then(function(j){if(j&&(j.stale||j.merged)&&j.w&&window.__lbAdopt)window.__lbAdopt(j.w,true)}).catch(function(){})}else{rLast='';lbSv('✓ Saved on this phone')}}).catch(function(){rLast='';lbSv('✓ Saved on this phone, will sync when you have signal')})};if(now)go();else rT=setTimeout(go,2500)}
   var store={get:function(){try{return JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){return null}},set:function(v){try{v._at=Date.now();localStorage.setItem(KEY,JSON.stringify(v))}catch(e){}rPush(v)},del:function(){try{localStorage.removeItem(KEY)}catch(e){}clearTimeout(rT);rLast='';if(!DEMO_LB)fetch('/portal/api/workout-draft',{method:'DELETE',credentials:'same-origin'}).catch(function(){})}};
   document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden'){var d=store.get();if(d&&d.exercises&&d.exercises.length)rPush(d,'beacon')}});
   window.addEventListener('pagehide',function(){var d=store.get();if(d&&d.exercises&&d.exercises.length)rPush(d,'beacon')});
@@ -141,6 +142,8 @@
       if(ov&&ov.cue)h+='<p class="lb-cue">💬 <b>Maria\'s tips:</b> '+esc(ov.cue).replace(/\n/g,'<br>')+'</p>';return h}
     function topOf(){window.scrollTo(0,Math.max(0,el.getBoundingClientRect().top+window.scrollY-70))}
     function focusEx(i){W._focus=true;W._open=i;save();drawActive();topOf()}
+    function binH(){var B=W._bin||[];return B.length?'<div class="lb-bin"><small>Removed by mistake? Tap to put it back</small>'+B.map(function(x,k){return '<button type="button" data-bin="'+k+'">↩ '+esc(x.e&&x.e.name||'Exercise')+'</button>'}).join('')+'</div>':''}
+    function bindBin(){[].forEach.call(el.querySelectorAll('[data-bin]'),function(b){b.onclick=function(){var x=(W._bin||[]).splice(+b.getAttribute('data-bin'),1)[0];if(!x||!x.e)return;W.exercises.splice(Math.min(x.i,W.exercises.length),0,x.e);save();drawActive()}})}
     // drag an exercise by its ⠿ handle to put it in a different order
     function dragSort(items,attr){items.forEach(function(it){var hd=it.querySelector('.lb-drag');if(!hd)return;hd.addEventListener('click',function(ev){ev.stopPropagation();ev.preventDefault()});
       hd.addEventListener('pointerdown',function(ev){if(ev.button>0)return;ev.preventDefault();ev.stopPropagation();var par=it.parentNode,y=ev.clientY,raf=0,moved=false;it.classList.add('lb-dragging');document.body.classList.add('lb-dragon');
@@ -209,20 +212,21 @@
         var fnav='<div class="lb-fnav lb-fnav-top">'+(fi>0?'<button type="button" class="btn g" data-a="fprev">← '+esc(W.exercises[fi-1].name)+'</button>':'<span></span>')+(nxt>-1?'<button type="button" class="btn'+(allDone(cur)?'':' g')+'" data-a="fnext">Next: '+esc(W.exercises[nxt].name)+' →</button>':'<button type="button" class="btn'+(allDone(cur)?'':' g')+'" data-a="back">All exercises</button>')+'</div>';
         h=h.replace('@@FNAV@@',fnav);
         var all='<details class="lb-allx"'+(W._allx?' open':'')+'><summary><span>📋 All exercises in this workout</span><small>'+W.exercises.filter(allDone).length+'/'+W.exercises.length+' done</small><i>›</i></summary><ol>'+W.exercises.map(function(x,j){var nd=x.sets.filter(function(s){return s.done}).length,ch=x.opts&&x.opts.length&&!x.picked;return '<li data-j="'+j+'"><button type="button" class="lb-drag" aria-label="Drag to change the order" title="Drag to change the order">⠿</button><button type="button" data-go="'+j+'" class="'+(j===fi?'cur':'')+(allDone(x)?' done':'')+'"><b>'+(x.ss?esc(x.ss)+' · ':'')+esc(ch?(x.group||x.name)+': pick one':x.name)+'</b><span>'+(j===fi?'You\'re here':allDone(x)?'✅ Done':nd+'/'+x.sets.length+' sets')+'</span></button></li>'}).join('')+'</ol></details>';
-        h+=cards[fi]+all+'</div>';
-        el.innerHTML=h;bindActive();
+        h+=cards[fi]+all+binH()+'</div>';
+        el.innerHTML=h;bindActive();bindBin();
         var dx=el.querySelector('.lb-allx');if(dx)dx.addEventListener('toggle',function(){W._allx=dx.open;save()});
         dragSort([].slice.call(el.querySelectorAll('.lb-allx li[data-j]')),'data-j');
         [].forEach.call(el.querySelectorAll('.lb-allx [data-go]'),function(b){b.onclick=function(){var j=+b.getAttribute('data-go');if(j===fi)return;W._allx=false;focusEx(j)}});
         clock();return}
       h+=cards.join('');
+      h+=binH();
       h+='<button type="button" class="lb-addbig" data-a="addex">＋ Add exercise</button>';
       h+='<div class="lb-blk lb-cardio"><div class="lb-blk-h"><b>🏃 Cardio</b><small>Any cardio you did today. It counts towards your cardio target.</small></div>'+(W.cardio||[]).map(function(c,i){return '<div class="lb-cr" data-ci="'+i+'"><div class="lb-cr-h"><b>'+esc(c.type)+'</b><button type="button" class="lb-bx" data-cx="del" aria-label="Remove">✕</button></div><div class="lb-cr-g"><label>Minutes<input data-cf="mins" inputmode="numeric" value="'+esc(c.mins||'')+'" placeholder="30"></label><label>Avg heart rate<input data-cf="hr" inputmode="numeric" value="'+esc(c.hr||'')+'" placeholder="BPM"></label><label>Distance<input data-cf="km" inputmode="decimal" value="'+esc(c.km||'')+'" placeholder="km"></label><label>Level / incline<input data-cf="lvl" value="'+esc(c.lvl||'')+'" placeholder="e.g. 12% 5kph"></label></div></div>'}).join('')+'<button type="button" class="lb-add" data-a2="addcardio">＋ Add cardio</button></div>';
       h+=blockH('post','🧘 Stretching & cool-down','Anything you did after your workout. Optional.',POST,W.post);
       h+='<label class="pe-full">How did the session go?<textarea id="lbNotes" rows="2" placeholder="Energy, pumps, anything that felt off">'+esc(W.notes)+'</textarea></label>';
       h+='<div class="lb-foot"><button class="btn g" type="button" data-a="discard">'+(W.id?'Cancel':'Discard workout')+'</button></div></div>';
       el.innerHTML=h;bindActive();clock();
-      dragSort([].slice.call(el.querySelectorAll('.lb-ex[data-e]')),'data-e');
+      dragSort([].slice.call(el.querySelectorAll('.lb-ex[data-e]')),'data-e');bindBin();
       var ac=el.querySelector('[data-a2=addcardio]');if(ac)ac.onclick=function(){cardioSheet()};
       [].forEach.call(el.querySelectorAll('[data-ci]'),function(r){var i=+r.getAttribute('data-ci');[].forEach.call(r.querySelectorAll('[data-cf]'),function(inp){inp.oninput=function(){W.cardio[i][inp.getAttribute('data-cf')]=inp.value;save()}});r.querySelector('[data-cx=del]').onclick=function(){W.cardio.splice(i,1);save();drawActive()}});
       [].forEach.call(el.querySelectorAll('.lb-blk[data-blk]'),function(bk){var k=bk.getAttribute('data-blk');W[k]=W[k]||[];
@@ -263,7 +267,7 @@
         if(x==='down'&&i<W.exercises.length-1){W.exercises.splice(i+1,0,W.exercises.splice(i,1)[0]);save();drawActive();return}
         if(x==='note'){var t=b.closest('.lb-ex').querySelector('.lb-note');t.hidden=false;t.focus();b.closest('.lb-menu').hidden=true;return}
         if(x==='rest'){mpfInput('Rest between sets, in seconds:',String(e.rest||90),function(r){if(r&&+r>0){e.rest=Math.min(900,Math.round(+r));save();drawActive()}},{type:'number'});return}
-        if(x==='remove'){mpfAsk('Remove '+e.name+' from this workout?',{yes:'Remove',red:true},function(){W.exercises.splice(i,1);save();drawActive()});return}
+        if(x==='remove'){mpfAsk('Remove '+e.name+' from this workout?',{yes:'Remove',red:true},function(){W._bin=(W._bin||[]).concat([{e:W.exercises[i],i:i}]).slice(-5);W.exercises.splice(i,1);save();drawActive()});return}
       }});
       act('addex',function(){pickEx()});
       act('discard',function(){var go=function(){W=null;store.del();stopRest();show('home')};if(!W.id&&nSets(W.exercises))mpfAsk('Throw this workout away? Nothing will be saved.',{yes:'Discard',red:true},go);else go()});
@@ -357,11 +361,16 @@
         out.innerHTML='<p class="lb-sub">Best set: <b>'+esc(best.s.kg)+'kg × '+esc(best.s.reps)+'</b> on '+nice(best.d,{day:'numeric',month:'short'})+' · done '+pts.length+' times</p><div class="lb-trend">'+pts.slice(-12).map(function(p){return '<div><small>'+nice(p.d,{day:'numeric',month:'short'})+'</small><b>'+esc((p.s.kg?p.s.kg+'kg':'')+(p.s.kg&&p.s.reps?' × ':'')+(p.s.reps||''))+'</b></div>'}).join('')+'</div>'}
     }
 
-    var d0=store.get();if(d0&&d0.exercises&&o.resume!==false){W=d0;view='active'}
+    var d0=store.get();if(d0&&d0.exercises&&o.resume!==false){W=d0;view='active';if(d0._at)lbBase=d0._at}
     load();
     // no workout on this phone? check for one backed up from another session (closed screen, other device, phone glitch)
-    if(!DEMO_LB&&o.resume!==false)fetch('/portal/api/workout-draft',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){var rw=j&&j.w;if(!rw||!rw.exercises||!rw.exercises.length)return;var lw=store.get();if(lw&&lw.exercises&&(lw._at||0)>=(rw._at||0))return;try{localStorage.setItem(KEY,JSON.stringify(rw))}catch(e){}W=rw;if(sessions)show('active');else view='active';if(o.onResume)o.onResume()}).catch(function(){});
+    if(!DEMO_LB&&o.resume!==false)fetch('/portal/api/workout-draft',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){var rw=j&&j.w;if(!rw||!rw.exercises||!rw.exercises.length)return;var lw=store.get();if(lw&&lw.exercises&&(lw._at||0)>=(rw._at||0))return;try{localStorage.setItem(KEY,JSON.stringify(rw))}catch(e){}lbBase=rw._at||lbBase;W=rw;if(sessions)show('active');else view='active';if(o.onResume)o.onResume()}).catch(function(){});
     if(W&&o.onResume)setTimeout(o.onResume,0);
+    // a newer copy of this workout from somewhere else (the home-screen app vs the browser, another phone) always wins over an older one still open here
+    function adopt(rw,force){if(!rw||!rw.exercises||!rw.exercises.length)return;var cw=W||store.get();if(!force&&cw&&(cw._at||0)>=(rw._at||0))return;delete rw._base;try{localStorage.setItem(KEY,JSON.stringify(rw))}catch(e){}lbBase=rw._at||lbBase;rLast='';var fo=W&&W._focus,op=W&&W._open;W=rw;if(fo!=null){W._focus=fo;if(op!=null&&op<W.exercises.length)W._open=op}if(view==='active'&&sessions)drawActive();else if(sessions)show('active');else view='active'}
+    if(!demo&&!DEMO_LB){window.__lbAdopt=adopt;var pull=function(){fetch('/portal/api/workout-draft',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).then(function(j){adopt(j&&j.w)}).catch(function(){})};
+      document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')pull()});window.addEventListener('pageshow',function(ev){if(ev.persisted)pull()});
+      window.addEventListener('storage',function(ev){if(ev.key===KEY){var d=store.get();if(d)adopt(d)}})}
     return {show:function(v){if(sessions)show(v)},start:function(i){if(curProg&&curProg.workouts[i])startFrom(curProg,curProg.workouts[i])},view:function(){return view}};
   }
   window.MPFLogbook={Mount:Mount};

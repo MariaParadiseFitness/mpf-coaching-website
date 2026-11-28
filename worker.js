@@ -830,7 +830,29 @@ async function handleApi(request, env, url, ctx) {
     if (!client) return json({ error: "unknown" }, 403);
     const key = `${dkey(client.id)}/workout-draft.json`;
     if (request.method === "DELETE") { await env.PHOTOS.delete(key); return json({ ok: true }); }
-    if (request.method === "POST") { const raw = await request.text(); if (raw.length > 120000) return json({ error: "too big" }, 413); let d = null; try { d = JSON.parse(raw); } catch (e) {} if (!d || !Array.isArray(d.exercises)) return json({ error: "bad" }, 400); await putJSON(env, key, { w: d, at: new Date().toISOString() }); return json({ ok: true }); }
+    if (request.method === "POST") { const raw = await request.text(); if (raw.length > 120000) return json({ error: "too big" }, 413); let d = null; try { d = JSON.parse(raw); } catch (e) {} if (!d || !Array.isArray(d.exercises)) return json({ error: "bad" }, 400);
+      const old = await getJSON(env, key, null), ow = old && old.w;
+      // never let an older copy (e.g. the app left open in the background, or a second copy in the browser) overwrite a newer one
+      const same = ow && Array.isArray(ow.exercises) && (ow.start === d.start || !d.start);
+      if (same && d._base != null && (+ow._at || 0) > (+d._base || 0)) {
+        // this copy of the app was out of date (e.g. left open in the background while the workout carried on in another copy): merge, never lose either side
+        const m = mergeDrafts(ow, d);
+        await putJSON(env, key, { w: m, at: new Date().toISOString() });
+        const lkey = `${dkey(client.id)}/workout-draft-log.json`, log = await getJSON(env, lkey, []);
+        log.push({ at: new Date().toISOString(), src: String(d._src || "").slice(0, 20), merged: true, removed: [], added: [], names: m.exercises.map((e) => e.name).slice(0, 40), workout: String(m.workout || "").slice(0, 80) });
+        await putJSON(env, lkey, log.slice(-80));
+        return json({ ok: true, merged: true, w: m });
+      }
+      if (same && d._base == null && (+ow._at || 0) > (+d._at || 0)) return json({ ok: true, stale: true, w: ow });
+      const nm = (w) => (w && Array.isArray(w.exercises) ? w.exercises.map((e) => String((e && e.name) || "")) : []);
+      const a0 = nm(ow), a1 = nm(d);
+      if (ow && a0.join("|") !== a1.join("|")) {
+        const lkey = `${dkey(client.id)}/workout-draft-log.json`, log = await getJSON(env, lkey, []);
+        const rm = a0.filter((n) => !a1.includes(n)), ad = a1.filter((n) => !a0.includes(n));
+        log.push({ at: new Date().toISOString(), src: String(d._src || "").slice(0, 20), removed: rm.slice(0, 10), added: ad.slice(0, 10), moved: !rm.length && !ad.length, names: a1.slice(0, 40), workout: String(d.workout || "").slice(0, 80) });
+        await putJSON(env, lkey, log.slice(-80));
+      }
+      await putJSON(env, key, { w: d, at: new Date().toISOString() }); return json({ ok: true }); }
     return json(await getJSON(env, key, null) || {});
   }
   if (path === "/portal/api/workouts" && request.method === "GET") {
@@ -1625,6 +1647,15 @@ async function handleApi(request, env, url, ctx) {
     if (!c) return json({ error: "unknown" }, 404);
     return json({ sessions: await readWorkouts(env, c.id, 400) });
   }
+  if (path === "/portal/api/coach/workout-draft" && request.method === "GET") {
+    // the workout a client has in progress right now, plus a log of exercises added / removed / moved
+    if (!coach) return json({ error: "forbidden" }, 403);
+    const id = (url.searchParams.get("id") || "").toLowerCase();
+    const c = Object.values(r).find((x) => x.id === id);
+    if (!c) return json({ error: "unknown" }, 404);
+    const d = await getJSON(env, `${dkey(c.id)}/workout-draft.json`, null);
+    return json({ draft: d && d.w ? d.w : null, at: d ? d.at : null, log: (await getJSON(env, `${dkey(c.id)}/workout-draft-log.json`, [])).slice(-30).reverse() });
+  }
   if (path === "/portal/api/coach/programme-versions" && request.method === "GET") {
     // earlier saved versions of a client's programmes (or the templates), newest first, so a lost exercise or workout can be restored
     if (!coach) return json({ error: "forbidden" }, 403);
@@ -1675,6 +1706,28 @@ async function handleApi(request, env, url, ctx) {
   }
 
   return json({ error: "not found" }, 404);
+}
+
+// Two copies of the same workout in progress (server's newer one + an out-of-date copy that just saved): keep everything from both.
+function mergeDrafts(sv, lc) {
+  const k = (e) => String((e && e.name) || "").trim().toLowerCase();
+  const filled = (x) => !!(x && (x.done || String(x.kg || "") !== "" || String(x.reps || "") !== "" || x.ht));
+  const binNames = new Set([...(sv._bin || []), ...(lc._bin || [])].map((b) => k(b && b.e)));
+  const lmap = new Map((lc.exercises || []).map((e) => [k(e), e]));
+  const out = (sv.exercises || []).filter((e) => !(binNames.has(k(e)) && !lmap.has(k(e)) && (lc._bin || []).some((b) => k(b && b.e) === k(e)))).map((e) => {
+    const l = lmap.get(k(e));
+    if (!l) return e;
+    const n = Math.max((e.sets || []).length, (l.sets || []).length), sets = [];
+    for (let i = 0; i < n; i++) { const a = (e.sets || [])[i], b = (l.sets || [])[i]; sets.push(filled(b) ? b : (a || b)); }
+    return { ...e, ...l, sets };
+  });
+  const have = new Set(out.map(k));
+  (lc.exercises || []).forEach((e, i) => {
+    if (have.has(k(e)) || (sv._bin || []).some((b) => k(b && b.e) === k(e))) return;
+    out.splice(Math.min(i, out.length), 0, e); have.add(k(e));
+  });
+  const bin = [...(sv._bin || []), ...(lc._bin || [])].filter((b, i, A) => A.findIndex((x) => k(x && x.e) === k(b && b.e)) === i && !have.has(k(b && b.e))).slice(-5);
+  return { ...sv, ...lc, exercises: out, _bin: bin, _at: Math.max(+sv._at || 0, +lc._at || 0, Date.now()), _base: undefined };
 }
 
 // ---- email Maria when a new client sends their onboarding form (Cloudflare Email Routing send_email binding) ----
