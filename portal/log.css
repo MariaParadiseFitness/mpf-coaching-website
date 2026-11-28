@@ -657,9 +657,9 @@ button.lb-pkt span{color:var(--mute);font-size:12px;font-weight:600}
 /* exercise cards open and close: tap one to log it */
 .lb-ex.shut>:not(.lb-eh){display:none!important}
 .lb-ex.shut{padding-bottom:12px}.lb-ex.shut .lb-eh{margin-bottom:0}
-.lb-ex.alldone.shut{border-color:rgba(76,175,80,.45)}
+.lb-ex.lb-alldone.shut{border-color:rgba(76,175,80,.45)}
 .lb-tog{display:inline-flex;align-items:center;gap:6px;flex:none;background:#1a1a1a;border:1px solid var(--line,#2a2a2a);color:var(--soft,#cfc8b8);border-radius:20px;padding:6px 10px;font:inherit;font-size:12px;font-weight:700;cursor:pointer;margin-left:auto;white-space:nowrap}
-.lb-tog i{font-style:normal;color:var(--gold-l,#e8c872)}.lb-ex.alldone .lb-tog{color:#8fd694}
+.lb-tog i{font-style:normal;color:var(--gold-l,#e8c872)}.lb-ex.lb-alldone .lb-tog{color:#8fd694}
 .lb-eh{align-items:center;gap:8px}
 
 /* swipe a set left to delete */
