@@ -1625,6 +1625,23 @@ async function handleApi(request, env, url, ctx) {
     if (!c) return json({ error: "unknown" }, 404);
     return json({ sessions: await readWorkouts(env, c.id, 400) });
   }
+  if (path === "/portal/api/coach/programme-versions" && request.method === "GET") {
+    // earlier saved versions of a client's programmes (or the templates), newest first, so a lost exercise or workout can be restored
+    if (!coach) return json({ error: "forbidden" }, 403);
+    let prefix;
+    if (url.searchParams.get("tpl")) prefix = `${dkey("_templates")}/backup/`;
+    else {
+      const id = (url.searchParams.get("id") || "").toLowerCase();
+      const c = Object.values(r).find((x) => x.id === id);
+      if (!c) return json({ error: "unknown" }, 404);
+      prefix = `${dkey(c.id)}/programmes-backup/`;
+    }
+    const keys = []; let cursor;
+    do { const page = await env.PHOTOS.list({ prefix, cursor }); for (const o of page.objects) keys.push(o.key); cursor = page.truncated ? page.cursor : null; } while (cursor && keys.length < 2000);
+    const ts = keys.map((k) => +k.slice(prefix.length).replace(/\.json$/, "")).filter((n) => n > 0).sort((a, b) => b - a).slice(0, 30);
+    const versions = (await Promise.all(ts.map(async (t) => ({ ts: t, doc: await getJSON(env, `${prefix}${t}.json`, null) })))).filter((v) => v.doc && Array.isArray(v.doc.programmes));
+    return json({ versions });
+  }
   if (path === "/portal/api/coach/templates") {
     if (!coach) return json({ error: "forbidden" }, 403);
     const key = `${dkey("_templates")}/programmes.json`;
